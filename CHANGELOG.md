@@ -4,6 +4,9 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
+- Enhancement: Introduced flag `--show-inputs-only` to show the inputs of the command
+that would be used if a command were executed.
+- Enhancement: Added dark theme to web help that is automatically used when system-wide dark mode is enabled.
 - BugFix: Fixed ProfileInfo API `argTeamConfigLoc` not recognizing secure fields in multi-layer operations. [#800](https://github.com/zowe/imperative/pull/800)
 - BugFix: Fixed ProfileInfo API `updateKnownProperty` possibly storing information in the wrong location due to optional osLoc information. [#800](https://github.com/zowe/imperative/pull/800)
 

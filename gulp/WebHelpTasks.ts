@@ -13,28 +13,29 @@ import * as gulp from "gulp";
 
 const bundleJsFiles = [
     // JQuery must come before Bootstrap
-    "../node_modules/jquery/dist/jquery.min.js",
-    "../node_modules/bootstrap/dist/js/bootstrap.min.js",
-    "../node_modules/jstree/dist/jstree.min.js",
-    "../node_modules/scroll-into-view-if-needed/umd/scroll-into-view-if-needed.min.js",
-    "../node_modules/split.js/dist/split.min.js",
-    "../node_modules/url-search-params-polyfill/index.js"
+    "jquery/dist/jquery.min.js",
+    "bootstrap/dist/js/bootstrap.min.js",
+    "jstree/dist/jstree.min.js",
+    "scroll-into-view-if-needed/umd/scroll-into-view-if-needed.min.js",
+    "split.js/dist/split.min.js",
+    "url-search-params-polyfill/index.js"
 ];
 const bundleCssFiles = [
     // JSTree must come before Bootstrap
-    "../node_modules/jstree/dist/themes/default/style.min.css",
-    "../node_modules/bootstrap/dist/css/bootstrap.min.css"
+    "jstree/dist/themes/default/style.min.css",
+    "jstree/dist/themes/default-dark/style.min.css",
+    "bootstrap/dist/css/bootstrap.min.css"
 ];
 const bundleDocsJsFiles = [
-    "../node_modules/clipboard/dist/clipboard.min.js"
+    "clipboard/dist/clipboard.min.js"
 ];
 const bundleDocsCssFiles = [
-    "../node_modules/balloon-css/balloon.min.css",
-    "../node_modules/github-markdown-css/github-markdown.css"
+    "balloon-css/balloon.min.css",
+    "github-markdown-css/github-markdown.css"
 ];
 
 const genBundleJs = () => {
-    return gulp.src(bundleJsFiles.map(relPath => __dirname + "/" + relPath))
+    return gulp.src(bundleJsFiles.map(path => require.resolve(path)))
         .pipe(require("gulp-concat")("bundle.js"))
         .pipe(gulp.dest(__dirname + "/../web-help/dist/js"));
 };
@@ -43,7 +44,7 @@ genBundleJs.displayName = "generate bundle.js";
 const genBundleCss = () => {
     // Bundle JSTree images inline in the CSS
     const postcssUrl = require("postcss-url")({ url: "inline" });
-    return gulp.src(bundleCssFiles.map(relPath => __dirname + "/" + relPath))
+    return gulp.src(bundleCssFiles.map(path => require.resolve(path)))
         .pipe(require("gulp-postcss")([postcssUrl]))
         .pipe(require("gulp-concat")("bundle.css"))
         .pipe(gulp.dest(__dirname + "/../web-help/dist/css"));
@@ -51,14 +52,14 @@ const genBundleCss = () => {
 genBundleCss.displayName = "generate bundle.css";
 
 const genBundleDocsJs = () => {
-    return gulp.src(bundleDocsJsFiles.map(relPath => __dirname + "/" + relPath))
+    return gulp.src(bundleDocsJsFiles.map(path => require.resolve(path)))
         .pipe(require("gulp-concat")("bundle-docs.js"))
         .pipe(gulp.dest(__dirname + "/../web-help/dist/js"));
 };
 genBundleDocsJs.displayName = "generate bundle-docs.js";
 
 const genBundleDocsCss = () => {
-    return gulp.src(bundleDocsCssFiles.map(relPath => __dirname + "/" + relPath))
+    return gulp.src(bundleDocsCssFiles.map(path => require.resolve(path)))
         .pipe(require("gulp-concat")("bundle-docs.css"))
         .pipe(gulp.dest(__dirname + "/../web-help/dist/css"));
 };

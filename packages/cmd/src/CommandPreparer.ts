@@ -65,6 +65,12 @@ export class CommandPreparer {
         CommandPreparer.populatePassOnValueFromParent(copy);
 
         /**
+         * Add global options that should be passed down.  We cannot use `appendAutoOptions` because `passOn`
+         * logic is done before these function is called.
+         */
+        CommandPreparer.appendPassOnOptions(copy);
+
+        /**
          * Pass on/down any attributes/traits from parents to children (as required)
          */
         CommandPreparer.passOn(copy);
@@ -88,6 +94,7 @@ export class CommandPreparer {
                 }
             }
         }
+
         const prepared: ICommandDefinition = CommandPreparer.appendAutoOptions(copy, baseProfileOptions);
 
         /**
@@ -406,6 +413,30 @@ export class CommandPreparer {
                 CommandPreparer.setDefaultValues(child);
             }
         }
+    }
+
+    /**
+     * Appends items which should be passed on to later nodes
+     * @param definition - The original command definition tree to "prepare"
+     */
+    private static appendPassOnOptions(definition: ICommandDefinition) {
+
+        // add show-inputs-only to all "command" nodes
+        definition.passOn.push({
+            property: "options",
+            value: {
+                name: "show-inputs-only",
+                group: Constants.GLOBAL_GROUP,
+                description: "Show command inputs and do not run the command",
+                type: "boolean",
+            },
+            ignoreNodes: [
+                {
+                    type: "group",
+                }
+            ],
+            merge: true
+        });
     }
 
     /**

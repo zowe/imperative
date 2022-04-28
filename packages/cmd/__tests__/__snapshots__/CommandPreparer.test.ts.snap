@@ -88,7 +88,23 @@ string: Formats output data as a string. JSON objects/arrays are stringified.",
     },
   ],
   "outputFormatOptions": true,
-  "passOn": Array [],
+  "passOn": Array [
+    Object {
+      "ignoreNodes": Array [
+        Object {
+          "type": "group",
+        },
+      ],
+      "merge": true,
+      "property": "options",
+      "value": Object {
+        "description": "Show command inputs and do not run the command",
+        "group": "Global options",
+        "name": "show-inputs-only",
+        "type": "boolean",
+      },
+    },
+  ],
   "positionals": Array [],
   "type": "command",
 }
@@ -166,7 +182,23 @@ Object {
       "type": "string",
     },
   ],
-  "passOn": Array [],
+  "passOn": Array [
+    Object {
+      "ignoreNodes": Array [
+        Object {
+          "type": "group",
+        },
+      ],
+      "merge": true,
+      "property": "options",
+      "value": Object {
+        "description": "Show command inputs and do not run the command",
+        "group": "Global options",
+        "name": "show-inputs-only",
+        "type": "boolean",
+      },
+    },
+  ],
   "positionals": Array [],
   "profile": Object {
     "optional": Array [
@@ -237,7 +269,23 @@ Object {
       "type": "string",
     },
   ],
-  "passOn": Array [],
+  "passOn": Array [
+    Object {
+      "ignoreNodes": Array [
+        Object {
+          "type": "group",
+        },
+      ],
+      "merge": true,
+      "property": "options",
+      "value": Object {
+        "description": "Show command inputs and do not run the command",
+        "group": "Global options",
+        "name": "show-inputs-only",
+        "type": "boolean",
+      },
+    },
+  ],
   "positionals": Array [],
   "profile": Object {
     "optional": Array [
@@ -326,7 +374,23 @@ Object {
       "type": "number",
     },
   ],
-  "passOn": Array [],
+  "passOn": Array [
+    Object {
+      "ignoreNodes": Array [
+        Object {
+          "type": "group",
+        },
+      ],
+      "merge": true,
+      "property": "options",
+      "value": Object {
+        "description": "Show command inputs and do not run the command",
+        "group": "Global options",
+        "name": "show-inputs-only",
+        "type": "boolean",
+      },
+    },
+  ],
   "positionals": Array [],
   "profile": Object {
     "optional": Array [
@@ -363,6 +427,13 @@ Object {
               "description": "the boolean option",
               "group": "Options",
               "name": "test-boolean",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
               "type": "boolean",
             },
             Object {
@@ -431,6 +502,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "rfj",
               ],
@@ -494,6 +572,13 @@ Object {
               "description": "the boolean option",
               "group": "Options",
               "name": "test-boolean",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
               "type": "boolean",
             },
             Object {
@@ -643,7 +728,23 @@ Object {
       "type": "boolean",
     },
   ],
-  "passOn": Array [],
+  "passOn": Array [
+    Object {
+      "ignoreNodes": Array [
+        Object {
+          "type": "group",
+        },
+      ],
+      "merge": true,
+      "property": "options",
+      "value": Object {
+        "description": "Show command inputs and do not run the command",
+        "group": "Global options",
+        "name": "show-inputs-only",
+        "type": "boolean",
+      },
+    },
+  ],
   "positionals": Array [],
   "type": "group",
 }
@@ -674,6 +775,13 @@ Object {
               "description": "the boolean option",
               "group": "Options",
               "name": "test-boolean",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
               "type": "boolean",
             },
             Object {
@@ -742,6 +850,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "rfj",
               ],
@@ -805,6 +920,13 @@ Object {
               "description": "the boolean option",
               "group": "Options",
               "name": "test-boolean",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
               "type": "boolean",
             },
             Object {
@@ -972,6 +1094,21 @@ Object {
         ],
       },
     },
+    Object {
+      "ignoreNodes": Array [
+        Object {
+          "type": "group",
+        },
+      ],
+      "merge": true,
+      "property": "options",
+      "value": Object {
+        "description": "Show command inputs and do not run the command",
+        "group": "Global options",
+        "name": "show-inputs-only",
+        "type": "boolean",
+      },
+    },
   ],
   "positionals": Array [],
   "type": "group",
@@ -1004,6 +1141,13 @@ Object {
               "description": "the boolean option",
               "group": "Options",
               "name": "test-boolean",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
               "type": "boolean",
             },
             Object {
@@ -1082,6 +1226,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "rfj",
               ],
@@ -1154,6 +1305,13 @@ Object {
               "description": "the boolean option",
               "group": "Options",
               "name": "test-boolean",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
               "type": "boolean",
             },
             Object {
@@ -1328,6 +1486,21 @@ Object {
       "property": "enableStdin",
       "value": true,
     },
+    Object {
+      "ignoreNodes": Array [
+        Object {
+          "type": "group",
+        },
+      ],
+      "merge": true,
+      "property": "options",
+      "value": Object {
+        "description": "Show command inputs and do not run the command",
+        "group": "Global options",
+        "name": "show-inputs-only",
+        "type": "boolean",
+      },
+    },
   ],
   "positionals": Array [],
   "type": "group",
@@ -1359,6 +1532,13 @@ Object {
               "description": "the boolean option",
               "group": "Options",
               "name": "test-boolean",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
               "type": "boolean",
             },
             Object {
@@ -1441,6 +1621,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "rfj",
               ],
@@ -1518,6 +1705,13 @@ Object {
               "description": "the boolean option",
               "group": "Options",
               "name": "test-boolean",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
               "type": "boolean",
             },
             Object {
@@ -1689,6 +1883,21 @@ Object {
         "required": Array [
           "banana",
         ],
+      },
+    },
+    Object {
+      "ignoreNodes": Array [
+        Object {
+          "type": "group",
+        },
+      ],
+      "merge": true,
+      "property": "options",
+      "value": Object {
+        "description": "Show command inputs and do not run the command",
+        "group": "Global options",
+        "name": "show-inputs-only",
+        "type": "boolean",
       },
     },
   ],
@@ -1725,6 +1934,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "rfj",
               ],
@@ -1801,6 +2017,13 @@ Object {
               "description": "the boolean option",
               "group": "Options",
               "name": "test-boolean",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
               "type": "boolean",
             },
             Object {
@@ -1881,6 +2104,13 @@ Object {
               "description": "the boolean option",
               "group": "Options",
               "name": "test-boolean",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
               "type": "boolean",
             },
             Object {
@@ -2045,6 +2275,21 @@ Object {
         ],
       },
     },
+    Object {
+      "ignoreNodes": Array [
+        Object {
+          "type": "group",
+        },
+      ],
+      "merge": true,
+      "property": "options",
+      "value": Object {
+        "description": "Show command inputs and do not run the command",
+        "group": "Global options",
+        "name": "show-inputs-only",
+        "type": "boolean",
+      },
+    },
   ],
   "positionals": Array [],
   "type": "group",
@@ -2076,6 +2321,13 @@ Object {
               "description": "the boolean option",
               "group": "Options",
               "name": "test-boolean",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
               "type": "boolean",
             },
             Object {
@@ -2158,6 +2410,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "rfj",
               ],
@@ -2235,6 +2494,13 @@ Object {
               "description": "the boolean option",
               "group": "Options",
               "name": "test-boolean",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
               "type": "boolean",
             },
             Object {
@@ -2412,6 +2678,21 @@ Object {
         "required": Array [
           "banana",
         ],
+      },
+    },
+    Object {
+      "ignoreNodes": Array [
+        Object {
+          "type": "group",
+        },
+      ],
+      "merge": true,
+      "property": "options",
+      "value": Object {
+        "description": "Show command inputs and do not run the command",
+        "group": "Global options",
+        "name": "show-inputs-only",
+        "type": "boolean",
       },
     },
   ],
@@ -2455,6 +2736,13 @@ Object {
               "type": "string",
             },
             Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "rfj",
               ],
@@ -2525,6 +2813,13 @@ Object {
               "group": "Options",
               "name": "new-option",
               "type": "string",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
+              "type": "boolean",
             },
             Object {
               "aliases": Array [
@@ -2598,6 +2893,13 @@ Object {
               "group": "Options",
               "name": "new-option",
               "type": "string",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
+              "type": "boolean",
             },
             Object {
               "aliases": Array [
@@ -2766,6 +3068,21 @@ Object {
         },
       ],
     },
+    Object {
+      "ignoreNodes": Array [
+        Object {
+          "type": "group",
+        },
+      ],
+      "merge": true,
+      "property": "options",
+      "value": Object {
+        "description": "Show command inputs and do not run the command",
+        "group": "Global options",
+        "name": "show-inputs-only",
+        "type": "boolean",
+      },
+    },
   ],
   "positionals": Array [],
   "type": "group",
@@ -2805,6 +3122,13 @@ Object {
               "group": "Options",
               "name": "new-option",
               "type": "string",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
+              "type": "boolean",
             },
             Object {
               "aliases": Array [
@@ -2879,6 +3203,13 @@ Object {
               "type": "string",
             },
             Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "rfj",
               ],
@@ -2950,6 +3281,13 @@ Object {
               "group": "Options",
               "name": "new-option",
               "type": "string",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
+              "type": "boolean",
             },
             Object {
               "aliases": Array [
@@ -3116,6 +3454,21 @@ Object {
         },
       ],
     },
+    Object {
+      "ignoreNodes": Array [
+        Object {
+          "type": "group",
+        },
+      ],
+      "merge": true,
+      "property": "options",
+      "value": Object {
+        "description": "Show command inputs and do not run the command",
+        "group": "Global options",
+        "name": "show-inputs-only",
+        "type": "boolean",
+      },
+    },
   ],
   "positionals": Array [],
   "type": "group",
@@ -3155,6 +3508,13 @@ Object {
               "group": "Options",
               "name": "outer-group-option",
               "type": "string",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
+              "type": "boolean",
             },
             Object {
               "aliases": Array [
@@ -3229,6 +3589,13 @@ Object {
               "type": "string",
             },
             Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "rfj",
               ],
@@ -3300,6 +3667,13 @@ Object {
               "group": "Options",
               "name": "outer-group-option",
               "type": "string",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
+              "type": "boolean",
             },
             Object {
               "aliases": Array [
@@ -3468,6 +3842,21 @@ Object {
         },
       ],
     },
+    Object {
+      "ignoreNodes": Array [
+        Object {
+          "type": "group",
+        },
+      ],
+      "merge": true,
+      "property": "options",
+      "value": Object {
+        "description": "Show command inputs and do not run the command",
+        "group": "Global options",
+        "name": "show-inputs-only",
+        "type": "boolean",
+      },
+    },
   ],
   "positionals": Array [],
   "type": "group",
@@ -3499,6 +3888,13 @@ Object {
               "description": "the boolean option",
               "group": "Options",
               "name": "test-boolean",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
               "type": "boolean",
             },
             Object {
@@ -3581,6 +3977,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "rfj",
               ],
@@ -3658,6 +4061,13 @@ Object {
               "description": "the boolean option",
               "group": "Options",
               "name": "test-boolean",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Show command inputs and do not run the command",
+              "group": "Global options",
+              "name": "show-inputs-only",
               "type": "boolean",
             },
             Object {
@@ -3834,6 +4244,21 @@ Object {
         "required": Array [
           "banana",
         ],
+      },
+    },
+    Object {
+      "ignoreNodes": Array [
+        Object {
+          "type": "group",
+        },
+      ],
+      "merge": true,
+      "property": "options",
+      "value": Object {
+        "description": "Show command inputs and do not run the command",
+        "group": "Global options",
+        "name": "show-inputs-only",
+        "type": "boolean",
       },
     },
   ],
@@ -3902,7 +4327,23 @@ Object {
       "type": "string",
     },
   ],
-  "passOn": Array [],
+  "passOn": Array [
+    Object {
+      "ignoreNodes": Array [
+        Object {
+          "type": "group",
+        },
+      ],
+      "merge": true,
+      "property": "options",
+      "value": Object {
+        "description": "Show command inputs and do not run the command",
+        "group": "Global options",
+        "name": "show-inputs-only",
+        "type": "boolean",
+      },
+    },
+  ],
   "positionals": Array [],
   "profile": Object {
     "optional": Array [
@@ -3927,6 +4368,13 @@ Object {
       "experimental": true,
       "name": "test-command",
       "options": Array [
+        Object {
+          "aliases": Array [],
+          "description": "Show command inputs and do not run the command",
+          "group": "Global options",
+          "name": "show-inputs-only",
+          "type": "boolean",
+        },
         Object {
           "aliases": Array [
             "rfj",
@@ -4020,7 +4468,23 @@ Object {
       "type": "boolean",
     },
   ],
-  "passOn": Array [],
+  "passOn": Array [
+    Object {
+      "ignoreNodes": Array [
+        Object {
+          "type": "group",
+        },
+      ],
+      "merge": true,
+      "property": "options",
+      "value": Object {
+        "description": "Show command inputs and do not run the command",
+        "group": "Global options",
+        "name": "show-inputs-only",
+        "type": "boolean",
+      },
+    },
+  ],
   "positionals": Array [],
   "type": "group",
 }
