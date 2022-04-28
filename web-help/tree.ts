@@ -51,6 +51,17 @@ function flattenNodes(nestedNodes: ITreeNode[]): ITreeNode[] {
 }
 
 /**
+ * Get the preferred theme name for JSTree (light or dark).
+ * @returns Theme name
+ */
+function getJstreeThemeName(): string {
+    if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        return "default-dark";
+    }
+    return "default";
+}
+
+/**
  * Find all possible combinations of a search string that exist with different aliases
  * @param searchStr - Search string input by user
  * @returns NUL-delimited list of search strings with all combinations of aliases
@@ -254,7 +265,8 @@ function onDocsPageChanged(e: any) {
 function loadTree() {
     // Set header and footer strings
     $("#header-text").text(headerStr);
-    $("#footer").text(footerStr);
+    const [footerText, footerTitle] = footerStr.split("\n", 2);
+    $("#footer").text(footerText).attr("title", footerTitle);
 
     // Change active tab if not loading default view
     if (currentView === 1) {
@@ -267,7 +279,7 @@ function loadTree() {
         core: {
             animation: 0,
             multiple: false,
-            themes: {icons: false},
+            themes: { name: getJstreeThemeName(), icons: false },
             data: (currentView === 0) ? treeNodes : flattenNodes(treeNodes)
         },
         plugins: ["contextmenu", "search", "wholerow"],
@@ -280,12 +292,16 @@ function loadTree() {
             search_callback: onTreeSearch
         }
     })
-    .on("ready.jstree refresh.jstree", onTreeLoaded)
-    .on("changed.jstree", onTreeSelectionChanged);
+        .on("ready.jstree refresh.jstree", onTreeLoaded)
+        .on("changed.jstree", onTreeSelectionChanged);
 
     // Connect events to search box and iframe
     $("#tree-search").on("change keyup mouseup paste", () => onSearchTextChanged());
     window.addEventListener("message", onDocsPageChanged, false);
+    if (window.matchMedia) {
+        window.matchMedia("(prefers-color-scheme: dark)")
+            .addEventListener("change", () => $("#cmd-tree").jstree(true).set_theme(getJstreeThemeName()));
+    }
 }
 
 /**
