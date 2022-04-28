@@ -19,7 +19,7 @@ import * as lodash from "lodash";
 // for ProfileInfo structures
 import { IProfArgAttrs } from "./doc/IProfArgAttrs";
 import { IProfAttrs } from "./doc/IProfAttrs";
-import { IProfLoc, IProfLocOsLoc, IProfLocOsLocLayer, ProfLocType } from "./doc/IProfLoc";
+import { IArgTeamConfigLoc, IProfLoc, IProfLocOsLoc, IProfLocOsLocLayer, ProfLocType } from "./doc/IProfLoc";
 import { IProfMergeArgOpts } from "./doc/IProfMergeArgOpts";
 import { IProfMergedArg } from "./doc/IProfMergedArg";
 import { IProfOpts } from "./doc/IProfOpts";
@@ -276,10 +276,12 @@ export class ProfileInfo {
             }
             case ProfLocType.TEAM_CONFIG: {
                 let oldLayer: IProfLocOsLocLayer;
-                if (options.osLocInfo) {
-                    const layer = this.getTeamConfig().layerActive();
+                const layer = this.getTeamConfig().layerActive();
+                const osLoc = options.osLocInfo ?? this.getOsLocInfo(
+                    this.getAllProfiles().find(p => toUpdate.argLoc.jsonLoc.startsWith(p.profLoc.jsonLoc)))?.[0];
+                if (osLoc && (layer.user !== osLoc.user || layer.global !== osLoc.global)) {
                     oldLayer = { user: layer.user, global: layer.global };
-                    this.getTeamConfig().api.layers.activate(options.osLocInfo.user, options.osLocInfo.global);
+                    this.getTeamConfig().api.layers.activate(osLoc.user, osLoc.global);
                 }
 
                 this.getTeamConfig().set(toUpdate.argLoc.jsonLoc, options.value, { secure: options.setSecure });
@@ -561,12 +563,13 @@ export class ProfileInfo {
             missingArgs: []
         };
 
+        const osLocInfo = this.getOsLocInfo(profile)?.[0];
         if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
             if (profile.profName != null) {
                 // Load args from service profile if one exists
                 const serviceProfile = this.mLoadedConfig.api.profiles.get(profile.profName, false);
                 for (const [propName, propVal] of Object.entries(serviceProfile)) {
-                    const [argLoc, secure] = this.argTeamConfigLoc(profile.profName, propName);
+                    const [argLoc, secure] = this.argTeamConfigLoc({ profileName: profile.profName, propName, osLocInfo });
                     mergedArgs.knownArgs.push({
                         argName: CliUtils.getOptionFormat(propName).camelCase,
                         dataType: this.argDataType(typeof propVal),  // TODO Is using `typeof` bad for "null" values that may be int or bool?
@@ -594,7 +597,9 @@ export class ProfileInfo {
                     const argName = CliUtils.getOptionFormat(propName).camelCase;
                     // Skip properties already loaded from service profile
                     if (!mergedArgs.knownArgs.find((arg) => arg.argName === argName)) {
-                        const [argLoc, secure] = this.argTeamConfigLoc(baseProfileName, propName, layerProperties);
+                        const [argLoc, secure] = this.argTeamConfigLoc({
+                            profileName: baseProfileName, propName, osLocInfo, configProperties: layerProperties
+                        });
                         mergedArgs.knownArgs.push({
                             argName,
                             dataType: this.argDataType(typeof propVal),
@@ -669,12 +674,14 @@ export class ProfileInfo {
                     if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
                         let [argLoc, foundInSecureArray]: [IProfLoc, boolean] = [null, false];
                         try {
-                            [argLoc, foundInSecureArray] = this.argTeamConfigLoc(profile.profName, propName);
+                            [argLoc, foundInSecureArray] = this.argTeamConfigLoc({ profileName: profile.profName, propName, osLocInfo });
                             argFound = true;
                         } catch (_argNotFoundInServiceProfile) {
                             if (this.mLoadedConfig.api.profiles.defaultGet("base")) {
                                 try {
-                                    [argLoc, foundInSecureArray] = this.argTeamConfigLoc(this.mLoadedConfig.properties.defaults.base, propName);
+                                    [argLoc, foundInSecureArray] = this.argTeamConfigLoc({
+                                        profileName: this.mLoadedConfig.properties.defaults.base, propName, osLocInfo
+                                    });
                                     argFound = true;
                                 } catch (_argNotFoundInBaseProfile) {
                                     // Do nothing
@@ -743,7 +750,7 @@ export class ProfileInfo {
             mergedArgs.knownArgs.forEach((nextArg) => {
                 try {
                     if (nextArg.secure) nextArg.argValue = this.loadSecureArg(nextArg);
-                } catch(_argValueNotDefined) {
+                } catch (_argValueNotDefined) {
                     nextArg.argValue = undefined;
                 }
             });
@@ -1264,34 +1271,35 @@ export class ProfileInfo {
     /**
      * Given a profile name and property name, compute the profile location
      * object containing OS and JSON locations.
-     * @param profileName Name of a team config profile (e.g., LPAR1.zosmf)
-     * @param propName Name of a team config property (e.g., host)
-     * @param configProperties Optional properties object to be used for property lookup
+     * @param opts Set of options that allow this method to get the profile location
      */
-    private argTeamConfigLoc(profileName: string, propName: string, configProperties?: IConfig): [IProfLoc, boolean] {
-        const segments = this.mLoadedConfig.api.profiles.expandPath(profileName).split(".profiles.");
-        const secFields = this.getTeamConfig().api.secure.secureFields();
+    private argTeamConfigLoc(opts: IArgTeamConfigLoc): [IProfLoc, boolean] {
+        const segments = this.mLoadedConfig.api.profiles.expandPath(opts.profileName).split(".profiles.");
+        let osLocInfo: IProfLocOsLocLayer;
+        if (opts.osLocInfo?.user != null || opts.osLocInfo?.global != null)
+            osLocInfo = { user: opts.osLocInfo?.user, global: opts.osLocInfo?.global };
+        const secFields = this.getTeamConfig().api.secure.secureFields(osLocInfo);
         const buildPath = (ps: string[], p: string) => `${ps.join(".profiles.")}.properties.${p}`;
         while (segments.length > 0 &&
-            lodash.get(configProperties ?? this.mLoadedConfig.properties, buildPath(segments, propName)) === undefined &&
-            secFields.indexOf(buildPath(segments, propName)) === -1) {
+            lodash.get(opts.configProperties ?? this.mLoadedConfig.properties, buildPath(segments, opts.propName)) === undefined &&
+            secFields.indexOf(buildPath(segments, opts.propName)) === -1) {
             // Drop segment from end of path if property not found
             segments.pop();
         }
-        const jsonPath = (segments.length > 0) ? buildPath(segments, propName) : undefined;
+        const jsonPath = (segments.length > 0) ? buildPath(segments, opts.propName) : undefined;
         if (jsonPath == null) {
             throw new ProfInfoErr({
                 errorCode: ProfInfoErr.PROP_NOT_IN_PROFILE,
-                msg: `Failed to find property ${propName} in the profile ${profileName}`
+                msg: `Failed to find property ${opts.propName} in the profile ${opts.profileName}`
             });
         }
 
-        const foundInSecureArray = secFields.indexOf(buildPath(segments, propName)) >= 0;
+        const foundInSecureArray = secFields.indexOf(buildPath(segments, opts.propName)) >= 0;
         let filePath: string;
         for (const layer of this.mLoadedConfig.layers) {
             // Find the first layer that includes the JSON path
             if (lodash.get(layer.properties, jsonPath) !== undefined ||
-                (foundInSecureArray && lodash.get(layer.properties, jsonPath.split(`.properties.${propName}`)[0]) !== undefined)) {
+                (foundInSecureArray && lodash.get(layer.properties, jsonPath.split(`.properties.${opts.propName}`)[0]) !== undefined)) {
                 filePath = layer.path;
                 break;
             }

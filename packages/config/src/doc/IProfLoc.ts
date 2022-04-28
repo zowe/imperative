@@ -9,6 +9,8 @@
 *
 */
 
+import { IConfig } from "./IConfig";
+
 /**
  * This enum represents the type of location for a property.
  * Note that properties with location types of ENV and DEFAULT
@@ -74,4 +76,29 @@ export interface IProfLocOsLoc extends IProfLocOsLocLayer {
      * Contains the osLoc path information
      */
     path: string;
+}
+
+/**
+ * Information to identify the arguments corresponding to the team config
+ */
+export interface IArgTeamConfigLoc {
+    /**
+     * the profile name
+     */
+    profileName: string;
+
+    /**
+     * the property name
+     */
+    propName: string;
+
+    /**
+     * the config properties
+     */
+    configProperties?: IConfig;
+
+    /**
+     * the osLoc information
+     */
+    osLocInfo: IProfLocOsLoc;
 }
