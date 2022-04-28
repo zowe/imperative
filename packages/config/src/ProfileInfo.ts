@@ -277,7 +277,8 @@ export class ProfileInfo {
             case ProfLocType.TEAM_CONFIG: {
                 let oldLayer: IProfLocOsLocLayer;
                 const layer = this.getTeamConfig().layerActive();
-                const osLoc = options.osLocInfo ?? this.getOsLocInfo(this.getAllProfiles().find(p => toUpdate.argLoc.jsonLoc.startsWith(p.profLoc.jsonLoc)))?.[0];
+                const osLoc = options.osLocInfo ?? this.getOsLocInfo(
+                    this.getAllProfiles().find(p => toUpdate.argLoc.jsonLoc.startsWith(p.profLoc.jsonLoc)))?.[0];
                 if (osLoc && (layer.user !== osLoc.user || layer.global !== osLoc.global)) {
                     oldLayer = { user: layer.user, global: layer.global };
                     this.getTeamConfig().api.layers.activate(osLoc.user, osLoc.global);
