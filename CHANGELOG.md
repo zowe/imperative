@@ -4,6 +4,8 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
+- Enhancement: Introduced flag `--show-inputs-only` to show the inputs of the command
+that would be used if a command were executed.
 - Enhancement: Added dark theme to web help that is automatically used when system-wide dark mode is enabled.
 
 ## `5.0.2`

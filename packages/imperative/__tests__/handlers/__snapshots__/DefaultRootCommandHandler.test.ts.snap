@@ -257,6 +257,10 @@ exports[`Default Root Command Handler should display the help if no options are 
  GLOBAL OPTIONS
  --------------
 
+   --show-inputs-only (boolean)
+
+      Show command inputs and do not run the command
+
    --response-format-json | --rfj (boolean)
 
       Produce JSON formatted data from a command

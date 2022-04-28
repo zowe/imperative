@@ -26,7 +26,7 @@ import { IHelpGenerator } from "./help/doc/IHelpGenerator";
 import { ICommandPrepared } from "./doc/response/response/ICommandPrepared";
 import { CommandResponse } from "./response/CommandResponse";
 import { ICommandResponse } from "./doc/response/response/ICommandResponse";
-import { Logger } from "../../logger";
+import { Logger, LoggerUtils } from "../../logger";
 import { IInvokeCommandParms } from "./doc/parms/IInvokeCommandParms";
 import { ICommandProcessorParms } from "./doc/processor/ICommandProcessorParms";
 import { ImperativeExpect } from "../../expect";
@@ -44,7 +44,53 @@ import { CliUtils } from "../../utilities/src/CliUtils";
 import { WebHelpManager } from "./help/WebHelpManager";
 import { ICommandProfile } from "./doc/profiles/definition/ICommandProfile";
 import { Config } from "../../config/src/Config";
+import { getActiveProfileName } from "../../config/src/ConfigUtils";
+import { ConfigConstants } from "../../config/src/ConfigConstants";
 import { IDaemonContext } from "../../imperative/src/doc/IDaemonContext";
+import { IHandlerResponseApi } from "../..";
+
+
+/**
+ * Internal interface for the command processor that is used by the CLI for `--show-inputs-only`
+ * @interface IResolvedArgsResponse
+ */
+interface IResolvedArgsResponse {
+
+    /**
+     * All command values
+     * @type {ICommandArguments}
+     * @memberof IResolvedArgsResponse
+     */
+    commandValues?: ICommandArguments;
+
+    /**
+     * Whether we're using old profiles or config
+     * @type {(`v1` | `v2`)}
+     * @memberof IResolvedArgsResponse
+     */
+    profileVersion?: `v1` | `v2`;
+
+    /**
+     * The profiles that are required
+     * @type {string[]}
+     * @memberof IResolvedArgsResponse
+     */
+    requiredProfiles?: string[];
+
+    /**
+     * The profiles that are optional
+     * @type {string[]}
+     * @memberof IResolvedArgsResponse
+     */
+    optionalProfiles?: string[];
+
+    /**
+     * Location of the profiles
+     * @type {string[]}
+     * @memberof IResolvedArgsResponse
+     */
+    locations?: string[]
+}
 
 /**
  * The command processor for imperative - accepts the command definition for the command being issued (and a pre-built)
@@ -53,6 +99,13 @@ import { IDaemonContext } from "../../imperative/src/doc/IDaemonContext";
  * @class CommandProcessor
  */
 export class CommandProcessor {
+    /**
+     * Show secure fields in the output of the command ENV var suffix
+     * @private
+     * @static
+     * @memberof CommandProcessor
+     */
+    private static readonly ENV_SHOW_SECURE_SUFFIX = `_SHOW_SECURE_ARGS`;
     /**
      * The error tag for imperative errors.
      * @private
@@ -616,7 +669,11 @@ export class CommandProcessor {
                 stdin: this.getStdinStream()
             };
             try {
-                await handler.process(handlerParms);
+                if (handlerParms.arguments.showInputsOnly) {
+                    this.showInputsOnly(response, handlerParms);
+                } else {
+                    await handler.process(handlerParms);
+                }
             } catch (processErr) {
 
                 this.handleHandlerError(processErr, response, this.definition.handler);
@@ -719,6 +776,133 @@ export class CommandProcessor {
             return this.finishResponse(chainedResponse);
         }
 
+    }
+
+    /**
+     * Print parameters in place for --dry-run in effect
+     * @private
+     * @param {IHandlerParameters} commandParameters
+     * @returns
+     * @memberof CommandProcessor
+     */
+    private showInputsOnly(response: IHandlerResponseApi, commandParameters: IHandlerParameters) {
+
+        /**
+         * Determine if we should display secure values.  If the ENV variable is set to true,
+         * then we will display the secure values.  If the ENV variable is set to false,
+         * then we will display the non-secure values.
+         *                                                             - GitHub Copilot AI
+         */
+        let showSecure = false;
+
+        // ZOWE_SHOW_SECURE_ARGS
+        const SECRETS_ENV = `${ImperativeConfig.instance.envVariablePrefix}${CommandProcessor.ENV_SHOW_SECURE_SUFFIX}`;
+        const env = (process.env[SECRETS_ENV] || "false").toUpperCase();
+
+        if (env === "TRUE" || env === "1") {
+            showSecure = true;
+        }
+
+        // if config exists and a layer exists, use config
+        let useConfig = false;
+        this.mConfig?.layers.forEach((layer) => {
+            if (layer.exists) {
+                useConfig = true;
+            }
+        });
+
+        /**
+         * Begin building response object
+         */
+        const showInputsOnly: IResolvedArgsResponse =
+        {
+            commandValues: {} as ICommandArguments,
+            profileVersion: useConfig ? `v2` : `v1`,
+        };
+
+        /**
+         * Append profile information
+         */
+        showInputsOnly.requiredProfiles = commandParameters.definition.profile?.required;
+        showInputsOnly.optionalProfiles = commandParameters.definition.profile?.optional;
+        showInputsOnly.locations = [];
+
+        const configSecureProps: string[] = [];
+
+        /**
+         * If using config, then we need to get the secure properties from the config
+         */
+        if (useConfig) {
+
+            const combinedProfiles = [ ...showInputsOnly.requiredProfiles ?? [], ...showInputsOnly.optionalProfiles ?? [] ];
+            combinedProfiles.forEach((profile) => {
+                const name = getActiveProfileName(profile, commandParameters.arguments); // get profile name
+                const props = this.mConfig.api.secure.securePropsForProfile(name); // get secure props
+                configSecureProps.push(...props); // add to list
+            });
+        }
+
+        /**
+         * Determine if Zowe V2 Config is in effect.  If it is, then we will construct
+         * a Set of secure fields from its API.  If it is not, then we will construct
+         * a Set of secure fields from the `ConnectionPropsForSessCfg` defaults.
+         */
+        const secureInputs: Set<string> =
+        useConfig ?
+            new Set([...configSecureProps]) :
+            new Set([...LoggerUtils.CENSORED_OPTIONS, ...LoggerUtils.SECURE_PROMPT_OPTIONS]);
+
+        let censored = false;
+
+        /**
+         * Only attempt to show the input if it is in the command definition
+         */
+        for (let i = 0; i < commandParameters.definition.options?.length; i++) {
+            const name = commandParameters.definition.options[i].name;
+
+            if (commandParameters.arguments[name] != null) {
+
+                if (showSecure || !secureInputs.has(name)) {
+                    showInputsOnly.commandValues[name] = commandParameters.arguments[name];
+                } else {
+                    showInputsOnly.commandValues[name] = ConfigConstants.SECURE_VALUE;
+                    censored = true;
+                }
+            }
+        }
+
+        /**
+         * Add profile location info
+         */
+        if (useConfig) {
+            this.mConfig.mLayers.forEach((layer) => {
+                if (layer.exists) {
+                    showInputsOnly.locations.push(layer.path);
+                }
+            });
+        } else {
+            showInputsOnly.locations.push(nodePath.normalize(ImperativeConfig.instance.cliHome));
+        }
+
+        /**
+         * Show warning if we censored output and we were not instructed to show secure values
+         */
+        if (censored && !showSecure) {
+            response.console.errorHeader("Some inputs are not displayed");
+            response.console.error(
+                `Inputs below may be displayed as '${ConfigConstants.SECURE_VALUE}'. ` +
+                `Properties identified as secure fields are not displayed by default.\n\n` +
+                `Set the environment variable ` +
+                `${SECRETS_ENV} to 'true' to display secure values in plain text.\n`);
+        }
+
+        /**
+         * Show the inputs
+         */
+        commandParameters.response.console.log(TextUtils.prettyJson(showInputsOnly).trim());
+        commandParameters.response.data.setObj(showInputsOnly);
+
+        return;
     }
 
     /**
