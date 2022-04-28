@@ -17,7 +17,8 @@ module.exports = {
                 "plugin:jest/recommended"
             ],
             "files": [
-                "**/__tests__/**/*.ts"
+                "**/__tests__/**/*.ts",
+                "web-help/*.ts"
             ],
             "rules": {
                 "@typescript-eslint/no-magic-numbers": "off",
