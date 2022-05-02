@@ -63,7 +63,7 @@ export function uninstall(packageName: string): void {
         iConsole.info("Uninstalling package...this may take some time.");
 
         execSync(`${npmCmd} uninstall "${npmPackage}" ` +
-                `--prefix ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION} -g`, {
+            `--prefix "${PMFConstants.instance.PLUGIN_INSTALL_LOCATION}" -g`, {
             cwd: PMFConstants.instance.PMF_ROOT,
             // We need to capture stdout but apparently stderr also gives us a progress
             // bar from the npm install.
