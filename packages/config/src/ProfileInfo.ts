@@ -50,7 +50,6 @@ import { IProfInfoUpdateKnownPropOpts, IProfInfoUpdatePropOpts } from "./doc/IPr
 import { ConfigAutoStore } from "./ConfigAutoStore";
 import { IGetAllProfilesOptions } from "./doc/IProfInfoProps";
 import { IConfig } from "./doc/IConfig";
-import { IConfigLayer } from "./doc/IConfigLayer";
 
 /**
  * This class provides functions to retrieve profile-related information.
