@@ -69,5 +69,6 @@
         "dummy": "LPAR4"
     },
     "plugins": [],
-    "secure": []
+    "secure": [],
+    "autoStore": true
 }
