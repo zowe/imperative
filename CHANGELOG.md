@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.2.0`
 
 - Enhancement: Adds the ability for CLIs and Plug-ins to override some of the prompting logic if an alternate property is set.
 - BugFix: Fixed `osLoc` information returning project level paths instead of the global layer. [#805](https://github.com/zowe/imperative/pull/805)
