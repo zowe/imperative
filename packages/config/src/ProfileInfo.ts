@@ -249,7 +249,7 @@ export class ProfileInfo {
         const toUpdate = options.mergedArgs.knownArgs.find((v => v.argName === options.property)) ||
             options.mergedArgs.missingArgs.find((v => v.argName === options.property));
 
-        if (toUpdate == null) {
+        if (toUpdate == null || (toUpdate.argLoc.locType === ProfLocType.TEAM_CONFIG && !this.getTeamConfig().properties.autoStore)) {
             return false;
         }
 
@@ -1295,13 +1295,21 @@ export class ProfileInfo {
         }
 
         const foundInSecureArray = secFields.indexOf(buildPath(segments, opts.propName)) >= 0;
+        const _isPropInLayer = (properties: IConfig) => {
+            return properties && (lodash.get(properties, jsonPath) !== undefined ||
+            (foundInSecureArray && lodash.get(properties, jsonPath.split(`.properties.${opts.propName}`)[0]) !== undefined));
+        };
+
         let filePath: string;
-        for (const layer of this.mLoadedConfig.layers) {
-            // Find the first layer that includes the JSON path
-            if (lodash.get(layer.properties, jsonPath) !== undefined ||
-                (foundInSecureArray && lodash.get(layer.properties, jsonPath.split(`.properties.${opts.propName}`)[0]) !== undefined)) {
-                filePath = layer.path;
-                break;
+        if (_isPropInLayer(opts.configProperties) && opts.osLocInfo) {
+            filePath = opts.osLocInfo.path;
+        } else {
+            for (const layer of this.mLoadedConfig.layers) {
+                // Find the first layer that includes the JSON path
+                if (_isPropInLayer(layer.properties)) {
+                    filePath = layer.path;
+                    break;
+                }
             }
         }
 
