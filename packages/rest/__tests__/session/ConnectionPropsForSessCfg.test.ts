@@ -236,6 +236,163 @@ describe("ConnectionPropsForSessCfg tests", () => {
         expect(sessCfgWithConnProps.certKey).toBeUndefined();
     });
 
+    it("override with a different command line name", async() => {
+        const passFromPrompt = "somePass";
+        const initialSessCfg: extendedSession = {
+            hostname: "SomeHost",
+            port: 11,
+            user: "FakeUser",
+            password: "somePass",
+            rejectUnauthorized: true
+        };
+        const args = {
+            $0: "zowe",
+            _: [""],
+            someKeyOther: "somekeyvalue"
+        };
+        const overrides: IOverridePromptConnProps[] = [{
+            propertyName: "someKey",
+            argumentName: "someKeyOther",
+            propertiesOverridden: [
+                "password",
+                "tokenType",
+                "tokenValue",
+                "cert",
+                "certKey"
+            ]
+        }];
+        const mockClientPrompt = jest.spyOn(ConnectionPropsForSessCfg as any, "clientPrompt");
+        // command handler prompt method (CLI versus SDK-based prompting)
+        const commandHandlerPrompt = jest.fn(() => {
+            return Promise.resolve(passFromPrompt);
+        });
+        // pretend we have a command handler object
+        const parms = {
+            response: {
+                console: {
+                    prompt: commandHandlerPrompt
+                }
+            }
+        };
+        const sessCfgWithConnProps: extendedSession = await ConnectionPropsForSessCfg.addPropsOrPrompt<extendedSession>(
+            initialSessCfg, args, {doPrompting: true, propertyOverrides: overrides, parms: (parms as any)}
+        );
+        expect(sessCfgWithConnProps.type).toBe(SessConstants.AUTH_TYPE_BASIC);
+        expect(commandHandlerPrompt).not.toBeCalled(); // we are only testing that we call an already tested prompt method if in CLI mode
+        expect(mockClientPrompt).not.toBeCalled();
+        expect(sessCfgWithConnProps.user).toEqual("FakeUser");
+        expect(sessCfgWithConnProps.someKey).toEqual("somekeyvalue");
+        expect(sessCfgWithConnProps.password).toBeUndefined();
+        expect(sessCfgWithConnProps.tokenType).toBeUndefined();
+        expect(sessCfgWithConnProps.tokenValue).toBeUndefined();
+        expect(sessCfgWithConnProps.cert).toBeUndefined();
+        expect(sessCfgWithConnProps.certKey).toBeUndefined();
+    });
+
+    it("override a session value when an override is specified on the command line", async() => {
+        const passFromPrompt = "somePass";
+        const initialSessCfg: extendedSession = {
+            hostname: "SomeHost",
+            port: 11,
+            user: "FakeUser",
+            password: "somePass",
+            rejectUnauthorized: true
+        };
+        const args = {
+            $0: "zowe",
+            _: [""],
+            someKey: "somekeyvalue"
+        };
+        const overrides: IOverridePromptConnProps[] = [{
+            propertyName: "someKey",
+            propertiesOverridden: [
+                "password",
+                "tokenType",
+                "tokenValue",
+                "cert",
+                "certKey"
+            ]
+        }];
+        const mockClientPrompt = jest.spyOn(ConnectionPropsForSessCfg as any, "clientPrompt");
+        // command handler prompt method (CLI versus SDK-based prompting)
+        const commandHandlerPrompt = jest.fn(() => {
+            return Promise.resolve(passFromPrompt);
+        });
+        // pretend we have a command handler object
+        const parms = {
+            response: {
+                console: {
+                    prompt: commandHandlerPrompt
+                }
+            }
+        };
+        const sessCfgWithConnProps: extendedSession = await ConnectionPropsForSessCfg.addPropsOrPrompt<extendedSession>(
+            initialSessCfg, args, {doPrompting: true, propertyOverrides: overrides, parms: (parms as any)}
+        );
+        expect(sessCfgWithConnProps.type).toBe(SessConstants.AUTH_TYPE_BASIC);
+        expect(commandHandlerPrompt).not.toBeCalled(); // we are only testing that we call an already tested prompt method if in CLI mode
+        expect(mockClientPrompt).not.toBeCalled();
+        expect(sessCfgWithConnProps.user).toEqual("FakeUser");
+        expect(sessCfgWithConnProps.someKey).toEqual("somekeyvalue");
+        expect(sessCfgWithConnProps.password).toBeUndefined();
+        expect(sessCfgWithConnProps.tokenType).toBeUndefined();
+        expect(sessCfgWithConnProps.tokenValue).toBeUndefined();
+        expect(sessCfgWithConnProps.cert).toBeUndefined();
+        expect(sessCfgWithConnProps.certKey).toBeUndefined();
+    });
+
+    it("override a session value when an override is specified on the session", async() => {
+        const passFromPrompt = "somePass";
+        const initialSessCfg: extendedSession = {
+            hostname: "SomeHost",
+            port: 11,
+            user: "FakeUser",
+            password: "somePass",
+            someKey: "somekeyvalue",
+            rejectUnauthorized: true
+        };
+        const args = {
+            $0: "zowe",
+            _: [""]
+        };
+        const overrides: IOverridePromptConnProps[] = [{
+            propertyName: "someKey",
+            propertiesOverridden: [
+                "password",
+                "tokenType",
+                "tokenValue",
+                "cert",
+                "certKey"
+            ]
+        }];
+        const mockClientPrompt = jest.spyOn(ConnectionPropsForSessCfg as any, "clientPrompt");
+        // command handler prompt method (CLI versus SDK-based prompting)
+        const commandHandlerPrompt = jest.fn(() => {
+            return Promise.resolve(passFromPrompt);
+        });
+        // pretend we have a command handler object
+        const parms = {
+            response: {
+                console: {
+                    prompt: commandHandlerPrompt
+                }
+            }
+        };
+        const sessCfgWithConnProps: extendedSession = await ConnectionPropsForSessCfg.addPropsOrPrompt<extendedSession>(
+            initialSessCfg, args, {doPrompting: true, propertyOverrides: overrides, parms: (parms as any)}
+        );
+        expect(sessCfgWithConnProps.type).toBe(SessConstants.AUTH_TYPE_BASIC);
+        expect(commandHandlerPrompt).not.toBeCalled(); // we are only testing that we call an already tested prompt method if in CLI mode
+        expect(mockClientPrompt).not.toBeCalled();
+        expect(sessCfgWithConnProps.user).toEqual("FakeUser");
+        expect(sessCfgWithConnProps.someKey).toEqual("somekeyvalue");
+        expect(sessCfgWithConnProps.password).toBeUndefined();
+        expect(sessCfgWithConnProps.tokenType).toBeUndefined();
+        expect(sessCfgWithConnProps.tokenValue).toBeUndefined();
+        expect(sessCfgWithConnProps.cert).toBeUndefined();
+        expect(sessCfgWithConnProps.certKey).toBeUndefined();
+    });
+
     it("not prompt when an override is specified on the command line", async() => {
         const passFromPrompt = "somePass";
         const initialSessCfg: extendedSession = {
