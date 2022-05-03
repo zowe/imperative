@@ -125,7 +125,7 @@ describe("Plugin Management Facility uninstall handler", () => {
         const handler = new UninstallHandler();
 
         const params = getIHandlerParametersObject();
-        params.arguments.plugin = "a";
+        params.arguments.plugin = ["a"];
 
         await handler.process(params as IHandlerParameters);
 
@@ -140,7 +140,7 @@ describe("Plugin Management Facility uninstall handler", () => {
         const handler = new UninstallHandler();
         let expectedError: ImperativeError;
         const params = getIHandlerParametersObject();
-        params.arguments.plugin = "";
+        params.arguments.plugin = [];
 
         try {
             await handler.process(params as IHandlerParameters);

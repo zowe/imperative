@@ -21,6 +21,7 @@ jest.mock("../../../../../logger");
 jest.mock("../../../../../cmd/src/response/CommandResponse");
 jest.mock("../../../../../cmd/src/response/HandlerResponse");
 
+import * as fs from "fs";
 import { Console } from "../../../../../console";
 import { execSync } from "child_process";
 import { ImperativeError } from "../../../../../error";
@@ -145,7 +146,7 @@ describe("PMF: Uninstall Interface", () => {
             wasWriteFileSyncCallValid();
         });
 
-        it("should throw errors", () => {
+        it("should throw error if unable to read installed plugins", () => {
             const error = new Error("This should be caught");
 
             mocks.readFileSync.mockImplementation(() => {
@@ -166,6 +167,30 @@ describe("PMF: Uninstall Interface", () => {
                 msg: error.message,
                 causeErrors: [error]
             }));
+        });
+
+        it("should throw error if install folder exists after uninstall", () => {
+            const pluginJsonFile: IPluginJson = {
+                a: {
+                    package: "a",
+                    registry: packageRegistry,
+                    version: "3.2.1"
+                }
+            };
+
+            mocks.readFileSync.mockReturnValue(pluginJsonFile);
+            jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
+            let caughtError;
+
+            try {
+                uninstall("a");
+            } catch (error) {
+                caughtError = error;
+            }
+
+            // Validate the install
+            wasExecSyncCallValid(packageName);
+            expect(caughtError.message).toContain("Failed to uninstall plugin, install folder still exists");
         });
     });
 });
