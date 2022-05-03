@@ -455,13 +455,18 @@ describe("Configuration Secure command handler", () => {
         const authHandlerPath = __dirname + "/../../../../src/auth/handlers/AbstractAuthHandler";
         const handler = new SecureHandler();
         const params = getIHandlerParametersObject();
-        let mockAuthLogin;
-        let mockGetPromptParams;
+        let mockAuthHandlerApi;
         let promptWithTimeoutSpy;
 
         beforeAll(() => {
-            mockAuthLogin = jest.fn().mockResolvedValue("fakeLoginData");
-            mockGetPromptParams = jest.fn().mockReturnValue([{ defaultTokenType: SessConstants.TOKEN_TYPE_JWT }, mockAuthLogin]);
+            mockAuthHandlerApi = {
+                promptParams: { defaultTokenType: SessConstants.TOKEN_TYPE_JWT },
+                createSessCfg: jest.fn(args => ({
+                    hostname: args.host,
+                    port: args.port
+                })),
+                sessionLogin: jest.fn().mockResolvedValue("fakeLoginData")
+            };
 
             jest.doMock(authHandlerPath, () => {
                 const { AbstractAuthHandler } = jest.requireActual(authHandlerPath);
@@ -469,7 +474,7 @@ describe("Configuration Secure command handler", () => {
                     default: jest.fn(() => {
                         const handler = Object.create(AbstractAuthHandler.prototype);
                         return Object.assign(handler, {
-                            getPromptParams: mockGetPromptParams
+                            getAuthHandlerApi: jest.fn().mockReturnValue(mockAuthHandlerApi)
                         });
                     })
                 };
@@ -489,7 +494,7 @@ describe("Configuration Secure command handler", () => {
             writeFileSyncSpy = jest.spyOn(fs, "writeFileSync");
             existsSyncSpy = jest.spyOn(fs, "existsSync");
 
-            mockAuthLogin.mockClear();
+            mockAuthHandlerApi.sessionLogin.mockClear();
             writeFileSyncSpy.mockReset();
             promptWithTimeoutSpy = jest.fn(() => "fakePromptingData");
             (params.response.console as any).prompt = promptWithTimeoutSpy;
@@ -535,7 +540,8 @@ describe("Configuration Secure command handler", () => {
             expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
             expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
             expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(2);  // User and password
-            expect(mockAuthLogin).toHaveBeenCalledTimes(1);
+            expect(mockAuthHandlerApi.createSessCfg).toHaveBeenCalledTimes(1);
+            expect(mockAuthHandlerApi.sessionLogin).toHaveBeenCalledTimes(1);
             expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
             expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
             expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
@@ -570,7 +576,7 @@ describe("Configuration Secure command handler", () => {
             expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
             expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
             expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
-            expect(mockAuthLogin).toHaveBeenCalledTimes(0);
+            expect(mockAuthHandlerApi.sessionLogin).toHaveBeenCalledTimes(0);
             expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
             expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
             expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
@@ -605,7 +611,7 @@ describe("Configuration Secure command handler", () => {
             expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
             expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
             expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
-            expect(mockAuthLogin).toHaveBeenCalledTimes(0);
+            expect(mockAuthHandlerApi.sessionLogin).toHaveBeenCalledTimes(0);
             expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
             expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
             expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
@@ -647,7 +653,7 @@ describe("Configuration Secure command handler", () => {
             expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
             expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
             expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
-            expect(mockAuthLogin).toHaveBeenCalledTimes(0);
+            expect(mockAuthHandlerApi.sessionLogin).toHaveBeenCalledTimes(0);
             expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
             expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
             expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
@@ -669,9 +675,10 @@ describe("Configuration Secure command handler", () => {
                     authConfig: [{ handler: authHandlerPath } as any]
                 } as any]
             });
-            mockGetPromptParams.mockReturnValueOnce([{ defaultTokenType: SessConstants.TOKEN_TYPE_LTPA }, mockAuthLogin]);
 
+            mockAuthHandlerApi.promptParams.defaultTokenType = SessConstants.TOKEN_TYPE_LTPA;
             await handler.process(params);
+            mockAuthHandlerApi.promptParams.defaultTokenType = SessConstants.TOKEN_TYPE_JWT;
 
             const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
             delete fakeSecureDataExpectedJson[fakeProjPath];
@@ -690,7 +697,7 @@ describe("Configuration Secure command handler", () => {
             expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
             expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
             expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
-            expect(mockAuthLogin).toHaveBeenCalledTimes(0);
+            expect(mockAuthHandlerApi.sessionLogin).toHaveBeenCalledTimes(0);
             expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
             expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
             expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
@@ -712,7 +719,7 @@ describe("Configuration Secure command handler", () => {
                     authConfig: [{ handler: authHandlerPath } as any]
                 } as any]
             });
-            mockAuthLogin.mockRejectedValueOnce(new Error("bad handler"));
+            mockAuthHandlerApi.sessionLogin.mockRejectedValueOnce(new Error("bad handler"));
             let caughtError;
 
             try {
@@ -724,7 +731,7 @@ describe("Configuration Secure command handler", () => {
             expect(caughtError).toBeDefined();
             expect(caughtError.message).toContain("Failed to fetch jwtToken");
             expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(2);  // User and password
-            expect(mockAuthLogin).toHaveBeenCalledTimes(1);
+            expect(mockAuthHandlerApi.sessionLogin).toHaveBeenCalledTimes(1);
             expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(0);
             expect(writeFileSyncSpy).toHaveBeenCalledTimes(0);
         });
