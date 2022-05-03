@@ -2,6 +2,11 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed `osLoc` information returning project level paths instead of the global layer. [#805](https://github.com/zowe/imperative/pull/805)
+- BugFix: Fixed `autoStore` not being checked by `updateKnownProperty`. [#806](https://github.com/zowe/imperative/pull/806)
+
 ## `5.1.0`
 
 - Enhancement: Introduced flag `--show-inputs-only` to show the inputs of the command
