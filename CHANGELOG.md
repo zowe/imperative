@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Adds the ability for CLIs and Plug-ins to override some of the prompting logic if an alternate property is set.
+
 ## `5.1.0`
 
 - Enhancement: Introduced flag `--show-inputs-only` to show the inputs of the command

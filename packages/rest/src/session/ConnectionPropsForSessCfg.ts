@@ -114,23 +114,42 @@ export class ConnectionPropsForSessCfg {
 
         // This function will provide all the needed properties in one array
         const promptForValues: (keyof ISession)[] = [];
+        const doNotPromptForValues: (keyof ISession)[] = [];
+
+        /* Add the override properties to the session object.
+         */
+        if (connOpts.propertyOverrides?.length > 0) {
+            for (const override of connOpts.propertyOverrides) {
+                const argName = override.argumentName ?? override.propertyName;
+                // If the override is found on the session or command arguments, start setting things and do not prompt for overridden properties
+                if ((sessCfgToUse as any)[override.propertyName] != null || cmdArgs[argName] != null) {
+                    // Set the session config to use the command line argument if it exists.
+                    if (cmdArgs[argName] != null) { (sessCfgToUse as any)[override.propertyName] = cmdArgs[argName]; }
+                    for (const prop of override.propertiesOverridden) {
+                        // Make sure we do not prompt for the overridden property.
+                        if (!doNotPromptForValues.includes(prop)) { doNotPromptForValues.push(prop); }
+                        if (prop in sessCfgToUse) { (sessCfgToUse as any)[prop] = undefined; }
+                    }
+                }
+            }
+        }
 
         // check what properties are needed to be prompted
-        if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.hostname) === false) {
+        if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.hostname) === false && !doNotPromptForValues.includes("hostname")) {
             promptForValues.push("hostname");
         }
 
-        if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.port) === false) {
+        if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.port) === false && !doNotPromptForValues.includes("port")) {
             promptForValues.push("port");
         }
 
         if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.tokenValue) === false &&
             ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.cert) === false) {
-            if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.user) === false) {
+            if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.user) === false && !doNotPromptForValues.includes("user")) {
                 promptForValues.push("user");
             }
 
-            if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.password) === false) {
+            if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.password) === false && !doNotPromptForValues.includes("password")) {
                 promptForValues.push("password");
             }
         }
