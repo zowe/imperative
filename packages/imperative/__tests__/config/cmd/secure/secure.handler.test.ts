@@ -461,10 +461,7 @@ describe("Configuration Secure command handler", () => {
         beforeAll(() => {
             mockAuthHandlerApi = {
                 promptParams: { defaultTokenType: SessConstants.TOKEN_TYPE_JWT },
-                createSessCfg: jest.fn(args => ({
-                    hostname: args.host,
-                    port: args.port
-                })),
+                createSessCfg: jest.fn(x => x),
                 sessionLogin: jest.fn().mockResolvedValue("fakeLoginData")
             };
 

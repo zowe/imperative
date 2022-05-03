@@ -99,7 +99,7 @@ export default class SecureHandler implements ICommandHandler {
 
             const profile = config.api.profiles.get(profilePath.replace(/profiles\./g, ""), false);
             const sessCfg: ISession = api.createSessCfg(profile as ICommandArguments);
-            const sessCfgWithCreds = await ConnectionPropsForSessCfg.addPropsOrPrompt(sessCfg, this.params.arguments,
+            const sessCfgWithCreds = await ConnectionPropsForSessCfg.addPropsOrPrompt(sessCfg, profile as ICommandArguments,
                 { parms: this.params, doPrompting: true, requestToken: true, ...api.promptParams });
             Logger.getAppLogger().info(`Fetching ${profile.tokenType} for ${propPath}`);
 
@@ -107,7 +107,7 @@ export default class SecureHandler implements ICommandHandler {
                 return await api.sessionLogin(new Session(sessCfgWithCreds));
             } catch (error) {
                 throw new ImperativeError({
-                    msg: `Failed to fetch ${profile.tokenType} for ${propPath}`,
+                    msg: `Failed to fetch ${profile.tokenType} for ${propPath}: ${error.message}`,
                     causeErrors: error
                 });
             }
