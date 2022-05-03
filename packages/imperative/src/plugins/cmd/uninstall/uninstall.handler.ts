@@ -51,7 +51,9 @@ export default class UninstallHandler implements ICommandHandler {
             });
         } else {
             try {
-                uninstall(params.arguments.plugin);
+                for (const packageName of params.arguments.plugin) {
+                    uninstall(packageName);
+                }
                 params.response.console.log("Removal of the npm package(s) was successful.\n"
                 );
             } catch (e) {
