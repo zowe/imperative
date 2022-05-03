@@ -1,7 +1,7 @@
 {
     "$schema": "./ProfInfoApp.schema.json",
     "profiles": {
-        "base_glob_home": {
+        "base_glob": {
             "type": "base",
             "properties": {
                 "user": "globalUser",
@@ -28,8 +28,9 @@
     },
     "defaults": {
         "zosmf": "LPAR2_home",
-        "base": "base_glob_home"
+        "base": "base_glob"
     },
     "plugins": [],
-    "secure": []
+    "secure": [],
+    "autoStore": true
 }

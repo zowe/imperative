@@ -4,6 +4,8 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
+- BugFix: Fixed `osLoc` information returning project level paths instead of the global layer. [#805](https://github.com/zowe/imperative/pull/805)
+- BugFix: Fixed `autoStore` not being checked by `updateKnownProperty`. [#806](https://github.com/zowe/imperative/pull/806)
 - BugFix: Fixed `plugins uninstall` command failing when there is a space in the install path.
 
 ## `5.1.0`
