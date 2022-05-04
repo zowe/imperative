@@ -6,6 +6,13 @@ All notable changes to the Imperative package will be documented in this file.
 
 - BugFix: Fixed issue where `config auto-init` may fail to create project config when global config already exists. [#810](https://github.com/zowe/imperative/issues/810)
 
+## `5.2.0`
+
+- Enhancement: Adds the ability for CLIs and Plug-ins to override some of the prompting logic if an alternate property is set.
+- BugFix: Fixed `osLoc` information returning project level paths instead of the global layer. [#805](https://github.com/zowe/imperative/pull/805)
+- BugFix: Fixed `autoStore` not being checked by `updateKnownProperty`. [#806](https://github.com/zowe/imperative/pull/806)
+- BugFix: Fixed `plugins uninstall` command failing when there is a space in the install path.
+
 ## `5.1.0`
 
 - Enhancement: Introduced flag `--show-inputs-only` to show the inputs of the command
