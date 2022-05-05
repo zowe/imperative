@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed issue where `config auto-init` may fail to create project config when global config already exists. [#810](https://github.com/zowe/imperative/issues/810)
+
 ## `5.2.0`
 
 - Enhancement: Adds the ability for CLIs and Plug-ins to override some of the prompting logic if an alternate property is set.

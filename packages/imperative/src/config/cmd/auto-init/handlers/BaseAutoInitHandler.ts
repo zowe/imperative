@@ -89,19 +89,14 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
             sessCfg, params.arguments, { parms: params, doPrompting: true, serviceDescription: this.mServiceDescription },
         );
         this.mSession = new Session(sessCfgWithCreds);
-        const profileConfig = await this.doAutoInit(this.mSession, params);
-        let global = false;
-        let user = false;
 
         // Use params to set which config layer to apply to
         await OverridesLoader.ensureCredentialManagerLoaded();
-        if (params.arguments.globalConfig && params.arguments.globalConfig === true) {
-            global = true;
-        }
-        if (params.arguments.userConfig && params.arguments.userConfig === true) {
-            user = true;
-        }
-        ImperativeConfig.instance.config.api.layers.activate(user, global);
+        const configDir = params.arguments.globalConfig ? null : process.cwd();
+        ImperativeConfig.instance.config.api.layers.activate(params.arguments.userConfig, params.arguments.globalConfig, configDir);
+
+        // Call handler's implementation of auto-init
+        const profileConfig = await this.doAutoInit(this.mSession, params);
 
         if (params.arguments.dryRun && params.arguments.dryRun === true) {
             // Merge and display, do not save
