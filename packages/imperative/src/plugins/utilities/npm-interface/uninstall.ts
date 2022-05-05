@@ -72,7 +72,7 @@ export function uninstall(packageName: string): void {
             stdio: pipe
         });
 
-        const installFolder = path.join(PMFConstants.instance.PLUGIN_HOME_LOCATION, npmPackage);
+        const installFolder = path.join(PMFConstants.instance.PLUGIN_NODE_MODULE_LOCATION, npmPackage);
         if (fs.existsSync(installFolder)) {
             throw new Error("Failed to uninstall plugin, install folder still exists:\n  " + installFolder);
         }
