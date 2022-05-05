@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.2.1`
 
 - BugFix: Fixed issue where `config auto-init` may fail to create project config when global config already exists. [#810](https://github.com/zowe/imperative/issues/810)
 
