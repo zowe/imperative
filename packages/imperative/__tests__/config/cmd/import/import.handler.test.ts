@@ -165,7 +165,8 @@ describe("Configuration Import command handler", () => {
                 rejectUnauthorized: false,
                 type: "basic",
                 user: "fakeUser",
-                password: "fakePass"
+                password: "fakePass",
+                base64EncodedAuth: Buffer.from("fakeUser:fakePass").toString("base64")
             };
             expect(restClientSpy.mock.calls[0][0].ISession).toMatchObject(expectedSession);
             expect(downloadSchemaSpy).not.toHaveBeenCalled();

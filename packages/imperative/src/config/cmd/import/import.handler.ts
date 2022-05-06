@@ -80,13 +80,17 @@ export default class ImportHandler implements ICommandHandler {
      * @returns Populated session object
      */
     private buildSession(url: URL): Session {
-        const session = Session.createFromUrl(url, false);
-        session.ISession.rejectUnauthorized = this.params.arguments.rejectUnauthorized;
+        let session = Session.createFromUrl(url, false);
         if (this.params.arguments.user != null && this.params.arguments.password != null) {
-            session.ISession.type = SessConstants.AUTH_TYPE_BASIC;
-            session.ISession.user = this.params.arguments.user;
-            session.ISession.password = this.params.arguments.password;
+            const { protocol, hostname, port } = session.ISession;
+            session = new Session({
+                protocol, hostname, port,
+                type: SessConstants.AUTH_TYPE_BASIC,
+                user: this.params.arguments.user,
+                password: this.params.arguments.password
+            });
         }
+        session.ISession.rejectUnauthorized = this.params.arguments.rejectUnauthorized;
         return session;
     }
 
