@@ -12,6 +12,8 @@
 import { join } from "path";
 import { ICommandDefinition } from "../../../../../cmd";
 
+const CONNECTION_OPTION_GROUP = "Connection Options";
+
 /**
  * Definition of the import command.
  * @type {ICommandDefinition}
@@ -52,6 +54,30 @@ export const importDefinition: ICommandDefinition = {
             aliases: ["ow"],
             type: "boolean",
             defaultValue: false
+        },
+        {
+            name: "user",
+            aliases: ["u"],
+            description: "User name if authentication is required to download the config from a URL.",
+            type: "string",
+            implies: ["password"],
+            group: CONNECTION_OPTION_GROUP
+        },
+        {
+            name: "password",
+            aliases: ["pass", "pw"],
+            description: "Password if authentication is required to download the config from a URL.",
+            type: "string",
+            implies: ["user"],
+            group: CONNECTION_OPTION_GROUP
+        },
+        {
+            name: "reject-unauthorized",
+            aliases: ["ru"],
+            description: "Reject self-signed certificates if config is downloaded from an HTTPS URL.",
+            type: "boolean",
+            defaultValue: true,
+            group: CONNECTION_OPTION_GROUP
         }
     ],
     examples: [
