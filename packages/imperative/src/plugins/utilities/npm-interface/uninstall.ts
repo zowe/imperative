@@ -9,6 +9,8 @@
 *
 */
 
+import * as fs from "fs";
+import * as path from "path";
 import { PMFConstants } from "../PMFConstants";
 import { readFileSync, writeFileSync } from "jsonfile";
 import { IPluginJson } from "../../doc/IPluginJson";
@@ -48,7 +50,7 @@ export function uninstall(packageName: string): void {
         }
     } else {
         throw new ImperativeError({
-            msg: `${chalk.yellow.bold("Plugin name '")} ${chalk.red.bold(packageName)}' is not installed.`
+            msg: `${chalk.yellow.bold("Plugin name")} '${chalk.red.bold(packageName)}' is not installed.`
         });
     }
 
@@ -63,12 +65,17 @@ export function uninstall(packageName: string): void {
         iConsole.info("Uninstalling package...this may take some time.");
 
         execSync(`${npmCmd} uninstall "${npmPackage}" ` +
-      `--prefix ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION} -g`, {
+            `--prefix "${PMFConstants.instance.PLUGIN_INSTALL_LOCATION}" -g`, {
             cwd: PMFConstants.instance.PMF_ROOT,
             // We need to capture stdout but apparently stderr also gives us a progress
             // bar from the npm install.
             stdio: pipe
         });
+
+        const installFolder = path.join(PMFConstants.instance.PLUGIN_NODE_MODULE_LOCATION, npmPackage);
+        if (fs.existsSync(installFolder)) {
+            throw new Error("Failed to uninstall plugin, install folder still exists:\n  " + installFolder);
+        }
 
         iConsole.info("Uninstall complete");
 
