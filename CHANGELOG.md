@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `4.18.5`
 
 - BugFix: Fixed `plugins uninstall` command failing when there is a space in the install path.
 
