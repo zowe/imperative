@@ -11,6 +11,7 @@
 
 import { SessConstants } from "../../..";
 import { IHandlerParameters } from "../../../../cmd";
+import { IOverridePromptConnProps } from "./IOverridePromptConnProps";
 
 /**
  * Interface for options supplied to ConnectionPropsForSessCfg.addPropsOrPrompt()
@@ -44,6 +45,12 @@ export interface IOptionsForAddConnProps {
      * The default value is TOKEN_TYPE_JWT.
      */
     defaultTokenType?: SessConstants.TOKEN_TYPE_CHOICES;
+
+    /**
+     * Specifies a list of authentication properties, and what they should override.
+     * If one of these properties is available on the session, do not prompt for the other property.
+     */
+    propertyOverrides?: IOverridePromptConnProps[];
 
     /**
      * Specifies the functionality that external applications will use for prompting.

@@ -13,6 +13,7 @@ import { ICommandDefinition } from "../../../../../../lib/index";
 import { LoggingDefinition } from "./logging/Logging.definition";
 import { ConfigAutoStoreCommand } from "./config-auto-store/Config.definition";
 import { MaskingDefinition } from "./masking/Masking.definition";
+import { ConfigOverrideCommand } from "./config-override/Config.definition";
 
 export const definition: ICommandDefinition = {
     name: "test",
@@ -22,6 +23,7 @@ export const definition: ICommandDefinition = {
     children: [
         LoggingDefinition,
         ConfigAutoStoreCommand,
+        ConfigOverrideCommand,
         MaskingDefinition,
     ]
 };

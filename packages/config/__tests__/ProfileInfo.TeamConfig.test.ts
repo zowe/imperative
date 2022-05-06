@@ -344,7 +344,7 @@ describe("TeamConfig ProfileInfo tests", () => {
             let actualDefaultProfiles = 0;
 
             const profInfo = createNewProfInfo(teamProjDir);
-            await profInfo.readProfilesFromDisk({homeDir: teamHomeProjDir});
+            await profInfo.readProfilesFromDisk({ homeDir: teamHomeProjDir });
             const profAttrs = profInfo.getAllProfiles(desiredProfType);
 
             expect(profAttrs.length).toEqual(expectedProfileNames.length);
@@ -378,8 +378,8 @@ describe("TeamConfig ProfileInfo tests", () => {
             let actualDefaultProfiles = 0;
 
             const profInfo = createNewProfInfo(teamProjDir);
-            await profInfo.readProfilesFromDisk({homeDir: teamHomeProjDir});
-            const profAttrs = profInfo.getAllProfiles(desiredProfType, {excludeHomeDir: true});
+            await profInfo.readProfilesFromDisk({ homeDir: teamHomeProjDir });
+            const profAttrs = profInfo.getAllProfiles(desiredProfType, { excludeHomeDir: true });
 
             expect(profAttrs.length).toEqual(expectedProfileNames.length);
             for (const prof of profAttrs) {
@@ -514,10 +514,10 @@ describe("TeamConfig ProfileInfo tests", () => {
 
         it("should find known args in service profile and its corresponding base", async () => {
             const profInfo = createNewProfInfo(teamProjDir);
-            await profInfo.readProfilesFromDisk({homeDir: teamHomeProjDir});
+            await profInfo.readProfilesFromDisk({ homeDir: teamHomeProjDir });
 
             const profAttrs = profInfo.getAllProfiles("zosmf").find(p => p.profName === "LPAR2_home");
-            const mergedArgs = profInfo.mergeArgsForProfile(profAttrs, {getSecureVals: true});
+            const mergedArgs = profInfo.mergeArgsForProfile(profAttrs, { getSecureVals: true });
 
             const expectedArgs = [
                 { argName: "host", dataType: "string", argValue: "LPAR2.your.domain.net" },
@@ -527,14 +527,15 @@ describe("TeamConfig ProfileInfo tests", () => {
                 { argName: "password", dataType: "string", argValue: "globalPassword" },
                 { argName: "rejectUnauthorized", dataType: "boolean", argValue: false }
             ];
+            const propFromHome = ["user", "password"];
 
             expect(mergedArgs.knownArgs.length).toBe(expectedArgs.length);
             for (const [idx, arg] of mergedArgs.knownArgs.entries()) {
                 expect(arg).toMatchObject(expectedArgs[idx]);
                 expect(arg.argValue).toEqual(expectedArgs[idx].argValue);
                 expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
-                expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.(base_glob_home|LPAR2_home)\.properties\./);
-                expect(arg.argLoc.osLoc[0]).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
+                expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.(base_glob|LPAR2_home)\.properties\./);
+                expect(arg.argLoc.osLoc[0]).toEqual(path.normalize(path.join(teamHomeProjDir, `${testAppNm}.config.json`)));
             }
         });
 
@@ -619,7 +620,7 @@ describe("TeamConfig ProfileInfo tests", () => {
             let caughtError;
 
             try {
-                (profInfo as any).argTeamConfigLoc({profileName: "doesNotExist", propName: "fake"});
+                (profInfo as any).argTeamConfigLoc({ profileName: "doesNotExist", propName: "fake" });
             } catch (error) {
                 expect(error instanceof ProfInfoErr).toBe(true);
                 caughtError = error;
@@ -1015,6 +1016,23 @@ describe("TeamConfig ProfileInfo tests", () => {
             // back to original host
             await profInfo.updateKnownProperty({ mergedArgs: prof, property: "host", value: "LPAR4.your.domain.net" });
         });
+
+        it("should not update the given property if autoStore is false", async () => {
+            const profInfo = createNewProfInfo(teamProjDir);
+            await profInfo.readProfilesFromDisk();
+            const prof = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("dummy")[0]);
+
+            // Mock autoStore false
+            jest.spyOn(profInfo, "getTeamConfig").mockReturnValueOnce({
+                ...profInfo.getTeamConfig(),
+                properties: { ...profInfo.getTeamConfig().layerMerge(false), autoStore: false }
+            } as any);
+            const ret = await profInfo.updateKnownProperty({ mergedArgs: prof, property: "host", value: "example.com" });
+            const newHost = profInfo.getTeamConfig().api.layers.get().properties.profiles.LPAR4.properties.host;
+
+            expect(newHost).toEqual("LPAR4.your.domain.net");
+            expect(ret).toBe(false);
+        });
     });
 
     describe("loadSecureArg", () => {
@@ -1084,7 +1102,7 @@ describe("TeamConfig ProfileInfo tests", () => {
             const profInfo = createNewProfInfo(teamProjDir);
             const prof = { profName: "test", profLoc: { locType: 1 }, profType: "test", isDefaultProfile: false };
             expect(profInfo.getOsLocInfo(prof)).toBeUndefined();
-            expect(profInfo.getOsLocInfo({...prof, profLoc: {locType: 1, osLoc: []}})).toBeUndefined();
+            expect(profInfo.getOsLocInfo({ ...prof, profLoc: { locType: 1, osLoc: [] } })).toBeUndefined();
         });
 
         it("should return basic osLoc information for a unique profile", async () => {
@@ -1104,7 +1122,7 @@ describe("TeamConfig ProfileInfo tests", () => {
             const desiredProfType = "zosmf";
             const conflictingProfile = "LPAR2";
             const profInfo = createNewProfInfo(teamProjDir);
-            await profInfo.readProfilesFromDisk({homeDir: teamHomeProjDir});
+            await profInfo.readProfilesFromDisk({ homeDir: teamHomeProjDir });
             const profAttrs = profInfo.getAllProfiles(desiredProfType).find(p => p.profName === conflictingProfile);
             const osLocInfo = profInfo.getOsLocInfo(profAttrs);
             expect(osLocInfo.length).toBe(2);
