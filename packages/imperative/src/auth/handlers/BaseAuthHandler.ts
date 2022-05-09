@@ -18,6 +18,7 @@ import { ISaveProfileFromCliArgs } from "../../../../profiles";
 import { ImperativeConfig } from "../../../../utilities";
 import { getActiveProfileName, secureSaveError } from "../../../../config/src/ConfigUtils";
 import { AbstractAuthHandler } from "./AbstractAuthHandler";
+import { IAuthHandlerApi } from "../doc/IAuthHandlerApi";
 
 /**
  * This class is used by the auth command handlers as the base class for their implementation.
@@ -48,6 +49,7 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
     /**
      * This is called by the "config secure" handler when it needs to prompt
      * for connection info to obtain an auth token.
+     * @deprecated Use `getAuthHandlerApi` instead
      * @returns A tuple containing:
      *  - Options for adding connection properties
      *  - The login handler
@@ -57,6 +59,22 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
             defaultTokenType: this.mDefaultTokenType,
             serviceDescription: this.mServiceDescription
         }, this.doLogin];
+    }
+
+    /**
+     * Returns auth handler API that provides convenient functions to create a
+     * session from args, and use it to login or logout of an auth service.
+     */
+    public getAuthHandlerApi(): IAuthHandlerApi {
+        return {
+            promptParams: {
+                defaultTokenType: this.mDefaultTokenType,
+                serviceDescription: this.mServiceDescription
+            },
+            createSessCfg: this.createSessCfgFromArgs,
+            sessionLogin: this.doLogin,
+            sessionLogout: this.doLogout
+        };
     }
 
     /**

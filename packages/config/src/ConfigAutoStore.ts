@@ -105,8 +105,7 @@ export class ConfigAutoStore {
             const authHandlerClass = new authHandler.default();
 
             if (authHandlerClass instanceof AbstractAuthHandler) {
-                const promptParams = authHandlerClass.getPromptParams()[0];
-
+                const { promptParams } = authHandlerClass.getAuthHandlerApi();
                 if (profile.tokenType === promptParams.defaultTokenType) {
                     return authHandlerClass;  // Auth service must have matching token type
                 }
@@ -231,9 +230,9 @@ export class ConfigAutoStore {
             return false;
         }
 
-        const [promptParams, loginHandler] = authHandlerClass.getPromptParams();
+        const api = authHandlerClass.getAuthHandlerApi();
         opts.sessCfg.type = AUTH_TYPE_TOKEN;
-        opts.sessCfg.tokenType = promptParams.defaultTokenType;
+        opts.sessCfg.tokenType = api.promptParams.defaultTokenType;
         const baseSessCfg: ISession = { type: opts.sessCfg.type };
 
         for (const propName of Object.keys(ImperativeConfig.instance.loadedConfig.baseProfile.schema.properties)) {
@@ -244,7 +243,7 @@ export class ConfigAutoStore {
         }
 
         Logger.getAppLogger().info(`Fetching ${opts.sessCfg.tokenType} for ${opts.profilePath}`);
-        opts.sessCfg.tokenValue = await loginHandler(new Session(baseSessCfg));
+        opts.sessCfg.tokenValue = await api.sessionLogin(new Session(baseSessCfg));
         return true;
     }
 }
