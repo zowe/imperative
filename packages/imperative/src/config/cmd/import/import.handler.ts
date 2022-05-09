@@ -14,14 +14,17 @@ import * as path from "path";
 import { fileURLToPath, pathToFileURL, URL } from "url";
 import * as JSONC from "comment-json";
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
-import { ImperativeConfig } from "../../../../../utilities";
+import { ImperativeError } from "../../../../../error";
+import { ImperativeConfig, TextUtils } from "../../../../../utilities";
 import { IConfig } from "../../../../../config";
-import { RestClient, Session } from "../../../../../rest";
+import { RestClient, Session, SessConstants } from "../../../../../rest";
 
 /**
  * Import config
  */
 export default class ImportHandler implements ICommandHandler {
+    private params: IHandlerParameters;
+
     /**
      * Process the command and input.
      *
@@ -30,6 +33,8 @@ export default class ImportHandler implements ICommandHandler {
      * @throws {ImperativeError}
      */
     public async process(params: IHandlerParameters): Promise<void> {
+        this.params = params;
+
         // Load the config and set the active layer according to user options
         const config = ImperativeConfig.instance.config;
         const configDir = params.arguments.globalConfig ? null : process.cwd();
@@ -58,7 +63,8 @@ export default class ImportHandler implements ICommandHandler {
                 await this.downloadSchema(schemaUri, schemaFilePath);
                 schemaImported = true;
             } catch (error) {
-                params.response.console.error(`Failed to download schema from ${schemaUri}`);
+                params.response.console.error(TextUtils.chalk.yellow("Warning:") +
+                    ` Failed to download schema\n${error.message}\n`);
             }
         }
 
@@ -69,14 +75,40 @@ export default class ImportHandler implements ICommandHandler {
     }
 
     /**
+     * Build a session from a URL and command line arguments.
+     * @param url Web URL of the config JSON file
+     * @returns Populated session object
+     */
+    private buildSession(url: URL): Session {
+        let session = Session.createFromUrl(url, false);
+        if (this.params.arguments.user != null && this.params.arguments.password != null) {
+            const { protocol, hostname, port } = session.ISession;
+            session = new Session({
+                protocol, hostname, port,
+                type: SessConstants.AUTH_TYPE_BASIC,
+                user: this.params.arguments.user,
+                password: this.params.arguments.password
+            });
+        }
+        session.ISession.rejectUnauthorized = this.params.arguments.rejectUnauthorized;
+        return session;
+    }
+
+    /**
      * Download the config from a URL
      * @param url Web URL of the config JSON file
      * @returns Parsed config object
      */
     private async fetchConfig(url: URL): Promise<IConfig> {
-        const session = Session.createFromUrl(url, false);
-        const response = await RestClient.getExpectString(session, url.pathname);
-        return JSONC.parse(response);
+        const response = await RestClient.getExpectString(this.buildSession(url), url.pathname);
+        try {
+            return JSONC.parse(response);
+        } catch (error) {
+            throw new ImperativeError({
+                msg: "Failed to parse config JSON: URL must point to a valid JSON file\n" + error.message,
+                causeErrors: error
+            });
+        }
     }
 
     /**
@@ -88,8 +120,15 @@ export default class ImportHandler implements ICommandHandler {
         if (url.protocol === "file:") {
             fs.copyFileSync(fileURLToPath(url), filePath);
         } else {
-            const session = Session.createFromUrl(url, false);
-            const response = await RestClient.getExpectString(session, url.pathname);
+            const response = await RestClient.getExpectString(this.buildSession(url), url.pathname);
+            try {
+                JSONC.parse(response);
+            } catch (error) {
+                throw new ImperativeError({
+                    msg: "Failed to parse schema JSON: URL must point to a valid JSON file\n" + error.message,
+                    causeErrors: error
+                });
+            }
             fs.writeFileSync(filePath, response);
         }
     }

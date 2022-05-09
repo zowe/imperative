@@ -17,7 +17,7 @@ import * as lodash from "lodash";
 import ImportHandler from "../../../../src/config/cmd/import/import.handler";
 import { IHandlerParameters } from "../../../../../cmd";
 import { Config, ConfigConstants, IConfig } from "../../../../../config";
-import { RestClient } from "../../../../../rest";
+import { ISession, RestClient } from "../../../../../rest";
 import { ImperativeConfig } from "../../../../..";
 import { expectedConfigObject, expectedSchemaObject } from
     "../../../../../../__tests__/__integration__/imperative/__tests__/__integration__/cli/config/__resources__/expectedObjects";
@@ -145,6 +145,34 @@ describe("Configuration Import command handler", () => {
                 expectedConfigText);
         });
 
+        it("should import config from web address and override session properties", async () => {
+            jest.spyOn(fs, "existsSync").mockReturnValueOnce(false);
+            writeFileSyncSpy.mockReturnValueOnce();
+            const restClientSpy = jest.spyOn(RestClient, "getExpectString").mockResolvedValueOnce("{}");
+
+            const params: IHandlerParameters = getIHandlerParametersObject();
+            params.arguments = {
+                ...params.arguments,
+                location: "http://example.com/downloads/fakeapp.config.json",
+                user: "fakeUser",
+                password: "fakePass",
+                rejectUnauthorized: false
+            };
+            await new ImportHandler().process(params);
+
+            const expectedSession: ISession = {
+                hostname: "example.com",
+                rejectUnauthorized: false,
+                type: "basic",
+                user: "fakeUser",
+                password: "fakePass",
+                base64EncodedAuth: Buffer.from("fakeUser:fakePass").toString("base64")
+            };
+            expect(restClientSpy.mock.calls[0][0].ISession).toMatchObject(expectedSession);
+            expect(downloadSchemaSpy).not.toHaveBeenCalled();
+            expect(writeFileSyncSpy).toHaveBeenCalled();
+        });
+
         it("should not import config that already exists", async () => {
             jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
 
@@ -160,7 +188,9 @@ describe("Configuration Import command handler", () => {
 
     describe("fetch config", () => {
         const configUrl = "http://example.com/downloads/fakeapp.config.json";
-        const fetchConfig = (ImportHandler.prototype as any).fetchConfig;
+        const fetchConfig = (ImportHandler.prototype as any).fetchConfig.bind({
+            buildSession: jest.fn()
+        });
 
         it("should successfully fetch config file that is valid JSON", async () => {
             jest.spyOn(RestClient, "getExpectString").mockResolvedValueOnce(expectedConfigText);
@@ -183,6 +213,7 @@ describe("Configuration Import command handler", () => {
 
             expect(config).toBeUndefined();
             expect(error).toBeDefined();
+            expect(error.message).toContain("URL must point to a valid JSON file");
             expect(error.message).toContain("Unexpected token");
         });
 
@@ -206,7 +237,9 @@ describe("Configuration Import command handler", () => {
         const schemaSrcPath = __dirname + "/fakeapp.schema1.json";
         const schemaDestPath = __dirname + "/fakeapp.schema2.json";
         const schemaUrl = "http://example.com/downloads/fakeapp.schema.json";
-        const downloadSchema = (ImportHandler.prototype as any).downloadSchema;
+        const downloadSchema = (ImportHandler.prototype as any).downloadSchema.bind({
+            buildSession: jest.fn()
+        });
 
         it("should be able to copy the schema file from a local file", async () => {
             jest.spyOn(fs, "copyFileSync").mockReturnValueOnce();
@@ -223,7 +256,21 @@ describe("Configuration Import command handler", () => {
             expect(fs.writeFileSync).toHaveBeenCalledWith(schemaDestPath, expectedSchemaText);
         });
 
-        it("should handle errors encountered for an invalid URL", async () => {
+        it("should throw error when schema file is not valid JSON", async () => {
+            jest.spyOn(RestClient, "getExpectString").mockResolvedValueOnce("invalid JSON");
+            let error: any;
+            try {
+                await downloadSchema(new URL(schemaUrl), schemaDestPath);
+            } catch (err) {
+                error = err;
+            }
+
+            expect(error).toBeDefined();
+            expect(error.message).toContain("URL must point to a valid JSON file");
+            expect(error.message).toContain("Unexpected token");
+        });
+
+        it("should throw error when REST client fails to fetch schema file", async () => {
             jest.spyOn(RestClient, "getExpectString").mockRejectedValueOnce(new Error("invalid URL"));
             let error;
             try {

@@ -5,6 +5,7 @@ All notable changes to the Imperative package will be documented in this file.
 ## Recent Changes
 
 - BugFix: Fixed `config secure` not respecting the `rejectUnauthorized` property in team config. [#813](https://github.com/zowe/imperative/issues/813)
+- BugFix: Fixed `config import` not respecting the `rejectUnauthorized` property in team config. [#816](https://github.com/zowe/imperative/issues/816)
 
 ## `5.2.1`
 

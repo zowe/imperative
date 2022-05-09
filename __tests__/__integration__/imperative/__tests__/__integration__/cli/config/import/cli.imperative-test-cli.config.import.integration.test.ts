@@ -266,14 +266,14 @@ describe("imperative-test-cli config import", () => {
 
             it("should fail to import a schema from a bad URL", () => {
                 const response = runCliScript(path.join(__dirname, "/__scripts__/import_config.sh"), TEST_ENVIRONMENT.workingDir, [
-                    localhostUrl + "/test.config.bad.with.schema.json", "--user-config false --global-config false"
+                    localhostUrl + "/test.config.bad.with.missing.schema.json", "--user-config false --global-config false"
                 ]);
 
                 expect(response.stderr.toString()).toContain("Failed to download schema");
                 expect(response.status).toEqual(0);
 
                 expectFilesAreEqual(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json"),
-                    path.join(__dirname, "__resources__", "test.config.bad.with.schema.json"));
+                    path.join(__dirname, "__resources__", "test.config.bad.with.missing.schema.json"));
                 expect(fs.existsSync(path.join(TEST_ENVIRONMENT.workingDir, "test", "test.schema.good.json"))).toEqual(false);
             });
 
@@ -282,12 +282,28 @@ describe("imperative-test-cli config import", () => {
                     localhostUrl + "/test.config.bad.json", "--user-config false --global-config false"
                 ]);
 
+                expect(response.stderr.toString()).toContain("URL must point to a valid JSON file");
                 expect(response.stderr.toString()).toContain("Unexpected end of JSON input");
                 expect(response.stdout.toString()).toEqual("");
                 expect(response.status).toEqual(1);
 
                 expect(fs.existsSync(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json"))).toEqual(false);
                 expect(fs.existsSync(path.join(TEST_ENVIRONMENT.workingDir, "test", "test.schema.good.json"))).toEqual(false);
+            });
+
+            it("should fail to import a schema that is invalid JSON from a URL", () => {
+                const response = runCliScript(path.join(__dirname, "/__scripts__/import_config.sh"), TEST_ENVIRONMENT.workingDir, [
+                    localhostUrl + "/test.config.bad.with.invalid.schema.json", "--user-config false --global-config false"
+                ]);
+
+                expect(response.stderr.toString()).toContain("URL must point to a valid JSON file");
+                expect(response.stderr.toString()).toContain("Unexpected end of JSON input");
+                expect(response.stdout.toString()).toContain("Imported config");
+                expect(response.status).toEqual(0);
+
+                expectFilesAreEqual(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json"),
+                    path.join(__dirname, "__resources__", "test.config.bad.with.invalid.schema.json"));
+                expect(fs.existsSync(path.join(TEST_ENVIRONMENT.workingDir, "test", "test.schema.bad.json"))).toEqual(false);
             });
         });
 
@@ -308,7 +324,7 @@ describe("imperative-test-cli config import", () => {
 
             it("should fail to import a schema from a bad path", () => {
                 const response = runCliScript(path.join(__dirname, "/__scripts__/import_config.sh"), TEST_ENVIRONMENT.workingDir, [
-                    path.join(__dirname, "__resources__", "test.config.bad.with.schema.json"),
+                    path.join(__dirname, "__resources__", "test.config.bad.with.missing.schema.json"),
                     "--user-config false --global-config false"
                 ]);
 
@@ -317,7 +333,7 @@ describe("imperative-test-cli config import", () => {
                 expect(response.status).toEqual(0);
 
                 expectFilesAreEqual(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json"),
-                    path.join(__dirname, "__resources__", "test.config.bad.with.schema.json"));
+                    path.join(__dirname, "__resources__", "test.config.bad.with.missing.schema.json"));
                 expect(fs.existsSync(path.join(TEST_ENVIRONMENT.workingDir, "test", "test.schema.good.json"))).toEqual(false);
             });
 
