@@ -13,6 +13,7 @@ import { ICommandHandler, IHandlerParameters, ICommandArguments } from "../../..
 import { Constants } from "../../../../constants";
 import { AbstractSession, IOptionsForAddConnProps, ISession, SessConstants } from "../../../../rest";
 import { ImperativeError } from "../../../../error";
+import { IAuthHandlerApi } from "../doc/IAuthHandlerApi";
 
 /**
  * This class is used by the auth command handlers as the base class for their implementation.
@@ -60,11 +61,18 @@ export abstract class AbstractAuthHandler implements ICommandHandler {
     /**
      * This is called by the "config secure" handler when it needs to prompt
      * for connection info to obtain an auth token.
+     * @deprecated Use `getAuthHandlerApi` instead
      * @returns A tuple containing:
      *  - Options for adding connection properties
      *  - The login handler
      */
     public abstract getPromptParams(): [IOptionsForAddConnProps, (session: AbstractSession) => Promise<string>];
+
+    /**
+     * Returns auth handler API that provides convenient functions to create a
+     * session from args, and use it to login or logout of an auth service.
+     */
+    public abstract getAuthHandlerApi(): IAuthHandlerApi;
 
     /**
      * This is called by the {@link AbstractAuthHandler#process} when it needs a

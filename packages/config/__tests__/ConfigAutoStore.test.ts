@@ -632,10 +632,10 @@ describe("ConfigAutoStore tests", () => {
         it("should fetch token when auth handler is found", async () => {
             const mockLoginHandler = jest.fn();
             jest.spyOn(ConfigAutoStore as any, "_findAuthHandlerForProfile").mockReturnValueOnce({
-                getPromptParams: () => [
-                    { defaultTokenType: SessConstants.TOKEN_TYPE_JWT },
-                    mockLoginHandler
-                ]
+                getAuthHandlerApi: () => ({
+                    promptParams: { defaultTokenType: SessConstants.TOKEN_TYPE_JWT },
+                    sessionLogin: mockLoginHandler
+                })
             } as any);
 
             const fetched = await (ConfigAutoStore as any).fetchTokenForSessCfg({}, {
