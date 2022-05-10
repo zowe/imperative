@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Updated `cli-table3` dependency for performance improvements.
+
 ## `4.18.5`
 
 - BugFix: Fixed `plugins uninstall` command failing when there is a space in the install path.
