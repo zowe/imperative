@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `4.18.6`
 
 - BugFix: Updated `cli-table3` dependency for performance improvements.
 
