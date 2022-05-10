@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Updated `cli-table3` dependency for performance improvements.
+
 ## `5.2.2`
 
 - BugFix: Fixed `config secure` not respecting the `rejectUnauthorized` property in team config. [#813](https://github.com/zowe/imperative/issues/813)
