@@ -133,7 +133,7 @@ export default class InitHandler implements ICommandHandler {
             if (opts.mergeConfig.profiles.base?.properties != null) {
                 // Remove null or empty values that should be overwritten from old base profile
                 for (const [k, v] of Object.entries(opts.mergeConfig.profiles.base.properties)) {
-                    if ((v == null || v === "") && newConfig.profiles.base.properties[k] != null) {
+                    if ((v === null || v === "") && newConfig.profiles.base.properties[k] != null) {
                         delete config.layerActive().properties.profiles.base.properties[k];
                     }
                 }
