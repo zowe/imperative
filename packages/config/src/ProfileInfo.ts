@@ -862,7 +862,7 @@ export class ProfileInfo {
      *        profiles.
      */
     public async readProfilesFromDisk(teamCfgOpts?: IConfigOpts) {
-        this.mLoadedConfig = await Config.load(this.mAppName, teamCfgOpts);
+        this.mLoadedConfig = await Config.load(this.mAppName, { ...{ homeDir: ImperativeConfig.instance.cliHome }, ...teamCfgOpts });
         if (ImperativeConfig.instance.config == null) { ImperativeConfig.instance.config = this.mLoadedConfig; }
         this.mUsingTeamConfig = this.mLoadedConfig.exists;
 
