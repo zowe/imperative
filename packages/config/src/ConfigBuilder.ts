@@ -64,7 +64,8 @@ export class ConfigBuilder {
         // Prompt for properties missing from base profile
         if (impConfig.baseProfile != null && opts.getValueBack != null) {
             for (const [k, v] of Object.entries(impConfig.baseProfile.schema.properties)) {
-                if (v.includeInTemplate && v.optionDefinition?.defaultValue == null) {
+                const oldPropValue = opts.mergeConfig?.profiles[impConfig.baseProfile.type]?.properties[k];
+                if (v.includeInTemplate && v.optionDefinition?.defaultValue == null && (oldPropValue == null || oldPropValue === "")) {
                     const propValue = await opts.getValueBack(k, v);
                     if (propValue != null) {
                         lodash.set(config, `profiles.${impConfig.baseProfile.type}.properties.${k}`, propValue);

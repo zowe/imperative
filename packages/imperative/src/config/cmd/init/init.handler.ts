@@ -121,12 +121,23 @@ export default class InitHandler implements ICommandHandler {
             opts.populateProperties = true;
             opts.getValueBack = this.promptForProp.bind(this);
         }
+        if (!overwrite) {
+            opts.mergeConfig = config.api.layers.get().properties;
+        }
 
         // Build new config and merge with existing layer or overwrite it if overwrite & forSure options are present
         const newConfig: IConfig = await ConfigBuilder.build(ImperativeConfig.instance.loadedConfig, opts);
         if (overwrite) {
             config.api.layers.set(newConfig);
         } else {
+            if (opts.mergeConfig.profiles.base?.properties != null) {
+                // Remove null or empty values that should be overwritten from old base profile
+                for (const [k, v] of Object.entries(opts.mergeConfig.profiles.base.properties)) {
+                    if ((v == null || v === "") && newConfig.profiles.base.properties[k] != null) {
+                        delete config.layerActive().properties.profiles.base.properties[k];
+                    }
+                }
+            }
             config.api.layers.merge(newConfig);
         }
 
