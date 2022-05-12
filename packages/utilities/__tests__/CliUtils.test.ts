@@ -9,6 +9,7 @@
 *
 */
 
+import * as stream from "stream";
 import { CliUtils } from "../src/CliUtils";
 import { CommandProfiles, ICommandOptionDefinition } from "../../cmd";
 import { IProfile } from "../../profiles";
@@ -215,44 +216,18 @@ describe("CliUtils", () => {
     });
 
     describe("readPrompt", () => {
-        let readline = require("readline");
-        let readlineReal: any;
+        const readline = require("readline");
+        const oldCreateInterface = readline.createInterface;
         const mockedAnswer = "User answer";
 
         beforeEach(() => {
-            readlineReal = readline;
-            readline.createInterface = jest.fn(() => {
-                return {
-                    prompt: jest.fn(() => {
-                        // do nothing
-                    }),
-                    setPrompt: jest.fn(),
-                    on: jest.fn((eventName: string, callback: any) => {
-                        if (eventName === "line") {
-                            callback(mockedAnswer);
-                        }
-                        return {
-                            on: jest.fn((chainedEvtNm: string, chainedCallBack: any) => {
-                                if (chainedEvtNm === "close") {
-                                    chainedCallBack();
-                                }
-                            }),
-                        };
-                    }),
-                    output: {
-                        write: jest.fn(() => {
-                            // do nothing
-                        })
-                    },
-                    close: jest.fn(() => {
-                        // do nothing
-                    })
-                };
+            jest.spyOn(readline, "createInterface").mockImplementationOnce((opts: any) => {
+                return oldCreateInterface({
+                    ...opts,
+                    input: stream.Readable.from(mockedAnswer),
+                    output: new stream.PassThrough()
+                });
             });
-        });
-
-        afterEach(() => {
-            readline = readlineReal;
         });
 
         it("should return the user's answer", async () => {

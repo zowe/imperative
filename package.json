@@ -54,7 +54,7 @@
     "@types/yargs": "13.0.4",
     "@zowe/perf-timing": "1.0.7",
     "chalk": "2.4.2",
-    "cli-table3": "0.6.1",
+    "cli-table3": "0.6.2",
     "comment-json": "4.1.0",
     "dataobject-parser": "1.2.1",
     "deepmerge": "4.2.2",
