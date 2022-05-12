@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Added environmental variable support to the ProfileInfo APIs by defaulting `homeDir` to `cliHome`. [zowe/vscode-extension-for-zowe#1777](https://github.com/zowe/vscode-extension-for-zowe/issues/1777)
+
 ## `5.2.2`
 
 - BugFix: Fixed `config secure` not respecting the `rejectUnauthorized` property in team config. [#813](https://github.com/zowe/imperative/issues/813)
