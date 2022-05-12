@@ -1243,7 +1243,7 @@ export class ProfileInfo {
         const layers = this.mLoadedConfig.layers;
         for (const layer of layers) {
             if (excludeHomeDir && layer.global) continue;
-            if (lodash.get(layer.properties, jsonPath) !== undefined) {
+            if (lodash.get(layer.properties, jsonPath) !== undefined && !files.includes(layer.path)) {
                 files.push(layer.path);
             }
         }
@@ -1297,7 +1297,7 @@ export class ProfileInfo {
         const foundInSecureArray = secFields.indexOf(buildPath(segments, opts.propName)) >= 0;
         const _isPropInLayer = (properties: IConfig) => {
             return properties && (lodash.get(properties, jsonPath) !== undefined ||
-            (foundInSecureArray && lodash.get(properties, jsonPath.split(`.properties.${opts.propName}`)[0]) !== undefined));
+                (foundInSecureArray && lodash.get(properties, jsonPath.split(`.properties.${opts.propName}`)[0]) !== undefined));
         };
 
         let filePath: string;
