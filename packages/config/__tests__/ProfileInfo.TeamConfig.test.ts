@@ -439,6 +439,9 @@ describe("TeamConfig ProfileInfo tests", () => {
             await profInfo.readProfilesFromDisk();
             const profAttrs = profInfo.getDefaultProfile("zosmf");
             delete profInfo.getTeamConfig().layerActive().properties.defaults.base;
+            // Since ProjectDir and HomeDir are the same (based on the ZOWE_CLI_HOME),
+            // we also need to delete the base profile from that layer (even though is't just a copy)
+            delete profInfo.getTeamConfig().findLayer(false, true).properties.defaults.base;
             const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
 
             const expectedArgs = [
@@ -462,6 +465,9 @@ describe("TeamConfig ProfileInfo tests", () => {
             await profInfo.readProfilesFromDisk();
             const profAttrs = profInfo.getDefaultProfile("tso");
             delete profInfo.getTeamConfig().layerActive().properties.defaults.base;
+            // Since ProjectDir and HomeDir are the same (based on the ZOWE_CLI_HOME),
+            // we also need to delete the base profile from that layer (even though is't just a copy)
+            delete profInfo.getTeamConfig().findLayer(false, true).properties.defaults.base;
             const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
 
             const expectedArgs = [
@@ -552,6 +558,9 @@ describe("TeamConfig ProfileInfo tests", () => {
             await profInfo.readProfilesFromDisk();
             const profAttrs = profInfo.getDefaultProfile("dummy");
             delete profInfo.getTeamConfig().layerActive().properties.defaults.base;
+            // Since ProjectDir and HomeDir are the same (based on the ZOWE_CLI_HOME),
+            // we also need to delete the base profile from that layer (even though is't just a copy)
+            delete profInfo.getTeamConfig().findLayer(false, true).properties.defaults.base;
             const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
 
             const expectedArgs = [
@@ -595,6 +604,9 @@ describe("TeamConfig ProfileInfo tests", () => {
             profInfo.getTeamConfig().set("profiles.LPAR1.properties.base-path", fakeBasePath);
             const profAttrs = profInfo.getDefaultProfile("zosmf");
             delete profInfo.getTeamConfig().layerActive().properties.defaults.base;
+            // Since ProjectDir and HomeDir are the same (based on the ZOWE_CLI_HOME),
+            // we also need to delete the base profile from that layer (even though is't just a copy)
+            delete profInfo.getTeamConfig().findLayer(false, true).properties.defaults.base;
             const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
 
             const expectedArgs = [
@@ -657,6 +669,9 @@ describe("TeamConfig ProfileInfo tests", () => {
             await profInfo.readProfilesFromDisk();
             const profAttrs = profInfo.getDefaultProfile("zosmf");
             delete profInfo.getTeamConfig().layerActive().properties.defaults.base;
+            // Since ProjectDir and HomeDir are the same (based on the ZOWE_CLI_HOME),
+            // we also need to delete the base profile from that layer (even though is't just a copy)
+            delete profInfo.getTeamConfig().findLayer(false, true).properties.defaults.base;
             jest.spyOn(profInfo as any, "loadSchema").mockReturnValueOnce(profSchema);
             const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
 
@@ -698,6 +713,9 @@ describe("TeamConfig ProfileInfo tests", () => {
             await profInfo.readProfilesFromDisk();
             const profAttrs = profInfo.getDefaultProfile("zosmf");
             delete profInfo.getTeamConfig().layerActive().properties.defaults.base;
+            // Since ProjectDir and HomeDir are the same (based on the ZOWE_CLI_HOME),
+            // we also need to delete the base profile from that layer (even though is't just a copy)
+            delete profInfo.getTeamConfig().findLayer(false, true).properties.defaults.base;
             const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
 
             const expectedArgs = [
@@ -1110,12 +1128,15 @@ describe("TeamConfig ProfileInfo tests", () => {
             await profInfo.readProfilesFromDisk();
             const profAttrs = profInfo.getDefaultProfile("zosmf");
             const osLocInfo = profInfo.getOsLocInfo(profAttrs);
+            const expectedObjs = [
+                { name: profAttrs.profName, path: profAttrs.profLoc.osLoc[0], user: false, global: false },
+                { name: profAttrs.profName, path: profAttrs.profLoc.osLoc[0], user: false, global: true }
+            ];
             expect(osLocInfo).toBeDefined();
-            expect(osLocInfo.length).toBe(1);
-            expect(osLocInfo[0].name).toEqual(profAttrs.profName);
-            expect(osLocInfo[0].path).toEqual(profAttrs.profLoc.osLoc[0]);
-            expect(osLocInfo[0].user).toBe(false);
-            expect(osLocInfo[0].global).toBe(false);
+            expect(osLocInfo.length).toBe(expectedObjs.length);
+            expectedObjs.forEach((expectedOsLocInfo, idx) => {
+                expect(osLocInfo[idx]).toEqual(expectedOsLocInfo);
+            });
         });
 
         it("should return osLoc information for a profile name that exists in project and global config", async () => {
