@@ -6,6 +6,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Enhancement: Added environmental variable support to the ProfileInfo APIs by defaulting `homeDir` to `cliHome`. [zowe/vscode-extension-for-zowe#1777](https://github.com/zowe/vscode-extension-for-zowe/issues/1777)
 - BugFix: Updated `cli-table3` dependency for performance improvements.
+- BugFix: Fixed `config init` not replacing empty values with prompted for values in team config. [#821](https://github.com/zowe/imperative/issues/821)
 
 ## `5.2.2`
 

@@ -29,6 +29,11 @@ export default class InitHandler implements ICommandHandler {
     private params: IHandlerParameters;
 
     /**
+     * List of property names that have been prompted for.
+     */
+    private promptProps: string[];
+
+    /**
      * Process the command and input.
      *
      * @param {IHandlerParameters} params Parameters supplied by yargs
@@ -37,6 +42,7 @@ export default class InitHandler implements ICommandHandler {
      */
     public async process(params: IHandlerParameters): Promise<void> {
         this.params = params;
+        this.promptProps = [];
 
         // Load the config and set the active layer according to user options
         await OverridesLoader.ensureCredentialManagerLoaded();
@@ -127,6 +133,15 @@ export default class InitHandler implements ICommandHandler {
         if (overwrite) {
             config.api.layers.set(newConfig);
         } else {
+            const oldConfig = config.layerActive().properties;
+            if (oldConfig.profiles.base?.properties != null) {
+                // Remove values that should be overwritten from old base profile
+                for (const propName of Object.keys(oldConfig.profiles.base.properties)) {
+                    if (this.promptProps.includes(propName) && newConfig.profiles.base.properties[propName] != null) {
+                        delete oldConfig.profiles.base.properties[propName];
+                    }
+                }
+            }
             config.api.layers.merge(newConfig);
         }
 
@@ -164,6 +179,7 @@ export default class InitHandler implements ICommandHandler {
         }
 
         // get the summary and value
+        this.promptProps.push(propName);
         if ((property as any).optionDefinition?.description != null) {
             propName = `${propName} (${(property as any).optionDefinition.description})`;
         }
