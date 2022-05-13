@@ -29,6 +29,11 @@ export default class InitHandler implements ICommandHandler {
     private params: IHandlerParameters;
 
     /**
+     * List of property names that have been prompted for.
+     */
+    private promptProps: string[];
+
+    /**
      * Process the command and input.
      *
      * @param {IHandlerParameters} params Parameters supplied by yargs
@@ -37,6 +42,7 @@ export default class InitHandler implements ICommandHandler {
      */
     public async process(params: IHandlerParameters): Promise<void> {
         this.params = params;
+        this.promptProps = [];
 
         // Load the config and set the active layer according to user options
         await OverridesLoader.ensureCredentialManagerLoaded();
@@ -121,20 +127,18 @@ export default class InitHandler implements ICommandHandler {
             opts.populateProperties = true;
             opts.getValueBack = this.promptForProp.bind(this);
         }
-        if (!overwrite) {
-            opts.mergeConfig = config.api.layers.get().properties;
-        }
 
         // Build new config and merge with existing layer or overwrite it if overwrite & forSure options are present
         const newConfig: IConfig = await ConfigBuilder.build(ImperativeConfig.instance.loadedConfig, opts);
         if (overwrite) {
             config.api.layers.set(newConfig);
         } else {
-            if (opts.mergeConfig.profiles.base?.properties != null) {
-                // Remove null or empty values that should be overwritten from old base profile
-                for (const [k, v] of Object.entries(opts.mergeConfig.profiles.base.properties)) {
-                    if ((v === null || v === "") && newConfig.profiles.base.properties[k] != null) {
-                        delete config.layerActive().properties.profiles.base.properties[k];
+            const oldConfig = config.layerActive().properties;
+            if (oldConfig.profiles.base?.properties != null) {
+                // Remove values that should be overwritten from old base profile
+                for (const propName of Object.keys(oldConfig.profiles.base.properties)) {
+                    if (this.promptProps.includes(propName) && newConfig.profiles.base.properties[propName] != null) {
+                        delete oldConfig.profiles.base.properties[propName];
                     }
                 }
             }
@@ -175,6 +179,7 @@ export default class InitHandler implements ICommandHandler {
         }
 
         // get the summary and value
+        this.promptProps.push(propName);
         if ((property as any).optionDefinition?.description != null) {
             propName = `${propName} (${(property as any).optionDefinition.description})`;
         }

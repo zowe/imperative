@@ -235,54 +235,6 @@ describe("Config Builder tests", () => {
             expect(getDefaultValueSpy).toHaveBeenCalledTimes(1); // Populating default value for info
             expect(builtConfig).toEqual(expectedConfig);
         });
-
-        it("should build a config with a base profile and skip prompt for property defined in existing config", async () => {
-            testConfig.baseProfile = {
-                type: "base",
-                schema: {
-                    type: "object",
-                    title: "Base Profile",
-                    description: "Base profile that stores values shared by multiple service profiles",
-                    properties: {host: buildProfileProperty("host", "string")}
-                }
-            };
-            testConfig.profiles.push(testConfig.baseProfile);
-            const builtConfig = await ConfigBuilder.build(testConfig, {
-                populateProperties: true,
-                mergeConfig: {
-                    profiles: {
-                        base: {
-                            properties: {
-                                host: "original value"
-                            }
-                        }
-                    },
-                    defaults: {}
-                },
-                getValueBack
-            });
-            expectedConfig.profiles = {
-                secured: {
-                    type: "secured",
-                    properties: {
-                        info: ""
-                    },
-                    secure: ["secret"]
-                },
-                base: {
-                    type: "base",
-                    properties: {
-                        host: "",
-                    },
-                    secure: []
-                }
-            };
-            expectedConfig.defaults = { base: "base", secured: "secured" };
-
-            expect(configEmptySpy).toHaveBeenCalledTimes(1);
-            expect(getDefaultValueSpy).toHaveBeenCalledTimes(2); // Populating default value for host and info
-            expect(builtConfig).toEqual(expectedConfig);
-        });
     });
 
     describe("convert", () => {

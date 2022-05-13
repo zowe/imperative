@@ -648,7 +648,7 @@ describe("Configuration Initialization command handler", () => {
         expect(ImperativeConfig.instance.config.properties.profiles.base.properties.secret).toEqual("area51");
     });
 
-    it("should attempt to initialize the project configuration and not overwrite existing value with prompt", async () => {
+    it("should attempt to initialize the project configuration and overwrite non-empty value with prompt", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.userConfig = false;
@@ -660,7 +660,7 @@ describe("Configuration Initialization command handler", () => {
             profiles: {
                 base: {
                     properties: {
-                        secret: 42
+                        secret: "expired"
                     }
                 }
             },
@@ -689,7 +689,9 @@ describe("Configuration Initialization command handler", () => {
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObject);
 
-        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // Property already has non-empty value - no prompting should occur
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // 1 = Schema and 2 = Config
@@ -697,7 +699,7 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT));
 
         // Secure value supplied during prompting should be on properties
-        expect(ImperativeConfig.instance.config.properties.profiles.base.properties.secret).toEqual(42);
+        expect(ImperativeConfig.instance.config.properties.profiles.base.properties.secret).toEqual("area51");
     });
 
     it("should display warning if unable to securely save credentials", async () => {

@@ -9,7 +9,6 @@
 *
 */
 
-import { IConfig } from "./IConfig";
 import { IProfileProperty } from "../../../profiles";
 
 export interface IConfigBuilderOpts {
@@ -18,13 +17,6 @@ export interface IConfigBuilderOpts {
      * `IProfileProperty.includeInTemplate` flag set to true.
      */
     populateProperties?: boolean;
-
-    /**
-     * Existing config properties that the new config will be merged with. If
-     * set, the config builder skips prompting for properties that already have
-     * values defined.
-     */
-    mergeConfig?: IConfig;
 
     /**
      * Callback that prompts the user to enter a value for a profile property.
