@@ -148,7 +148,7 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
                 config.api.profiles.defaultSet(this.mProfileType, profileName);
             } else {
                 const { user, global } = config.api.layers.find(profileName);
-                config.api.layers.activate(user, global);
+                await config.api.layers.activate(user, global);
             }
 
             const profilePath = config.api.profiles.expandPath(profileName);
@@ -157,7 +157,7 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
 
             await config.save();
             // Restore original active layer
-            config.api.layers.activate(beforeLayer.user, beforeLayer.global);
+            await config.api.layers.activate(beforeLayer.user, beforeLayer.global);
 
             params.response.console.log(`\n` +
                 `Login successful. The authentication token is stored in the '${profileName}' ` +

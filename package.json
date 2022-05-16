@@ -47,7 +47,8 @@
     "watch:webHelp": "cd web-help && tsc -w",
     "bundle:webHelp": "gulp bundleWebHelp",
     "typedoc": "typedoc --options ./typedoc.json ./packages/",
-    "prepare": "husky install && npm run bundle:webHelp"
+    "prepare": "husky install && npm run bundle:webHelp",
+    "clean": "rimraf lib"
   },
   "dependencies": {
     "@types/lodash-deep": "2.0.0",

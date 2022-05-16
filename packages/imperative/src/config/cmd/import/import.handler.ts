@@ -38,7 +38,7 @@ export default class ImportHandler implements ICommandHandler {
         // Load the config and set the active layer according to user options
         const config = ImperativeConfig.instance.config;
         const configDir = params.arguments.globalConfig ? null : process.cwd();
-        config.api.layers.activate(params.arguments.userConfig, params.arguments.globalConfig, configDir);
+        await config.api.layers.activate(params.arguments.userConfig, params.arguments.globalConfig, configDir);
         const layer = config.api.layers.get();
 
         if (layer.exists && !params.arguments.overwrite) {

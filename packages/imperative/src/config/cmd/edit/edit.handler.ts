@@ -26,7 +26,7 @@ export default class EditHandler implements ICommandHandler {
     public async process(params: IHandlerParameters): Promise<void> {
         // Load the config and set the active layer according to user options
         const config = ImperativeConfig.instance.config;
-        config.api.layers.activate(params.arguments.userConfig, params.arguments.globalConfig);
+        await config.api.layers.activate(params.arguments.userConfig, params.arguments.globalConfig);
         const configLayer = config.api.layers.get();
 
         if (!configLayer.exists) {

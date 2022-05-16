@@ -48,7 +48,7 @@ export default class InitHandler implements ICommandHandler {
         await OverridesLoader.ensureCredentialManagerLoaded();
         const config = ImperativeConfig.instance.config;
         const configDir = params.arguments.globalConfig ? null : process.cwd();
-        config.api.layers.activate(params.arguments.userConfig, params.arguments.globalConfig, configDir);
+        await config.api.layers.activate(params.arguments.userConfig, params.arguments.globalConfig, configDir);
         const layer = config.api.layers.get();
 
         // Do a dry run if dryRun flag is present. Otherwise, initialize or overwrite the config
@@ -146,7 +146,7 @@ export default class InitHandler implements ICommandHandler {
         }
 
         // Build the schema and write it to disk
-        ConfigSchema.updateSchema();
+        await ConfigSchema.updateSchema();
     }
 
     /**
@@ -179,15 +179,16 @@ export default class InitHandler implements ICommandHandler {
         }
 
         // get the summary and value
-        this.promptProps.push(propName);
+        let propDesc = propName;
         if ((property as any).optionDefinition?.description != null) {
-            propName = `${propName} (${(property as any).optionDefinition.description})`;
+            propDesc += ` (${(property as any).optionDefinition.description})`;
         }
 
-        const propValue: any = await this.params.response.console.prompt(`Enter ${propName} - blank to skip: `, {hideText: property.secure});
+        const propValue: any = await this.params.response.console.prompt(`Enter ${propDesc} - blank to skip: `, { hideText: property.secure });
 
         // coerce to correct type
         if (propValue && propValue.trim().length > 0) {
+            this.promptProps.push(propName);
             return coercePropValue(propValue);
         }
 

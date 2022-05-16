@@ -136,7 +136,7 @@ export async function install(packageLocation: string, registry: string, install
             const requirerFunction = PluginManagementFacility.instance.requirePluginModuleCallback(packageInfo.name);
             UpdateImpConfig.addProfiles(ConfigurationLoader.load(null, packageInfo, requirerFunction).profiles);
 
-            ConfigSchema.updateSchema({ layer: "global" });
+            await ConfigSchema.updateSchema({ layer: "global" });
         }
 
         iConsole.info("Plugin '" + packageName + "' successfully installed.");

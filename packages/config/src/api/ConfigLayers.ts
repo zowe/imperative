@@ -111,14 +111,15 @@ export class ConfigLayers extends ConfigApi {
      * @param inDir The directory to which you want to set the file path
      *              for this layer.
      */
-    public activate(user: boolean, global: boolean, inDir?: string) {
+    public async activate(user: boolean, global: boolean, inDir?: string) {
         this.mConfig.mActive.user = user;
         this.mConfig.mActive.global = global;
 
         if (inDir != null) {
             const layer = this.mConfig.layerActive();
             layer.path = path.join(inDir, path.basename(layer.path));
-            this.read();
+            await this.read();
+            await this.mConfig.api.secure.load();
         }
     }
 
