@@ -26,7 +26,7 @@ export default class UpdateSchemasHandler implements ICommandHandler {
     public async process(params: IHandlerParameters): Promise<void> {
         ImperativeExpect.toNotBeNullOrUndefined(ImperativeConfig.instance.loadedConfig, "Failed to load profile schemas");
 
-        const updatedPaths = await ConfigSchema.updateSchema({ layer: "all", depth: params.arguments.depth });
+        const updatedPaths = ConfigSchema.updateSchema({ layer: "all", depth: params.arguments.depth });
 
         // output to terminal
         params.response.data.setObj(updatedPaths);

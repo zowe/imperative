@@ -242,7 +242,7 @@ export class ConfigSchema {
             const globalUserConfig = opts.config.findLayer(true, true);
 
             // Loop through all matches of <APP>.schema.json
-            matches.forEach((schemaLoc) => {
+            matches.forEach(schemaLoc => {
 
                 // Check if a layer/config exists in the directory where we found the <APP>.schema.json
                 if (opts.config.layerExists(path.dirname(schemaLoc))) {

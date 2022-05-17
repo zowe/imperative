@@ -268,7 +268,7 @@ describe("Config API tests", () => {
             });
             it("should activate the project configuration", async () => {
                 const config = await Config.load(MY_APP);
-                await config.api.layers.activate(false, false);
+                config.api.layers.activate(false, false);
                 const properties = config.api.layers.get();
                 const filePath = filePathProjectConfig;
                 const fileContents = fs.readFileSync(filePath).toString();
@@ -282,7 +282,7 @@ describe("Config API tests", () => {
             });
             it("should activate the project user configuration", async () => {
                 const config = await Config.load(MY_APP);
-                await config.api.layers.activate(true, false);
+                config.api.layers.activate(true, false);
                 const properties = config.api.layers.get();
                 const filePath = filePathProjectUserConfig;
                 const fileContents = fs.readFileSync(filePath).toString();
@@ -296,7 +296,7 @@ describe("Config API tests", () => {
             });
             it("should activate the global configuration", async () => {
                 const config = await Config.load(MY_APP);
-                await config.api.layers.activate(false, true);
+                config.api.layers.activate(false, true);
                 const properties = config.api.layers.get();
                 const filePath = filePathAppConfig;
                 const fileContents = fs.readFileSync(filePath).toString();
@@ -310,7 +310,7 @@ describe("Config API tests", () => {
             });
             it("should activate the global user configuration", async () => {
                 const config = await Config.load(MY_APP);
-                await config.api.layers.activate(true, true);
+                config.api.layers.activate(true, true);
                 const properties = config.api.layers.get();
                 const filePath = filePathAppUserConfig;
                 const fileContents = fs.readFileSync(filePath).toString();
@@ -325,7 +325,7 @@ describe("Config API tests", () => {
             it("should activate empty configuration in directory where it doesn't exist", async () => {
                 const config = await Config.load(MY_APP);
                 jest.spyOn(path, "join").mockRestore();
-                await config.api.layers.activate(false, false, __dirname);
+                config.api.layers.activate(false, false, __dirname);
                 const properties = config.api.layers.get();
                 expect(properties.user).toBe(false);
                 expect(properties.global).toBe(false);

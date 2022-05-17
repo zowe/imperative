@@ -146,7 +146,7 @@ export default class InitHandler implements ICommandHandler {
         }
 
         // Build the schema and write it to disk
-        await ConfigSchema.updateSchema();
+        ConfigSchema.updateSchema();
     }
 
     /**

@@ -128,7 +128,7 @@ export default class ConvertProfilesHandler implements ICommandHandler {
                 const teamConfig = ImperativeConfig.instance.config;
                 teamConfig.api.layers.activate(false, true);
                 teamConfig.api.layers.merge(convertResult.config);
-                await ConfigSchema.updateSchema();
+                ConfigSchema.updateSchema();
                 await teamConfig.save();
 
                 try {
