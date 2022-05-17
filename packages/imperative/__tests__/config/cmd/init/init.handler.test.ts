@@ -702,6 +702,63 @@ describe("Configuration Initialization command handler", () => {
         expect(ImperativeConfig.instance.config.properties.profiles.base.properties.secret).toEqual("area51");
     });
 
+    it("should attempt to initialize the project configuration and not overwrite value when prompt is skipped", async () => {
+        const handler = new InitHandler();
+        const params = getIHandlerParametersObject();
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
+
+        existsSyncSpy.mockReturnValueOnce(false).mockReturnValueOnce(true).mockReturnValue(false); // Project config exists
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        jest.spyOn(fs, "readFileSync").mockReturnValueOnce(JSON.stringify({
+            profiles: {
+                base: {
+                    properties: {
+                        info: "fakeValue",
+                        secret: "area51"
+                    }
+                }
+            },
+            defaults: {}
+        }));
+        await setupConfigToLoad(); // Setup the config
+
+        ImperativeConfig.instance.loadedConfig.baseProfile.schema.properties.info.includeInTemplate = true;
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        // We aren't testing the config initialization - clear the spies
+        existsSyncSpy.mockClear();
+        searchSpy.mockClear();
+
+        // initWithSchema
+        const promptWithTimeoutSpy = jest.fn(() => "");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
+        writeFileSyncSpy.mockImplementation(); // Don't actually write files
+
+        jest.spyOn(process, "cwd").mockReturnValueOnce(null);
+        await handler.process(params as IHandlerParameters);
+
+        const compObj: any = { $schema: "./fakeapp.schema.json" }; // Fill in the name of the schema file, and make it first
+        lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
+        delete compObj.profiles.base.properties.secret; // Delete the secret
+
+        expect(setSchemaSpy).toHaveBeenCalledTimes(1);
+        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObject);
+
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(2);
+        // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
+
+        expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
+        // 1 = Schema and 2 = Config
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObject, null, ConfigConstants.INDENT));
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT));
+
+        // Secure value supplied during prompting should be on properties
+        expect(ImperativeConfig.instance.config.properties.profiles.base.properties.info).toEqual("fakeValue");
+        expect(ImperativeConfig.instance.config.properties.profiles.base.properties.secret).toEqual("area51");
+    });
+
     it("should display warning if unable to securely save credentials", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();

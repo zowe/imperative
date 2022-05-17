@@ -137,7 +137,8 @@ export default class InitHandler implements ICommandHandler {
             if (oldConfig.profiles.base?.properties != null) {
                 // Remove values that should be overwritten from old base profile
                 for (const propName of Object.keys(oldConfig.profiles.base.properties)) {
-                    if (this.promptProps.includes(propName) && newConfig.profiles.base.properties[propName] != null) {
+                    const newPropValue = newConfig.profiles.base.properties[propName];
+                    if (this.promptProps.includes(propName) && newPropValue != null && newPropValue !== "") {
                         delete oldConfig.profiles.base.properties[propName];
                     }
                 }
@@ -184,11 +185,11 @@ export default class InitHandler implements ICommandHandler {
             propDesc += ` (${(property as any).optionDefinition.description})`;
         }
 
+        this.promptProps.push(propName);
         const propValue: any = await this.params.response.console.prompt(`Enter ${propDesc} - blank to skip: `, { hideText: property.secure });
 
         // coerce to correct type
         if (propValue && propValue.trim().length > 0) {
-            this.promptProps.push(propName);
             return coercePropValue(propValue);
         }
 
