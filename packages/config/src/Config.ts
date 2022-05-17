@@ -225,7 +225,7 @@ export class Config {
         try {
             for (const currLayer of this.mLayers) {
                 if (allLayers || (currLayer.user === this.mActive.user && currLayer.global === this.mActive.global)) {
-                    await this.api.layers.write(currLayer);
+                    this.api.layers.write(currLayer);
                 }
             }
         } catch (e) {

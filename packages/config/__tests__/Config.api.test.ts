@@ -229,12 +229,25 @@ describe("Config API tests", () => {
         });
     });
     describe("layers", () => {
+        describe("read", () => {
+            it("should load properties into active layer from disk and secure vault", async () => {
+                const config = await Config.load(MY_APP);
+                const existsSpy = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
+                existsSpy.mockClear();
+                const readFileSpy = jest.spyOn(fs, "readFileSync");
+                const secureLoadSpy = jest.spyOn(config.api.secure, "loadCached");
+                config.api.layers.read();
+                expect(existsSpy).toHaveBeenCalledTimes(1);
+                expect(readFileSpy).toHaveBeenCalledTimes(1);
+                expect(secureLoadSpy).toHaveBeenCalledTimes(1);
+            });
+        });
         describe("write", () => {
             it("should save the active config layer", async () => {
                 jest.spyOn(ConfigSecure.prototype, "save").mockResolvedValueOnce(undefined);
                 const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined).mockReturnValueOnce(undefined);
                 const config = await Config.load(MY_APP);
-                await config.api.layers.write();
+                config.api.layers.write();
                 expect(writeFileSpy).toHaveBeenCalled();
                 expect(writeFileSpy.mock.calls[0][1]).toMatchSnapshot();
             });
@@ -244,7 +257,7 @@ describe("Config API tests", () => {
                 jest.spyOn(ConfigSecure.prototype, "save").mockResolvedValueOnce(undefined);
                 const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined);
                 const config = await Config.load(MY_APP);
-                await config.api.layers.write();
+                config.api.layers.write();
                 expect(writeFileSpy).toHaveBeenCalled();
                 expect(writeFileSpy.mock.calls[0][1]).toMatchSnapshot();
                 expect(writeFileSpy.mock.calls[0][1]).toContain("/* block-comment */");
@@ -325,6 +338,7 @@ describe("Config API tests", () => {
             it("should activate empty configuration in directory where it doesn't exist", async () => {
                 const config = await Config.load(MY_APP);
                 jest.spyOn(path, "join").mockRestore();
+                const readLayerSpy = jest.spyOn(config.api.layers, "read");
                 config.api.layers.activate(false, false, __dirname);
                 const properties = config.api.layers.get();
                 expect(properties.user).toBe(false);
@@ -335,6 +349,17 @@ describe("Config API tests", () => {
                     profiles: {},
                     defaults: {}
                 });
+                expect(readLayerSpy).toHaveBeenCalled();
+            });
+            it("should activate configuration in current directory without reloading it", async () => {
+                const config = await Config.load(MY_APP);
+                jest.spyOn(path, "join").mockRestore();
+                const readLayerSpy = jest.spyOn(config.api.layers, "read");
+                config.api.layers.activate(false, false, path.join(__dirname, "__resources__"));
+                const properties = config.api.layers.get();
+                expect(properties.user).toBe(false);
+                expect(properties.global).toBe(false);
+                expect(readLayerSpy).not.toHaveBeenCalled();
             });
         });
         describe("exists", () => {

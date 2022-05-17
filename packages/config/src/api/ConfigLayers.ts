@@ -54,6 +54,7 @@ export class ConfigLayers extends ConfigApi {
                     suppressDump: true
                 });
             }
+            this.mConfig.api.secure.loadCached();
         } else if (layer.exists) {
             layer.properties = {} as any;
             layer.exists = false;
@@ -62,7 +63,6 @@ export class ConfigLayers extends ConfigApi {
         // Populate any undefined defaults
         layer.properties.profiles = layer.properties.profiles || {};
         layer.properties.defaults = layer.properties.defaults || {};
-        this.mConfig.api.secure.loadCached();
     }
 
     // _______________________________________________________________________
