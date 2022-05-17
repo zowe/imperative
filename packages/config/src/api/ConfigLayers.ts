@@ -54,7 +54,7 @@ export class ConfigLayers extends ConfigApi {
                     suppressDump: true
                 });
             }
-            this.mConfig.api.secure.loadCached();
+            this.mConfig.api.secure.loadFromCache(opts);
         } else if (layer.exists) {
             layer.properties = {} as any;
             layer.exists = false;
@@ -79,20 +79,7 @@ export class ConfigLayers extends ConfigApi {
         // If fields are marked as secure
         const layer = opts ? this.mConfig.findLayer(opts.user, opts.global) : this.mConfig.layerActive();
         const layerCloned = JSONC.parse(JSONC.stringify(layer, null, ConfigConstants.INDENT));
-        for (const configPath of this.mConfig.api.secure.secureFields(layer)) {
-            const segments = configPath.split(".");
-            let obj: any = layerCloned.properties;
-            for (let x = 0; x < segments.length; x++) {
-                const segment = segments[x];
-                const v = obj[segment];
-                if (v == null) break;
-                if (x === segments.length - 1) {
-                    delete obj[segment];
-                    break;
-                }
-                obj = obj[segment];
-            }
-        }
+        this.mConfig.api.secure.saveToCache(layerCloned);
 
         // Write the layer
         try {
@@ -119,7 +106,7 @@ export class ConfigLayers extends ConfigApi {
         if (inDir != null) {
             const layer = this.mConfig.layerActive();
 
-            // Load config layer if file path has not changed
+            // Load config layer if file path has changed
             if (inDir !== path.dirname(layer.path)) {
                 layer.path = path.join(inDir, path.basename(layer.path));
                 this.read();

@@ -12,6 +12,7 @@
 import * as JSONC from "comment-json";
 import * as lodash from "lodash";
 import { ConfigApi } from "./ConfigApi";
+import { IConfig } from "../doc/IConfig";
 import { IConfigVault } from "../doc/IConfigVault";
 import { IConfigSecureProperties } from "../doc/IConfigSecure";
 import { ConfigConstants } from "../ConfigConstants";
@@ -50,7 +51,48 @@ export class ConfigSecure extends ConfigApi {
         this.mLoadFailed = false;
 
         // populate each layers properties
-        this.loadCached(true);
+        this.mConfig.mLayers.forEach(this.loadFromCache.bind(this));
+    }
+
+    // _______________________________________________________________________
+    /**
+     * Copy secure config properties from cached secure properties into the
+     * specified layer. To load secure config properties directly from the
+     * vault, use the asynchronous method `load` instead.
+     *
+     * @param opts The user and global flags that specify one of the four
+     *             config files (aka layers).
+     */
+    public loadFromCache(opts?: { user: boolean; global: boolean }) {
+        if (this.mConfig.mVault == null) return;
+        const layer = opts ? this.mConfig.findLayer(opts.user, opts.global) : this.mConfig.layerActive();
+
+        // Find the matching layer
+        for (const [filePath, secureProps] of Object.entries(this.mConfig.mSecure)) {
+            if (filePath === layer.path) {
+
+                // Only set those indicated by the config
+                for (const p of this.secureFields(layer)) {
+
+                    // Extract and set secure properties
+                    for (const [sPath, sValue] of Object.entries(secureProps)) {
+                        if (sPath === p) {
+                            const segments = sPath.split(".");
+                            let obj: any = layer.properties;
+                            for (let x = 0; x < segments.length; x++) {
+                                const segment = segments[x];
+                                if (x === segments.length - 1) {
+                                    obj[segment] = sValue;
+                                    break;
+                                }
+                                obj = obj[segment];
+                                if (obj == null) break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // _______________________________________________________________________
@@ -65,34 +107,9 @@ export class ConfigSecure extends ConfigApi {
         const beforeLen = Object.keys(this.mConfig.mSecure).length;
 
         // Build the entries for each layer
-        for (const layer of this.mConfig.mLayers) {
-            if (!allLayers && (layer.user !== this.mConfig.mActive.user || layer.global !== this.mConfig.mActive.global)) {
-                continue;
-            }
-
-            // Create all the secure property entries
-            const sp: IConfigSecureProperties = {};
-            for (const path of this.secureFields(layer)) {
-                const segments = path.split(".");
-                let obj: any = layer.properties;
-                for (let x = 0; x < segments.length; x++) {
-                    const segment = segments[x];
-                    const value = obj[segment];
-                    if (value == null) break;
-                    if (x === segments.length - 1) {
-                        sp[path] = value;
-                        break;
-                    }
-                    obj = obj[segment];
-                }
-            }
-
-            // Clear the entry and rebuild it
-            delete this.mConfig.mSecure[layer.path];
-
-            // Create the entry to set the secure properties
-            if (Object.keys(sp).length > 0) {
-                this.mConfig.mSecure[layer.path] = sp;
+        for (const { user, global } of this.mConfig.mLayers) {
+            if (allLayers || (user === this.mConfig.mActive.user && global === this.mConfig.mActive.global)) {
+                this.saveToCache({ user, global });
             }
         }
 
@@ -104,47 +121,48 @@ export class ConfigSecure extends ConfigApi {
 
     // _______________________________________________________________________
     /**
-     * Process secure config properties that have already been loaded from the
-     * vault. These cached secure values are placed into our Config layers.
+     * Copy secure config properties from the specified layer into cached
+     * secure properties. To save secure config properties directly to the
+     * vault, use the asynchronous method `save` instead.
      *
-     * @param allLayers Specify true to load secure config properties into all
-     * config layers instead of only the active one
+     * Warning: Do not pass an `IConfigLayer` object into this method unless
+     * you want its properties to be edited.
+     *
+     * @param opts The user and global flags that specify one of the four
+     *             config files (aka layers).
+     * @param opts.properties `IConfig` object cloned from the specified layer.
+     *                        If specified, secure properties will be removed.
      */
-    public loadCached(allLayers?: boolean) {
+    public saveToCache(opts?: { user: boolean; global: boolean; properties?: IConfig }) {
         if (this.mConfig.mVault == null) return;
+        const layer = opts ? this.mConfig.findLayer(opts.user, opts.global) : this.mConfig.layerActive();
 
-        // Build the entries for each layer
-        for (const layer of this.mConfig.mLayers) {
-            if (!allLayers && (layer.user !== this.mConfig.mActive.user || layer.global !== this.mConfig.mActive.global)) {
-                continue;
-            }
-
-            // Find the matching layer
-            for (const [filePath, secureProps] of Object.entries(this.mConfig.mSecure)) {
-                if (filePath === layer.path) {
-
-                    // Only set those indicated by the config
-                    for (const p of this.secureFields(layer)) {
-
-                        // Extract and set secure properties
-                        for (const [sPath, sValue] of Object.entries(secureProps)) {
-                            if (sPath === p) {
-                                const segments = sPath.split(".");
-                                let obj: any = layer.properties;
-                                for (let x = 0; x < segments.length; x++) {
-                                    const segment = segments[x];
-                                    if (x === segments.length - 1) {
-                                        obj[segment] = sValue;
-                                        break;
-                                    }
-                                    obj = obj[segment];
-                                    if (obj == null) break;
-                                }
-                            }
-                        }
+        // Create all the secure property entries
+        const sp: IConfigSecureProperties = {};
+        for (const path of this.secureFields(layer)) {
+            const segments = path.split(".");
+            let obj: any = opts?.properties ?? layer.properties;
+            for (let x = 0; x < segments.length; x++) {
+                const segment = segments[x];
+                const value = obj[segment];
+                if (value == null) break;
+                if (x === segments.length - 1) {
+                    sp[path] = value;
+                    if (opts?.properties != null) {
+                        delete obj[segment];
                     }
+                    break;
                 }
+                obj = obj[segment];
             }
+        }
+
+        // Clear the entry and rebuild it
+        delete this.mConfig.mSecure[layer.path];
+
+        // Create the entry to set the secure properties
+        if (Object.keys(sp).length > 0) {
+            this.mConfig.mSecure[layer.path] = sp;
         }
     }
 

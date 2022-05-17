@@ -235,7 +235,7 @@ describe("Config API tests", () => {
                 const existsSpy = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
                 existsSpy.mockClear();
                 const readFileSpy = jest.spyOn(fs, "readFileSync");
-                const secureLoadSpy = jest.spyOn(config.api.secure, "loadCached");
+                const secureLoadSpy = jest.spyOn(config.api.secure, "loadFromCache");
                 config.api.layers.read();
                 expect(existsSpy).toHaveBeenCalledTimes(1);
                 expect(readFileSpy).toHaveBeenCalledTimes(1);
