@@ -144,10 +144,10 @@ export class ConfigSchema {
      * @param checkContrastingLayer Indicates if we should check for the opposite (user/non-user) layer
      * @returns Object containing the updated schema paths
      */
-    private static async _updateSchemaActive(
+    private static _updateSchemaActive(
         opts: IConfigUpdateSchemaHelperOptions,
         forceSetSchema: boolean = false,
-        checkContrastingLayer: boolean = true): Promise<IConfigUpdateSchemaPaths> {
+        checkContrastingLayer: boolean = true): IConfigUpdateSchemaPaths {
 
         let updatedPaths: IConfigUpdateSchemaPaths = opts.updatedPaths;
         const layer = opts.config.layerActive();
@@ -163,11 +163,11 @@ export class ConfigSchema {
             updatedPaths = { [layer.path]: { schema: schemaInfo.original, updated: schemaInfo.local } };
         }
         if (opts.config.layerExists(path.dirname(layer.path), !layer.user) && checkContrastingLayer) {
-            await opts.config.api.layers.activate(!layer.user, layer.global, path.dirname(layer.path));
-            updatedPaths = { ...updatedPaths, ...await this._updateSchemaActive(opts, forceSetSchema, false) };
+            opts.config.api.layers.activate(!layer.user, layer.global, path.dirname(layer.path));
+            updatedPaths = { ...updatedPaths, ...this._updateSchemaActive(opts, forceSetSchema, false) };
 
             // Back to previous layer
-            await opts.config.api.layers.activate(layer.user, layer.global, path.dirname(layer.path));
+            opts.config.api.layers.activate(layer.user, layer.global, path.dirname(layer.path));
         }
         return updatedPaths;
     }
@@ -181,15 +181,15 @@ export class ConfigSchema {
      * @param opts The various properties needed to accomplish a recursive UpdateSchema operation
      * @returns Object containing the updated schema paths
      */
-    private static async _updateSchemaGlobal(opts: IConfigUpdateSchemaHelperOptions): Promise<IConfigUpdateSchemaPaths> {
+    private static _updateSchemaGlobal(opts: IConfigUpdateSchemaHelperOptions): IConfigUpdateSchemaPaths {
         let updatedPaths: IConfigUpdateSchemaPaths = opts.updatedPaths;
 
         // Activate the Global configuration before updating it
-        await opts.config.api.layers.activate(true, true);
-        updatedPaths = { ...updatedPaths, ...await this._updateSchemaActive(opts) };
+        opts.config.api.layers.activate(true, true);
+        updatedPaths = { ...updatedPaths, ...this._updateSchemaActive(opts) };
 
         // Back to initial layer
-        await opts.config.api.layers.activate(opts.layer.user, opts.layer.global, path.dirname(opts.layer.path));
+        opts.config.api.layers.activate(opts.layer.user, opts.layer.global, path.dirname(opts.layer.path));
 
         return updatedPaths;
     }
@@ -204,7 +204,7 @@ export class ConfigSchema {
      * @param opts The various properties needed to accomplish a recursive UpdateSchema operation
      * @returns Object containing the updated schema paths
      */
-    private static async _updateSchemaAll(opts: IConfigUpdateSchemaHelperOptions): Promise<IConfigUpdateSchemaPaths> {
+    private static _updateSchemaAll(opts: IConfigUpdateSchemaHelperOptions): IConfigUpdateSchemaPaths {
         let updatedPaths = opts.updatedPaths;
         // Loop through layers starting at the initial one
         let currentLayer = opts.layer;
@@ -213,11 +213,11 @@ export class ConfigSchema {
         //___________________________________________________________________________________
         // Traverse UP
         while (nextSchemaLocation != null) {
-            await opts.config.api.layers.activate(true, false, path.dirname(nextSchemaLocation));
+            opts.config.api.layers.activate(true, false, path.dirname(nextSchemaLocation));
             currentLayer = opts.config.api.layers.get();
 
             // Update the current layer
-            updatedPaths = { ...updatedPaths, ...await this._updateSchemaActive(opts) };
+            updatedPaths = { ...updatedPaths, ...this._updateSchemaActive(opts) };
 
             // Move on to the next directory up the tree
             nextSchemaLocation = Config.search(opts.config.schemaName, { startDir: path.join(path.dirname(currentLayer.path), "..") });
@@ -227,7 +227,7 @@ export class ConfigSchema {
         // Update Global Layers
         if (!opts.layer.global) {
             // Do not update the global layer if that's where we started from
-            updatedPaths = { ...updatedPaths, ...await this._updateSchemaGlobal(opts) };
+            updatedPaths = { ...updatedPaths, ...this._updateSchemaGlobal(opts) };
         }
 
         //___________________________________________________________________________________
@@ -242,26 +242,26 @@ export class ConfigSchema {
             const globalUserConfig = opts.config.findLayer(true, true);
 
             // Loop through all matches of <APP>.schema.json
-            matches.forEach(async (schemaLoc) => {
+            matches.forEach((schemaLoc) => {
 
                 // Check if a layer/config exists in the directory where we found the <APP>.schema.json
                 if (opts.config.layerExists(path.dirname(schemaLoc))) {
 
                     // Activate the layer before updating it
-                    await opts.config.api.layers.activate(false, false, path.dirname(schemaLoc));
+                    opts.config.api.layers.activate(false, false, path.dirname(schemaLoc));
                     const layer = opts.config.layerActive();
 
                     // NOTE: Configs are assumed to be always local (because of path.resolve(layer.path)),
                     //       if we want to support Config URLs here, we need to call the config import APIs
                     if (path.resolve(layer.path) !== globalProjConfig.path && path.resolve(layer.path) !== globalUserConfig.path) {
-                        updatedPaths = { ...updatedPaths, ...await this._updateSchemaActive(opts) };
+                        updatedPaths = { ...updatedPaths, ...this._updateSchemaActive(opts) };
                     }
                 }
             });
         }
 
         // Back to initial layer
-        await opts.config.api.layers.activate(opts.layer.user, opts.layer.global, path.dirname(opts.layer.path));
+        opts.config.api.layers.activate(opts.layer.user, opts.layer.global, path.dirname(opts.layer.path));
 
         return updatedPaths;
     }
@@ -385,7 +385,7 @@ export class ConfigSchema {
      * @param options.schema The optional schema object to use. If not provided, we build the schema object based on loadedConfig.profiles
      * @returns List of updated paths with the new/loaded or given schema
      */
-    public static async updateSchema(options?: IConfigUpdateSchemaOptions): Promise<IConfigUpdateSchemaPaths> {
+    public static updateSchema(options?: IConfigUpdateSchemaOptions): IConfigUpdateSchemaPaths {
         // Handle default values
         const opts: IConfigUpdateSchemaOptions = { layer: "active", depth: 0, ...(options ?? {}) };
 
@@ -401,17 +401,17 @@ export class ConfigSchema {
         switch (opts.layer) {
             case "active": {
                 // Call the _updateSchemaActive helper function
-                updatedPaths = { ...updatedPaths, ...await this._updateSchemaActive(_updateSchemaOptions, typeof options === "undefined") };
+                updatedPaths = { ...updatedPaths, ...this._updateSchemaActive(_updateSchemaOptions, typeof options === "undefined") };
                 break;
             }
             case "global": {
                 // Call the _updateSchemaGlobal helper function
-                updatedPaths = { ...updatedPaths, ...await this._updateSchemaGlobal(_updateSchemaOptions) };
+                updatedPaths = { ...updatedPaths, ...this._updateSchemaGlobal(_updateSchemaOptions) };
                 break;
             }
             case "all": {
                 // Call the _updateSchemaAll helper function
-                updatedPaths = { ...updatedPaths, ...await this._updateSchemaAll(_updateSchemaOptions) };
+                updatedPaths = { ...updatedPaths, ...this._updateSchemaAll(_updateSchemaOptions) };
                 break;
             }
             default: {

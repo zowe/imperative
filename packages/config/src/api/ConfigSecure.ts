@@ -50,35 +50,7 @@ export class ConfigSecure extends ConfigApi {
         this.mLoadFailed = false;
 
         // populate each layers properties
-        for (const layer of this.mConfig.mLayers) {
-
-            // Find the matching layer
-            for (const [filePath, secureProps] of Object.entries(this.mConfig.mSecure)) {
-                if (filePath === layer.path) {
-
-                    // Only set those indicated by the config
-                    for (const p of this.secureFields(layer)) {
-
-                        // Extract and set secure properties
-                        for (const [sPath, sValue] of Object.entries(secureProps)) {
-                            if (sPath === p) {
-                                const segments = sPath.split(".");
-                                let obj: any = layer.properties;
-                                for (let x = 0; x < segments.length; x++) {
-                                    const segment = segments[x];
-                                    if (x === segments.length - 1) {
-                                        obj[segment] = sValue;
-                                        break;
-                                    }
-                                    obj = obj[segment];
-                                    if (obj == null) break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        this.loadCached(true);
     }
 
     // _______________________________________________________________________
@@ -127,6 +99,52 @@ export class ConfigSecure extends ConfigApi {
         // Save the entries if needed
         if (Object.keys(this.mConfig.mSecure).length > 0 || beforeLen > 0 ) {
             await this.mConfig.mVault.save(ConfigConstants.SECURE_ACCT, JSONC.stringify(this.mConfig.mSecure));
+        }
+    }
+
+    // _______________________________________________________________________
+    /**
+     * Process secure config properties that have already been loaded from the
+     * vault. These cached secure values are placed into our Config layers.
+     *
+     * @param allLayers Specify true to load secure config properties into all
+     * config layers instead of only the active one
+     */
+    public loadCached(allLayers?: boolean) {
+        if (this.mConfig.mVault == null) return;
+
+        // Build the entries for each layer
+        for (const layer of this.mConfig.mLayers) {
+            if (!allLayers && (layer.user !== this.mConfig.mActive.user || layer.global !== this.mConfig.mActive.global)) {
+                continue;
+            }
+
+            // Find the matching layer
+            for (const [filePath, secureProps] of Object.entries(this.mConfig.mSecure)) {
+                if (filePath === layer.path) {
+
+                    // Only set those indicated by the config
+                    for (const p of this.secureFields(layer)) {
+
+                        // Extract and set secure properties
+                        for (const [sPath, sValue] of Object.entries(secureProps)) {
+                            if (sPath === p) {
+                                const segments = sPath.split(".");
+                                let obj: any = layer.properties;
+                                for (let x = 0; x < segments.length; x++) {
+                                    const segment = segments[x];
+                                    if (x === segments.length - 1) {
+                                        obj[segment] = sValue;
+                                        break;
+                                    }
+                                    obj = obj[segment];
+                                    if (obj == null) break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 

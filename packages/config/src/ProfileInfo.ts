@@ -288,7 +288,7 @@ export class ProfileInfo {
                 await this.getTeamConfig().save(false);
 
                 if (oldLayer) {
-                    await this.getTeamConfig().api.layers.activate(oldLayer.user, oldLayer.global);
+                    this.getTeamConfig().api.layers.activate(oldLayer.user, oldLayer.global);
                 }
                 break;
             }

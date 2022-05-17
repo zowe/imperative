@@ -29,7 +29,7 @@ export default class SetHandler implements ICommandHandler {
 
         // Create the config, load the secure values, and activate the desired layer
         const config = ImperativeConfig.instance.config;
-        await config.api.layers.activate(params.arguments.userConfig, params.arguments.globalConfig);
+        config.api.layers.activate(params.arguments.userConfig, params.arguments.globalConfig);
 
         // Store the value securely if --secure was passed or the property name is in secure array
         let secure = params.arguments.secure;

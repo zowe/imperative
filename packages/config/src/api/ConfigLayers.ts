@@ -31,7 +31,7 @@ export class ConfigLayers extends ConfigApi {
      * @param opts The user and global flags that indicate which of the four
      *             config files (aka layers) is to be read.
      */
-    public async read(opts?: { user: boolean; global: boolean }) {
+    public read(opts?: { user: boolean; global: boolean }) {
         // Attempt to populate the layer
         const layer = opts ? this.mConfig.findLayer(opts.user, opts.global) : this.mConfig.layerActive();
         if (fs.existsSync(layer.path)) {
@@ -62,6 +62,7 @@ export class ConfigLayers extends ConfigApi {
         // Populate any undefined defaults
         layer.properties.profiles = layer.properties.profiles || {};
         layer.properties.defaults = layer.properties.defaults || {};
+        this.mConfig.api.secure.loadCached();
     }
 
     // _______________________________________________________________________
@@ -71,7 +72,7 @@ export class ConfigLayers extends ConfigApi {
      * @param opts The user and global flags that indicate which of the four
      *             config files (aka layers) is to be written.
      */
-    public async write(opts?: { user: boolean; global: boolean }) {
+    public write(opts?: { user: boolean; global: boolean }) {
         // TODO: should we prevent a write if there is no vault
         // TODO: specified and there are secure fields??
 
@@ -111,15 +112,18 @@ export class ConfigLayers extends ConfigApi {
      * @param inDir The directory to which you want to set the file path
      *              for this layer.
      */
-    public async activate(user: boolean, global: boolean, inDir?: string) {
+    public activate(user: boolean, global: boolean, inDir?: string) {
         this.mConfig.mActive.user = user;
         this.mConfig.mActive.global = global;
 
         if (inDir != null) {
             const layer = this.mConfig.layerActive();
-            layer.path = path.join(inDir, path.basename(layer.path));
-            await this.read();
-            await this.mConfig.api.secure.load();
+
+            // Load config layer if file path has not changed
+            if (inDir !== path.dirname(layer.path)) {
+                layer.path = path.join(inDir, path.basename(layer.path));
+                this.read();
+            }
         }
     }
 

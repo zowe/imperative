@@ -151,7 +151,7 @@ export class ConfigAutoStore {
         const beforeLayer = config.api.layers.get();
         if (config.api.profiles.exists(profileName)) {
             const { user, global } = config.api.layers.find(profileName);
-            await config.api.layers.activate(user, global);
+            config.api.layers.activate(user, global);
         }
 
         const profileObj = config.api.profiles.get(profileName, false);
@@ -204,7 +204,7 @@ export class ConfigAutoStore {
             Logger.getAppLogger().info(storedMsg);
         }
         // Restore original active layer
-        await config.api.layers.activate(beforeLayer.user, beforeLayer.global);
+        config.api.layers.activate(beforeLayer.user, beforeLayer.global);
     }
 
     /**

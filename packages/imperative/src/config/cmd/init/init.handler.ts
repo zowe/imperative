@@ -48,7 +48,7 @@ export default class InitHandler implements ICommandHandler {
         await OverridesLoader.ensureCredentialManagerLoaded();
         const config = ImperativeConfig.instance.config;
         const configDir = params.arguments.globalConfig ? null : process.cwd();
-        await config.api.layers.activate(params.arguments.userConfig, params.arguments.globalConfig, configDir);
+        config.api.layers.activate(params.arguments.userConfig, params.arguments.globalConfig, configDir);
         const layer = config.api.layers.get();
 
         // Do a dry run if dryRun flag is present. Otherwise, initialize or overwrite the config

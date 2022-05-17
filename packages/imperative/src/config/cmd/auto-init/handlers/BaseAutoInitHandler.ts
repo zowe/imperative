@@ -93,7 +93,7 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
         // Use params to set which config layer to apply to
         await OverridesLoader.ensureCredentialManagerLoaded();
         const configDir = params.arguments.globalConfig ? null : process.cwd();
-        await ImperativeConfig.instance.config.api.layers.activate(params.arguments.userConfig, params.arguments.globalConfig, configDir);
+        ImperativeConfig.instance.config.api.layers.activate(params.arguments.userConfig, params.arguments.globalConfig, configDir);
 
         // Call handler's implementation of auto-init
         const profileConfig = await this.doAutoInit(this.mSession, params);
