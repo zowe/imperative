@@ -2,6 +2,13 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed `config init` saving empty string values to config file when prompt was skipped.
+- BugFix: Fixed `ConfigLayers.read` skipping load of secure property values.
+- BugFix: Improved performance of `ConfigLayers.activate` by skipping config reload if the active layer directory has not changed.
+- BugFix: Removed `async` keyword from `ConfigLayers.read` and `ConfigLayers.write` methods since they do not contain asynchronous code.
+
 ## `5.3.0`
 
 - Enhancement: Added environmental variable support to the ProfileInfo APIs by defaulting `homeDir` to `cliHome`. [zowe/vscode-extension-for-zowe#1777](https://github.com/zowe/vscode-extension-for-zowe/issues/1777)
