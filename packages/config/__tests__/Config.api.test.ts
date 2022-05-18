@@ -244,21 +244,23 @@ describe("Config API tests", () => {
         });
         describe("write", () => {
             it("should save the active config layer", async () => {
-                jest.spyOn(ConfigSecure.prototype, "save").mockResolvedValueOnce(undefined);
-                const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined).mockReturnValueOnce(undefined);
                 const config = await Config.load(MY_APP);
+                const secureSaveSpy = jest.spyOn(config.api.secure, "cacheAndPrune");
+                const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined);
                 config.api.layers.write();
-                expect(writeFileSpy).toHaveBeenCalled();
+                expect(secureSaveSpy).toHaveBeenCalledTimes(1);
+                expect(writeFileSpy).toHaveBeenCalledTimes(1);
                 expect(writeFileSpy.mock.calls[0][1]).toMatchSnapshot();
             });
 
             it("should save the active config layer with comments", async () => {
                 jest.spyOn(Config, "search").mockReturnValueOnce(__dirname + "/__resources__/commented-project.config.user.json");
-                jest.spyOn(ConfigSecure.prototype, "save").mockResolvedValueOnce(undefined);
-                const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined);
                 const config = await Config.load(MY_APP);
+                const secureSaveSpy = jest.spyOn(config.api.secure, "cacheAndPrune");
+                const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined);
                 config.api.layers.write();
-                expect(writeFileSpy).toHaveBeenCalled();
+                expect(secureSaveSpy).toHaveBeenCalledTimes(1);
+                expect(writeFileSpy).toHaveBeenCalledTimes(1);
                 expect(writeFileSpy.mock.calls[0][1]).toMatchSnapshot();
                 expect(writeFileSpy.mock.calls[0][1]).toContain("/* block-comment */");
                 expect(writeFileSpy.mock.calls[0][1]).toContain("// line-comment");
