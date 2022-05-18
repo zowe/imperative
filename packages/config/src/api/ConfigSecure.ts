@@ -51,7 +51,7 @@ export class ConfigSecure extends ConfigApi {
         this.mLoadFailed = false;
 
         // populate each layers properties
-        this.mConfig.mLayers.forEach(this.loadFromCache.bind(this));
+        this.mConfig.mLayers.forEach(this.loadCached.bind(this));
     }
 
     // _______________________________________________________________________
@@ -63,7 +63,7 @@ export class ConfigSecure extends ConfigApi {
      * @param opts The user and global flags that specify one of the four
      *             config files (aka layers).
      */
-    public loadFromCache(opts?: { user: boolean; global: boolean }) {
+    public loadCached(opts?: { user: boolean; global: boolean }) {
         if (this.mConfig.mVault == null) return;
         const layer = opts ? this.mConfig.findLayer(opts.user, opts.global) : this.mConfig.layerActive();
 
@@ -109,7 +109,7 @@ export class ConfigSecure extends ConfigApi {
         // Build the entries for each layer
         for (const { user, global } of this.mConfig.mLayers) {
             if (allLayers || (user === this.mConfig.mActive.user && global === this.mConfig.mActive.global)) {
-                this.saveToCache({ user, global });
+                this.cacheAndPrune({ user, global });
             }
         }
 
@@ -133,8 +133,7 @@ export class ConfigSecure extends ConfigApi {
      * @param opts.properties `IConfig` object cloned from the specified layer.
      *                        If specified, secure properties will be removed.
      */
-    public saveToCache(opts?: { user: boolean; global: boolean; properties?: IConfig }) {
-        if (this.mConfig.mVault == null) return;
+    public cacheAndPrune(opts?: { user: boolean; global: boolean; properties?: IConfig }) {
         const layer = opts ? this.mConfig.findLayer(opts.user, opts.global) : this.mConfig.layerActive();
 
         // Create all the secure property entries
@@ -157,12 +156,14 @@ export class ConfigSecure extends ConfigApi {
             }
         }
 
-        // Clear the entry and rebuild it
-        delete this.mConfig.mSecure[layer.path];
+        if (this.mConfig.mVault != null) {
+            // Clear the entry and rebuild it
+            delete this.mConfig.mSecure[layer.path];
 
-        // Create the entry to set the secure properties
-        if (Object.keys(sp).length > 0) {
-            this.mConfig.mSecure[layer.path] = sp;
+            // Create the entry to set the secure properties
+            if (Object.keys(sp).length > 0) {
+                this.mConfig.mSecure[layer.path] = sp;
+            }
         }
     }
 

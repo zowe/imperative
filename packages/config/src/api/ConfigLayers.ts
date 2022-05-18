@@ -54,7 +54,7 @@ export class ConfigLayers extends ConfigApi {
                     suppressDump: true
                 });
             }
-            this.mConfig.api.secure.loadFromCache(opts);
+            this.mConfig.api.secure.loadCached(opts);
         } else if (layer.exists) {
             layer.properties = {} as any;
             layer.exists = false;
@@ -79,7 +79,7 @@ export class ConfigLayers extends ConfigApi {
         // If fields are marked as secure
         const layer = opts ? this.mConfig.findLayer(opts.user, opts.global) : this.mConfig.layerActive();
         const layerCloned = JSONC.parse(JSONC.stringify(layer, null, ConfigConstants.INDENT));
-        this.mConfig.api.secure.saveToCache(layerCloned);
+        this.mConfig.api.secure.cacheAndPrune(layerCloned);
 
         // Write the layer
         try {
