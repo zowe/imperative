@@ -60,6 +60,7 @@ export class ConfigSecure extends ConfigApi {
      * specified layer. To load secure config properties directly from the
      * vault, use the asynchronous method `load` instead.
      *
+     * @internal
      * @param opts The user and global flags that specify one of the four
      *             config files (aka layers).
      */
@@ -128,6 +129,7 @@ export class ConfigSecure extends ConfigApi {
      * Warning: Do not pass an `IConfigLayer` object into this method unless
      * you want its properties to be edited.
      *
+     * @internal
      * @param opts The user and global flags that specify one of the four
      *             config files (aka layers).
      * @param opts.properties `IConfig` object cloned from the specified layer.
