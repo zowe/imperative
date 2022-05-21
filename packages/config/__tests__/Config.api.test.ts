@@ -233,11 +233,10 @@ describe("Config API tests", () => {
             it("should load properties into active layer from disk and secure vault", async () => {
                 const config = await Config.load(MY_APP);
                 const existsSpy = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
-                existsSpy.mockClear();
                 const readFileSpy = jest.spyOn(fs, "readFileSync");
                 const secureLoadSpy = jest.spyOn(config.api.secure, "loadCached");
                 config.api.layers.read();
-                expect(existsSpy).toHaveBeenCalledTimes(1);
+                expect(existsSpy).toHaveBeenCalledTimes(5); // Once for each config layer and one more time for read
                 expect(readFileSpy).toHaveBeenCalledTimes(1);
                 expect(secureLoadSpy).toHaveBeenCalledTimes(1);
             });
