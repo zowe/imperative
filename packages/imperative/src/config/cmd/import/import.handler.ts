@@ -69,7 +69,7 @@ export default class ImportHandler implements ICommandHandler {
         }
 
         // Write the active created/updated config layer
-        await config.api.layers.write();
+        config.api.layers.write();
 
         params.response.console.log(`Imported config${schemaImported ? " and schema" : ""} to ${layer.path}`);
     }

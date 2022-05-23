@@ -451,22 +451,22 @@ export function runCliScript(scriptPath: string, cwd: string, args: any = [], en
  */
 export async function setupConfigToLoad(properties?: IConfig, opts: IConfigOpts = {}): Promise<void> {
     const dirname = nodePath.dirname(expect.getState().testPath); // Get __dirname for current test suite
-    const osHomedirSpy = jest.spyOn(os, "homedir").mockReturnValue(dirname); // Pretend the current directory is the homedir
-    const processCwdSpy = jest.spyOn(process, "cwd").mockReturnValue(dirname); // Pretend the current directory is where the command was invoked
-    let existsSyncSpy;
+    const tempMocks: jest.SpyInstance[] = [
+        jest.spyOn(os, "homedir").mockReturnValue(dirname), // Pretend the current directory is the homedir
+        jest.spyOn(process, "cwd").mockReturnValue(dirname) // Pretend the current directory is where the command was invoked
+    ];
 
     if (properties != null) {
-        jest.spyOn(fs, "readFileSync").mockReturnValueOnce(JSON.stringify(properties));
-        jest.spyOn(Config, "search").mockReturnValueOnce("fakeapp.config.user.json")
-            .mockReturnValueOnce("fakeapp.config.json"); // Give search something to return
-        existsSyncSpy = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValue(false); // Only the user config exists
+        tempMocks.push(
+            jest.spyOn(fs, "readFileSync").mockReturnValueOnce(JSON.stringify(properties)),
+            jest.spyOn(Config, "search").mockReturnValueOnce("fakeapp.config.user.json")
+                .mockReturnValueOnce("fakeapp.config.json"), // Give search something to return
+            jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValue(false) // Only the user config exists
+        );
     }
 
     const fakeConfig = await Config.load("fakeapp", opts);
     jest.spyOn(ImperativeConfig.instance, "config", "get").mockReturnValue(fakeConfig);
 
-    // Undo permanent mocks
-    osHomedirSpy.mockRestore();
-    processCwdSpy.mockRestore();
-    existsSyncSpy?.mockRestore();
+    tempMocks.forEach(mock => mock.mockRestore()); // Reset all mocks
 }

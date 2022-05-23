@@ -31,7 +31,7 @@ export class ConfigLayers extends ConfigApi {
      * @param opts The user and global flags that indicate which of the four
      *             config files (aka layers) is to be read.
      */
-    public async read(opts?: { user: boolean; global: boolean }) {
+    public read(opts?: { user: boolean; global: boolean }) {
         // Attempt to populate the layer
         const layer = opts ? this.mConfig.findLayer(opts.user, opts.global) : this.mConfig.layerActive();
         if (fs.existsSync(layer.path)) {
@@ -54,6 +54,7 @@ export class ConfigLayers extends ConfigApi {
                     suppressDump: true
                 });
             }
+            this.mConfig.api.secure.loadCached(opts);
         } else if (layer.exists) {
             layer.properties = {} as any;
             layer.exists = false;
@@ -71,27 +72,14 @@ export class ConfigLayers extends ConfigApi {
      * @param opts The user and global flags that indicate which of the four
      *             config files (aka layers) is to be written.
      */
-    public async write(opts?: { user: boolean; global: boolean }) {
+    public write(opts?: { user: boolean; global: boolean }) {
         // TODO: should we prevent a write if there is no vault
         // TODO: specified and there are secure fields??
 
         // If fields are marked as secure
         const layer = opts ? this.mConfig.findLayer(opts.user, opts.global) : this.mConfig.layerActive();
         const layerCloned = JSONC.parse(JSONC.stringify(layer, null, ConfigConstants.INDENT));
-        for (const configPath of this.mConfig.api.secure.secureFields(layer)) {
-            const segments = configPath.split(".");
-            let obj: any = layerCloned.properties;
-            for (let x = 0; x < segments.length; x++) {
-                const segment = segments[x];
-                const v = obj[segment];
-                if (v == null) break;
-                if (x === segments.length - 1) {
-                    delete obj[segment];
-                    break;
-                }
-                obj = obj[segment];
-            }
-        }
+        this.mConfig.api.secure.cacheAndPrune(layerCloned);
 
         // Write the layer
         try {
@@ -117,8 +105,12 @@ export class ConfigLayers extends ConfigApi {
 
         if (inDir != null) {
             const layer = this.mConfig.layerActive();
-            layer.path = path.join(inDir, path.basename(layer.path));
-            this.read();
+
+            // Load config layer if file path has changed
+            if (inDir !== path.dirname(layer.path)) {
+                layer.path = path.join(inDir, path.basename(layer.path));
+                this.read();
+            }
         }
     }
 

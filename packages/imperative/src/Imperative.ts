@@ -292,7 +292,7 @@ export class Imperative {
                  * if we are not in team-config mode.
                  */
                 if (ImperativeConfig.instance.config.exists === false) {
-                    this.initProfiles(config);
+                    await this.initProfiles(config);
                 }
 
                 /**
@@ -566,9 +566,9 @@ export class Imperative {
      * @param {IImperativeConfig} config - The configuration document passed to init.
      * @memberof Imperative
      */
-    private static initProfiles(config: IImperativeConfig) {
+    private static async initProfiles(config: IImperativeConfig) {
         if (config.profiles != null && config.profiles.length > 0) {
-            CliProfileManager.initialize({
+            await CliProfileManager.initialize({
                 configuration: config.profiles,
                 profileRootDirectory: ProfileUtils.constructProfilesRootDirectory(ImperativeConfig.instance.cliHome),
                 reinitialize: false

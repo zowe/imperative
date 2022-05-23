@@ -195,7 +195,7 @@ describe("Config tests", () => {
             let readError: any;
             const config = await Config.load(MY_APP, {noLoad: true});
             try {
-                for (const layer of config.mLayers) { await config.api.layers.read(layer); }
+                for (const layer of config.mLayers) { config.api.layers.read(layer); }
             } catch (err) {
                 readError = err;
             }
