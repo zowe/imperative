@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.3.1`
 
 - BugFix: Fixed `config init` saving empty string values to config file when prompt was skipped.
 - BugFix: Fixed `ConfigLayers.read` skipping load of secure property values.
