@@ -45,10 +45,9 @@ jobs:
 
     - name: Build Source
       id: build
-      run: npm run build --if-present
+      run: npm run build
 
     - name: Unit Tests
-      id: unit
       if: ${{ always() && steps.build.outcome == 'success' }}
       run: npm run test:unit >> unit-tests.txt
 
@@ -57,12 +56,10 @@ jobs:
       uses: t1m0thyj/unlock-keyring@master
 
     - name: Integration Tests
-      id: integration
       if: ${{ always() && steps.build.outcome == 'success' }}
       run: npm run test:integration >> integration-tests.txt
 
     - name: Archive Results
-      id: upload
       if: ${{ always() && steps.build.outcome == 'success' }}
       uses: actions/upload-artifact@v2
       with:
@@ -102,18 +99,20 @@ jobs:
     - name: Update Dependencies
       uses: octorelease/run-script@master
       env:
-        GIT_COMMITTER_NAME: zowe-robot
-        GIT_COMMITTER_EMAIL: zowe.robot@gmail.com
+        GIT_COMMITTER_NAME: ${{ secrets.ZOWE_ROBOT_USER }}
+        GIT_COMMITTER_EMAIL: ${{ secrets.ZOWE_ROBOT_EMAIL }}
       with:
         script: npmUpdate
 
     - name: Build Source
-      run: npm run build --if-present
+      run: npm run build
 
     - uses: octorelease/octorelease@master
       env:
-        GIT_COMMITTER_NAME: zowe-robot
-        GIT_COMMITTER_EMAIL: zowe.robot@gmail.com
-        GIT_CREDENTIALS: x-access-token:${{ secrets.ADMIN_GITHUB_TOKEN }}
+        GIT_COMMITTER_NAME: ${{ secrets.ZOWE_ROBOT_USER }}
+        GIT_COMMITTER_EMAIL: ${{ secrets.ZOWE_ROBOT_EMAIL }}
+        GIT_CREDENTIALS: x-access-token:${{ secrets.ZOWE_ROBOT_TOKEN }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        NPM_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+        NPM_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+        NPM_EMAIL: ${{ secrets.ZOWE_ROBOT_EMAIL }}
