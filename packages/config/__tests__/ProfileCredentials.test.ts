@@ -66,14 +66,14 @@ describe("ProfileCredentials tests", () => {
             expect(profCreds.isSecured).toBe(false);
         });
 
-        it("should be cached for subsequent calls", () => {
+        it("should not be cached for subsequent calls", () => {
             const profCreds = new ProfileCredentials({
-                usingTeamConfig: false
+                usingTeamConfig: true
             } as any);
-            jest.spyOn(profCreds as any, "isCredentialManagerInAppSettings").mockReturnValueOnce(false).mockReturnValueOnce(true);
+            jest.spyOn(profCreds as any, "isTeamConfigSecure").mockReturnValueOnce(false).mockReturnValueOnce(true);
             expect(profCreds.isSecured).toBe(false);
-            // expect a 2nd time to ensure value has not changed
-            expect(profCreds.isSecured).toBe(false);
+            // expect a 2nd time to ensure value has changed
+            expect(profCreds.isSecured).toBe(true);
         });
     });
 

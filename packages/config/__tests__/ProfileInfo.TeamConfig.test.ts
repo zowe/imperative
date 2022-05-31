@@ -936,6 +936,7 @@ describe("TeamConfig ProfileInfo tests", () => {
             expect(ImperativeConfig.instance.loadedConfig.profiles).toEqual(profiles);
             expect(ImperativeConfig.instance.loadedConfig.baseProfile).toEqual(profiles[0]);
             expect(storageSpy).toHaveBeenCalledWith({
+                config: profInfo.getTeamConfig(),
                 defaultBaseProfileName: "base_glob",
                 sessCfg: { hostname: "test" },
                 propsToStore: ["host"],
@@ -963,6 +964,7 @@ describe("TeamConfig ProfileInfo tests", () => {
             expect(ImperativeConfig.instance.loadedConfig.profiles).toContain(profiles[0]);
             expect(ImperativeConfig.instance.loadedConfig.baseProfile).toBeDefined();
             expect(storageSpy).toHaveBeenCalledWith({
+                config: profInfo.getTeamConfig(),
                 defaultBaseProfileName: "base_glob",
                 sessCfg: { hostname: "test" },
                 propsToStore: ["host"],

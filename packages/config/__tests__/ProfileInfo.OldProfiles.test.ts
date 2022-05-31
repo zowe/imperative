@@ -95,6 +95,15 @@ describe("Old-school ProfileInfo tests", () => {
             expect(warnSpy).toHaveBeenLastCalledWith("Found no old-school profiles.");
         });
 
+        it("should return null if profile root dir does not exist", async () => {
+            const invalidHomeDir = homeDirPath + "_does_not_exist";
+            process.env[testEnvPrefix + "_CLI_HOME"] = invalidHomeDir;
+            const profInfo = new ProfileInfo(testAppNm);
+            jest.spyOn((profInfo as any).mCredentials, "isSecured", "get").mockReturnValue(false);
+            await profInfo.readProfilesFromDisk();
+            expect(profInfo.getDefaultProfile("zosmf")).toBeNull();
+        });
+
         it("should return a profile if one exists", async () => {
             const profInfo = createNewProfInfo(homeDirPath);
             await profInfo.readProfilesFromDisk();

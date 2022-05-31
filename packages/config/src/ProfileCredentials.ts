@@ -40,7 +40,7 @@ export class ProfileCredentials {
      * is not possible to reinitialize.
      */
     public async loadManager(): Promise<void> {
-        if (!this.mSecured) {
+        if (!(this.mSecured ?? this.isSecured)) {
             throw new ImperativeError({ msg: "Secure credential storage is not enabled" });
         }
 
