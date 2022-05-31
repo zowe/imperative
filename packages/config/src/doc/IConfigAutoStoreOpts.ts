@@ -11,6 +11,7 @@
 
 import { ICommandArguments } from "../../../cmd/src/doc/args/ICommandArguments";
 import { IHandlerParameters } from "../../../cmd/src/doc/handler/IHandlerParameters";
+import { Config } from "../Config";
 
 /**
  * Defines the options used by the ConfigAutoStore._findActiveProfile function
@@ -59,6 +60,12 @@ export interface IConfigAutoStoreFindAuthHandlerForProfileOpts extends IConfigAu
      * Used if cmdArguments == null
      */
     defaultBaseProfileName?: string;
+
+    /**
+     * Team configuration properties
+     * Overrides `ImperativeConfig.instance.config`
+     */
+    config?: Config;
 }
 
 /**

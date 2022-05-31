@@ -218,6 +218,7 @@ export class ProfileInfo {
                 }
 
                 await ConfigAutoStore._storeSessCfgProps({
+                    config: this.mLoadedConfig,
                     defaultBaseProfileName: this.mLoadedConfig?.properties.defaults.base,
                     sessCfg: {
                         [options.property === "host" ? "hostname" : options.property]: options.value
@@ -863,7 +864,6 @@ export class ProfileInfo {
      */
     public async readProfilesFromDisk(teamCfgOpts?: IConfigOpts) {
         this.mLoadedConfig = await Config.load(this.mAppName, { homeDir: ImperativeConfig.instance.cliHome, ...teamCfgOpts });
-        if (ImperativeConfig.instance.config == null) { ImperativeConfig.instance.config = this.mLoadedConfig; }
         this.mUsingTeamConfig = this.mLoadedConfig.exists;
 
         try {
