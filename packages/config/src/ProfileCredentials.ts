@@ -29,9 +29,7 @@ export class ProfileCredentials {
      * in the Imperative settings.json file.
      */
     public get isSecured(): boolean {
-        if (this.mSecured == null) {
-            this.mSecured = this.isTeamConfigSecure() || this.isCredentialManagerInAppSettings();
-        }
+        this.mSecured = this.isTeamConfigSecure() || this.isCredentialManagerInAppSettings();
         return this.mSecured;
     }
 
@@ -42,7 +40,7 @@ export class ProfileCredentials {
      * is not possible to reinitialize.
      */
     public async loadManager(): Promise<void> {
-        if (!this.isSecured) {
+        if (!this.mSecured) {
             throw new ImperativeError({ msg: "Secure credential storage is not enabled" });
         }
 
