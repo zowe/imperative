@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.3.2`
 
 - BugFix: Fixed `ProfileInfo.readProfilesFromDisk` failing when team config files and old-school profile directory do not exist.
 - BugFix: Fixed `ProfileInfo.updateProperty` not updating properties that are newly present after reloading team config.
