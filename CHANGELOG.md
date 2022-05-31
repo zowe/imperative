@@ -2,6 +2,13 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed `ProfileInfo.readProfilesFromDisk` failing when team config files and old-school profile directory do not exist.
+- BugFix: Fixed `ProfileInfo.updateProperty` not updating properties that are newly present after reloading team config.
+- BugFix: Fixed ProfileInfo API not detecting secure credential manager after profiles have been reloaded.
+- **Note:** If you are developing an SDK that uses the ProfileInfo API, use the method `ProfileInfo.getTeamConfig` instead of `ImperativeConfig.instance.config` which may contain outdated config or be undefined.
+
 ## `5.3.1`
 
 - BugFix: Fixed `config init` saving empty string values to config file when prompt was skipped.

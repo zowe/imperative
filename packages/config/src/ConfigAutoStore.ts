@@ -74,7 +74,7 @@ export class ConfigAutoStore {
      * @returns Auth handler class or undefined if none was found
      */
     private static _findAuthHandlerForProfile(opts: IConfigAutoStoreFindAuthHandlerForProfileOpts): AbstractAuthHandler | undefined {
-        const config = ImperativeConfig.instance.config;
+        const config = opts.config || ImperativeConfig.instance.config;
         const profileType = lodash.get(config.properties, `${opts.profilePath}.type`);
         const profile = config.api.profiles.get(opts.profilePath.replace(/profiles\./g, ""), false);
 
@@ -128,7 +128,7 @@ export class ConfigAutoStore {
      * @param opts Set of options required to store session config properties
      */
     public static async _storeSessCfgProps(opts: IConfigAutoStoreStoreSessCfgPropsOpts): Promise<void> {
-        const config = ImperativeConfig.instance.config;
+        const config = opts.config || ImperativeConfig.instance.config;
         // TODO Which autoStore value should take priority if it conflicts between layers
         if (opts.propsToStore.length == 0 || !config?.exists || !config.properties.autoStore) {
             return;
