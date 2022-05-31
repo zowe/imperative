@@ -884,7 +884,8 @@ export class ProfileInfo {
             this.mOldSchoolProfileDefaults = {};
             // Try to get profiles and types
             this.mOldSchoolProfileRootDir = path.join(ImperativeConfig.instance.cliHome, "profiles");
-            const profTypes = ProfileIO.getAllProfileDirectories(this.mOldSchoolProfileRootDir);
+            const profTypes = fs.existsSync(this.mOldSchoolProfileRootDir) ?
+                ProfileIO.getAllProfileDirectories(this.mOldSchoolProfileRootDir) : [];
             // Iterate over the types
             for (const profType of profTypes) {
                 // Set up the profile manager and list of profile names
