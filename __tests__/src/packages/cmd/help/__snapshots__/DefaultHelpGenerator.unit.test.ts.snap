@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test DefaultHelpGenerator escapeMarkdown: removing ansi escape codes 1`] = `
+"Specifies whether to verify that the objects to be created do not exist on the Db2 subsystem and that the related objects that are required for successful creation of the objects exist on the Db2 subsystem or in the input DDL\\\\.
+ 
+  Default value: no "
+`;

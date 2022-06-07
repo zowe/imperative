@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## `5.3.3`
+
+- Enhancement: Added ANSI escape codes trimming for the Web Help.
+
 ## `5.3.2`
 
 - BugFix: Fixed `ProfileInfo.readProfilesFromDisk` failing when team config files and old-school profile directory do not exist.
