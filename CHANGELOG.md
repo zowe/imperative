@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Added ANSI escape codes trimming for the Web Help.
+
 ## `4.18.6`
 
 - BugFix: Updated `cli-table3` dependency for performance improvements.
