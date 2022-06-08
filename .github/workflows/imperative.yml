@@ -35,6 +35,10 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
+    # Temporary workaround for an npm regression
+    - name: Use npm v8.12.1
+      run: npm i -g npm@8.12.1
+
     - name: Install Dependencies
       run: npm ci
 
