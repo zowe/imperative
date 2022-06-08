@@ -192,7 +192,7 @@ export class ConfigAutoStore {
 
             const sessCfgPropName = propName === "host" ? "hostname" : propName;
             config.set(`${propProfilePath}.properties.${propName}`, opts.sessCfg[sessCfgPropName], {
-                secure: isSecureProp || opts.setSecure
+                secure: opts.setSecure ?? isSecureProp
             });
         }
 

@@ -493,6 +493,15 @@ export class ProfileInfo {
 
     // _______________________________________________________________________
     /**
+     * Helper function to identify if the existing config is secure or not
+     * @returns true if the teamConfig is storing credentials securely, false otherwise
+     */
+    public isSecured(): boolean {
+        return this.mCredentials?.isSecured ?? true;
+    }
+
+    // _______________________________________________________________________
+    /**
      * Create a session from profile arguments that have been retrieved from
      * ProfileInfo functions.
      *
