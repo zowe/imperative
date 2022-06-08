@@ -13,7 +13,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [14.x, 16.x, 18.x]
+        # Temporary workaround for regression in npm@8.11 and newer
+        # node-version: [14.x, 16.x, 18.x]
+        node-version: [14.x, 16.15.0, 18.2.0]
         os: [windows-latest, ubuntu-latest, macos-latest]
 
     env:
@@ -34,11 +36,6 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-
-    # Temporary workaround for regression in npm@8.11 and newer
-    - name: Use NPM v8
-      if: ${{ matrix.node-version != '14.x' }}
-      run: npm install -g npm@~8.5.5
 
     - name: Install Dependencies
       run: npm ci
