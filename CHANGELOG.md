@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.3.3`
 
 - Expose the isSecured functionality from the ProfilesCredentials [#549](https://github.com/zowe/imperative/issues/549)
 - Allow the ConfigAutoStore to store plain-text properties that are defined as secure in the schema (e.g. user, password) [zowe/vscode-extension-for-zowe#1804](https://github.com/zowe/vscode-extension-for-zowe/issues/1804)
