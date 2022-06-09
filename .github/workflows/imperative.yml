@@ -7,13 +7,15 @@ on: [push, pull_request]
 
 jobs:
   test:
-
+    if: (github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository) && !contains(github.event.head_commit.message, '[ci skip]')
     runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
-        node-version: [14.x, 16.x, 18.x]
+        # Temporary workaround for regression in npm@8.11 and newer
+        # node-version: [14.x, 16.x, 18.x]
+        node-version: [14.x, 16.15.0, 18.2.0]
         os: [windows-latest, ubuntu-latest, macos-latest]
 
     env:
@@ -26,8 +28,6 @@ jobs:
       group: ${{ matrix.os }}-node-${{ matrix.node-version }}-ci-${{ github.ref }}
       cancel-in-progress: true
 
-    if: (github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository) && !contains(github.event.head_commit.message, '[ci skip]')
-
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -37,16 +37,19 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
-    - name: Install Node Package Dependencies
-      id: install
+    - name: Install Dependencies
       run: npm ci
+
+    - name: Update Dependencies
+      uses: octorelease/run-script@master
+      with:
+        script: npmUpdate
 
     - name: Build Source
       id: build
-      run: npm run build --if-present
+      run: npm run build
 
     - name: Unit Tests
-      id: unit
       if: ${{ always() && steps.build.outcome == 'success' }}
       run: npm run test:unit >> unit-tests.txt
 
@@ -55,12 +58,10 @@ jobs:
       uses: t1m0thyj/unlock-keyring@master
 
     - name: Integration Tests
-      id: integration
       if: ${{ always() && steps.build.outcome == 'success' }}
       run: npm run test:integration >> integration-tests.txt
 
     - name: Archive Results
-      id: upload
       if: ${{ always() && steps.build.outcome == 'success' }}
       uses: actions/upload-artifact@v2
       with:
@@ -75,3 +76,45 @@ jobs:
       uses: codecov/codecov-action@v1.0.7
       with:
         env_vars: OS,NODE
+
+  release:
+    if: github.event_name == 'push'
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+        persist-credentials: false
+        ref: ${{ github.ref }}
+
+    - name: Use Node.js LTS
+      uses: actions/setup-node@v2
+      with:
+        node-version: 'lts/*'
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Update Dependencies
+      uses: octorelease/run-script@master
+      env:
+        GIT_COMMITTER_NAME: ${{ secrets.ZOWE_ROBOT_USER }}
+        GIT_COMMITTER_EMAIL: ${{ secrets.ZOWE_ROBOT_EMAIL }}
+      with:
+        script: npmUpdate
+
+    - name: Build Source
+      run: npm run build
+
+    - uses: octorelease/octorelease@master
+      env:
+        GIT_COMMITTER_NAME: ${{ secrets.ZOWE_ROBOT_USER }}
+        GIT_COMMITTER_EMAIL: ${{ secrets.ZOWE_ROBOT_EMAIL }}
+        GIT_CREDENTIALS: x-access-token:${{ secrets.ZOWE_ROBOT_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        NPM_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+        NPM_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+        NPM_EMAIL: ${{ secrets.ZOWE_ROBOT_EMAIL }}
