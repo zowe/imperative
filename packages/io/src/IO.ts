@@ -259,16 +259,21 @@ export class IO {
      * (basically, if the user is on Windows, change  \n to \r\n)
      * @static
      * @param {string} original - original input
+     * @param {number} lastByte - last byte of previous input, if it is being processed in chunks
      * @returns {string} - input with removed newlines
      * @memberof IO
      */
-    public static processNewlines(original: string): string {
+    public static processNewlines(original: string, lastByte?: number): string {
         ImperativeExpect.toNotBeNullOrUndefined(original, "Required parameter 'original' must not be null or undefined");
         if (os.platform() !== IO.OS_WIN32) {
             return original;
         }
         // otherwise, we're on windows
-        return original.replace(/([^\r])\n/g, "$1\r\n");
+        const processed = original.replace(/([^\r])\n/g, "$1\r\n");
+        if (lastByte != null && lastByte !== "\r".charCodeAt(0) && original.startsWith("\n")) {
+            return "\r" + processed;
+        }
+        return processed;
     }
 
     /**
