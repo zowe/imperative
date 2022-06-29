@@ -2,6 +2,11 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed `zowe --version --rfj` including a trailing newline in the version field. [#842](https://github.com/zowe/imperative/issues/842)
+- BugFix: Fixed `--response-format-json` option not supported by some commands in daemon mode. [#843](https://github.com/zowe/imperative/issues/843)
+
 ## `5.3.3`
 
 - Expose the isSecured functionality from the ProfilesCredentials [#549](https://github.com/zowe/imperative/issues/549)
