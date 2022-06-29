@@ -76,5 +76,5 @@ For information about how you can contribute code to Imperative CLI Framework, s
 ## Versioning
 Imperative CLI Framework uses Semantic Versioning (SemVer) for versioning. For more information, see the [Semantic Versioning](https://semver.org/) website.
 
-## Licencing Imperative CLI Framework
+## Licensing Imperative CLI Framework
 For Imperative CLI Framework licensing rules, requirements, and guidelines, see [LICENSE](LICENSE).
