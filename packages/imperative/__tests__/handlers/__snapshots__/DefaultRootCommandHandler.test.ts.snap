@@ -279,8 +279,7 @@ exports[`Default Root Command Handler should display the help if no options are 
 exports[`Default Root Command Handler should display the version if --version is specified 1`] = `
 Object {
   "data": Object {
-    "version": "10000
-",
+    "version": 10000,
   },
   "error": undefined,
   "exitCode": 0,
