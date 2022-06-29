@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed `AbstractRestClient` not converting LF line endings to CRLF for every line when downloading large files on Windows. [zowe/zowe-cli#1458](https://github.com/zowe/zowe-cli/issues/1458)
+
 ## `5.3.3`
 
 - Expose the isSecured functionality from the ProfilesCredentials [#549](https://github.com/zowe/imperative/issues/549)
