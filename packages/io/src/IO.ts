@@ -270,7 +270,7 @@ export class IO {
         }
         // otherwise, we're on windows
         const processed = original.replace(/([^\r])\n/g, "$1\r\n");
-        if (lastByte != null && lastByte !== "\r".charCodeAt(0) && original.startsWith("\n")) {
+        if ((lastByte == null || lastByte !== "\r".charCodeAt(0)) && original.startsWith("\n")) {
             return "\r" + processed;
         }
         return processed;

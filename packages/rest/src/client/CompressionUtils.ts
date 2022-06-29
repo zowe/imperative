@@ -95,12 +95,15 @@ export class CompressionUtils {
         });
     }
 
+    /**
+     * Return a transform to normalize line endings in response text.
+     */
     private static newLinesTransform(): Transform {
-        let lastByte: number = 0;
+        let lastByteReceived: number = 0;
         return new Transform({
             transform(chunk, _, callback) {
-                this.push(Buffer.from(IO.processNewlines(chunk.toString(), lastByte)));
-                lastByte = chunk[chunk.byteLength - 1];
+                this.push(Buffer.from(IO.processNewlines(chunk.toString(), lastByteReceived)));
+                lastByteReceived = chunk[chunk.byteLength - 1];
                 callback();
             }
         });
