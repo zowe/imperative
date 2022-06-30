@@ -24,9 +24,8 @@ export default class DefaultRootCommandHandler implements ICommandHandler {
         if (params.arguments.version) {
             // load the user's package.json to check the version of their package
             const packageJson: any = ImperativeConfig.instance.callerPackageJson;
-            const versionString =
-                params.response.console.log(packageJson.version);
-            params.response.data.setObj({ version: versionString });
+            params.response.console.log(packageJson.version);
+            params.response.data.setObj({ version: packageJson.version });
             params.response.data.setMessage("Version displayed");
         } else if(params.arguments.availableCommands) {
 
