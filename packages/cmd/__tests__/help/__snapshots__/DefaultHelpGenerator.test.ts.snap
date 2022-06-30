@@ -1,11 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Default Help Generator deprecated commands should removing ANSI escape codes from the help text 1`] = `
-"Specifies whether to verify that the objects to be created do not exist on the Db2 subsystem and that the related objects that are required for successful creation of the objects exist on the Db2 subsystem or in the input DDL\\\\.
- 
-  Default value: no "
-`;
-
 exports[`Default Help Generator error handling should detect an invalid command definition type 1`] = `"Help Generator Error: Unknown command definition type specified: \\"fake\\""`;
 
 exports[`Default Help Generator help text builder buildCommandAndAliases test 1`] = `"hello"`;
