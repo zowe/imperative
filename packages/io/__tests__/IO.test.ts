@@ -14,6 +14,7 @@ import Mock = jest.Mock;
 jest.mock("fs");
 jest.mock("path");
 import * as fs from "fs";
+import * as os from "os";
 import * as path from "path";
 import { IO } from "../../io";
 
