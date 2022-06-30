@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.3.3`
 
 - Enhancement: Added ANSI escape codes trimming for the Web Help.
 
