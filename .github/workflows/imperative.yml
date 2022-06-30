@@ -13,7 +13,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [14.x, 16.x, 18.x]
+        # Temporary workaround for regression in npm@8.11 and newer
+        # node-version: [12.x, 14.x, 16.x]
+        node-version: [12.x, 14.x, 16.15.0]
         os: [windows-2019, ubuntu-latest, macos-latest]
 
     env:
