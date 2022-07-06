@@ -83,6 +83,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
+      with:
+        args: '-Dsonar.links.ci=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}'
 
   release:
     if: github.event_name == 'push'
