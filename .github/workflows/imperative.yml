@@ -86,13 +86,13 @@ jobs:
         script: getSonarScanArgs
 
     - name: SonarCloud Scan
-      if: ${{ always() && steps.build.outcome == 'success' && steps.sonar-scan-args.output.result != '' }}
+      if: ${{ always() && steps.build.outcome == 'success' && steps.sonar-scan-args.outputs.result != '' }}
       uses: sonarsource/sonarcloud-github-action@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
       with:
-        args: ${{ steps.sonar-scan-args.output.result }}
+        args: ${{ steps.sonar-scan-args.outputs.result }}
 
   release:
     if: github.event_name == 'push'
