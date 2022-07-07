@@ -10,6 +10,9 @@
 */
 
 import { Console } from "../../console";
+import { unset } from "lodash";
+import { Logger } from "../../logger";
+
 describe("Console tests", () => {
 
     it("Should allow for checking if a level is valid", () => {
@@ -84,5 +87,44 @@ describe("Console tests", () => {
         jest.spyOn(Date.prototype, "getTimezoneOffset").mockReturnValueOnce(0);
         jest.spyOn(Date, "now").mockReturnValueOnce(45296789);
         expect((cons as any).buildPrefix("test")).toBe("[1970/01/01 12:34:56.789] [test] ");
+    });
+
+    it("Should set level from ZOWE_APP_LOG_LEVEL env var", () => {
+        process.env.ZOWE_APP_LOG_LEVEL = "off";
+
+        const cons = new Console();
+        expect((cons as any).level).toBe("off");
+
+        unset(process.env, "ZOWE_APP_LOG_LEVEL");
+    });
+
+    it("Should set level from ZOWE_IMPERATIVE_LOG_LEVEL env var", () => {
+        process.env.ZOWE_IMPERATIVE_LOG_LEVEL = "error";
+
+        const cons = new Console();
+        expect((cons as any).level).toBe("error");
+
+        unset(process.env, "ZOWE_IMPERATIVE_LOG_LEVEL");
+    });
+
+    it("Should set level from ZOWE_APP_LOG_LEVEL over ZOWE_IMPERATIVE_LOG_LEVEL env var", () => {
+        process.env.ZOWE_APP_LOG_LEVEL = "off";
+        process.env.ZOWE_IMPERATIVE_LOG_LEVEL = "error";
+
+        const cons = new Console();
+        expect((cons as any).level).toBe("off");
+
+        unset(process.env, "ZOWE_APP_LOG_LEVEL");
+        unset(process.env, "ZOWE_IMPERATIVE_LOG_LEVEL");
+    });
+
+    it("Should not write messages to terminal on direct method call", () => {
+        process.env.ZOWE_APP_LOG_LEVEL = "error";
+        const mock = jest.spyOn((console as any)._stdout, "write");
+
+        Logger.getAppLogger().trace("GetJobs.getJobsByOwnerAndPrefix()");
+        expect(mock.mock.calls.length).toBe(0);
+
+        unset(process.env, "ZOWE_APP_LOG_LEVEL");
     });
 });

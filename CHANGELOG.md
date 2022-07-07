@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent changes
+
+- Enhancement: Added environment variables support (`ZOWE_APP_LOG_LEVEL`, `ZOWE_IMPERATIVE_LOG_LEVEL`) for setting console logging level.
+
 ## `5.3.4`
 
 - BugFix: Added ANSI escape codes trimming for the Web Help. [#704](https://github.com/zowe/imperative/issues/704)

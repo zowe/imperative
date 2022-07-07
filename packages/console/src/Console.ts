@@ -47,7 +47,11 @@ export class Console implements IConsole {
     private mColor: boolean;
     private mIsOn: boolean;
 
-    constructor(private mLevel = Console.LEVEL_DEFAULT) {
+    constructor(
+        private mLevel = process.env.ZOWE_APP_LOG_LEVEL ||
+        process.env.ZOWE_IMPERATIVE_LOG_LEVEL ||
+        Console.LEVEL_DEFAULT
+    ) {
         this.mPrefix = true;
         this.mColor = true;
         this.mLevel = mLevel.toLocaleLowerCase();
