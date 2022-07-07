@@ -14,6 +14,7 @@ import Mock = jest.Mock;
 jest.mock("fs");
 jest.mock("path");
 import * as fs from "fs";
+import * as os from "os";
 import * as path from "path";
 import { IO } from "../../io";
 
@@ -275,6 +276,20 @@ describe("IO tests", () => {
         const dir = willBeADir.join(IO.FILE_DELIM);
         IO.createDirsSyncFromFilePath(dir);
         expect(fnFm).toHaveBeenCalledTimes(Math.ceil(willBeADir.length / 2));
+    });
+
+    it("processNewLines should replace LF line endings with CRLF on Windows", () => {
+        jest.spyOn(os, "platform").mockReturnValueOnce(IO.OS_WIN32);
+        const original = "\nabc\ndef\n";
+        const processed = IO.processNewlines(original);
+        expect(processed).toBe(original.replace(/\n/g, "\r\n"));
+    });
+
+    it("processNewLines should not replace LF line ending when last byte is CR", () => {
+        jest.spyOn(os, "platform").mockReturnValueOnce(IO.OS_WIN32);
+        const original = "\nabc\ndef\n";
+        const processed = IO.processNewlines(original, "\r".charCodeAt(0));
+        expect(processed).toBe(original.replace(/\n/g, "\r\n").slice(1));
     });
 
     it("should get an error for no input on mkdirp", () => {

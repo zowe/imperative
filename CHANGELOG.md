@@ -2,6 +2,12 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Added ANSI escape codes trimming for the Web Help. [#704](https://github.com/zowe/imperative/issues/704)
+- BugFix: Fixed `AbstractRestClient` not converting LF line endings to CRLF for every line when downloading large files on Windows. [zowe/zowe-cli#1458](https://github.com/zowe/zowe-cli/issues/1458)
+- BugFix: Fixed `zowe --version --rfj` including a trailing newline in the version field. [#842](https://github.com/zowe/imperative/issues/842)
+
 ## `4.18.6`
 
 - BugFix: Updated `cli-table3` dependency for performance improvements.

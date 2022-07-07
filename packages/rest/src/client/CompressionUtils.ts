@@ -62,13 +62,7 @@ export class CompressionUtils {
 
             // Second transform is optional and processes line endings
             if (normalizeNewLines) {
-                const transformSnd = new Transform({
-                    transform(chunk, _, callback) {
-                        this.push(Buffer.from(IO.processNewlines(chunk.toString())));
-                        callback();
-                    }
-                });
-                transforms.push(transformSnd);
+                transforms.push(this.newLinesTransform());
             }
 
             // Chain transforms and response stream together
@@ -98,6 +92,20 @@ export class CompressionUtils {
             msg: `Failed to decompress response ${source} with content encoding type ${encoding}`,
             additionalDetails: err.message,
             causeErrors: err
+        });
+    }
+
+    /**
+     * Return a transform to normalize line endings in response text.
+     */
+    private static newLinesTransform(): Transform {
+        let lastByteReceived: number = 0;
+        return new Transform({
+            transform(chunk, _, callback) {
+                this.push(Buffer.from(IO.processNewlines(chunk.toString(), lastByteReceived)));
+                lastByteReceived = chunk[chunk.byteLength - 1];
+                callback();
+            }
         });
     }
 

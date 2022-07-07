@@ -24,7 +24,9 @@ import { PassThrough } from "stream";
 import * as zlib from "zlib";
 import * as streamToString from "stream-to-string";
 import { AbstractRestClient } from "../../src/client/AbstractRestClient";
+import * as os from "os";
 import { join } from "path";
+import { IO } from "../../../io";
 
 /**
  * To test the AbstractRestClient, we use the existing default RestClient which
@@ -714,6 +716,38 @@ describe("AbstractRestClient tests", () => {
         expect(error.message).toContain("Failed to open one or more PEM certificate files");
     });
 
+    it("should convert line endings from LF to CRLF for streamed request on Windows", async () => {
+        const fakeData = Buffer.from("\nabc\ndef\n");
+        const emitter = new MockHttpRequestResponse();
+        const requestFnc = jest.fn((options, callback) => {
+            ProcessUtils.nextTick(async () => {
+
+                const newEmit = new MockHttpRequestResponse();
+                callback(newEmit);
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("data", fakeData);
+                });
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("end");
+                });
+            });
+
+            return emitter;
+        });
+
+        (https.request as any) = requestFnc;
+        jest.spyOn(os, "platform").mockReturnValueOnce(IO.OS_WIN32);
+
+        const responseStream = new PassThrough();
+        await RestClient.getStreamed(new Session({
+            hostname: "test"
+        }), "/resource", [], responseStream, true);
+        const result = await streamToString(responseStream);
+        expect(result).toBe("\r\nabc\r\ndef\r\n");
+    });
+
     describe("content encoding", () => {
         const responseText = "Request failed successfully";
         const rawBuffer = Buffer.from(responseText);
@@ -975,6 +1009,7 @@ describe("AbstractRestClient tests", () => {
 
                     const newEmit = new MockHttpRequestResponse();
                     newEmit.headers = { "Content-Encoding": "gzip" };
+                    newEmit.statusCode = "400";
                     callback(newEmit);
 
                     await ProcessUtils.nextTick(() => {
@@ -991,7 +1026,6 @@ describe("AbstractRestClient tests", () => {
 
             (https.request as any) = requestFnc;
             (AbstractRestClient.prototype as any).mDecode = true;
-            jest.spyOn(AbstractRestClient.prototype, "requestFailure", "get").mockReturnValue(true);
             const responseStream = new PassThrough();
             let caughtError;
 
@@ -1006,6 +1040,40 @@ describe("AbstractRestClient tests", () => {
 
             expect(caughtError instanceof ImperativeError).toBe(true);
             expect(caughtError.causeErrors).toContain(responseText);
+        });
+
+        it("should convert line endings from LF to CRLF for streamed request on Windows", async () => {
+            const fakeData = zlib.gzipSync(Buffer.from("\nabc\ndef\n"));
+            const emitter = new MockHttpRequestResponse();
+            const requestFnc = jest.fn((options, callback) => {
+                ProcessUtils.nextTick(async () => {
+
+                    const newEmit = new MockHttpRequestResponse();
+                    newEmit.headers = { "Content-Encoding": "gzip" };
+                    callback(newEmit);
+
+                    await ProcessUtils.nextTick(() => {
+                        newEmit.emit("data", fakeData);
+                    });
+
+                    await ProcessUtils.nextTick(() => {
+                        newEmit.emit("end");
+                    });
+                });
+
+                return emitter;
+            });
+
+            (https.request as any) = requestFnc;
+            (AbstractRestClient.prototype as any).mDecode = true;
+            jest.spyOn(os, "platform").mockReturnValueOnce(IO.OS_WIN32);
+
+            const responseStream = new PassThrough();
+            await RestClient.getStreamed(new Session({
+                hostname: "test"
+            }), "/resource", [], responseStream, true);
+            const result = await streamToString(responseStream);
+            expect(result).toBe("\r\nabc\r\ndef\r\n");
         });
     });
 });
