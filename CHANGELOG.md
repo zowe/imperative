@@ -4,7 +4,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
-- Bugfix: Fixed `ansi-colors` dependency issue
+- Bugfix: Fixed `ansi-colors` dependency issue.
 
 ## `5.3.4`
 
