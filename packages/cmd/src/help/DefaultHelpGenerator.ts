@@ -18,7 +18,7 @@ import { ImperativeError } from "../../../error";
 import { IHelpGeneratorParms } from "./doc/IHelpGeneratorParms";
 import { IHelpGeneratorFactoryParms } from "./doc/IHelpGeneratorFactoryParms";
 import { compareCommands, ICommandDefinition } from "../../src/doc/ICommandDefinition";
-import { ansiRegex } from "ansi-colors";
+import { unstyle } from "ansi-colors";
 
 /**
  * Imperative default help generator. Accepts the command definitions and constructs
@@ -553,7 +553,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
      * @return {string} - The escaped string
      */
     private escapeMarkdown(text: string): string {
-        text = text.replace(ansiRegex, "");
+        text = unstyle(text);
         return text.replace(/([*#\-`_[\]+.!\\])/g, "\\$1");
     }
 }
