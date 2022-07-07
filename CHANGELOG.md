@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.3.5`
 
 - BugFix: Fixed `DefaultHelpGenerator` unable to find module "ansi-colors" when Imperative is imported.
 
