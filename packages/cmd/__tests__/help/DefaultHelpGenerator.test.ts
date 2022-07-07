@@ -566,6 +566,17 @@ describe("Default Help Generator", () => {
                 { commandDefinition: COMMAND_WITH_MARKDOWN_SPECIAL_CHRACTERS, fullCommandTree: fakeParent });
             expect(helpGen.buildDescriptionSection()).toMatchSnapshot();
         });
+
+        it("should remove ANSI escape codes from the help text", async () => {
+            const result = (DefaultHelpGenerator.prototype as any).escapeMarkdown(
+                `Specifies whether to verify that the objects to be created do not exist\
+ on the Db2 subsystem and that the related objects that are required for successful creation\
+ of the objects exist on the Db2 subsystem or in the input DDL.
+ \n \u001b[90m Default value: no \u001b[0m`
+            );
+
+            expect(result).toMatchSnapshot();
+        });
     });
 
     describe("deprecated commands", () => {
@@ -596,17 +607,6 @@ describe("Default Help Generator", () => {
 
             // jest's weird way of testing that a string does not contain a specific string
             expect(summary).toEqual(expect.not.stringContaining("not-deprecated-command | ndc Our non-deprecated command. (deprecated)"));
-        });
-
-        it("should removing ANSI escape codes from the help text", async () => {
-            const result = (DefaultHelpGenerator.prototype as any).escapeMarkdown(
-                `Specifies whether to verify that the objects to be created do not exist\
- on the Db2 subsystem and that the related objects that are required for successful creation\
- of the objects exist on the Db2 subsystem or in the input DDL.
- \n \u001b[90m Default value: no \u001b[0m`
-            );
-
-            expect(result).toMatchSnapshot();
         });
     });
 });
