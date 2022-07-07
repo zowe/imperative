@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed `DefaultHelpGenerator` unable to find module "ansi-colors" when Imperative is imported.
+
 ## `5.3.4`
 
 - BugFix: Added ANSI escape codes trimming for the Web Help. [#704](https://github.com/zowe/imperative/issues/704)

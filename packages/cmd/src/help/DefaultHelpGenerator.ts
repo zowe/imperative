@@ -9,7 +9,7 @@
 *
 */
 
-import { format, isNullOrUndefined } from "util";
+import { format } from "util";
 import { AbstractHelpGenerator } from "./abstract/AbstractHelpGenerator";
 import { TextUtils } from "../../../utilities";
 import { Constants } from "../../../constants";
@@ -18,7 +18,7 @@ import { ImperativeError } from "../../../error";
 import { IHelpGeneratorParms } from "./doc/IHelpGeneratorParms";
 import { IHelpGeneratorFactoryParms } from "./doc/IHelpGeneratorFactoryParms";
 import { compareCommands, ICommandDefinition } from "../../src/doc/ICommandDefinition";
-import { ansiRegex } from "ansi-colors";
+import stripAnsi = require("strip-ansi");
 
 /**
  * Imperative default help generator. Accepts the command definitions and constructs
@@ -130,7 +130,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
         let helpText = "";
 
         // Construct the command name section.
-        if (!this.mProduceMarkdown && !isNullOrUndefined(this.mCommandDefinition.name) &&
+        if (!this.mProduceMarkdown && this.mCommandDefinition.name != null &&
             this.mCommandDefinition.name.length > 0) {
             helpText += "\n" + this.buildHeader("COMMAND NAME");
             helpText += (DefaultHelpGenerator.HELP_INDENT + this.mCommandDefinition.name);
@@ -153,7 +153,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
         helpText += this.buildUsageSection();
 
         // Add positional arguments to the help text
-        if (!isNullOrUndefined(this.mCommandDefinition.positionals) &&
+        if (this.mCommandDefinition.positionals != null &&
             this.mCommandDefinition.positionals.length > 0) {
             helpText += this.buildPositionalArgumentsSection();
         }
@@ -268,7 +268,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
         // For a command, build the usage diagram with positional and options.
         if (this.mCommandDefinition.type === "command") {
             // Place the positional parameters.
-            if (!isNullOrUndefined(this.mCommandDefinition.positionals)) {
+            if (this.mCommandDefinition.positionals != null) {
                 for (const positional of this.mCommandDefinition.positionals) {
                     usage += " " + ((positional.required) ? "<" + positional.name + ">" : "[" + positional.name + "]");
                 }
@@ -278,7 +278,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
         } else if (this.mCommandDefinition.type === "group") {
             // Determine what command section we are currently at and append the correct usages.
             usage = usage.trim();
-            if (!isNullOrUndefined(this.mCommandDefinition.children) && this.mCommandDefinition.children.length > 0) {
+            if (this.mCommandDefinition.children != null && this.mCommandDefinition.children.length > 0) {
                 // Get all the possible command types. (E.G <group>, <command>, <command|group>, ETC)
                 let nextType = "<";
 
@@ -332,7 +332,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
      */
     public buildGlobalOptionsSection(): string {
         let result = this.buildHeader(Constants.GLOBAL_GROUP);
-        if (!isNullOrUndefined(this.groupToOption[Constants.GLOBAL_GROUP])) {
+        if (this.groupToOption[Constants.GLOBAL_GROUP] != null) {
             for (const globalOption of this.groupToOption[Constants.GLOBAL_GROUP]) {
                 result += this.buildOptionText(globalOption, this.optionToDescription[globalOption]);
             }
@@ -385,7 +385,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
      * @memberof DefaultHelpGenerator
      */
     public buildPositionalArgumentsSection(): string {
-        if (!isNullOrUndefined(this.mCommandDefinition.positionals) && this.mCommandDefinition.positionals.length > 0) {
+        if (this.mCommandDefinition.positionals != null && this.mCommandDefinition.positionals.length > 0) {
             let positionalsHelpText: string = this.buildHeader("Positional Arguments");
             for (const positional of this.mCommandDefinition.positionals) {
                 const positionalString = "{{codeBegin}}" +
@@ -497,7 +497,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
      */
     public buildExamplesSection(): string {
         let examplesText = "";
-        if (!isNullOrUndefined(this.mCommandDefinition.examples)) {
+        if (this.mCommandDefinition.examples != null) {
             examplesText = this.mCommandDefinition.examples.map((example) => {
                 const prefix = example.prefix != null ? example.prefix + "{{space}} " : "";
                 const exampleHyphen = this.mProduceMarkdown ? "" : "-";
@@ -553,7 +553,6 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
      * @return {string} - The escaped string
      */
     private escapeMarkdown(text: string): string {
-        text = text.replace(ansiRegex, "");
-        return text.replace(/([*#\-`_[\]+.!\\])/g, "\\$1");
+        return stripAnsi(text).replace(/([*#\-`_[\]+.!\\])/g, "\\$1");
     }
 }
