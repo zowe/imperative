@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent changes
+## Recent Changes
 
 - Enhancement: Added environment variables support (`ZOWE_APP_LOG_LEVEL`, `ZOWE_IMPERATIVE_LOG_LEVEL`) for setting console logging level.
 
