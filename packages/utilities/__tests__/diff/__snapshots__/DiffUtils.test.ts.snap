@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DiffUtils getDiffString should return a diff string 1`] = `
+"===================================================================
+--- file-a
++++ file-b
+@@ -1,1 +1,1 @@
+-random string one
+\\\\ No newline at end of file
++random string two
+\\\\ No newline at end of file
+"
+`;

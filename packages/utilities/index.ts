@@ -19,3 +19,5 @@ export * from "./src/ProcessUtils";
 export * from "./src/TextUtils";
 export * from "./src/CliUtils";
 export * from "./src/doc/ISystemInfo";
+export * from "./src/diff/DiffUtils";
+export * from "./src/diff/doc/IDiffOptions";

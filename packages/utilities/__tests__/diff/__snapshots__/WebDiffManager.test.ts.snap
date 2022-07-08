@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[` 1`] = `[Function]`;
+
+exports[` 2`] = `[Function]`;
+
+exports[`WebDiffManager openDiffs should open the diffs in browser 1`] = `[Function]`;
