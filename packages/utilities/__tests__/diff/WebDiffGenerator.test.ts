@@ -9,14 +9,29 @@
 *
 */
 
+import * as  fs from 'fs';
+import * as path from 'path';
+
 import WebDiffGenerator from "../../src/diff/WebDiffGenerator";
+import { ImperativeConfig } from "../../src/ImperativeConfig";
+import {IO} from '../../../io/';
 
 describe("WebDiffGenerator", () => {
-    let cliHome: string;
-    let webDiffDir: string;
+    // setting up fake cli home and web diff dir for testing
+    const cliHome: string = "packages/__tests__/fakeCliHome";
+    const webDiffDir: string = path.join(cliHome, 'web-diff');
+    describe("buildDiffDir", () => {
+        it("should build the web diff dir at cli home", async () => {
+            // checking if fakewebdiffdir exists or not
+            if (!fs.existsSync(webDiffDir)) {
+                IO.mkdirp(webDiffDir);
+            }
+            const generator = new WebDiffGenerator(ImperativeConfig.instance , webDiffDir);
+            await generator.buildDiffDir();
 
-
-    it("should match the snapshot", () => {
-        expect(WebDiffGenerator).toMatchSnapshot();
+            // expecting if the function created the dirs
+            expect(fs.existsSync(webDiffDir)).toBeTruthy();
+            expect(fs.existsSync(`${webDiffDir}/index.html`)).toBeTruthy();
+        });
     });
 });
