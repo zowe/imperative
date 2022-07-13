@@ -19,7 +19,7 @@ export class DiffUtils {
     public static async getDiffString(string1: string, string2: string, options: IDiffOptions): Promise<string> {
 
         if (options.outputFormat === 'terminal') {
-            let expandflag;
+            let expandflag = true;
             if (options.contextLinesArg >= 0) {
                 expandflag = false;
             }
