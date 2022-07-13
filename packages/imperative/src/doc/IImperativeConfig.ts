@@ -287,6 +287,25 @@ export interface IImperativeConfig {
     pluginSummary?: string;
 
     /**
+     * If the project you are configuring is an Imperative plugin,
+     * you can assign the first steps to the plugin that is showed in the
+     * root level help for the core CLI. The first steps are a short
+     * list of steps required to set up your plugin for use.
+     *
+     * Note: For plugins only. Ignored when specified on a core/base CLI
+     *
+     * @example
+     * const config: IImperativeConfig = {
+     * ...
+     * pluginFirstSteps: "a list of first steps for your plugin"
+     * ...
+     * }
+     * @type {string}
+     * @memberof IImperativeConfig
+     */
+    pluginFirstSteps?: string;
+
+    /**
      * Optionally override the block of text that appears in the help text
      * for commands that are set to experimental:true in their definition.
      * You can use this to describe what a command being experimental means to your CLI.
