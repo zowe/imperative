@@ -10,7 +10,7 @@
 */
 
 import { CommandProcessor } from "../../src/CommandProcessor";
-import { ImperativeConfig, YargsConfigurer } from "../../..";
+import { Constants, ImperativeConfig, YargsConfigurer } from "../../..";
 
 jest.mock("yargs");
 jest.mock("../../src/CommandProcessor");
@@ -26,6 +26,21 @@ describe("YargsConfigurer tests", () => {
         const failmessage = (config as any).buildFailureMessage("apple");
         expect(failmessage).toMatchSnapshot();
 
+    });
+
+    it("should get response format from --response-format-json option", () => {
+        const mockedYargs = require("yargs");
+        const invokeSpy = jest.spyOn(CommandProcessor.prototype, "invoke").mockResolvedValue(undefined);
+        jest.spyOn(mockedYargs, "command").mockImplementation((obj: any) => {
+            obj.handler({ _: ["abc"], [Constants.JSON_OPTION]: true });
+        });
+
+        const config = new YargsConfigurer({ name: "any", description: "any", type: "command", children: []},
+            mockedYargs, undefined, undefined, { getHelpGenerator: jest.fn() }, undefined, "fake", "fake", "ZOWE", "fake");
+        config.configure();
+
+        expect(invokeSpy).toHaveBeenCalledTimes(1);
+        expect(invokeSpy.mock.calls[0][0].responseFormat).toBe("json");
     });
 
     describe("should handle failure for current command line arguments", () => {

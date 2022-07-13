@@ -214,6 +214,14 @@ export abstract class AbstractRestClient {
     protected mDecode: boolean = true;
 
     /**
+     * Last byte received when response is being streamed
+     * @private
+     * @type {number}
+     * @memberof AbstractRestClient
+     */
+    protected lastByteReceived: number = 0;
+
+    /**
      * Creates an instance of AbstractRestClient.
      * @param {AbstractSession} mSession - representing connection to this api
      * @memberof AbstractRestClient
@@ -604,7 +612,7 @@ export abstract class AbstractRestClient {
             this.log.debug("Streaming data chunk of length " + respData.length + " to response stream");
             if (this.mNormalizeResponseNewlines && this.mContentEncoding == null) {
                 this.log.debug("Normalizing new lines in data chunk to operating system appropriate line endings");
-                respData = Buffer.from(IO.processNewlines(respData.toString()));
+                respData = Buffer.from(IO.processNewlines(respData.toString(), this.lastByteReceived));
             }
             if (this.mTask != null) {
                 // update the progress task if provided by the requester
@@ -625,6 +633,7 @@ export abstract class AbstractRestClient {
             }
             // write the chunk to the response stream if requested
             this.mResponseStream.write(respData);
+            this.lastByteReceived = respData[respData.byteLength - 1];
         }
     }
 

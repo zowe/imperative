@@ -21,9 +21,9 @@ import { CommandUtils } from "../utils/CommandUtils";
 import { IProfileManagerFactory } from "../../../profiles";
 import { ICommandProfileTypeConfiguration } from "../doc/profiles/definition/ICommandProfileTypeConfiguration";
 import { IHelpGeneratorFactory } from "../help/doc/IHelpGeneratorFactory";
-import { CliUtils } from "../../../utilities/src/CliUtils";
 import { ImperativeConfig } from "../../../utilities";
 import { closest } from "fastest-levenshtein";
+import { COMMAND_RESPONSE_FORMAT } from "../doc/response/api/processor/ICommandResponseApi";
 
 /**
  * Before invoking commands, this class configures some settings and callbacks in Yargs,
@@ -48,17 +48,8 @@ export class YargsConfigurer {
         /**
          * Add the command definitions to yargs
          */
-        const jsonResponseFormat =
-            (process.argv.indexOf(CliUtils.getDashFormOfOption(Constants.JSON_OPTION)) >= 0 ||
-                process.argv.indexOf(CliUtils.getDashFormOfOption(Constants.JSON_OPTION_ALIAS)) >= 0);
-
         const logger = Logger.getImperativeLogger();
 
-        const jsonArg: any = {};
-        if (jsonResponseFormat) {
-            const jsonOptionName: string = Constants.JSON_OPTION;
-            jsonArg[jsonOptionName] = true;
-        }
         this.yargs.help(false);
         this.yargs.version(false);
         this.yargs.showHelpOnFail(false);
@@ -88,7 +79,7 @@ export class YargsConfigurer {
                         commandLine: this.commandLine,
                         envVariablePrefix: this.envVariablePrefix,
                         promptPhrase: this.promptPhrase
-                    }).invoke({ arguments: argv, silent: false, responseFormat: (jsonResponseFormat) ? "json" : "default" })
+                    }).invoke({ arguments: argv, silent: false, responseFormat: this.getResponseFormat(argv) })
                         .then((response) => {
                             Logger.getImperativeLogger().debug("Root help complete.");
                         })
@@ -125,7 +116,7 @@ export class YargsConfigurer {
                     });
 
                     // Invoke the fail command
-                    failCommand.invoke({ arguments: argv, silent: false, responseFormat: (jsonResponseFormat) ? "json" : "default" })
+                    failCommand.invoke({ arguments: argv, silent: false, responseFormat: this.getResponseFormat(argv) })
                         .then((failedCommandResponse) => {
                             logger.debug("Finished invoking the 'FailedCommand' handler");
                         }).catch((err) => {
@@ -172,7 +163,7 @@ export class YargsConfigurer {
             };
 
             // Invoke the fail command
-            failCommand.invoke({ arguments: argv, silent: false, responseFormat: (jsonResponseFormat) ? "json" : "default" })
+            failCommand.invoke({ arguments: argv, silent: false, responseFormat: this.getResponseFormat(argv) })
                 .then((failedCommandResponse) => {
                     logger.debug("Finished invoking the 'FailedCommand' handler");
                 }).catch((err) => {
@@ -216,7 +207,7 @@ export class YargsConfigurer {
             };
 
             // Invoke the fail command processor
-            failCommand.invoke({ arguments: argv, silent: false, responseFormat: (jsonResponseFormat) ? "json" : "default" })
+            failCommand.invoke({ arguments: argv, silent: false, responseFormat: this.getResponseFormat(argv) })
                 .then((failedCommandResponse) => {
                     logger.debug("Finished invoking the 'FailedCommand' handler");
                 }).catch((err) => {
@@ -320,5 +311,13 @@ export class YargsConfigurer {
             commands.push(commandEntry.fullName);
         }
         return closest(attemptedCommand, commands);
+    }
+
+    /**
+     * Get the command response format based on whether `--rfj` is set.
+     * @param argv Yargs arguments object
+     */
+    private getResponseFormat(argv: Arguments): COMMAND_RESPONSE_FORMAT {
+        return argv[Constants.JSON_OPTION] ? "json" : "default";
     }
 }
