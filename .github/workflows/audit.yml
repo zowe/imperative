@@ -23,4 +23,7 @@ jobs:
         node-version: 12.x
 
     - name: Check Vulnerabilities
-      run: npm audit --production --audit-level=moderate
+      run: |
+        npm audit --production --audit-level=moderate
+        cd web-help && npm install --package-lock-only
+        npm audit --production --audit-level=moderate
