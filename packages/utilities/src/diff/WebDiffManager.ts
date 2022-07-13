@@ -13,7 +13,8 @@ import * as fs from "fs";
 import * as path from "path";
 
 import { Constants } from "../../../constants/src/Constants";
-import { ImperativeConfig, GuiResult, ProcessUtils } from "../../../utilities";
+import {  ProcessUtils, GuiResult } from "../../../utilities/src/ProcessUtils";
+import { ImperativeConfig } from "../../../utilities/src/ImperativeConfig";
 import WebDiffGenerator from "./WebDiffGenerator";
 import { IWebDiffManager } from "./doc/IWebDiffManager";
 import { ImperativeError } from "../../../error";
