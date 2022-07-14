@@ -195,6 +195,7 @@ describe("Plugin Management Facility", () => {
         const uninstallDef: ICommandDefinition = require("../../src/plugins/cmd/uninstall/uninstall.definition").uninstallDefinition;
         const updateDef: ICommandDefinition = require("../../src/plugins/cmd/update/update.definition").updateDefinition;
         const validateDef: ICommandDefinition = require("../../src/plugins/cmd/validate/validate.definition").validateDefinition;
+        const firststepsDef: ICommandDefinition = require("../../src/plugins/cmd/firststeps/firststeps.definition").firststepsDefinition;
         mocks.existsSync.mockReturnValue(true);
 
         expect((PluginManagementFacility.instance as any).wasInitCalled).toBe(false);
@@ -216,7 +217,8 @@ describe("Plugin Management Facility", () => {
                 listDef,
                 uninstallDef,
                 updateDef,
-                validateDef
+                validateDef,
+                firststepsDef
             ]
         });
         UpdateImpConfig.addCmdGrp = realAddCmdGrp;
