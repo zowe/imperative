@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Removed some extraneous dependencies. [#477](https://github.com/zowe/imperative/issues/477)
+
 ## `4.18.7`
 
 - BugFix: Added ANSI escape codes trimming for the Web Help. [#704](https://github.com/zowe/imperative/issues/704)

@@ -11,8 +11,8 @@
 
 import { IOperationResult } from "./doc/IOperationResult";
 import { TaskStage } from "./TaskStage";
-import { isNullOrUndefined } from "util";
 import * as fs from "fs";
+import { removeSync } from "fs-extra";
 import { TextUtils } from "../../utilities";
 import { ITaskWithStatus } from "./doc/ITaskWithStatus";
 import { TaskProgress } from "./TaskProgress";
@@ -44,13 +44,13 @@ export abstract class Operation<T> implements ITaskWithStatus {
         staticLogger.info("***********************************************************************************");
         staticLogger.info("**************************** Operation Results Summary ****************************");
 
-        if (isNullOrUndefined(currentResults)) {
+        if (currentResults == null) {
             staticLogger.info("**************************************" +
                 "*********************************************");
             staticLogger.info("No results to display");
         } else {
 
-            while (!isNullOrUndefined(currentResults)) {
+            while (currentResults != null) {
                 staticLogger.info("*************************************************" +
                     "**********************************");
                 if (currentResults.operationFailed) {
@@ -185,7 +185,7 @@ export abstract class Operation<T> implements ITaskWithStatus {
             operationUndoPossible: false,
             operationUndoFailed: false,
             operationUndoAttempted: false,
-            critical: (!isNullOrUndefined(criticalOperation) ? criticalOperation : false),
+            critical: (criticalOperation != null ? criticalOperation : false),
             output: null,
             infoMessages: [],
             errorMessages: []
@@ -225,7 +225,7 @@ export abstract class Operation<T> implements ITaskWithStatus {
      * @returns {string} the final translated and formatted string (in case you want to log it etc.)
      */
     public setStatusMessage(message: string, ...args: any[]) {
-        if (!isNullOrUndefined(args)) {
+        if (args != null) {
             message = TextUtils.formatMessage(message, ...args);
         }
         this.mStatusMessage = message;
@@ -382,7 +382,7 @@ export abstract class Operation<T> implements ITaskWithStatus {
      * @param {IOperationResult} result: the result from the last operation
      */
     protected addResult(result: IOperationResult<any>) {
-        if (isNullOrUndefined(this.mOperationResults)) {
+        if (this.mOperationResults == null) {
             this.mOperationResults = result;
             this.log.debug("Queued first operation to result list: " + result.operationName);
         } else {
@@ -391,7 +391,7 @@ export abstract class Operation<T> implements ITaskWithStatus {
             do {
                 prevResult = currentResult;
                 currentResult = currentResult.nextOperationResult;
-            } while (!isNullOrUndefined(currentResult));
+            } while (currentResult != null);
             prevResult.nextOperationResult = result;
             this.log.debug("Queued additional operation to result list: " + result.operationName);
         }
@@ -472,8 +472,7 @@ export abstract class Operation<T> implements ITaskWithStatus {
             this.log.info("Cleaning file: " + this.fileToUndo[x]);
             try {
                 if (fs.statSync(order[x]).isDirectory()) {
-                    const rimraf = require("rimraf").sync;
-                    rimraf(order[x]);
+                    removeSync(order[x]);
                 } else {
                     fs.unlinkSync(order[x]);
                 }
