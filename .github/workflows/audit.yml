@@ -24,6 +24,5 @@ jobs:
 
     - name: Check Vulnerabilities
       run: |
-        npm audit --production --audit-level=moderate
-        cd web-help && npm install --package-lock-only
+        npm install --package-lock-only --ignore-scripts --no-audit --save-prod ./web-help
         npm audit --production --audit-level=moderate
