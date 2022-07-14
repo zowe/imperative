@@ -10,9 +10,9 @@
 */
 
 import * as fs from "fs";
+import { removeSync } from "fs-extra";
 import * as path from "path";
 import * as keytar from "keytar";
-import * as rimraf from "rimraf";
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { ConfigBuilder, ConfigSchema } from "../../../../../config";
 import { ProfileIO, ProfileUtils } from "../../../../../profiles";
@@ -159,7 +159,7 @@ export default class ConvertProfilesHandler implements ICommandHandler {
 
             // Delete the profiles directory
             try {
-                rimraf.sync(oldProfilesDir);
+                removeSync(oldProfilesDir);
                 params.response.console.log(`Deleting the profiles directory '${oldProfilesDir}'... done`);
             } catch (err) {
                 params.response.console.error(`Failed to delete the profiles directory '${oldProfilesDir}':\n    ${err}`);
