@@ -9,9 +9,12 @@
 *
 */
 
+import * as diff from "diff";
 import { DiffUtils } from "../../src/diff/DiffUtils";
 import { IDiffOptions } from "../../src/diff/doc/IDiffOptions";
 import { WebDiffManager } from "../../src/diff/WebDiffManager";
+
+jest.mock("diff");
 
 describe("DiffUtils", () => {
 
@@ -25,26 +28,20 @@ describe("DiffUtils", () => {
             string2 = "random string two";
             options = { outputFormat: "unifiedstring" };
             expect(await DiffUtils.getDiffString(string1, string2, options)).toMatchSnapshot();
-
         });
     });
 
     describe("openDiffInbrowser", () => {
 
         it("should open the diffs in browser", async () => {
-            const createTwoFilesPatchSpy = jest.fn().mockReturnValue("test");
-            jest.doMock("diff", () => {
-                return {
-                    ...(jest.requireActual('diff')),
-                    createTwoFilesPatch: createTwoFilesPatchSpy
-                };
-            });
+            jest.spyOn(diff, "createTwoFilesPatch").mockReturnValue("test");
+
             const string1 = "test string one";
             const string2 = "test string two";
 
             const openDiffSpy = jest.spyOn(WebDiffManager.instance, "openDiffs").mockImplementation(jest.fn());
             await DiffUtils.openDiffInbrowser(string1, string2);
-            expect(createTwoFilesPatchSpy).toHaveBeenCalledWith('file-a', 'file-b', string1, string2);
+            expect(diff.createTwoFilesPatch).toHaveBeenCalledWith('file-a', 'file-b', string1, string2);
             expect(openDiffSpy).toHaveBeenCalledWith("test");
         });
     });
