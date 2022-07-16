@@ -8,15 +8,70 @@
 * Copyright Contributors to the Zowe Project.
 *
 */
+import * as  fs from 'fs';
+import * as path from 'path';
 
 import { WebDiffManager } from "../../src/diff/WebDiffManager";
+import * as diff2html from "diff2html";
+import { ImperativeConfig } from "../../src/ImperativeConfig";
+import WebDiffGenerator from "../../src/diff/WebDiffGenerator";
+import { IImperativeConfig } from '../../../imperative';
+import { Imperative } from '../../../imperative/src/Imperative';
+import { ProcessUtils } from '../../src/ProcessUtils';
 
 describe("WebDiffManager", () => {
 
     describe("openDiffs", () => {
-        it("should open the diffs in browser" , ()=>{
-            expect(WebDiffManager.instance.openDiffs).toMatchSnapshot();
+        const fakePatchDiff = "test";
+        const cliHome: string = "packages/__tests__/fakeCliHome";
+        const webDiffDir: string = path.join(cliHome, 'web-diff');
+        beforeAll(async () => {
+
+            const configs: IImperativeConfig = {
+                productDisplayName: "WebDiff Test",
+                defaultHome: cliHome,
+                rootCommandDescription: "Some Product CLI"
+
+            };
+
+            Object.defineProperty(process, "mainModule", {
+                configurable: true,
+                get: jest.fn(() => {
+                    return {
+                        filename: "fakeCliCmd"
+                    };
+                })
+            });
+
+            Object.defineProperty(ImperativeConfig.instance, "cliHome", {
+                configurable: true,
+                get: jest.fn(() => {
+                    return cliHome;
+                })
+            });
+
+            // imperative.init does all the setup for WebHelp to be run
+            await Imperative.init(configs);
         });
+        it("should open the diffs in browser", async () => {
+
+            const generator = new WebDiffGenerator(ImperativeConfig.instance, webDiffDir);
+            jest.spyOn(generator, "buildDiffDir").mockImplementation(jest.fn());
+            jest.spyOn(ProcessUtils, "openInDefaultApp").mockImplementation(jest.fn());
+            const htmlSpy = jest.spyOn(diff2html, "html").mockImplementation(jest.fn(() => {
+                return "test html string";
+            }));
+            await WebDiffManager.instance.openDiffs(fakePatchDiff);
+            if (!fs.existsSync(webDiffDir)) {
+                expect(generator.buildDiffDir).toHaveBeenCalledTimes(1);
+            }
+            expect(htmlSpy).toHaveBeenCalledTimes(1);
+            if (htmlSpy != null) {
+                expect(ProcessUtils.openInDefaultApp).toHaveBeenCalledTimes(1);
+            }
+        });
+
+
     });
 
 });
