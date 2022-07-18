@@ -17,10 +17,12 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Use Node.js 12.x
-      uses: actions/setup-node@v1
+    - name: Use Node.js LTS
+      uses: actions/setup-node@v2
       with:
-        node-version: 12.x
+        node-version: lts/*
 
     - name: Check Vulnerabilities
-      run: npm audit --production --audit-level=moderate
+      run: |
+        npm install --package-lock-only --ignore-scripts --no-audit --save-prod ./web-help
+        npm audit --production --audit-level=moderate
