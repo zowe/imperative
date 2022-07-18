@@ -51,7 +51,6 @@
     "clean": "rimraf lib"
   },
   "dependencies": {
-    "@types/lodash-deep": "2.0.0",
     "@types/yargs": "13.0.4",
     "@zowe/perf-timing": "1.0.7",
     "chalk": "2.4.2",
@@ -80,7 +79,6 @@
     "progress": "2.0.3",
     "read": "1.0.7",
     "readline-sync": "1.4.10",
-    "rimraf": "2.6.3",
     "semver": "5.7.0",
     "stack-trace": "0.0.10",
     "strip-ansi": "6.0.1",
@@ -97,6 +95,7 @@
     "@types/js-base64": "^2.3.1",
     "@types/jsonfile": "^4.0.1",
     "@types/lodash": "^4.14.165",
+    "@types/lodash-deep": "^2.0.0",
     "@types/mustache": "^0.8.32",
     "@types/node": "^12.12.24",
     "@types/npm-package-arg": "^6.1.0",
