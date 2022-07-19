@@ -6,6 +6,10 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Enhancement: Added environment variables support (`ZOWE_APP_LOG_LEVEL`, `ZOWE_IMPERATIVE_LOG_LEVEL`) for setting console logging level.
 
+## `5.3.6`
+
+- BugFix: Removed some extraneous dependencies. [#477](https://github.com/zowe/imperative/issues/477)
+
 ## `5.3.5`
 
 - BugFix: Fixed `DefaultHelpGenerator` unable to find module "ansi-colors" when Imperative is imported.
