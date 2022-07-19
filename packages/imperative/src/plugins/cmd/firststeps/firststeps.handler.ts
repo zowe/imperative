@@ -12,11 +12,8 @@
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { Logger } from "../../../../../logger";
 import { PMFConstants } from "../../utilities/PMFConstants";
-import { resolve } from "path";
-import { IssueSeverity, PluginIssues } from "../../utilities/PluginIssues";
-import { ImperativeConfig, TextUtils } from "../../../../../utilities";
+import { TextUtils } from "../../../../../utilities";
 import { ImperativeError } from "../../../../../error";
-import { IPluginCfgProps } from "../../doc/IPluginCfgProps";
 import { PluginManagementFacility } from "../../PluginManagementFacility"
 /**
  * The firststeps command handler for cli plugin firststeps.
@@ -62,40 +59,19 @@ export default class FirststepsHandler implements ICommandHandler {
                 msg: `${chalk.yellow.bold("Package name")} is required.`
             });
         } else {
-            try {
-                // for (const packageName of params.arguments.plugin) {
-                //     uninstall(packageName);
-                // }
+            const pluginsProperties = PluginManagementFacility.instance.allPluginCfgProps
 
-                const pluginsProperties = PluginManagementFacility.instance.allPluginCfgProps
-
-                for (const nextPluginCfgProps of pluginsProperties) {
-                    // log the issue list for this plugin
-                    // const issueListForPlugin = this.pluginIssues.getIssueListForPlugin(nextPluginCfgProps.pluginName);
-                    if (params.arguments.plugin == nextPluginCfgProps.pluginName) {
-                        if (nextPluginCfgProps.impConfig.pluginFirstSteps != undefined) {
-                            params.response.console.log(nextPluginCfgProps.impConfig.pluginFirstSteps);
-                        } else {
-                            params.response.console.log("The first steps are not defined for this plugin.");
-                        }
-
-                    } // else {
-                    //     this.impLogger.info("addAllPluginsToHostCli: Plugin = '" +
-                    //         nextPluginCfgProps.pluginName +
-                    //         "' was successfully validated with no issues."
-                    //     );
-                    // }
+            for (const nextPluginCfgProps of pluginsProperties) {
+                if (params.arguments.plugin == nextPluginCfgProps.pluginName) {
+                    if (nextPluginCfgProps.impConfig.pluginFirstSteps != undefined) {
+                        params.response.console.log(nextPluginCfgProps.impConfig.pluginFirstSteps);
+                    } else {
+                        params.response.console.log("The first steps are not defined for this plugin.");
+                    }
+                    return;
                 }
-
-                // const pluginCfgProps: IPluginCfgProps
-                // params.response.console.log(pluginCfgProps.impConfig.pluginFirstSteps);
-            } catch (e) {
-                throw new ImperativeError({
-                    msg: "Uninstall Failed",
-                    causeErrors: [e],
-                    additionalDetails: e.message
-                });
             }
+            params.response.console.log("The specified plugin is not installed.");
         }
     }
 }
