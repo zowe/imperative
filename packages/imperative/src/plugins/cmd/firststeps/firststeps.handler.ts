@@ -14,7 +14,8 @@ import { Logger } from "../../../../../logger";
 import { PMFConstants } from "../../utilities/PMFConstants";
 import { TextUtils } from "../../../../../utilities";
 import { ImperativeError } from "../../../../../error";
-import { PluginManagementFacility } from "../../PluginManagementFacility"
+import { PluginManagementFacility } from "../../PluginManagementFacility";
+
 /**
  * The firststeps command handler for cli plugin firststeps.
  *
@@ -42,7 +43,7 @@ export default class FirststepsHandler implements ICommandHandler {
      * @param {IHandlerParameters} params Parameters supplied by yargs
      *
      * @param {string[]} [params.arguments.plugin] This is the plugin to show the first steps for.
-     * 
+     *
      * @param {IPluginCfgProps} pluginCfgProps - The configuration properties for this plugin
      *
      * @returns {Promise<ICommandResponse>} The command response
@@ -59,7 +60,7 @@ export default class FirststepsHandler implements ICommandHandler {
                 msg: `${chalk.yellow.bold("Package name")} is required.`
             });
         } else {
-            const pluginsProperties = PluginManagementFacility.instance.allPluginCfgProps
+            const pluginsProperties = PluginManagementFacility.instance.allPluginCfgProps;
 
             for (const nextPluginCfgProps of pluginsProperties) {
                 if (params.arguments.plugin == nextPluginCfgProps.pluginName) {
