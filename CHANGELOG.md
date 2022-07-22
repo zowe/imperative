@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed exception when non-string passed to ImperativeExpect.toBeDefinedAndNonBlank(). [#856](https://github.com/zowe/imperative/issues/856)
+
 ## `5.3.6`
 
 - BugFix: Removed some extraneous dependencies. [#477](https://github.com/zowe/imperative/issues/477)

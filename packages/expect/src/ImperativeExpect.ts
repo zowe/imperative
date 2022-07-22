@@ -238,7 +238,7 @@ export class ImperativeExpect {
 
     public static toBeDefinedAndNonBlank(item: string, label: string, msg?: string) {
         ImperativeExpect.toNotBeNullOrUndefined(item, msg);
-        if (item.trim().length === 0) {
+        if (item.toString().trim().length === 0) {
             throw new ImperativeError({msg: "Required parameter '" + label + "' must not be blank"},
                 {tag: ImperativeExpect.ERROR_TAG});
         }
