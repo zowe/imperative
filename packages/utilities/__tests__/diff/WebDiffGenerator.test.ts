@@ -14,19 +14,28 @@ import * as path from 'path';
 
 import WebDiffGenerator from "../../src/diff/WebDiffGenerator";
 import { ImperativeConfig } from "../../src/ImperativeConfig";
-import {IO} from '../../../io/';
+import { IO } from '../../../io/';
 
 describe("WebDiffGenerator", () => {
     // setting up fake cli home and web diff dir for testing
     const cliHome: string = "packages/__tests__/fakeCliHome";
     const webDiffDir: string = path.join(cliHome, 'web-diff');
+
+
     describe("buildDiffDir", () => {
-        it("should build the web diff dir at cli home", async () => {
+        beforeAll(async () => {
             // checking if fakewebdiffdir exists or not
             if (!fs.existsSync(webDiffDir)) {
                 IO.mkdirp(webDiffDir);
             }
-            const generator = new WebDiffGenerator(ImperativeConfig.instance , webDiffDir);
+        });
+        afterAll(async () => {
+            const rimraf = require('rimraf');
+            rimraf.sync('packages/__tests__');
+        });
+        it("should build the web diff dir at cli home", async () => {
+
+            const generator = new WebDiffGenerator(ImperativeConfig.instance, webDiffDir);
             await generator.buildDiffDir();
 
             // expecting if the function created the dirs
@@ -34,4 +43,6 @@ describe("WebDiffGenerator", () => {
             expect(fs.existsSync(`${webDiffDir}/index.html`)).toBeTruthy();
         });
     });
+
+
 });

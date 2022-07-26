@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes 
+
+- Enhancement: Added Diff utility features for getting differences between two files and open diffs in browser. Also added web diff generator for creating web diff dir at the cli home.
+
 ## `5.3.5`
 
 - BugFix: Fixed `DefaultHelpGenerator` unable to find module "ansi-colors" when Imperative is imported.

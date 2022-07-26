@@ -15,6 +15,7 @@ import * as path from "path";
 
 import { ImperativeConfig } from "../ImperativeConfig";
 import { ImperativeError } from "../../../error/src/ImperativeError";
+import { IWebDiffGenerator } from "./doc/IWebDiffGenerator";
 
 /**
  * Imperative web diff generator. Accepts the diffContent and constructs
@@ -23,7 +24,7 @@ import { ImperativeError } from "../../../error/src/ImperativeError";
  * @export
  * @class WebDiffGenerator
  */
-class WebDiffGenerator {
+class WebDiffGenerator implements IWebDiffGenerator {
 
     /**
      * Imperative config containing data about the CLI
