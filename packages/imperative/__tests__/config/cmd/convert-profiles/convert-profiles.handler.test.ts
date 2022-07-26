@@ -10,8 +10,8 @@
 */
 
 import * as fs from "fs";
+import * as fsExtra from "fs-extra";
 import * as keytar from "keytar";
-import * as rimraf from "rimraf";
 import { Config, ConfigBuilder, ConfigSchema } from "../../../../../config";
 import { IHandlerParameters } from "../../../../../cmd";
 import { ProfileIO } from "../../../../../profiles";
@@ -238,7 +238,7 @@ describe("Configuration Convert Profiles command handler", () => {
             {account: "testAcct", password: "testPassword"}
         ]);
         jest.spyOn(keytar, "deletePassword").mockResolvedValue(true);
-        const rimrafSpy = jest.spyOn(rimraf, "sync").mockImplementation(() => {
+        const removeSyncSpy = jest.spyOn(fsExtra, "removeSync").mockImplementation(() => {
             return true;
         });
 
@@ -263,7 +263,7 @@ describe("Configuration Convert Profiles command handler", () => {
         expect(stdout).toContain("Deleting secure value for \"Zowe/testAcct\"");
         expect(updateSchemaSpy).toHaveBeenCalled();
         expect(mockImperativeConfig.config.save).toHaveBeenCalled();
-        expect(rimrafSpy).toHaveBeenCalledTimes(1);
+        expect(removeSyncSpy).toHaveBeenCalledTimes(1);
         expect(findOldSecurePropsSpy).toHaveBeenCalledTimes(5);
         expect(deleteOldSecurePropsSpy).toHaveBeenCalledTimes(5);
     });
@@ -283,7 +283,7 @@ describe("Configuration Convert Profiles command handler", () => {
             {account: "testAcct", password: "testPassword"}
         ]);
         jest.spyOn(keytar, "deletePassword").mockResolvedValue(true);
-        const rimrafSpy = jest.spyOn(rimraf, "sync").mockImplementation(() => {
+        const removeSyncSpy = jest.spyOn(fsExtra, "removeSync").mockImplementation(() => {
             return true;
         });
 
@@ -308,7 +308,7 @@ describe("Configuration Convert Profiles command handler", () => {
         expect(stdout).toContain("Deleting secure value for \"Zowe/testAcct\"");
         expect(updateSchemaSpy).toHaveBeenCalled();
         expect(mockImperativeConfig.config.save).toHaveBeenCalled();
-        expect(rimrafSpy).toHaveBeenCalledTimes(1);
+        expect(removeSyncSpy).toHaveBeenCalledTimes(1);
         expect(findOldSecurePropsSpy).toHaveBeenCalledTimes(5);
         expect(deleteOldSecurePropsSpy).toHaveBeenCalledTimes(5);
         expect(params.response.console.prompt).toHaveBeenCalledTimes(2);
@@ -329,7 +329,7 @@ describe("Configuration Convert Profiles command handler", () => {
             {account: "testAcct", password: "testPassword"}
         ]);
         jest.spyOn(keytar, "deletePassword").mockResolvedValue(true);
-        const rimrafSpy = jest.spyOn(rimraf, "sync").mockImplementation(() => {
+        const removeSyncSpy = jest.spyOn(fsExtra, "removeSync").mockImplementation(() => {
             return true;
         });
 
@@ -354,7 +354,7 @@ describe("Configuration Convert Profiles command handler", () => {
         expect(stdout).not.toContain("Deleting secure value for \"Zowe/testAcct\"");
         expect(updateSchemaSpy).toHaveBeenCalled();
         expect(mockImperativeConfig.config.save).toHaveBeenCalled();
-        expect(rimrafSpy).toHaveBeenCalledTimes(0);
+        expect(removeSyncSpy).toHaveBeenCalledTimes(0);
         expect(findOldSecurePropsSpy).toHaveBeenCalledTimes(0);
         expect(deleteOldSecurePropsSpy).toHaveBeenCalledTimes(0);
         expect(params.response.console.prompt).toHaveBeenCalledTimes(2);
@@ -377,7 +377,7 @@ describe("Configuration Convert Profiles command handler", () => {
             {account: "secure_config_props-1", password: "testPassword"}
         ]);
         jest.spyOn(keytar, "deletePassword").mockResolvedValue(true);
-        const rimrafSpy = jest.spyOn(rimraf, "sync").mockImplementation(() => {
+        const removeSyncSpy = jest.spyOn(fsExtra, "removeSync").mockImplementation(() => {
             return true;
         });
 
@@ -402,7 +402,7 @@ describe("Configuration Convert Profiles command handler", () => {
         expect(stdout).toContain("Deleting secure value for \"Zowe/testAcct\"");
         expect(updateSchemaSpy).toHaveBeenCalled();
         expect(mockImperativeConfig.config.save).toHaveBeenCalled();
-        expect(rimrafSpy).toHaveBeenCalledTimes(1);
+        expect(removeSyncSpy).toHaveBeenCalledTimes(1);
         expect(findOldSecurePropsSpy).toHaveBeenCalledTimes(5);
         expect(deleteOldSecurePropsSpy).toHaveBeenCalledTimes(5);
     });
@@ -421,7 +421,7 @@ describe("Configuration Convert Profiles command handler", () => {
             {account: "secure_config_props-1", password: "testPassword"}
         ]);
         jest.spyOn(keytar, "deletePassword").mockResolvedValue(true);
-        const rimrafSpy = jest.spyOn(rimraf, "sync").mockImplementation(() => {
+        const removeSyncSpy = jest.spyOn(fsExtra, "removeSync").mockImplementation(() => {
             return true;
         });
 
@@ -447,7 +447,7 @@ describe("Configuration Convert Profiles command handler", () => {
         expect(configBuilderConvertSpy).not.toHaveBeenCalled();
         expect(updateSchemaSpy).not.toHaveBeenCalled();
         expect(mockImperativeConfig.config.save).not.toHaveBeenCalled();
-        expect(rimrafSpy).toHaveBeenCalledTimes(1);
+        expect(removeSyncSpy).toHaveBeenCalledTimes(1);
         expect(findOldSecurePropsSpy).toHaveBeenCalledTimes(5);
         expect(deleteOldSecurePropsSpy).toHaveBeenCalledTimes(5);
         expect(params.response.console.prompt).toHaveBeenCalledTimes(1);
@@ -467,7 +467,7 @@ describe("Configuration Convert Profiles command handler", () => {
             {account: "testAcct", password: "testPassword"}
         ]);
         jest.spyOn(keytar, "deletePassword").mockResolvedValue(true);
-        const rimrafSpy = jest.spyOn(rimraf, "sync").mockImplementation(() => {
+        const removeSyncSpy = jest.spyOn(fsExtra, "removeSync").mockImplementation(() => {
             throw new Error("test error");
         });
 
@@ -492,7 +492,7 @@ describe("Configuration Convert Profiles command handler", () => {
         expect(stderr).toContain("Failed to delete the profiles directory");
         expect(updateSchemaSpy).toHaveBeenCalled();
         expect(mockImperativeConfig.config.save).toHaveBeenCalled();
-        expect(rimrafSpy).toHaveBeenCalledTimes(1);
+        expect(removeSyncSpy).toHaveBeenCalledTimes(1);
         expect(findOldSecurePropsSpy).toHaveBeenCalledTimes(5);
         expect(deleteOldSecurePropsSpy).toHaveBeenCalledTimes(5);
     });
@@ -511,7 +511,7 @@ describe("Configuration Convert Profiles command handler", () => {
         jest.spyOn(keytar, "findCredentials").mockImplementation(() => {
             throw new Error("test error");
         });
-        const rimrafSpy = jest.spyOn(rimraf, "sync").mockImplementation(() => {
+        const removeSyncSpy = jest.spyOn(fsExtra, "removeSync").mockImplementation(() => {
             return true;
         });
 
@@ -535,7 +535,7 @@ describe("Configuration Convert Profiles command handler", () => {
         expect(stdout).not.toContain("Deleting secure value for \"Zowe/testAcct\"");
         expect(updateSchemaSpy).toHaveBeenCalled();
         expect(mockImperativeConfig.config.save).toHaveBeenCalled();
-        expect(rimrafSpy).toHaveBeenCalledTimes(1);
+        expect(removeSyncSpy).toHaveBeenCalledTimes(1);
     });
 
     describe("getOldPluginInfo", () => {

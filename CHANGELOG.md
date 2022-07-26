@@ -5,6 +5,9 @@ All notable changes to the Imperative package will be documented in this file.
 ## Recent Changes 
 
 - Enhancement: Added Diff utility features for getting differences between two files and open diffs in browser. Also added web diff generator for creating web diff dir at the cli home.
+## `5.3.6`
+
+- BugFix: Removed some extraneous dependencies. [#477](https://github.com/zowe/imperative/issues/477)
 
 ## `5.3.5`
 
