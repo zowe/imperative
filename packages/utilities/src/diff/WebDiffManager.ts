@@ -79,7 +79,7 @@ export class WebDiffManager implements IWebDiffManager {
             return;
         }
 
-        if (this.checkWebDiffDirExists()) await new WebDiffGenerator(ImperativeConfig.instance, this.webDiffDir).buildDiffDir();
+        if (!fs.existsSync(this.webDiffDir)) await new WebDiffGenerator(ImperativeConfig.instance, this.webDiffDir).buildDiffDir();
 
         const htmlDiff = await html(patchDiff, {
             outputFormat: "side-by-side",
@@ -99,18 +99,6 @@ export class WebDiffManager implements IWebDiffManager {
                 });
             }
         }
-    }
-
-
-    /**
-     * Check if the web diff direcory base has been generated
-     * at cli home
-     */
-    private async checkWebDiffDirExists() {
-        if (fs.existsSync(this.webDiffDir)) {
-            return true;
-        }
-        return false;
     }
 
 
