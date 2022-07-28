@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed error when installing plug-ins that do not define profiles. [#859](https://github.com/zowe/imperative/issues/859)
+
 ## `5.3.6`
 
 - BugFix: Removed some extraneous dependencies. [#477](https://github.com/zowe/imperative/issues/477)
