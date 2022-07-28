@@ -1,6 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`DiffUtils getDiffString should return a diff string 1`] = `
+exports[`DiffUtils getDiffString should return a diff string in format for terminal i.e, json diff 1`] = `undefined`;
+
+exports[`DiffUtils getDiffString should return a diff string in html format 1`] = `undefined`;
+
+exports[`DiffUtils getDiffString should return a diff string in unified string format 1`] = `
 "===================================================================
 --- file-a
 +++ file-b

@@ -17,7 +17,11 @@ import { TextUtils } from "../TextUtils";
 import { html } from "diff2html";
 import { WebDiffManager } from "./WebDiffManager";
 
-
+/**
+ * Utilities to get the diff strings and open the diff strings in terminal and in browser
+ * @export
+ * @class DiffUtils
+ */
 export class DiffUtils {
     /**
      * Get the differnce between two string in the form of html, unifiedString and terminal output depending uponn the

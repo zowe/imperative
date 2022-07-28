@@ -10,7 +10,7 @@
 */
 
 /**
- * Web help genrator API that handles genration of web diff base launcher
+ * Web diff genrator API that handles genration of web diff base launcher
  * at cli home dir
  * @export
  * @interface IWebDiffGenerator

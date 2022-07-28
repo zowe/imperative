@@ -31,8 +31,8 @@ export class WebDiffManager implements IWebDiffManager {
      * Singleton instance of this class
      * @private
      * @static
-     * @type {WebHelpManager}
-     * @memberof WebHelpManager
+     * @type {WebDiffManager}
+     * @memberof WebDiffManager
      */
     private static mInstance: WebDiffManager = null;
 
@@ -51,10 +51,8 @@ export class WebDiffManager implements IWebDiffManager {
 
 
     /**
-     * Launch help page for specific group/command in browser.
-     * @param {string} inContext - content of diff to be shown
-     * @param {IHandlerResponseApi} cmdResponse - Command response object to use for output
-     * @memberof WebHelpManager
+     * Launch diffs page in browser.
+     * @memberof WebDiffManager
      */
     public async openDiffs(patchDiff: string) {
         const doWeHaveGui = ProcessUtils.isGuiAvailable();
@@ -113,9 +111,10 @@ export class WebDiffManager implements IWebDiffManager {
     }
 
     /**
-     * Returns header HTML for help page
+     * Returns header HTML for web diff page
      * @private
-     * @param title - Title string for the page
+     * @param htmlDiff - html diffs of the file changes
+     * @param unifiedStringDiff - unified string of differnce between two files
      */
     private genHtmlForDiffs(htmlDiff: string, unifiedStringDiff: string): string {
         return `<!DOCTYPE html>

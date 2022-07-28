@@ -10,7 +10,7 @@
 */
 
 /**
- * Web help manager API that handles launching of web help and generating it if necessary.
+ * Web diff manager API that handles launching of web diff and generating it if necessary.
  * @export
  * @interface IWebDiffManager
  */

@@ -17,7 +17,7 @@ import { ImperativeConfig } from "../../src/ImperativeConfig";
 import WebDiffGenerator from "../../src/diff/WebDiffGenerator";
 import { IImperativeConfig } from '../../../imperative';
 import { Imperative } from '../../../imperative/src/Imperative';
-import { ProcessUtils } from '../../src/ProcessUtils';
+import { ProcessUtils, GuiResult } from '../../src/ProcessUtils';
 
 describe("WebDiffManager", () => {
 
@@ -53,25 +53,27 @@ describe("WebDiffManager", () => {
             // imperative.init does all the setup for WebHelp to be run
             await Imperative.init(configs);
         });
-        it("should open the diffs in browser", async () => {
-
+        it("should open the diffs in browser when GUI is available", async () => {
+            ProcessUtils.isGuiAvailable = jest.fn(() => GuiResult.GUI_AVAILABLE);
             const generator = new WebDiffGenerator(ImperativeConfig.instance, webDiffDir);
-            jest.spyOn(generator, "buildDiffDir").mockImplementation(jest.fn());
+            generator.buildDiffDir = jest.fn();
+            const buildDiffDirSpy =  jest.mock
             jest.spyOn(ProcessUtils, "openInDefaultApp").mockImplementation(jest.fn());
             const htmlSpy = jest.spyOn(diff2html, "html").mockImplementation(jest.fn(() => {
                 return "test html string";
             }));
             await WebDiffManager.instance.openDiffs(fakePatchDiff);
+
             if (!fs.existsSync(webDiffDir)) {
                 expect(generator.buildDiffDir).toHaveBeenCalledTimes(1);
             }
+            expect(ProcessUtils.isGuiAvailable).toHaveBeenCalledTimes(1);
+            expect(ProcessUtils.isGuiAvailable).toHaveReturnedWith(GuiResult.GUI_AVAILABLE);
             expect(htmlSpy).toHaveBeenCalledTimes(1);
             if (htmlSpy != null) {
                 expect(ProcessUtils.openInDefaultApp).toHaveBeenCalledTimes(1);
             }
         });
-
-
     });
 
 });
