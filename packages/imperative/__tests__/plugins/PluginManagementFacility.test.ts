@@ -1706,6 +1706,7 @@ describe("Plugin Management Facility", () => {
             PMF.currPluginName = "PluginWithConfigModule";
 
             const moduleContent = PMF.requirePluginModuleCallback(PMF.currPluginName)(modulePath);
+            expect(moduleContent).toEqual({});
             const issue = pluginIssues.getIssueListForPlugin(PMF.currPluginName)[0];
             expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
             expect(issue.issueText).toContain(

@@ -364,7 +364,7 @@ export class PluginManagementFacility {
                     pluginName + "' :\n" + pluginModuleRuntimePath + "\n" +
                     "Reason = " + requireError.message
                 );
-                return "{}";
+                return {};
             }
         };
     }
