@@ -22,7 +22,6 @@ export const setDefinition: ICommandDefinition = {
         {
             name: "property",
             description: "The property to set. You may specify a path using dot notation (e.g. profiles.host1.profiles.service1.properties.setting)",
-            required: true,
             type: "string"
         },
         {
