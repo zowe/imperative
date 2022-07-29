@@ -75,6 +75,14 @@ export const setDefinition: ICommandDefinition = {
         {
             description: "Store the property value",
             options: `"profiles.host1.profiles.service1.properties.setting" "value" --secure`
+        },
+        {
+            description: "Set a default zosmf profile",
+            options: `"defaults.zosmf" "zosmfProfileName"`
+        },
+        {
+            description: "Set a default tso profile",
+            options: `"defaults.tso" "tsoProfileName"`
         }
     ]
 };
