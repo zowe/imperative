@@ -27,19 +27,19 @@ describe("DiffUtils", () => {
         };
 
         it("should return a diff string in unified string format", async () => {
-            jest.spyOn(jestDiff , "diff").mockImplementation(jest.fn());
+            jest.spyOn(jestDiff, "diff").mockImplementation(jest.fn());
             expect(await DiffUtils.getDiffString(string1, string2, diffOptions)).toMatchSnapshot();
         });
         it("should return a diff string in format for terminal i.e, json diff", async () => {
             diffOptions.outputFormat = "terminal";
-            const response = await DiffUtils.getDiffString(string1, string2, diffOptions)
+            const response = await DiffUtils.getDiffString(string1, string2, diffOptions);
             expect(response).toMatchSnapshot();
             expect(jestDiff.diff).toHaveBeenCalledTimes(1);
         });
         it("should return a diff string in html format", async () => {
             diffOptions.outputFormat = "html";
-            jest.spyOn(diff2html , "html").mockImplementation(jest.fn());
-            const response = await DiffUtils.getDiffString(string1, string2, diffOptions)
+            jest.spyOn(diff2html, "html").mockImplementation(jest.fn());
+            const response = await DiffUtils.getDiffString(string1, string2, diffOptions);
             expect(response).toMatchSnapshot();
             expect(diff2html.html).toHaveBeenCalledTimes(1);
         });
