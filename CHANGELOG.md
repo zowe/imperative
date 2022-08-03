@@ -6,6 +6,10 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Introduced examples for setting default profiles in `zowe config set` Examples section. [#1428](https://github.com/zowe/zowe-cli/issues/1428)
 
+## `5.3.7`
+
+- BugFix: Fixed error when installing plug-ins that do not define profiles. [#859](https://github.com/zowe/imperative/issues/859)
+
 ## `5.3.6`
 
 - BugFix: Removed some extraneous dependencies. [#477](https://github.com/zowe/imperative/issues/477)
