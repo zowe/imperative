@@ -79,7 +79,7 @@ export class WebDiffManager implements IWebDiffManager {
 
         if (!fs.existsSync(this.webDiffDir)) await new WebDiffGenerator(ImperativeConfig.instance, this.webDiffDir).buildDiffDir();
 
-        const htmlDiff = await html(patchDiff, {
+        const htmlDiff = html(patchDiff, {
             outputFormat: "side-by-side",
             matching: "lines",
             diffStyle: "char",
