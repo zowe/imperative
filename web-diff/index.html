@@ -21,40 +21,41 @@
     <link
       rel="stylesheet"
       type="text/css"
-      href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css"
+      href="https://cdn.jsdelivr.net/npm/diff2html@3.4.17/bundles/css/diff2html.min.css"
     />
     <script
-      type="text/javascript"
       src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js"
+      integrity="sha384-ivEFwCS/6lscViOBkEYZE73AGZFG3xo784aYxavuK9DaIhmKKWyYRzwj8dtUeaw9"
+      crossorigin="anonymous"
     ></script>
 
     <script>
-        const fr = new FileReader()
+          const fr = new FileReader()
 
-        fr.onload(()=>{
-            document.getElementById('diffOutput').textContent = fr.result
-        })
+          fr.onload(()=>{
+              document.getElementById('diffOutput').textContent = fr.result
+          })
 
-        fr.readAsText()
-    const diffString = ${unifiedStringDiff}
+          fr.readAsText()
+      const diffString = ${unifiedStringDiff}
 
-      document.addEventListener('DOMContentLoaded', function () {
-        var targetElement = document.getElementsByClassName('d2h-file-list-wrapper')[0];
-        var configuration = {
-          drawFileList: true,
-          fileListToggle: false,
-          fileListStartVisible: false,
-          fileContentToggle: false,
-          matching: 'lines',
-          outputFormat: 'side-by-side',
-          synchronisedScroll: true,
-          highlight: true,
-          renderNothingWhenEmpty: false,
-        };
-        var diff2htmlUi = new Diff2HtmlUI(targetElement, diffString, configuration);
-        diff2htmlUi.draw();
-        diff2htmlUi.highlightCode();
-      });
+        document.addEventListener('DOMContentLoaded', function () {
+          var targetElement = document.getElementsByClassName('d2h-file-list-wrapper')[0];
+          var configuration = {
+            drawFileList: true,
+            fileListToggle: false,
+            fileListStartVisible: false,
+            fileContentToggle: false,
+            matching: 'lines',
+            outputFormat: 'side-by-side',
+            synchronisedScroll: true,
+            highlight: true,
+            renderNothingWhenEmpty: false,
+          };
+          var diff2htmlUi = new Diff2HtmlUI(targetElement, diffString, configuration);
+          diff2htmlUi.draw();
+          diff2htmlUi.highlightCode();
+        });
     </script>
 
     <meta content="0; url=diff.html?p=" />

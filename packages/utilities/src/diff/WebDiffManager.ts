@@ -127,12 +127,13 @@ export class WebDiffManager implements IWebDiffManager {
             <link
               rel="stylesheet"
               type="text/css"
-              href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css"
+              href="https://cdn.jsdelivr.net/npm/diff2html@3.4.17/bundles/css/diff2html.min.css"
             />
-            <script
-              type="text/javascript"
-              src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js"
-            ></script>
+            <script 
+            src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js" 
+            integrity="sha384-ivEFwCS/6lscViOBkEYZE73AGZFG3xo784aYxavuK9DaIhmKKWyYRzwj8dtUeaw9" 
+            crossorigin="anonymous">
+            </script>
         
             <script>
                 const fr = new FileReader()

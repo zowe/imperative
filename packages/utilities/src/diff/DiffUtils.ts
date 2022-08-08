@@ -38,7 +38,7 @@ export class DiffUtils {
             if (options.contextLinesArg >= 0) {
                 expandflag = false;
             }
-            const jsonDiff = await diff(string1, string2, {
+            return  diff(string1, string2, {
                 aAnnotation: "Removed",
                 bAnnotation: "Added",
                 aColor: TextUtils.chalk.red,
@@ -47,7 +47,6 @@ export class DiffUtils {
                 expand: expandflag
             });
 
-            return jsonDiff;
         }
 
         if (options.outputFormat === 'unifiedstring' || options.outputFormat === "html") {
@@ -56,13 +55,11 @@ export class DiffUtils {
             );
 
             if (options.outputFormat === 'html') {
-                const htmlDiff = await html(patchDiff, {
+                return html(patchDiff, {
                     outputFormat: "side-by-side",
                     matching: "lines",
                     diffStyle: "char",
                 });
-
-                return htmlDiff;
             }
             return patchDiff;
         }
