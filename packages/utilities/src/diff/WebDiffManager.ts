@@ -13,7 +13,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 import { Constants } from "../../../constants/src/Constants";
-import {  ProcessUtils, GuiResult } from "../../../utilities/src/ProcessUtils";
+import { ProcessUtils, GuiResult } from "../../../utilities/src/ProcessUtils";
 import { ImperativeConfig } from "../../../utilities/src/ImperativeConfig";
 import WebDiffGenerator from "./WebDiffGenerator";
 import { IWebDiffManager } from "./doc/IWebDiffManager";
@@ -120,15 +120,18 @@ export class WebDiffManager implements IWebDiffManager {
         return `<!DOCTYPE html>
         <html>
           <head>
-            <link
-              rel="stylesheet"
-              href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.1/styles/github.min.css"
-            />
-            <link
-              rel="stylesheet"
-              type="text/css"
-              href="https://cdn.jsdelivr.net/npm/diff2html@3.4.17/bundles/css/diff2html.min.css"
-            />
+          <link 
+          rel="stylesheet" 
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.1/styles/github.min.css" 
+          integrity="sha384-yaOEEinoAKxVHv1ZCY3vqJeRItlRVwZ9pyTCCJLHlyHNndGZIF+S30C1+8oRQ2sz" 
+          crossorigin="anonymous" 
+          />
+          <link 
+          rel="stylesheet" 
+          href="https://cdn.jsdelivr.net/npm/diff2html@3.4.17/bundles/css/diff2html.min.css" 
+          integrity="sha384-SqVaGvqd1A6pQfywL1yrJwftrR6C959ImMNnuqO5DbCpiRI4OepQ9eGhnFlj02Sw" 
+          crossorigin="anonymous" 
+          />
             <script 
             src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js" 
             integrity="sha384-ivEFwCS/6lscViOBkEYZE73AGZFG3xo784aYxavuK9DaIhmKKWyYRzwj8dtUeaw9" 
