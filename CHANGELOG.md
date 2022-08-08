@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.3.8`
 
 - Introduced examples for setting default profiles in `zowe config set` Examples section. [#1428](https://github.com/zowe/zowe-cli/issues/1428)
 
