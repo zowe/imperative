@@ -2,9 +2,13 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes 
+## Recent Changes
 
 - Enhancement: Added Diff utility features for getting differences between two files and open diffs in browser. Also added web diff generator for creating web diff dir at the cli home.
+
+## `5.3.8`
+
+- BugFix: Introduced examples for setting default profiles in `zowe config set` Examples section. [#1428](https://github.com/zowe/zowe-cli/issues/1428)
 
 ## `5.3.7`
 

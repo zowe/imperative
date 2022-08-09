@@ -66,11 +66,11 @@ export class DiffUtils {
     }
 
     /**
- * Get the differnce between two string in browser
- * @param {string} string1
- * @param {string} string2
- * @return {void}
- */
+     * Get the differnce between two string in browser
+     * @param {string} string1
+     * @param {string} string2
+     * @return {void}
+     */
     public static async openDiffInbrowser(string1: string, string2: string) {
         const patchDiff = createTwoFilesPatch(
             'file-a', 'file-b', string1, string2
