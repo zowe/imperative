@@ -61,15 +61,15 @@ export const setDefinition: ICommandDefinition = {
     ],
     examples: [
         {
-            description: "Set the property in global config.",
+            description: "Set the property in global config",
             options: `"profiles.host1.profiles.service1.properties.setting" "value" --global-config`
         },
         {
-            description: "Set the property in user config.",
+            description: "Set the property in user config",
             options: `"profiles.host1.profiles.service2.properties.setting" "value" --user-config`
         },
         {
-            description: "Set property value to JSON.",
+            description: "Set property value to JSON",
             options: `"profiles.host1.profiles.service3.properties.setting" "{"property":"value"}" --json`
         },
         {
