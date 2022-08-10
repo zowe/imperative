@@ -22,6 +22,7 @@ module.exports = class CredentialManagerOverrides extends imperative_1.AbstractC
     constructor(service, displayName) {
         super(service, displayName);
         this.consoleLog = imperative_1.Logger.getConsoleLogger();
+        this.consoleLog.level = "info";
     }
     deleteCredentials(account) {
         return __awaiter(this, void 0, void 0, function* () {

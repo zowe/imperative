@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Changed the default log level of `Console` class from "debug" to "warn". In Zowe v2 the `Logger` class was changed to have a default log level of "warn" but we missed updating the `Console` class to make it behave consistently. If you want a different log level, you can change it after initializing the console like this: `console.level = "info";` [zowe/zowe-cli#511](https://github.com/zowe/zowe-cli/issues/511)
+
 ## `5.3.7`
 
 - BugFix: Fixed error when installing plug-ins that do not define profiles. [#859](https://github.com/zowe/imperative/issues/859)
