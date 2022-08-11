@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.4.0`
 
 - Enhancement: Added Diff utility features for getting differences between two files and open diffs in browser. Also added web diff generator for creating web diff dir at the cli home.
 
