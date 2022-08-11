@@ -58,6 +58,8 @@
     "comment-json": "4.1.0",
     "dataobject-parser": "1.2.1",
     "deepmerge": "4.2.2",
+    "diff": "5.1.0",
+    "diff2html": "3.4.17",
     "fast-glob": "3.2.7",
     "fastest-levenshtein": "1.0.12",
     "find-up": "4.1.0",
@@ -87,10 +89,12 @@
     "yargs": "15.3.1"
   },
   "devDependencies": {
+    "@types/diff": "^5.0.2",
     "@types/find-up": "^2.1.1",
     "@types/fs-extra": "^8.0.1",
     "@types/glob": "^7.1.1",
     "@types/gulp": "^4.0.9",
+    "@types/hogan.js": "^3.0.1",
     "@types/jest": "^24.0.15",
     "@types/js-base64": "^2.3.1",
     "@types/jsonfile": "^4.0.1",
