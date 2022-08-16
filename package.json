@@ -19,7 +19,8 @@
   ],
   "files": [
     "lib",
-    "web-help/dist"
+    "web-help/dist",
+    "web-diff"
   ],
   "publishConfig": {
     "registry": "https://zowe.jfrog.io/zowe/api/npm/npm-local-release/"
