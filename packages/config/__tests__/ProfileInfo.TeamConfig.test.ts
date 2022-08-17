@@ -1163,7 +1163,7 @@ describe("TeamConfig ProfileInfo tests", () => {
         });
     });
 
-    it("should load 256 profiles in under ten seconds", async () => {
+    it("should load 256 profiles in under 15 seconds", async () => {
         const profInfo = createNewProfInfo(largeTeamProjDir);
         const startTime = Date.now();
         await profInfo.readProfilesFromDisk();
@@ -1172,6 +1172,6 @@ describe("TeamConfig ProfileInfo tests", () => {
         for (const profAttrs of zosmfProfiles) {
             profInfo.mergeArgsForProfile(profAttrs);
         }
-        expect(Date.now() - startTime).toBeLessThan(10000);
+        expect(Date.now() - startTime).toBeLessThan(15000);
     });
 });
