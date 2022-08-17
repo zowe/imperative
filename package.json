@@ -1,6 +1,6 @@
 {
   "name": "@zowe/imperative",
-  "version": "5.4.1",
+  "version": "5.4.2",
   "description": "framework for building configurable CLIs",
   "author": "Zowe",
   "license": "EPL-2.0",
@@ -19,7 +19,8 @@
   ],
   "files": [
     "lib",
-    "web-help/dist"
+    "web-help/dist",
+    "web-diff"
   ],
   "publishConfig": {
     "registry": "https://zowe.jfrog.io/zowe/api/npm/npm-local-release/"
