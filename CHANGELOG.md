@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed dot-separated words incorrectly rendered as links in the web help. [#869](https://github.com/zowe/imperative/issues/869)
+
 ## `5.4.2`
 
 - BugFix: Web-diff template directory included in files section of package.json file.
