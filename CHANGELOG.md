@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed dot-separated words incorrectly rendered as links in the web help. [#869](https://github.com/zowe/imperative/issues/869)
+
 ## `4.18.8`
 
 - BugFix: Removed some extraneous dependencies. [#477](https://github.com/zowe/imperative/issues/477)
