@@ -24,7 +24,7 @@ export const profilesDefinition: ICommandDefinition = {
     description: "Displays profile paths.",
     examples: [
         {
-            description: "Display profile paths.",
+            description: "Display profile paths",
             options: ""
         }
     ]

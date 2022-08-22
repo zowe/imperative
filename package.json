@@ -56,7 +56,7 @@
     "@zowe/perf-timing": "1.0.7",
     "chalk": "2.4.2",
     "cli-table3": "0.6.2",
-    "comment-json": "4.1.0",
+    "comment-json": "4.1.1",
     "dataobject-parser": "1.2.1",
     "deepmerge": "4.2.2",
     "diff": "5.1.0",
@@ -90,6 +90,7 @@
     "yargs": "15.3.1"
   },
   "devDependencies": {
+    "@types/comment-json": "^2.4.2",
     "@types/diff": "^5.0.2",
     "@types/find-up": "^2.1.1",
     "@types/fs-extra": "^8.0.1",

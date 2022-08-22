@@ -46,6 +46,7 @@ describe("TeamConfig ProfileInfo tests", () => {
     const teamProjDir = path.join(testDir, testAppNm + "_team_config_proj");
     const userTeamProjDir = path.join(testDir, testAppNm + "_user_and_team_config_proj");
     const teamHomeProjDir = path.join(testDir, testAppNm + "_home_team_config_proj");
+    const largeTeamProjDir = path.join(testDir, testAppNm + "_large_team_config_proj");
     let origDir: string;
 
     const envHost = testEnvPrefix + "_OPT_HOST";
@@ -1045,7 +1046,7 @@ describe("TeamConfig ProfileInfo tests", () => {
             // Mock autoStore false
             jest.spyOn(profInfo, "getTeamConfig").mockReturnValueOnce({
                 ...profInfo.getTeamConfig(),
-                properties: { ...profInfo.getTeamConfig().layerMerge(false), autoStore: false }
+                mProperties: { ...profInfo.getTeamConfig().mProperties, autoStore: false }
             } as any);
             const ret = await profInfo.updateKnownProperty({ mergedArgs: prof, property: "host", value: "example.com" });
             const newHost = profInfo.getTeamConfig().api.layers.get().properties.profiles.LPAR4.properties.host;
@@ -1160,5 +1161,17 @@ describe("TeamConfig ProfileInfo tests", () => {
             expect(osLocInfo[1].path).toBe(path.join(teamHomeProjDir, testAppNm + ".config.json"));
             expect(osLocInfo[1].name).toBe(conflictingProfile);
         });
+    });
+
+    it("should load 256 profiles in under 15 seconds", async () => {
+        const profInfo = createNewProfInfo(largeTeamProjDir);
+        const startTime = Date.now();
+        await profInfo.readProfilesFromDisk();
+        const zosmfProfiles = profInfo.getAllProfiles("zosmf", { excludeHomeDir: true });
+        expect(zosmfProfiles.length).toBe(256);
+        for (const profAttrs of zosmfProfiles) {
+            profInfo.mergeArgsForProfile(profAttrs);
+        }
+        expect(Date.now() - startTime).toBeLessThan(15000);
     });
 });
