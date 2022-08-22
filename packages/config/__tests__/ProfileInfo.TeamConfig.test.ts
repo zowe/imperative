@@ -1165,8 +1165,8 @@ describe("TeamConfig ProfileInfo tests", () => {
 
     it("should load 256 profiles in under 15 seconds", async () => {
         const profInfo = createNewProfInfo(largeTeamProjDir);
-        const startTime = Date.now();
         await profInfo.readProfilesFromDisk();
+        const startTime = Date.now();
         const zosmfProfiles = profInfo.getAllProfiles("zosmf", { excludeHomeDir: true });
         expect(zosmfProfiles.length).toBe(256);
         for (const profAttrs of zosmfProfiles) {
