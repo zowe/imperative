@@ -12,6 +12,7 @@
 import { ICommandHandler, IHandlerParameters, IHandlerResponseConsoleApi } from "../../../../../cmd";
 import { ItemId } from "./EnvItems";
 import { EnvQuery } from "./EnvQuery";
+import { TextUtils } from "../../../../../utilities/src/TextUtils";
 
 /**
  * Handler to report a user's wroking environment.
@@ -56,7 +57,7 @@ export default class ReportEnvHandler  implements ICommandHandler {
         const getResult = EnvQuery.getEnvItemVal(itemId);
         consoleApi.log(getResult.itemValMsg);
         if (getResult.itemProbMsg.length > 0) {
-            consoleApi.log("    " + getResult.itemProbMsg);
+            consoleApi.log(TextUtils.chalk.red("    " + getResult.itemProbMsg));
         }
     }
 }

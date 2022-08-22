@@ -36,41 +36,60 @@ export class EnvQuery {
      * @returns A string with the value of the item.
      */
     public static getEnvItemVal(itemId: ItemId): IGetItemVal {
-        const getResult: IGetItemVal = { itemVal: null, itemValMsg: "No value", itemProbMsg: "" };
+        const os = require("os");
+        const getResult: IGetItemVal = { itemVal: null, itemValMsg: "", itemProbMsg: "" };
         switch(itemId) {
             case ItemId.ZOWE_VER: {
-                getResult.itemVal = "0";
-                getResult.itemValMsg = "Zowe CLI version = " + getResult.itemVal;
+                this.getZoweVer(getResult);
                 break;
             }
             case ItemId.NODEJS_VER: {
-                getResult.itemVal = "17.5.0";
+                getResult.itemVal = process.versions.node;
                 getResult.itemValMsg = "NodeJS version = " + getResult.itemVal;
                 break;
             }
             case ItemId.NPM_VER: {
-                getResult.itemVal = "2222";
-                getResult.itemValMsg = "MPM version = " + getResult.itemVal;
+                getResult.itemVal = "Fake_NPM_ver_2222";
+                getResult.itemValMsg = "Mode Package Manager version = " + getResult.itemVal;
+                break;
+            }
+            case ItemId.NVM_VER: {
+                getResult.itemVal = "Fake_NVM_ver_3333";
+                getResult.itemValMsg = "Node Version Manager version = " + getResult.itemVal;
+                break;
+            }
+            case ItemId.PLATFORM: {
+                getResult.itemVal = os.platform();
+                getResult.itemValMsg = "O.S. platform = " + getResult.itemVal;
+                break;
+            }
+            case ItemId.ARCHITECTURE: {
+                getResult.itemVal = os.arch();
+                getResult.itemValMsg = "O.S. architecture = " + getResult.itemVal;
+                break;
+            }
+            case ItemId.ZOWE_CLI_HOME: {
+                getResult.itemVal = process.env.ZOWE_CLI_HOME;
+                getResult.itemValMsg = "ZOWE_CLI_HOME = " + getResult.itemVal;
+                break;
+            }
+            case ItemId.ZOWE_APP_LOG_LEVEL: {
+                getResult.itemVal = process.env.ZOWE_APP_LOG_LEVEL;
+                getResult.itemValMsg = "ZOWE_APP_LOG_LEVEL = " + getResult.itemVal;
+                break;
+            }
+            case ItemId.ZOWE_IMPERATIVE_LOG_LEVEL: {
+                getResult.itemVal = process.env.ZOWE_IMPERATIVE_LOG_LEVEL;
+                getResult.itemValMsg = "ZOWE_IMPERATIVE_LOG_LEVEL = " + getResult.itemVal;
+                break;
+            }
+            case ItemId.OTHER_ZOWE_VARS: {
+                this.getOtherZoweEnvVars(getResult);
                 break;
             }
             case ItemId.ZOWE_CONFIG_TYPE: {
                 getResult.itemVal = "Team config";
                 getResult.itemValMsg = "Zowe Config type = " + getResult.itemVal + ". Location = who knows?";
-                break;
-            }
-            case ItemId.ZOWE_CLI_HOME: {
-                getResult.itemVal = "Your/homedir/.zowe";
-                getResult.itemValMsg = "ZOWE_CLI_HOME = " + getResult.itemVal;
-                break;
-            }
-            case ItemId.ZOWE_APP_LOG_LEVEL: {
-                getResult.itemVal = "WARN";
-                getResult.itemValMsg = "ZOWE_APP_LOG_LEVEL = " + getResult.itemVal;
-                break;
-            }
-            case ItemId.ZOWE_IMPERATIVE_LOG_LEVEL: {
-                getResult.itemVal = "ERROR";
-                getResult.itemValMsg = "ZOWE_IMPERATIVE_LOG_LEVEL = " + getResult.itemVal;
                 break;
             }
             case ItemId.ZOWE_PLUGINS: {
@@ -125,4 +144,36 @@ export class EnvQuery {
         const probExprWithVals = probTest.probExpr.replaceAll("{val}", value);
         return eval(probExprWithVals);
     }
-}
+
+    // __________________________________________________________________________
+    /**
+     * Get the Zowe version number.
+     *
+     * @param getResult The itemVal and itemValMsg properties are filled
+     *                  by this function.
+     */
+    private static getZoweVer(getResult: IGetItemVal): void {
+        getResult.itemVal = "0";
+        getResult.itemValMsg = "Zowe CLI version = " + getResult.itemVal;
+    }
+
+    // __________________________________________________________________________
+    /**
+     * Get other Zowe variables, beyond the ones we check for problem values.
+     *
+     * @param getResult The itemValMsg property is filled by this function.
+     *                  The itemVal property is given no value by this function.
+     */
+    private static getOtherZoweEnvVars(getResult: IGetItemVal): void {
+        const envVars = process.env;
+        for (const nextVar of Object.keys(envVars)) {
+            if (nextVar.startsWith("ZOWE_") && nextVar != "ZOWE_CLI_HOME" &&
+                nextVar != "ZOWE_APP_LOG_LEVEL" && nextVar != "ZOWE_IMPERATIVE_LOG_LEVEL")
+            {
+                getResult.itemValMsg += nextVar + " = " + envVars[nextVar] + "\n";
+            }
+        }
+
+        // remove the last newline
+        getResult.itemValMsg = getResult.itemValMsg.slice(0, -1);
+    }}

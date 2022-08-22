@@ -19,10 +19,14 @@ export enum ItemId {
     ZOWE_VER,
     NODEJS_VER,
     NPM_VER,
-    ZOWE_CONFIG_TYPE,   // detect if we have V1 profiles or V2 config
+    NVM_VER,
+    PLATFORM,
+    ARCHITECTURE,
     ZOWE_CLI_HOME,
     ZOWE_APP_LOG_LEVEL,
     ZOWE_IMPERATIVE_LOG_LEVEL,
+    OTHER_ZOWE_VARS,    // Zowe variables not listed above
+    ZOWE_CONFIG_TYPE,   // detect if we have V1 profiles or V2 config
     ZOWE_PLUGINS
 }
 
@@ -37,6 +41,16 @@ export interface IProbTest {
     probMsg: string;
 }
 
+// used in probTests below.
+const logLevelExpr = "'{val}' != 'ALL' && '{val}' != 'TRACE' && '{val}' != 'DEBUG' && " +
+    "'{val}' != 'INFO' && '{val}' != 'WARN' && '{val}' != 'ERROR' && " +
+    "'{val}' != 'FATAL' && '{val}' != 'MARK' && '{val}' != 'OFF' && '{val}' != 'undefined'";
+
+function formatLogLevelMsg(logTypeName: string) {
+    return ` The ${logTypeName}  must be set to one of: ` +
+    "ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, MARK, OFF";
+}
+
 /**
  * The tests to check for problems that we run for environmental items.
  * One ItemId can have multiple entries in the array, to check for
@@ -45,12 +59,22 @@ export interface IProbTest {
 export const probTests: IProbTest[] = [
     {
         itemId: ItemId.ZOWE_VER,
-        probExpr: "{val} == 0",
+        probExpr: "'{val}' == '0'",
         probMsg: "Zowe version must not be 0"
     },
     {
         itemId: ItemId.NODEJS_VER,
-        probExpr: "semver.satisfies('{val}', '<12.0.0 || >=17.0.0')",
-        probMsg: "Only NodeJS versions 12.x, 14.x, and 16.x are supported."
+        probExpr: "semver.satisfies('{val}', '<10.0.0 || >=16.0.0')",
+        probMsg: "Only NodeJS versions 10.x, 12.x, and 14.x are supported."
+    },
+    {
+        itemId: ItemId.ZOWE_APP_LOG_LEVEL,
+        probExpr: logLevelExpr,
+        probMsg: formatLogLevelMsg("ZOWE_APP_LOG_LEVEL")
+    },
+    {
+        itemId: ItemId.ZOWE_IMPERATIVE_LOG_LEVEL,
+        probExpr: logLevelExpr,
+        probMsg: formatLogLevelMsg("ZOWE_IMPERATIVE_LOG_LEVEL")
     }
 ];
