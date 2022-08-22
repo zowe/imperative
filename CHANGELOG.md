@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Removed periods in command example descriptions so descriptions look syntactically correct. [#795](https://github.com/zowe/imperative/issues/795)
+
 ## `5.4.2`
 
 - BugFix: Web-diff template directory included in files section of package.json file.
