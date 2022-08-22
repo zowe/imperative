@@ -5,6 +5,7 @@ All notable changes to the Imperative package will be documented in this file.
 ## Recent Changes
 
 - BugFix: Improved performance of ProfileInfo API to load large team config files. [zowe/vscode-extension-for-zowe#1911](https://github.com/zowe/vscode-extension-for-zowe/issues/1911)
+- BugFix: Removed periods in command example descriptions so descriptions look syntactically correct. [#795](https://github.com/zowe/imperative/issues/795)
 
 ## `5.4.2`
 
