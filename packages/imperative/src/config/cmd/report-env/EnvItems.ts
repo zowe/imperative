@@ -42,13 +42,21 @@ export interface IProbTest {
 }
 
 // used in probTests below.
-const logLevelExpr = "'{val}' != 'ALL' && '{val}' != 'TRACE' && '{val}' != 'DEBUG' && " +
-    "'{val}' != 'INFO' && '{val}' != 'WARN' && '{val}' != 'ERROR' && " +
-    "'{val}' != 'FATAL' && '{val}' != 'MARK' && '{val}' != 'OFF' && '{val}' != 'undefined'";
+const logLevelExpr =
+    "'{val}'.toUpperCase() != 'ALL' && " +
+    "'{val}'.toUpperCase() != 'TRACE' && " +
+    "'{val}'.toUpperCase() != 'DEBUG' && " +
+    "'{val}'.toUpperCase() != 'INFO' && " +
+    "'{val}'.toUpperCase() != 'WARN' && " +
+    "'{val}'.toUpperCase() != 'ERROR' && " +
+    "'{val}'.toUpperCase() != 'FATAL' && " +
+    "'{val}'.toUpperCase() != 'MARK' && " +
+    "'{val}'.toUpperCase() != 'OFF' && " +
+    "'{val}' != 'undefined'";
 
 function formatLogLevelMsg(logTypeName: string) {
-    return ` The ${logTypeName}  must be set to one of: ` +
-    "ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, MARK, OFF";
+    return `The ${logTypeName} must be set to one of: \n` +
+    "    ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, MARK, OFF";
 }
 
 /**
