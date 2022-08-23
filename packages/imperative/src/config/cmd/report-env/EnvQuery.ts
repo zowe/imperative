@@ -220,12 +220,22 @@ export class EnvQuery {
      *                  The itemVal property is given no value by this function.
      */
     private static getOtherZoweEnvVars(getResult: IGetItemVal): void {
+        getResult.itemValMsg = "";
         const envVars = process.env;
         for (const nextVar of Object.keys(envVars)) {
             if (nextVar.startsWith("ZOWE_") && nextVar != "ZOWE_CLI_HOME" &&
                 nextVar != "ZOWE_APP_LOG_LEVEL" && nextVar != "ZOWE_IMPERATIVE_LOG_LEVEL")
             {
-                getResult.itemValMsg += nextVar + " = " + envVars[nextVar] + "\n";
+                getResult.itemValMsg += nextVar + " = " ;
+                if (nextVar.toUpperCase().includes("PASSWORD") ||
+                    nextVar.toUpperCase().includes("TOKEN"))
+                {
+                    getResult.itemValMsg += "******";
+                } else {
+                    getResult.itemValMsg += envVars[nextVar];
+
+                }
+                getResult.itemValMsg += "\n";
             }
         }
 
