@@ -9,6 +9,7 @@
 *
 */
 
+import * as path from "path";
 import { spawnSync, StdioOptions } from "child_process";
 
 import { ImperativeConfig, TextUtils} from "../../../../../utilities";
@@ -73,6 +74,9 @@ export class EnvQuery {
             }
             case ItemId.ZOWE_CLI_HOME: {
                 getResult.itemVal = process.env.ZOWE_CLI_HOME;
+                if (getResult.itemVal === undefined) {
+                    getResult.itemVal += "   Default = " + path.normalize(ImperativeConfig.instance.cliHome);
+                }
                 getResult.itemValMsg = "ZOWE_CLI_HOME = " + getResult.itemVal;
                 break;
             }
@@ -91,8 +95,7 @@ export class EnvQuery {
                 break;
             }
             case ItemId.ZOWE_CONFIG_TYPE: {
-                getResult.itemVal = "Team config";
-                getResult.itemValMsg = "Zowe Config type = " + getResult.itemVal + ". Location = who knows?";
+                this.getConfigInfo(getResult);
                 break;
             }
             case ItemId.ZOWE_PLUGINS: {
@@ -158,13 +161,30 @@ export class EnvQuery {
     private static getZoweVer(getResult: IGetItemVal): void {
         const cliPackageJson: any = ImperativeConfig.instance.callerPackageJson;
         if (Object.prototype.hasOwnProperty.call(cliPackageJson, "version")) {
-            // cliPackageJson["version"]
             getResult.itemVal = cliPackageJson.version;
         }
         else {
             getResult.itemVal = "No version found in CLI package.json!";
         }
         getResult.itemValMsg = "Zowe CLI version = " + getResult.itemVal;
+    }
+
+    // __________________________________________________________________________
+    /**
+     * Get information about the Zowe configuration.
+     *
+     * @param getResult The itemVal and itemValMsg properties are filled
+     *                  by this function.
+     */
+    private static getConfigInfo(getResult: IGetItemVal): void {
+        const teamCfg: string = "V2 Team Config";
+        const v1Profiles = "V1 Profiles";
+        if (ImperativeConfig.instance.config?.exists) {
+            getResult.itemVal = teamCfg;
+        } else {
+            getResult.itemVal = v1Profiles;
+        }
+        getResult.itemValMsg =  "Zowe Config type = " + getResult.itemVal;
     }
 
     // __________________________________________________________________________
