@@ -184,4 +184,7 @@ export class EnvQuery {
 
         // remove the last newline
         getResult.itemValMsg = getResult.itemValMsg.slice(0, -1);
+        if (getResult.itemValMsg.length == 0) {
+            getResult.itemValMsg += "No other 'ZOWE_' variables have been set.";
+        }
     }}
