@@ -12,12 +12,11 @@
 jest.mock("../src/utils/ProfileIO");
 import { ImperativeError } from "../../error/src/ImperativeError";
 import { TestLogger } from "../../../__tests__/TestLogger";
-import { UnitTestUtils } from "../../../__tests__/src/UnitTestUtils";
 import { APPLE_PROFILE_TYPE, FRUIT_BASKET_BAD_DIR, FRUIT_BASKET_WORSE, MANGO_PROFILE_TYPE, ONLY_APPLE, TEST_PROFILE_ROOT_DIR } from "./TestConstants";
 import { BasicProfileManager } from "../src/BasicProfileManager";
 import { IProfileTypeConfiguration } from "../src/doc/config/IProfileTypeConfiguration";
 
-UnitTestUtils.replaceIt();
+// UnitTestUtils.replaceIt();
 
 describe("Basic Profile Manager Constructor", () => {
     it("should detect no parms when instantiating", () => {

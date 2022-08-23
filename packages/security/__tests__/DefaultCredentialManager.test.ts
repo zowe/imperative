@@ -77,7 +77,7 @@ describe("DefaultCredentialManager", () => {
                 // fail the import and look for module path in the error message
                 const fakeCliPath = "/root/fakeCli";
                 process.mainModule = { filename: fakeCliPath } as any;
-                const pathResolveSpy = jest.spyOn(path, "resolve").mockReturnValueOnce(path.parse(__dirname).root);
+                const pathResolveSpy = jest.spyOn(path, "resolve").mockReturnValue(path.parse(__dirname).root);
 
                 // Force enter the try catch
                 Object.defineProperty(manager, "keytar", {

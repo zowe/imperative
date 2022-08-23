@@ -15,10 +15,9 @@ import { ICommandOptionDefinition } from "../../src/doc/option/ICommandOptionDef
 import { COMPLEX_COMMAND, COMPLEX_COMMAND_WITH_ALIASES, MULTIPLE_GROUPS } from "../__resources__/CommandDefinitions";
 import { TestLogger } from "../../../../__tests__/TestLogger";
 import { inspect } from "util";
-import { UnitTestUtils } from "../../../../__tests__/src/UnitTestUtils";
 import { CommandUtils, ICommandTreeEntry } from "../../";
 import { cloneDeep } from "lodash";
-UnitTestUtils.replaceIt();
+// UnitTestUtils.replaceIt();
 
 describe("Command Utils", () => {
     it("We should be able to determine if an option is specified", () => {

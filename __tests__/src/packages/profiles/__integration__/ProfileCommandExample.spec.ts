@@ -119,7 +119,7 @@ describe("Imperative should allow CLI implementations to configure their own pro
             });
     }
 
-    // eslint-disable-next-line jest/no-disabled-tests
+    // eslint-disable-next-line jest/expect-expect, jest/no-disabled-tests
     it.skip("We should be able to issue a command and have a profile be automatically loaded", function () {
         // return issueCommand.bind(this, ["profile"], true)();
     });
