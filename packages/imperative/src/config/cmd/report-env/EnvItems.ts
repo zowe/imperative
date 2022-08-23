@@ -66,14 +66,14 @@ function formatLogLevelMsg(logTypeName: string) {
  */
 export const probTests: IProbTest[] = [
     {
-        itemId: ItemId.ZOWE_VER,
-        probExpr: "'{val}' == '0'",
-        probMsg: "Zowe version must not be 0"
+        itemId: ItemId.NODEJS_VER,
+        probExpr: "semver.satisfies('{val}', '<12.x || 13.x || 15.x || >=17.x')",
+        probMsg: "Only NodeJS versions 12, 14, and 16 are supported."
     },
     {
-        itemId: ItemId.NODEJS_VER,
-        probExpr: "semver.satisfies('{val}', '<10.0.0 || >=16.0.0')",
-        probMsg: "Only NodeJS versions 10.x, 12.x, and 14.x are supported."
+        itemId: ItemId.NPM_VER,
+        probExpr: "semver.satisfies('{val}', '8.11.0 || 8.12.0')",
+        probMsg: "NPM versions 8.11.0 and 8.12.0 cause SCS errors in some situations."
     },
     {
         itemId: ItemId.ZOWE_APP_LOG_LEVEL,
