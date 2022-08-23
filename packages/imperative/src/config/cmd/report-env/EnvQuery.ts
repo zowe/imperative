@@ -9,6 +9,7 @@
 *
 */
 
+import { ImperativeConfig } from "../../../../../utilities";
 import { ItemId, IProbTest, probTests } from "./EnvItems";
 
 /**
@@ -153,7 +154,14 @@ export class EnvQuery {
      *                  by this function.
      */
     private static getZoweVer(getResult: IGetItemVal): void {
-        getResult.itemVal = "0";
+        const cliPackageJson: any = ImperativeConfig.instance.callerPackageJson;
+        if (Object.prototype.hasOwnProperty.call(cliPackageJson, "version")) {
+            // cliPackageJson["version"]
+            getResult.itemVal = cliPackageJson.version;
+        }
+        else {
+            getResult.itemVal = "No version found in CLI package.json!";
+        }
         getResult.itemValMsg = "Zowe CLI version = " + getResult.itemVal;
     }
 
