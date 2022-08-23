@@ -62,7 +62,8 @@ function formatLogLevelMsg(logTypeName: string) {
 /**
  * The tests to check for problems that we run for environmental items.
  * One ItemId can have multiple entries in the array, to check for
- * different problems.
+ * different problems. When the probExpr is true, we have a problem,
+ * and we print the probMsg.
  */
 export const probTests: IProbTest[] = [
     {

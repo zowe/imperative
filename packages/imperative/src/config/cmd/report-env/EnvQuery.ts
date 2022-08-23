@@ -96,7 +96,7 @@ export class EnvQuery {
                 break;
             }
             case ItemId.ZOWE_PLUGINS: {
-                getResult.itemValMsg = "ZOWE_PLUGINS : Lots of text";
+                getResult.itemValMsg = this.getCmdOutput("zowe", ["plugins", "list"]);
                 break;
             }
             default: {
