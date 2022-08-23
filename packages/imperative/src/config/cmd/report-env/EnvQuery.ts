@@ -9,6 +9,8 @@
 *
 */
 
+import { spawnSync, StdioOptions } from "child_process";
+
 import { ImperativeConfig } from "../../../../../utilities";
 import { ItemId, IProbTest, probTests } from "./EnvItems";
 
@@ -50,8 +52,8 @@ export class EnvQuery {
                 break;
             }
             case ItemId.NPM_VER: {
-                getResult.itemVal = "Fake_NPM_ver_2222";
-                getResult.itemValMsg = "Mode Package Manager version = " + getResult.itemVal;
+                getResult.itemVal = this.getCmdOutput("npm", ["--version"]);
+                getResult.itemValMsg = "NPM version = " + getResult.itemVal;
                 break;
             }
             case ItemId.NVM_VER: {
@@ -167,6 +169,38 @@ export class EnvQuery {
 
     // __________________________________________________________________________
     /**
+     * Run a command that displays output.
+     *
+     * @param cmdToRun The command name to be run.
+     * @param args The arguments to the command.
+     *
+     * @return The output of the command.
+     */
+    private static getCmdOutput(cmdToRun: string, args: string[]): string {
+        let cmdOutput: string;
+        const ioOpts: StdioOptions = ["pipe", "pipe", "pipe"];
+        try {
+            const spawnResult = spawnSync(cmdToRun, args, {
+                stdio: ioOpts,
+                shell: true
+            });
+            if (spawnResult.stdout) {
+                // remove any trailing newline from the output
+                cmdOutput = spawnResult.stdout.toString().replace(/(\r?\n|\r)$/, "");
+            } else {
+                cmdOutput = "Failed to get any information from " + cmdToRun + " " + args.join(" ");
+                if (spawnResult.stderr) {
+                    cmdOutput += "\nReason = " + spawnResult.stderr.toString();
+                }
+            }
+        } catch (err) {
+            cmdOutput += err.message;
+        }
+        return cmdOutput;
+    }
+
+    // __________________________________________________________________________
+    /**
      * Get other Zowe variables, beyond the ones we check for problem values.
      *
      * @param getResult The itemValMsg property is filled by this function.
@@ -183,7 +217,7 @@ export class EnvQuery {
         }
 
         // remove the last newline
-        getResult.itemValMsg = getResult.itemValMsg.slice(0, -1);
+        getResult.itemValMsg = getResult.itemValMsg.replace(/(\r?\n|\r)$/, "");
         if (getResult.itemValMsg.length == 0) {
             getResult.itemValMsg += "No other 'ZOWE_' variables have been set.";
         }
