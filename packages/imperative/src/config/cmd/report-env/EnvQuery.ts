@@ -11,7 +11,7 @@
 
 import { spawnSync, StdioOptions } from "child_process";
 
-import { ImperativeConfig } from "../../../../../utilities";
+import { ImperativeConfig, TextUtils} from "../../../../../utilities";
 import { ItemId, IProbTest, probTests } from "./EnvItems";
 
 /**
@@ -57,7 +57,7 @@ export class EnvQuery {
                 break;
             }
             case ItemId.NVM_VER: {
-                getResult.itemVal = "Fake_NVM_ver_3333";
+                getResult.itemVal = this.getCmdOutput("nvm", ["version"]);
                 getResult.itemValMsg = "Node Version Manager version = " + getResult.itemVal;
                 break;
             }
@@ -177,24 +177,37 @@ export class EnvQuery {
      * @return The output of the command.
      */
     private static getCmdOutput(cmdToRun: string, args: string[]): string {
-        let cmdOutput: string;
+        let cmdOutput: string = "";
         const ioOpts: StdioOptions = ["pipe", "pipe", "pipe"];
         try {
             const spawnResult = spawnSync(cmdToRun, args, {
                 stdio: ioOpts,
                 shell: true
             });
-            if (spawnResult.stdout) {
+            if (spawnResult.stdout && spawnResult.stdout.length > 0) {
                 // remove any trailing newline from the output
-                cmdOutput = spawnResult.stdout.toString().replace(/(\r?\n|\r)$/, "");
+                cmdOutput = spawnResult.stdout.toString();
             } else {
-                cmdOutput = "Failed to get any information from " + cmdToRun + " " + args.join(" ");
+                cmdOutput = cmdToRun + " does not appear to be installed.";
                 if (spawnResult.stderr) {
                     cmdOutput += "\nReason = " + spawnResult.stderr.toString();
                 }
+                cmdOutput = TextUtils.chalk.green(cmdOutput);
+
             }
         } catch (err) {
-            cmdOutput += err.message;
+            cmdOutput = "Failed to run commmand = " + cmdToRun + " " + args.join(" ");
+            if (err.message) {
+                cmdOutput += "\nDetails = " + err.message;
+            }
+            cmdOutput = TextUtils.chalk.red(cmdOutput);
+        }
+
+        // remove any trailing newline from the output
+        cmdOutput = cmdOutput.replace(/(\r?\n|\r)$/, "");
+
+        if (cmdOutput.length == 0) {
+            cmdOutput = "Failed to get any information from " + cmdToRun + " " + args.join(" ");
         }
         return cmdOutput;
     }
