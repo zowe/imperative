@@ -18,7 +18,7 @@ import { ICommandDefinition } from "../../../../../cmd";
  */
 export const ReportEnvDefinition: ICommandDefinition = {
     name: "report-env",
-    aliases: ["report"],
+    aliases: ["re"],
     type: "command",
     handler: join(__dirname, "report-env.handler"),
     summary: "Report the state of your working environment",
