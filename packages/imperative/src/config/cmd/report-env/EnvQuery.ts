@@ -77,7 +77,7 @@ export class EnvQuery {
                 if (getResult.itemVal === undefined) {
                     getResult.itemVal += "   Default = " + path.normalize(ImperativeConfig.instance.cliHome);
                 }
-                getResult.itemValMsg = "ZOWE_CLI_HOME = " + getResult.itemVal;
+                getResult.itemValMsg = "\nZOWE_CLI_HOME = " + getResult.itemVal;
                 break;
             }
             case ItemId.ZOWE_APP_LOG_LEVEL: {
@@ -184,7 +184,7 @@ export class EnvQuery {
         } else {
             getResult.itemVal = v1Profiles;
         }
-        getResult.itemValMsg =  "Zowe Config type = " + getResult.itemVal;
+        getResult.itemValMsg =  "\nZowe Config type = " + getResult.itemVal;
     }
 
     // __________________________________________________________________________
