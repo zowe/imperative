@@ -6,6 +6,32 @@ All notable changes to the Imperative package will be documented in this file.
 
 - BugFix: Fixed exception when non-string passed to ImperativeExpect.toBeDefinedAndNonBlank(). [#856](https://github.com/zowe/imperative/issues/856)
 
+## `5.4.3`
+
+- BugFix: Removed periods in command example descriptions so descriptions look syntactically correct. [#795](https://github.com/zowe/imperative/issues/795)
+- BugFix: Improved performance of ProfileInfo API to load large team config files. [zowe/vscode-extension-for-zowe#1911](https://github.com/zowe/vscode-extension-for-zowe/issues/1911)
+- BugFix: Fixed dot-separated words incorrectly rendered as links in the web help. [#869](https://github.com/zowe/imperative/issues/869)
+
+## `5.4.2`
+
+- BugFix: Web-diff template directory included in files section of package.json file.
+
+## `5.4.1`
+
+- BugFix: Changed the default log level of `Console` class from "debug" to "warn". In Zowe v2 the `Logger` class was changed to have a default log level of "warn" but we missed updating the `Console` class to make it behave consistently. If you want a different log level, you can change it after initializing the console like this: `console.level = "info";` [zowe/zowe-cli#511](https://github.com/zowe/zowe-cli/issues/511)
+
+## `5.4.0`
+
+- Enhancement: Added Diff utility features for getting differences between two files and open diffs in browser. Also added web diff generator for creating web diff dir at the cli home.
+
+## `5.3.8`
+
+- BugFix: Introduced examples for setting default profiles in `zowe config set` Examples section. [#1428](https://github.com/zowe/zowe-cli/issues/1428)
+
+## `5.3.7`
+
+- BugFix: Fixed error when installing plug-ins that do not define profiles. [#859](https://github.com/zowe/imperative/issues/859)
+
 ## `5.3.6`
 
 - BugFix: Removed some extraneous dependencies. [#477](https://github.com/zowe/imperative/issues/477)

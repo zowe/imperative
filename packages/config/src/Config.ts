@@ -30,6 +30,7 @@ import { ConfigLayers, ConfigPlugins, ConfigProfiles, ConfigSecure } from "./api
 import { coercePropValue } from "./ConfigUtils";
 import { IConfigSchemaInfo } from "./doc/IConfigSchema";
 import { JsUtils } from "../../utilities/src/JsUtils";
+import { IConfigMergeOpts } from "./doc/IConfigMergeOpts";
 
 /**
  * Enum used by Config class to maintain order of config layers
@@ -311,10 +312,20 @@ export class Config {
     // _______________________________________________________________________
     /**
      * List of properties across all config layers.
-     * Returns a clone to prevent accidental edits of the orignal object.
+     * Returns a clone to prevent accidental edits of the original object.
      */
     public get properties(): IConfig {
-        return this.layerMerge(false);
+        return this.layerMerge();
+    }
+
+    /**
+     * List of properties across all config layers.
+     * Returns the original object, not a clone, so use with caution.
+     * This is used in internal code because cloning a JSONC object is slow.
+     * @internal
+     */
+    public get mProperties(): IConfig {
+        return this.layerMerge({ cloneLayers: false });
     }
 
     // _______________________________________________________________________
@@ -402,7 +413,7 @@ export class Config {
      * @memberof Config
      */
     public get maskedProperties(): IConfig {
-        return this.layerMerge(true);
+        return this.layerMerge({ maskSecure: true });
     }
 
     // _______________________________________________________________________
@@ -507,12 +518,11 @@ export class Config {
      * Merge the properties from multiple layers into a single Config object.
      *
      * @internal
-     * @param maskSecure Indicates whether we should mask off secure properties.
-     * @param excludeGlobalLayer Indicates whether we should exclude global layers.
+     * @param opts Options to control how config layers are merged
      *
      * @returns The resulting Config object
      */
-    public layerMerge(maskSecure?: boolean, excludeGlobalLayer?: boolean): IConfig {
+    public layerMerge(opts: IConfigMergeOpts = {}): IConfig {
         // config starting point
         // NOTE: "properties" and "secure" only apply to the individual layers
         // NOTE: they will be blank for the merged config
@@ -538,18 +548,18 @@ export class Config {
         });
 
         // Merge the project layer profiles
-        const usrProject = this.layerProfiles(this.mLayers[Layers.ProjectUser], maskSecure);
-        const project = this.layerProfiles(this.mLayers[Layers.ProjectConfig], maskSecure);
+        const usrProject = this.layerProfiles(this.mLayers[Layers.ProjectUser], opts);
+        const project = this.layerProfiles(this.mLayers[Layers.ProjectConfig], opts);
         const proj: { [key: string]: IConfigProfile } = deepmerge(project, usrProject);
 
         // Merge the global layer profiles
-        const usrGlobal = this.layerProfiles(this.mLayers[Layers.GlobalUser], maskSecure);
-        const global = this.layerProfiles(this.mLayers[Layers.GlobalConfig], maskSecure);
+        const usrGlobal = this.layerProfiles(this.mLayers[Layers.GlobalUser], opts);
+        const global = this.layerProfiles(this.mLayers[Layers.GlobalConfig], opts);
         const glbl: { [key: string]: IConfigProfile } = deepmerge(global, usrGlobal);
 
         // Traverse all the global profiles merging any missing from project profiles
         c.profiles = proj;
-        if (!excludeGlobalLayer) {
+        if (!opts.excludeGlobalLayer) {
             for (const [n, p] of Object.entries(glbl)) {
                 if (c.profiles[n] == null)
                     c.profiles[n] = p;
@@ -564,14 +574,16 @@ export class Config {
      * Obtain the profiles object for a specified layer object.
      *
      * @internal
-     * @param layer The layer for which we want the profiles.
-     * @param maskSecure If true, we will mask the values of secure properties.
+     * @param opts Options to control how config layers are merged
      *
      * @returns The resulting profile object
      */
-    public layerProfiles(layer: IConfigLayer, maskSecure?: boolean): { [key: string]: IConfigProfile } {
-        const properties = JSONC.parse(JSONC.stringify(layer.properties, null, ConfigConstants.INDENT));
-        if (maskSecure) {
+    public layerProfiles(layer: IConfigLayer, opts: IConfigMergeOpts = {}): { [key: string]: IConfigProfile } {
+        let properties = layer.properties;
+        if (opts.cloneLayers !== false || opts.maskSecure) {
+            properties = JSONC.parse(JSONC.stringify(properties, null, ConfigConstants.INDENT));
+        }
+        if (opts.maskSecure) {
             for (const secureProp of this.api.secure.secureFields(layer)) {
                 if (lodash.has(properties, secureProp)) {
                     lodash.set(properties, secureProp, ConfigConstants.SECURE_VALUE);

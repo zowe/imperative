@@ -134,9 +134,11 @@ export async function install(packageLocation: string, registry: string, install
             // Update the Imperative Configuration to add the profiles introduced by the recently installed plugin
             // This might be needed outside of PLUGIN_USING_CONFIG scenarios, but we haven't had issues with other APIs before
             const requirerFunction = PluginManagementFacility.instance.requirePluginModuleCallback(packageInfo.name);
-            UpdateImpConfig.addProfiles(ConfigurationLoader.load(null, packageInfo, requirerFunction).profiles);
-
-            ConfigSchema.updateSchema({ layer: "global" });
+            const pluginImpConfig = ConfigurationLoader.load(null, packageInfo, requirerFunction);
+            if (Array.isArray(pluginImpConfig.profiles)) {
+                UpdateImpConfig.addProfiles(pluginImpConfig.profiles);
+                ConfigSchema.updateSchema({ layer: "global" });
+            }
         }
 
         iConsole.info("Plugin '" + packageName + "' successfully installed.");

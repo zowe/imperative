@@ -36,11 +36,11 @@ export const secureDefinition: ICommandDefinition = {
     ],
     examples: [
         {
-            description: "Secure the properties in global config.",
+            description: "Secure the properties in global config",
             options: "--global-config"
         },
         {
-            description: "Secure the properties in user config.",
+            description: "Secure the properties in user config",
             options: "--user-config"
         }
     ]

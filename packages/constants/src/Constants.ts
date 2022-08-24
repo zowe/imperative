@@ -104,6 +104,8 @@ export class Constants {
     public static readonly DEFAULT_MASK_OUTPUT = "TRUE";
 
     public static readonly WEB_HELP_DIR = "web-help";
+    public static readonly WEB_DIFF_DIR = "web-diff";
+
 
     /**
      * Auth group constants

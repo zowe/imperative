@@ -86,7 +86,7 @@ describe("PMF: Install Interface", () => {
         mocks.resolve.mockReturnValue(packageName);
         mocks.join.mockReturnValue("/fake/join/path");
 
-        mocks.ConfigurationLoader_load.mockReturnValue({ profiles: "fake" });
+        mocks.ConfigurationLoader_load.mockReturnValue({ profiles: ["fake"] });
     });
 
     /**
@@ -95,22 +95,27 @@ describe("PMF: Install Interface", () => {
      * @param {string} expectedPackage The package that should be sent to npm install
      * @param {string} expectedRegistry The registry that should be sent to npm install
      */
-    const wasNpmInstallCallValid = (expectedPackage: string, expectedRegistry: string) => {
+    const wasNpmInstallCallValid = (expectedPackage: string, expectedRegistry: string, updateSchema?: boolean) => {
         expect(mocks.installPackages).toHaveBeenCalledWith(PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
             expectedRegistry, expectedPackage);
-        shouldUpdateSchema();
+        shouldUpdateSchema(updateSchema ?? true);
     };
 
     /**
      * Validates that plugins install call updates the global schema.
      */
-    const shouldUpdateSchema = () => {
+    const shouldUpdateSchema = (shouldUpdate: boolean) => {
         expect(mocks.PMF_requirePluginModuleCallback).toHaveBeenCalledTimes(1);
         expect(mocks.ConfigurationLoader_load).toHaveBeenCalledTimes(1);
-        expect(mocks.UpdateImpConfig_addProfiles).toHaveBeenCalledTimes(1);
 
-        expect(mocks.ConfigSchema_updateSchema).toHaveBeenCalledTimes(1);
-        expect(mocks.ConfigSchema_updateSchema).toHaveBeenCalledWith({ layer: "global" });
+        if (shouldUpdate) {
+            expect(mocks.UpdateImpConfig_addProfiles).toHaveBeenCalledTimes(1);
+            expect(mocks.ConfigSchema_updateSchema).toHaveBeenCalledTimes(1);
+            expect(mocks.ConfigSchema_updateSchema).toHaveBeenCalledWith({ layer: "global" });
+        } else {
+            expect(mocks.UpdateImpConfig_addProfiles).not.toHaveBeenCalled();
+            expect(mocks.ConfigSchema_updateSchema).not.toHaveBeenCalled();
+        }
     };
 
     /**
@@ -214,6 +219,19 @@ describe("PMF: Install Interface", () => {
             wasNpmInstallCallValid(installUrl, packageRegistry);
             wasWriteFileSyncCallValid({}, packageName, {
                 package: installUrl,
+                registry: packageRegistry,
+                version: packageVersion
+            });
+        });
+
+        it("should install plugin that does not define profiles", async () => {
+            mocks.ConfigurationLoader_load.mockReturnValueOnce({});
+            await install(packageName, packageRegistry);
+
+            // Validate the install
+            wasNpmInstallCallValid(packageName, packageRegistry, false);
+            wasWriteFileSyncCallValid({}, packageName, {
+                package: packageName,
                 registry: packageRegistry,
                 version: packageVersion
             });
