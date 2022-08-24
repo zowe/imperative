@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed exception when non-string passed to ImperativeExpect.toBeDefinedAndNonBlank(). [#856](https://github.com/zowe/imperative/issues/856)
+
 ## `5.4.3`
 
 - BugFix: Removed periods in command example descriptions so descriptions look syntactically correct. [#795](https://github.com/zowe/imperative/issues/795)
