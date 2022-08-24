@@ -32,7 +32,7 @@ export interface IGetItemVal {
  * It can also be something in the runtime environment, like version of NodeJS.
  */
 export class EnvQuery {
-    private static readonly divider = "\n______________________________________________\n";
+    private static readonly divider = "______________________________________________\n";
     private static readonly indent = "    ";
 
     // __________________________________________________________________________
@@ -93,9 +93,7 @@ export class EnvQuery {
                 break;
             }
             case ItemId.NPM_VER: {
-                getResult.itemVal = this.getCmdOutput("npm", ["--version"]);
-                getResult.itemValMsg = this.divider + "NPM information:\n" + this.indent +
-                    this.getCmdOutput("npm", ["config", "list"]).replace(/(\r?\n|\r)/g, "$1" + this.indent);
+                this.getNpmInfo(getResult);
                 break;
             }
             case ItemId.ZOWE_CONFIG_TYPE: {
@@ -103,7 +101,7 @@ export class EnvQuery {
                 break;
             }
             case ItemId.ZOWE_PLUGINS: {
-                getResult.itemValMsg = this.divider + this.getCmdOutput("zowe", ["plugins", "list"]);
+                getResult.itemValMsg = this.divider + this.getCmdOutput("zowe", ["plugins", "list"]) + this.divider;
                 break;
             }
             default: {
@@ -170,7 +168,32 @@ export class EnvQuery {
         else {
             getResult.itemVal = "No version found in CLI package.json!";
         }
-        getResult.itemValMsg = "Zowe CLI version = " + getResult.itemVal;
+        getResult.itemValMsg =  this.divider + "Zowe CLI version = " + getResult.itemVal;
+    }
+
+    // __________________________________________________________________________
+    /**
+     * Get information about the NPM configuration.
+     *
+     * @param getResult The itemVal and itemValMsg properties are filled
+     *                  by this function.
+     */
+    private static getNpmInfo(getResult: IGetItemVal): void {
+        getResult.itemVal = this.getCmdOutput("npm", ["--version"]);
+        getResult.itemValMsg  = "\nNPM version = " + this.getCmdOutput("npm", ["config", "get", "npm-version"]);
+        getResult.itemValMsg += "\nShell = " + this.getCmdOutput("npm", ["config", "get", "shell"]);
+        getResult.itemValMsg += "\nGlobal prefix = " + this.getCmdOutput("npm", ["prefix", "-g"]);
+        getResult.itemValMsg += "\nGlobal root node modules = " + this.getCmdOutput("npm", ["root", "-g"]);
+        getResult.itemValMsg += "\nGlobal config = " + this.getCmdOutput("npm", ["config", "get", "globalconfig"]);
+        getResult.itemValMsg += "\nLocal prefix = " + this.getCmdOutput("npm", ["prefix"]);
+        getResult.itemValMsg += "\nLocal root node modules = " + this.getCmdOutput("npm", ["root"]);
+        getResult.itemValMsg += "\nUser config = " + this.getCmdOutput("npm", ["config", "get", "userconfig"]);
+        getResult.itemValMsg += "\n\n" + this.getCmdOutput("npm", ["config", "list"]).match(
+            /.*registry =.*\n|"project.*\n|node bin location.*\n|cwd.*\n|HOME.*\n/g
+        ).join("");
+
+        getResult.itemValMsg  = this.divider + "NPM information:\n" + this.indent +
+            getResult.itemValMsg.replace(/(\r?\n|\r)/g, "$1" + this.indent);
     }
 
     // __________________________________________________________________________
@@ -188,7 +211,7 @@ export class EnvQuery {
         } else {
             getResult.itemVal = v1Profiles;
         }
-        getResult.itemValMsg =  this.divider + "Zowe CLI configuration information:\n" +
+        getResult.itemValMsg =  this.divider + "Zowe CLI configuration information:\n\n" +
             this.indent + "Zowe Config type = " + getResult.itemVal;
     }
 
