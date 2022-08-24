@@ -212,8 +212,6 @@ export class EnvQuery {
                 if (spawnResult.stderr) {
                     cmdOutput += "\nReason = " + spawnResult.stderr.toString();
                 }
-                cmdOutput = TextUtils.chalk.green(cmdOutput);
-
             }
         } catch (err) {
             cmdOutput = "Failed to run commmand = " + cmdToRun + " " + args.join(" ");
