@@ -18,7 +18,6 @@
 export enum ItemId {
     ZOWE_VER,
     NODEJS_VER,
-    NPM_VER,
     NVM_VER,
     PLATFORM,
     ARCHITECTURE,
@@ -26,6 +25,7 @@ export enum ItemId {
     ZOWE_APP_LOG_LEVEL,
     ZOWE_IMPERATIVE_LOG_LEVEL,
     OTHER_ZOWE_VARS,    // Zowe variables not listed above
+    NPM_VER,
     ZOWE_CONFIG_TYPE,   // detect if we have V1 profiles or V2 config
     ZOWE_PLUGINS
 }

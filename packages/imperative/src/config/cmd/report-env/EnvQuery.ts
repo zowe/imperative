@@ -32,6 +32,9 @@ export interface IGetItemVal {
  * It can also be something in the runtime environment, like version of NodeJS.
  */
 export class EnvQuery {
+    private static readonly divider = "\n______________________________________________\n";
+    private static readonly indent = "    ";
+
     // __________________________________________________________________________
     /**
      * For the specified itemId, get its value.
@@ -50,11 +53,6 @@ export class EnvQuery {
             case ItemId.NODEJS_VER: {
                 getResult.itemVal = process.versions.node;
                 getResult.itemValMsg = "NodeJS version = " + getResult.itemVal;
-                break;
-            }
-            case ItemId.NPM_VER: {
-                getResult.itemVal = this.getCmdOutput("npm", ["--version"]);
-                getResult.itemValMsg = "NPM version = " + getResult.itemVal;
                 break;
             }
             case ItemId.NVM_VER: {
@@ -77,7 +75,7 @@ export class EnvQuery {
                 if (getResult.itemVal === undefined) {
                     getResult.itemVal += "   Default = " + path.normalize(ImperativeConfig.instance.cliHome);
                 }
-                getResult.itemValMsg = "\nZOWE_CLI_HOME = " + getResult.itemVal;
+                getResult.itemValMsg = "ZOWE_CLI_HOME = " + getResult.itemVal;
                 break;
             }
             case ItemId.ZOWE_APP_LOG_LEVEL: {
@@ -94,12 +92,18 @@ export class EnvQuery {
                 this.getOtherZoweEnvVars(getResult);
                 break;
             }
+            case ItemId.NPM_VER: {
+                getResult.itemVal = this.getCmdOutput("npm", ["--version"]);
+                getResult.itemValMsg = this.divider + "NPM information:\n" + this.indent +
+                    this.getCmdOutput("npm", ["config", "list"]).replace(/(\r?\n|\r)/g, "$1" + this.indent);
+                break;
+            }
             case ItemId.ZOWE_CONFIG_TYPE: {
                 this.getConfigInfo(getResult);
                 break;
             }
             case ItemId.ZOWE_PLUGINS: {
-                getResult.itemValMsg = this.getCmdOutput("zowe", ["plugins", "list"]);
+                getResult.itemValMsg = this.divider + this.getCmdOutput("zowe", ["plugins", "list"]);
                 break;
             }
             default: {
@@ -184,7 +188,8 @@ export class EnvQuery {
         } else {
             getResult.itemVal = v1Profiles;
         }
-        getResult.itemValMsg =  "\nZowe Config type = " + getResult.itemVal;
+        getResult.itemValMsg =  this.divider + "Zowe CLI configuration information:\n" +
+            this.indent + "Zowe Config type = " + getResult.itemVal;
     }
 
     // __________________________________________________________________________
