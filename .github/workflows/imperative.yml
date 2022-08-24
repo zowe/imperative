@@ -13,9 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Temporary workaround for regression in npm@8.11 and newer
-        # node-version: [14.x, 16.x, 18.x]
-        node-version: [14.x, 16.15.0, 18.2.0]
+        node-version: [14.x, 16.x, 18.x]
         os: [windows-2019, ubuntu-latest, macos-latest]
 
     env:
@@ -35,9 +33,10 @@ jobs:
         fetch-depth: 0
 
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
+        check-latest: true
 
     - name: Install Dependencies
       run: npm ci
