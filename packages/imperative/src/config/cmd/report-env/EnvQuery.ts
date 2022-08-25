@@ -34,7 +34,6 @@ export interface IGetItemVal {
 export class EnvQuery {
     private static readonly divider = "______________________________________________\n";
     private static readonly indent = "    ";
-    private static runningAsDaemon: boolean = false;
 
     // __________________________________________________________________________
     /**
@@ -217,6 +216,12 @@ export class EnvQuery {
         getResult.itemValMsg = "Zowe daemon mode = ";
         if (ImperativeConfig.instance.loadedConfig.daemonMode) {
             getResult.itemValMsg += "on";
+
+            // skip the exe version if our NodeJS zowe command gives help
+            const exeVer:string = this.getCmdOutput("zowe", ["--version-exe"]);
+            if (exeVer.match(/DESCRIPTION/) == null) {
+                getResult.itemValMsg += "\nZowe daemon executable version = " + exeVer;
+            }
         } else {
             getResult.itemValMsg += "off";
         }
