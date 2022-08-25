@@ -34,6 +34,7 @@ export interface IGetItemVal {
 export class EnvQuery {
     private static readonly divider = "______________________________________________\n";
     private static readonly indent = "    ";
+    private static runningAsDaemon: boolean = false;
 
     // __________________________________________________________________________
     /**
@@ -192,6 +193,7 @@ export class EnvQuery {
             /.*registry =.*\n|"project.*\n|node bin location.*\n|cwd.*\n|HOME.*\n/g
         ).join("");
 
+        // add indent to each line
         getResult.itemValMsg  = this.divider + "NPM information:\n" + this.indent +
             getResult.itemValMsg.replace(/(\r?\n|\r)/g, "$1" + this.indent);
     }
@@ -211,8 +213,18 @@ export class EnvQuery {
         } else {
             getResult.itemVal = v1Profiles;
         }
-        getResult.itemValMsg =  this.divider + "Zowe CLI configuration information:\n\n" +
-            this.indent + "Zowe Config type = " + getResult.itemVal;
+
+        getResult.itemValMsg = "Zowe daemon mode = ";
+        if (ImperativeConfig.instance.loadedConfig.daemonMode) {
+            getResult.itemValMsg += "on";
+        } else {
+            getResult.itemValMsg += "off";
+        }
+        getResult.itemValMsg += "\nZowe Config type = " + getResult.itemVal + "\n";
+
+        // add indent to each line
+        getResult.itemValMsg  = this.divider + "Zowe CLI configuration information:\n\n" + this.indent +
+            getResult.itemValMsg.replace(/(\r?\n|\r)/g, "$1" + this.indent);
     }
 
     // __________________________________________________________________________
@@ -290,4 +302,5 @@ export class EnvQuery {
         if (getResult.itemValMsg.length == 0) {
             getResult.itemValMsg += "No other 'ZOWE_' variables have been set.";
         }
-    }}
+    }
+}
