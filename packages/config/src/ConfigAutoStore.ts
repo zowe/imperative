@@ -149,8 +149,9 @@ export class ConfigAutoStore {
         }
 
         const beforeLayer = config.api.layers.get();
-        if (config.api.profiles.exists(profileName)) {
-            const { user, global } = config.api.layers.find(profileName);
+        const foundLayer = config.api.layers.find(profileName);
+        if (foundLayer != null) {
+            const { user, global } = foundLayer;
             config.api.layers.activate(user, global);
         }
 
@@ -185,7 +186,7 @@ export class ConfigAutoStore {
             // If secure array at higher level includes this property, then property should be stored at higher level
             if (isSecureProp) {
                 const secureProfilePath = config.api.secure.secureInfoForProp(`${propProfilePath}.properties.${propName}`, true).path;
-                if (secureProfilePath.split(".").length < propProfilePath.split(".").length) {
+                if (secureProfilePath != null && secureProfilePath.split(".").length < propProfilePath.split(".").length) {
                     propProfilePath = secureProfilePath.slice(0, secureProfilePath.lastIndexOf("."));
                 }
             }

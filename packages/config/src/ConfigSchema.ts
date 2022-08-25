@@ -449,7 +449,10 @@ export class ConfigSchema {
         }
 
         // TODO How to handle profile property with multiple types
-        const propertyType = profileSchema.properties[propertyName].type;
-        return Array.isArray(propertyType) ? propertyType[0] : propertyType;
+        const property = profileSchema.properties[propertyName];
+        if (property != null) {
+            const propertyType = profileSchema.properties[propertyName].type;
+            return Array.isArray(propertyType) ? propertyType[0] : propertyType;
+        }
     }
 }

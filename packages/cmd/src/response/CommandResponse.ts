@@ -226,7 +226,7 @@ export class CommandResponse implements ICommandResponseApi {
         ImperativeExpect.toBeOneOf(this.mResponseFormat, formats,
             `${CommandResponse.RESPONSE_ERR_TAG} Response format invalid. Valid formats: "${formats.join(",")}"`);
         this.mSilent = (this.mControl.silent == null) ? false : this.mControl.silent;
-        this.mProgressBarSpinnerChars = (this.mControl.progressBarSpinner == null) ? this.mProgressBarSpinnerChars : params.progressBarSpinner;
+        this.mProgressBarSpinnerChars = (this.mControl.progressBarSpinner == null) ? this.mProgressBarSpinnerChars : this.mControl.progressBarSpinner;
         this.mStream = params ? params.stream : undefined;
     }
 

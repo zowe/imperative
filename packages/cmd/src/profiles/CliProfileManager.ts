@@ -37,6 +37,7 @@ import { SecureOperationFunction } from "../types/SecureOperationFunction";
 import { ICliLoadProfile } from "../doc/profiles/parms/ICliLoadProfile";
 import { ICliLoadAllProfiles } from "../doc/profiles/parms/ICliLoadAllProfiles";
 import { CliUtils } from "../../../utilities/src/CliUtils";
+import { promises } from "dns";
 
 /**
  * A profile management API compatible with transforming command line arguments into
@@ -64,7 +65,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                     name,
                     failNotFound: true,
                     loadDependencies: false,
-                    noSecure: (params != null) ? params.noSecure : undefined
+                    noSecure: params.noSecure
                 }));
             }
         } else {
@@ -360,12 +361,12 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                 this.log.debug("Performing secure operation on property %s", propNamePath);
                 return secureOp(propNamePath, propValue, !prop.optionDefinition.required);
             }
-            return propValue;
+            return Promise.resolve(propValue);
         }
         if (prop.properties != null) {
             if (secureOp && prop.secure) {
                 if (!propValue || Object.keys(propValue).length === 0) { // prevents from performing operations on empty objects
-                    return null;
+                    return Promise.resolve(null);
                 }
 
                 this.log.debug("Performing secure operation on property %s", propNamePath);
@@ -382,10 +383,10 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                         secureOp
                     );
             }
-            return tempProperties;
+            return Promise.resolve(tempProperties);
         }
 
-        return propValue;
+        return Promise.resolve(propValue);
     }
 
     /**
