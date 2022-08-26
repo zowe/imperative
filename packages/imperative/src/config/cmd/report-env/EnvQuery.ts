@@ -223,6 +223,9 @@ export class EnvQuery {
             if (exeVer.match(/DESCRIPTION/) == null) {
                 getResult.itemValMsg += "\nZowe daemon executable version = " + exeVer;
             }
+            getResult.itemValMsg += "\nZowe daemon executable in directory = " +
+                path.normalize(ImperativeConfig.instance.cliHome + "/bin");
+
         } else {
             getResult.itemValMsg += "off";
         }
