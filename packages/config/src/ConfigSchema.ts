@@ -444,15 +444,13 @@ export class ConfigSchema {
 
         const profileSchemas = schema ? this.loadSchema(schema) : ImperativeConfig.instance.loadedConfig.profiles;
         const profileSchema = profileSchemas.find(p => p.type === profileType)?.schema;
-        if (profileSchema?.properties[propertyName] == null) {
-            return;
-        }
-
-        // TODO How to handle profile property with multiple types
-        const property = profileSchema.properties[propertyName];
-        if (property != null) {
-            const propertyType = profileSchema.properties[propertyName].type;
-            return Array.isArray(propertyType) ? propertyType[0] : propertyType;
+        if (profileSchema != null && profileSchema.properties[propertyName] != null) {
+            // TODO How to handle profile property with multiple types
+            const property = profileSchema.properties[propertyName];
+            if (property != null) {
+                const propertyType = profileSchema.properties[propertyName].type;
+                return Array.isArray(propertyType) ? propertyType[0] : propertyType;
+            }
         }
     }
 }

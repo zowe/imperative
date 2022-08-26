@@ -185,7 +185,9 @@ export class ConfigAutoStore {
 
             // If secure array at higher level includes this property, then property should be stored at higher level
             if (isSecureProp) {
-                const secureProfilePath = config.api.secure.secureInfoForProp(`${propProfilePath}.properties.${propName}`, true).path;
+                const secureProfile = config.api.secure.secureInfoForProp(`${propProfilePath}.properties.${propName}`, true);
+                let secureProfilePath: string;
+                if (secureProfile != null) secureProfilePath = secureProfile.path;
                 if (secureProfilePath != null && secureProfilePath.split(".").length < propProfilePath.split(".").length) {
                     propProfilePath = secureProfilePath.slice(0, secureProfilePath.lastIndexOf("."));
                 }
