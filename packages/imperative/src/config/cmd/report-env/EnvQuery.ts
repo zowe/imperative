@@ -183,6 +183,7 @@ export class EnvQuery {
         getResult.itemValMsg  = "\nNPM version = " + this.getCmdOutput("npm", ["config", "get", "npm-version"]);
         getResult.itemValMsg += "\nShell = " + this.getCmdOutput("npm", ["config", "get", "shell"]);
         getResult.itemValMsg += "\nGlobal prefix = " + this.getCmdOutput("npm", ["prefix", "-g"]);
+        getResult.itemValMsg += "\n" + this.indent + "The directory above contains the Zowe NodeJs command script.";
         getResult.itemValMsg += "\nGlobal root node modules = " + this.getCmdOutput("npm", ["root", "-g"]);
         getResult.itemValMsg += "\nGlobal config = " + this.getCmdOutput("npm", ["config", "get", "globalconfig"]);
         getResult.itemValMsg += "\nLocal prefix = " + this.getCmdOutput("npm", ["prefix"]);
