@@ -37,7 +37,6 @@ import { SecureOperationFunction } from "../types/SecureOperationFunction";
 import { ICliLoadProfile } from "../doc/profiles/parms/ICliLoadProfile";
 import { ICliLoadAllProfiles } from "../doc/profiles/parms/ICliLoadAllProfiles";
 import { CliUtils } from "../../../utilities/src/CliUtils";
-import { promises } from "dns";
 
 /**
  * A profile management API compatible with transforming command line arguments into
