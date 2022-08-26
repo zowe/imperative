@@ -13,12 +13,12 @@ jest.mock("path");
 jest.mock("../../../../logger/src/Logger");
 jest.mock("../../../../utilities/src/ImperativeConfig");
 
-import { EnvironmentalVariableSettings } from "../../..";
 import Mock = jest.Mock;
 
 describe("PMFConstants", () => {
     let {PMFConstants} = require("../../../src/plugins/utilities/PMFConstants");
     let {ImperativeConfig} = require("../../../../utilities/src/ImperativeConfig");
+    let {EnvironmentalVariableSettings} = require("../../../src/env/EnvironmentalVariableSettings");
     let {join} = require("path");
 
     const cliInstallDir = "installed";
@@ -30,6 +30,7 @@ describe("PMFConstants", () => {
         jest.resetModules();
         ({PMFConstants} = await import("../../../src/plugins/utilities/PMFConstants"));
         ({ImperativeConfig} = await import("../../../../utilities/src/ImperativeConfig"));
+        ({EnvironmentalVariableSettings} = await import("../../../src/env/EnvironmentalVariableSettings"));
         ({join} = await import("path"));
 
         mocks.join = join;
@@ -39,7 +40,9 @@ describe("PMFConstants", () => {
         const pmfRoot = `${ImperativeConfig.instance.cliHome}/plugins`;
         const pluginJson = `${pmfRoot}/plugins.json`;
 
-        jest.spyOn(EnvironmentalVariableSettings, "read").mockReturnValueOnce({} as any);
+        jest.spyOn(EnvironmentalVariableSettings, "read").mockReturnValueOnce({
+            pluginsDir: {}
+        } as any);
         mocks.join.mockReturnValueOnce(pmfRoot)
             .mockReturnValueOnce(pluginJson)
             .mockReturnValueOnce(cliInstallDir);
@@ -54,15 +57,13 @@ describe("PMFConstants", () => {
     });
 
     it("should initialize properly with custom plugins dir", () => {
-        const pluginsDir = "/tmp/zowe";
-        const pmfRoot = `${pluginsDir}/plugins`;
+        const pmfRoot = "/tmp/zowe-plugins";
         const pluginJson = `${pmfRoot}/plugins.json`;
 
         jest.spyOn(EnvironmentalVariableSettings, "read").mockReturnValueOnce({
-            pluginsDir: { value: pluginsDir }
+            pluginsDir: { value: pmfRoot }
         } as any);
-        mocks.join.mockReturnValueOnce(pmfRoot)
-            .mockReturnValueOnce(pluginJson)
+        mocks.join.mockReturnValueOnce(pluginJson)
             .mockReturnValueOnce(cliInstallDir);
 
         const pmf = PMFConstants.instance;
