@@ -353,12 +353,12 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                 this.log.debug("Performing secure operation on property %s", propNamePath);
                 return secureOp(propNamePath, propValue, !prop.optionDefinition.required);
             }
-            Promise.resolve(propValue);
+            return Promise.resolve(propValue);
         }
         if (prop.properties != null) {
             if (secureOp && prop.secure) {
                 if (!propValue || Object.keys(propValue).length === 0) { // prevents from performing operations on empty objects
-                    Promise.resolve(null);
+                    return Promise.resolve(null);
                 }
 
                 this.log.debug("Performing secure operation on property %s", propNamePath);
