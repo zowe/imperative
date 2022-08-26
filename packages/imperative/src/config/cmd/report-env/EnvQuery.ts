@@ -219,9 +219,9 @@ export class EnvQuery {
             getResult.itemValMsg += "on";
 
             // skip the exe version if our NodeJS zowe command gives help
-            const exeVer:string = this.getCmdOutput("zowe", ["--version-exe"]);
-            if (exeVer.match(/DESCRIPTION/) == null) {
-                getResult.itemValMsg += "\nZowe daemon executable version = " + exeVer;
+            const cmdOutput: string = this.getCmdOutput("zowe", ["--version-exe"]);
+            if (cmdOutput.match(/DESCRIPTION/) == null) {
+                getResult.itemValMsg += "\nZowe daemon executable version = " + cmdOutput;
             }
             getResult.itemValMsg += "\nZowe daemon executable in directory = " +
                 path.normalize(ImperativeConfig.instance.cliHome + "/bin");
@@ -229,7 +229,15 @@ export class EnvQuery {
         } else {
             getResult.itemValMsg += "off";
         }
-        getResult.itemValMsg += "\nZowe Config type = " + getResult.itemVal + "\n";
+        getResult.itemValMsg += "\nZowe Config type = " + getResult.itemVal;
+
+        // grab all
+        if ( getResult.itemVal == teamCfg) {
+            getResult.itemValMsg += "\nTeam config files in effect:\n";
+            getResult.itemValMsg += this.indent +
+                this.getCmdOutput("zowe", ["config", "list", "--locations"]).match(
+                    /.*zowe\.config.*\.json:.*\n/g).join(this.indent);
+        }
 
         // add indent to each line
         getResult.itemValMsg  = this.divider + "Zowe CLI configuration information:\n\n" + this.indent +
