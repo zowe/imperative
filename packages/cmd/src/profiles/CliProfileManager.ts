@@ -64,7 +64,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                     name,
                     failNotFound: true,
                     loadDependencies: false,
-                    noSecure: (params != null) ? params.noSecure : undefined
+                    noSecure: params.noSecure
                 }));
             }
         } else {
@@ -343,7 +343,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
      * @returns {Promise<any>} Processed version of a property
      */
     private async findOptions(prop: ICommandProfileProperty, propNamePath: string, propValue: any, secureOp?: SecureOperationFunction): Promise<any> {
-        if (!isNullOrUndefined(prop.optionDefinition)) {
+        if (prop.optionDefinition != null) {
             // once we reach a property with an option definition,
             // we now have the complete path to the property
             // so we will set the value on the property from the profile
@@ -353,12 +353,12 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                 this.log.debug("Performing secure operation on property %s", propNamePath);
                 return secureOp(propNamePath, propValue, !prop.optionDefinition.required);
             }
-            return propValue;
+            Promise.resolve(propValue);
         }
-        if (!isNullOrUndefined(prop.properties)) {
+        if (prop.properties != null) {
             if (secureOp && prop.secure) {
                 if (!propValue || Object.keys(propValue).length === 0) { // prevents from performing operations on empty objects
-                    return null;
+                    Promise.resolve(null);
                 }
 
                 this.log.debug("Performing secure operation on property %s", propNamePath);
@@ -370,15 +370,15 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                     await this.findOptions(
                         prop.properties[childPropertyName],
                         propNamePath + "." + childPropertyName,
-                        (!isNullOrUndefined(propValue) && !isNullOrUndefined(propValue[childPropertyName])) ?
+                        (propValue != null && propValue[childPropertyName] != null) ?
                             JSON.parse(JSON.stringify(propValue[childPropertyName])) : null,
                         secureOp
                     );
             }
-            return tempProperties;
+            return Promise.resolve(tempProperties);
         }
 
-        return propValue;
+        return Promise.resolve(propValue);
     }
 
     /**
