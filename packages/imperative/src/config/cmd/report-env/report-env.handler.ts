@@ -45,7 +45,8 @@ export default class ReportEnvHandler  implements ICommandHandler {
         {
             this.displayEnvItem(nextItemId, consoleApi);
         }
-        consoleApi.log("This information cantains site-specific data. Redact anything required\n" +
+        const { EOL } = require("os");
+        consoleApi.log(`This information cantains site-specific data. Redact anything required${EOL}` +
             "by your company before sending this information to outside companies."
         );
     }

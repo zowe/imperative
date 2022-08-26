@@ -9,6 +9,7 @@
 *
 */
 
+import * as os from "os";
 import * as path from "path";
 import { spawnSync, StdioOptions } from "child_process";
 
@@ -32,8 +33,11 @@ export interface IGetItemVal {
  * It can also be something in the runtime environment, like version of NodeJS.
  */
 export class EnvQuery {
-    private static readonly divider = "______________________________________________\n";
+    private static readonly divider = `______________________________________________${os.EOL}`;
     private static readonly indent = "    ";
+    private static readonly eolMatch: string = "(\r?\n|\n)";
+    private static readonly allEolRegex = new RegExp(EnvQuery.eolMatch, "g");
+    private static readonly lastEolRegex = new RegExp(EnvQuery.eolMatch + "$");
 
     // __________________________________________________________________________
     /**
@@ -43,11 +47,10 @@ export class EnvQuery {
      * @returns A string with the value of the item.
      */
     public static getEnvItemVal(itemId: ItemId): IGetItemVal {
-        const os = require("os");
         const getResult: IGetItemVal = { itemVal: null, itemValMsg: "", itemProbMsg: "" };
         switch(itemId) {
             case ItemId.ZOWE_VER: {
-                this.getZoweVer(getResult);
+                EnvQuery.getZoweVer(getResult);
                 break;
             }
             case ItemId.NODEJS_VER: {
@@ -56,7 +59,7 @@ export class EnvQuery {
                 break;
             }
             case ItemId.NVM_VER: {
-                getResult.itemVal = this.getCmdOutput("nvm", ["version"]);
+                getResult.itemVal = EnvQuery.getCmdOutput("nvm", ["version"]);
                 getResult.itemValMsg = "Node Version Manager version = " + getResult.itemVal;
                 break;
             }
@@ -73,7 +76,8 @@ export class EnvQuery {
             case ItemId.ZOWE_CLI_HOME: {
                 getResult.itemVal = process.env.ZOWE_CLI_HOME;
                 if (getResult.itemVal === undefined) {
-                    getResult.itemVal += "   Default = " + path.normalize(ImperativeConfig.instance.cliHome);
+                    getResult.itemVal += os.EOL + EnvQuery.indent + "Default = " +
+                        path.normalize(ImperativeConfig.instance.cliHome);
                 }
                 getResult.itemValMsg = "ZOWE_CLI_HOME = " + getResult.itemVal;
                 break;
@@ -89,19 +93,20 @@ export class EnvQuery {
                 break;
             }
             case ItemId.OTHER_ZOWE_VARS: {
-                this.getOtherZoweEnvVars(getResult);
+                EnvQuery.getOtherZoweEnvVars(getResult);
                 break;
             }
             case ItemId.NPM_VER: {
-                this.getNpmInfo(getResult);
+                EnvQuery.getNpmInfo(getResult);
                 break;
             }
             case ItemId.ZOWE_CONFIG_TYPE: {
-                this.getConfigInfo(getResult);
+                EnvQuery.getConfigInfo(getResult);
                 break;
             }
             case ItemId.ZOWE_PLUGINS: {
-                getResult.itemValMsg = this.divider + this.getCmdOutput("zowe", ["plugins", "list"]) + this.divider;
+                getResult.itemValMsg = EnvQuery.divider +
+                    EnvQuery.getCmdOutput("zowe", ["plugins", "list"]) + EnvQuery.divider;
                 break;
             }
             default: {
@@ -110,7 +115,7 @@ export class EnvQuery {
             }
         }
 
-        getResult.itemProbMsg = this.getEnvItemProblems(itemId, getResult.itemVal);
+        getResult.itemProbMsg = EnvQuery.getEnvItemProblems(itemId, getResult.itemVal);
         return getResult;
     }
 
@@ -128,7 +133,7 @@ export class EnvQuery {
             if (itemId == nextProbTest.itemId) {
                 if (EnvQuery.detectProbVal(itemVal, nextProbTest)) {
                     if (probMsgs.length > 0) {
-                        probMsgs += "\n";
+                        probMsgs += os.EOL;
                     }
                     probMsgs += nextProbTest.probMsg;
                 }
@@ -168,7 +173,7 @@ export class EnvQuery {
         else {
             getResult.itemVal = "No version found in CLI package.json!";
         }
-        getResult.itemValMsg =  this.divider + "Zowe CLI version = " + getResult.itemVal;
+        getResult.itemValMsg =  EnvQuery.divider + "Zowe CLI version = " + getResult.itemVal;
     }
 
     // __________________________________________________________________________
@@ -179,23 +184,23 @@ export class EnvQuery {
      *                  by this function.
      */
     private static getNpmInfo(getResult: IGetItemVal): void {
-        getResult.itemVal = this.getCmdOutput("npm", ["--version"]);
-        getResult.itemValMsg  = "\nNPM version = " + this.getCmdOutput("npm", ["config", "get", "npm-version"]);
-        getResult.itemValMsg += "\nShell = " + this.getCmdOutput("npm", ["config", "get", "shell"]);
-        getResult.itemValMsg += "\nGlobal prefix = " + this.getCmdOutput("npm", ["prefix", "-g"]);
-        getResult.itemValMsg += "\n" + this.indent + "The directory above contains the Zowe NodeJs command script.";
-        getResult.itemValMsg += "\nGlobal root node modules = " + this.getCmdOutput("npm", ["root", "-g"]);
-        getResult.itemValMsg += "\nGlobal config = " + this.getCmdOutput("npm", ["config", "get", "globalconfig"]);
-        getResult.itemValMsg += "\nLocal prefix = " + this.getCmdOutput("npm", ["prefix"]);
-        getResult.itemValMsg += "\nLocal root node modules = " + this.getCmdOutput("npm", ["root"]);
-        getResult.itemValMsg += "\nUser config = " + this.getCmdOutput("npm", ["config", "get", "userconfig"]);
-        getResult.itemValMsg += "\n\n" + this.getCmdOutput("npm", ["config", "list"]).match(
+        getResult.itemVal = EnvQuery.getCmdOutput("npm", ["--version"]);
+        getResult.itemValMsg  = `${os.EOL}NPM version = ` + EnvQuery.getCmdOutput("npm", ["config", "get", "npm-version"]);
+        getResult.itemValMsg += `${os.EOL}Shell = ` + EnvQuery.getCmdOutput("npm", ["config", "get", "shell"]);
+        getResult.itemValMsg += `${os.EOL}Global prefix = ` + EnvQuery.getCmdOutput("npm", ["prefix", "-g"]);
+        getResult.itemValMsg += os.EOL + EnvQuery.indent + "The directory above contains the Zowe NodeJs command script.";
+        getResult.itemValMsg += `${os.EOL}Global root node modules = ` + EnvQuery.getCmdOutput("npm", ["root", "-g"]);
+        getResult.itemValMsg += `${os.EOL}Global config = ` + EnvQuery.getCmdOutput("npm", ["config", "get", "globalconfig"]);
+        getResult.itemValMsg += `${os.EOL}Local prefix = ` + EnvQuery.getCmdOutput("npm", ["prefix"]);
+        getResult.itemValMsg += `${os.EOL}Local root node modules = ` + EnvQuery.getCmdOutput("npm", ["root"]);
+        getResult.itemValMsg += `${os.EOL}User config = ` + EnvQuery.getCmdOutput("npm", ["config", "get", "userconfig"]);
+        getResult.itemValMsg += os.EOL + os.EOL + EnvQuery.getCmdOutput("npm", ["config", "list"]).match(
             /.*registry =.*\n|"project.*\n|node bin location.*\n|cwd.*\n|HOME.*\n/g
         ).join("");
 
         // add indent to each line
-        getResult.itemValMsg  = this.divider + "NPM information:\n" + this.indent +
-            getResult.itemValMsg.replace(/(\r?\n|\r)/g, "$1" + this.indent);
+        getResult.itemValMsg  = EnvQuery.divider + "NPM information:" + os.EOL+ EnvQuery.indent +
+            getResult.itemValMsg.replace(EnvQuery.allEolRegex, "$1" + EnvQuery.indent);
     }
 
     // __________________________________________________________________________
@@ -219,29 +224,38 @@ export class EnvQuery {
             getResult.itemValMsg += "on";
 
             // skip the exe version if our NodeJS zowe command gives help
-            const cmdOutput: string = this.getCmdOutput("zowe", ["--version-exe"]);
+            const cmdOutput: string = EnvQuery.getCmdOutput("zowe", ["--version-exe"]);
             if (cmdOutput.match(/DESCRIPTION/) == null) {
-                getResult.itemValMsg += "\nZowe daemon executable version = " + cmdOutput;
+                getResult.itemValMsg += `${os.EOL}Zowe daemon executable version = ` + cmdOutput;
             }
-            getResult.itemValMsg += "\nZowe daemon executable in directory = " +
+            getResult.itemValMsg += `${os.EOL}Zowe daemon executable in directory = ` +
                 path.normalize(ImperativeConfig.instance.cliHome + "/bin");
 
         } else {
             getResult.itemValMsg += "off";
         }
-        getResult.itemValMsg += "\nZowe Config type = " + getResult.itemVal;
+        getResult.itemValMsg += `${os.EOL}Zowe config type = ` + getResult.itemVal;
 
-        // grab all
+        /* Display all relevant zowe team config files.
+         * Replace colon at end of config file name and indent another level.
+         */
         if ( getResult.itemVal == teamCfg) {
-            getResult.itemValMsg += "\nTeam config files in effect:\n";
-            getResult.itemValMsg += this.indent +
-                this.getCmdOutput("zowe", ["config", "list", "--locations"]).match(
-                    /.*zowe\.config.*\.json:.*\n/g).join(this.indent);
+            getResult.itemValMsg += `${os.EOL}Team config files in effect:${os.EOL}`;
+            getResult.itemValMsg += EnvQuery.indent +
+                EnvQuery.getCmdOutput("zowe", ["config", "list", "--locations"])
+                    .match(/.*zowe\.config.*\.json:.*\n/g).join(EnvQuery.indent);
+
+            // display all available zowe profile names
+            getResult.itemValMsg += `Available profile names:${os.EOL}`;
+            getResult.itemValMsg += EnvQuery.indent +
+                EnvQuery.getCmdOutput("zowe", ["config", "profiles"])
+                    .replace(EnvQuery.allEolRegex, "$1" + EnvQuery.indent) + os.EOL;
         }
 
         // add indent to each line
-        getResult.itemValMsg  = this.divider + "Zowe CLI configuration information:\n\n" + this.indent +
-            getResult.itemValMsg.replace(/(\r?\n|\r)/g, "$1" + this.indent);
+        getResult.itemValMsg  = EnvQuery.divider + "Zowe CLI configuration information:" +
+            os.EOL + os.EOL + EnvQuery.indent +
+            getResult.itemValMsg.replace(EnvQuery.allEolRegex, "$1" + EnvQuery.indent);
     }
 
     // __________________________________________________________________________
@@ -267,19 +281,19 @@ export class EnvQuery {
             } else {
                 cmdOutput = cmdToRun + " does not appear to be installed.";
                 if (spawnResult.stderr) {
-                    cmdOutput += "\nReason = " + spawnResult.stderr.toString();
+                    cmdOutput += `${os.EOL}Reason = ` + spawnResult.stderr.toString();
                 }
             }
         } catch (err) {
             cmdOutput = "Failed to run commmand = " + cmdToRun + " " + args.join(" ");
             if (err.message) {
-                cmdOutput += "\nDetails = " + err.message;
+                cmdOutput += `${os.EOL}Details = ` + err.message;
             }
             cmdOutput = TextUtils.chalk.red(cmdOutput);
         }
 
         // remove any trailing newline from the output
-        cmdOutput = cmdOutput.replace(/(\r?\n|\r)$/, "");
+        cmdOutput = cmdOutput.replace(EnvQuery.lastEolRegex, "");
 
         if (cmdOutput.length == 0) {
             cmdOutput = "Failed to get any information from " + cmdToRun + " " + args.join(" ");
@@ -310,12 +324,12 @@ export class EnvQuery {
                     getResult.itemValMsg += envVars[nextVar];
 
                 }
-                getResult.itemValMsg += "\n";
+                getResult.itemValMsg += os.EOL;
             }
         }
 
         // remove the last newline
-        getResult.itemValMsg = getResult.itemValMsg.replace(/(\r?\n|\r)$/, "");
+        getResult.itemValMsg = getResult.itemValMsg.replace(EnvQuery.lastEolRegex, "");
         if (getResult.itemValMsg.length == 0) {
             getResult.itemValMsg += "No other 'ZOWE_' variables have been set.";
         }
