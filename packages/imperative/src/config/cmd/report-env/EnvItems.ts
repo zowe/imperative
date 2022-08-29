@@ -21,6 +21,7 @@ export enum ItemId {
     NVM_VER,
     PLATFORM,
     ARCHITECTURE,
+    OS_PATH,
     ZOWE_CLI_HOME,
     ZOWE_APP_LOG_LEVEL,
     ZOWE_IMPERATIVE_LOG_LEVEL,

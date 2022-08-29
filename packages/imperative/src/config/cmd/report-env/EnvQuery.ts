@@ -55,6 +55,7 @@ export class EnvQuery {
             }
             case ItemId.NODEJS_VER: {
                 getResult.itemVal = process.versions.node;
+                getResult.itemVal = "17.0.5"; // zzz
                 getResult.itemValMsg = "NodeJS version = " + getResult.itemVal;
                 break;
             }
@@ -73,17 +74,23 @@ export class EnvQuery {
                 getResult.itemValMsg = "O.S. architecture = " + getResult.itemVal;
                 break;
             }
+            case ItemId.OS_PATH: {
+                getResult.itemVal = process.env.PATH;
+                getResult.itemValMsg = os.EOL + "O.S. PATH = " + getResult.itemVal;
+                break;
+            }
             case ItemId.ZOWE_CLI_HOME: {
                 getResult.itemVal = process.env.ZOWE_CLI_HOME;
                 if (getResult.itemVal === undefined) {
                     getResult.itemVal += os.EOL + EnvQuery.indent + "Default = " +
                         path.normalize(ImperativeConfig.instance.cliHome);
                 }
-                getResult.itemValMsg = "ZOWE_CLI_HOME = " + getResult.itemVal;
+                getResult.itemValMsg = os.EOL + "ZOWE_CLI_HOME = " + getResult.itemVal;
                 break;
             }
             case ItemId.ZOWE_APP_LOG_LEVEL: {
                 getResult.itemVal = process.env.ZOWE_APP_LOG_LEVEL;
+                getResult.itemVal = "bogusValue"; // zzz
                 getResult.itemValMsg = "ZOWE_APP_LOG_LEVEL = " + getResult.itemVal;
                 break;
             }
@@ -185,6 +192,7 @@ export class EnvQuery {
      */
     private static getNpmInfo(getResult: IGetItemVal): void {
         getResult.itemVal = EnvQuery.getCmdOutput("npm", ["--version"]);
+        getResult.itemVal = "8.12.0"; // zzz
         getResult.itemValMsg  = `${os.EOL}NPM version = ` + EnvQuery.getCmdOutput("npm", ["config", "get", "npm-version"]);
         getResult.itemValMsg += `${os.EOL}Shell = ` + EnvQuery.getCmdOutput("npm", ["config", "get", "shell"]);
         getResult.itemValMsg += `${os.EOL}Global prefix = ` + EnvQuery.getCmdOutput("npm", ["prefix", "-g"]);
@@ -228,7 +236,7 @@ export class EnvQuery {
             if (exeVerOutput.match(/DESCRIPTION/) == null) {
                 getResult.itemValMsg += `${os.EOL}Zowe daemon executable version = ` + exeVerOutput;
             }
-            getResult.itemValMsg += `${os.EOL}Zowe daemon executable in directory = ` +
+            getResult.itemValMsg += `${os.EOL}Default Zowe daemon executable directory = ` +
                 path.normalize(ImperativeConfig.instance.cliHome + "/bin");
 
         } else {
