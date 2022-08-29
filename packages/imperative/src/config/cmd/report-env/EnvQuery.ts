@@ -55,7 +55,6 @@ export class EnvQuery {
             }
             case ItemId.NODEJS_VER: {
                 getResult.itemVal = process.versions.node;
-                getResult.itemVal = "17.0.5"; // zzz
                 getResult.itemValMsg = "NodeJS version = " + getResult.itemVal;
                 break;
             }
@@ -90,7 +89,6 @@ export class EnvQuery {
             }
             case ItemId.ZOWE_APP_LOG_LEVEL: {
                 getResult.itemVal = process.env.ZOWE_APP_LOG_LEVEL;
-                getResult.itemVal = "bogusValue"; // zzz
                 getResult.itemValMsg = "ZOWE_APP_LOG_LEVEL = " + getResult.itemVal;
                 break;
             }
@@ -192,7 +190,6 @@ export class EnvQuery {
      */
     private static getNpmInfo(getResult: IGetItemVal): void {
         getResult.itemVal = EnvQuery.getCmdOutput("npm", ["--version"]);
-        getResult.itemVal = "8.12.0"; // zzz
         getResult.itemValMsg  = `${os.EOL}NPM version = ` + EnvQuery.getCmdOutput("npm", ["config", "get", "npm-version"]);
         getResult.itemValMsg += `${os.EOL}Shell = ` + EnvQuery.getCmdOutput("npm", ["config", "get", "shell"]);
         getResult.itemValMsg += `${os.EOL}Global prefix = ` + EnvQuery.getCmdOutput("npm", ["prefix", "-g"]);
