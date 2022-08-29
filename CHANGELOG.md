@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.5.0`
 
 - Enhancement: Added ZOWE_CLI_PLUGINS_DIR environment variable to override location where plugins are installed. [zowe/zowe-cli#1483](https://github.com/zowe/zowe-cli/issues/1483)
 - BugFix: Fixed exception when non-string passed to ImperativeExpect.toBeDefinedAndNonBlank(). [#856](https://github.com/zowe/imperative/issues/856)
