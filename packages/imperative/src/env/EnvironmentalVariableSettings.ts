@@ -61,6 +61,14 @@ export class EnvironmentalVariableSettings {
      */
     public static readonly PROMPT_PHRASE_SUFFIX = "_PROMPT_PHRASE";
 
+    /**
+     * The end of the environmental variable for configuring the plugins directory for your CLI
+     * The prefix will be added to the beginning of this value to contruct the full key
+     * @type {string}
+     * @memberof EnvironmentalVariableSettings
+     */
+    public static readonly CLI_PLUGINS_DIR_SUFFIX = "_CLI_PLUGINS_DIR";
+
 
     /**
      * Read all environmental variable settings for a CLI
@@ -88,6 +96,8 @@ export class EnvironmentalVariableSettings {
                 getSetting(prefix + this.PROMPT_PHRASE_SUFFIX),
             maskOutput:
                 getSetting(prefix + this.APP_MASK_OUTPUT_SUFFIX, Constants.DEFAULT_MASK_OUTPUT),
+            pluginsDir:
+                getSetting(prefix + this.CLI_PLUGINS_DIR_SUFFIX)
         };
     }
 }

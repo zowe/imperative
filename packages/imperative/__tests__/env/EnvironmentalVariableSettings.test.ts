@@ -30,6 +30,7 @@ describe("EnvironmentalVariableSettings tests", () => {
             cliHome: getSetting(prefix + EnvironmentalVariableSettings.CLI_HOME_SUFFIX),
             promptPhrase: getSetting(prefix + EnvironmentalVariableSettings.PROMPT_PHRASE_SUFFIX),
             maskOutput: getSetting(prefix + EnvironmentalVariableSettings.APP_MASK_OUTPUT_SUFFIX, Constants.DEFAULT_MASK_OUTPUT),
+            pluginsDir: getSetting(prefix + EnvironmentalVariableSettings.CLI_PLUGINS_DIR_SUFFIX)
         };
     };
 
@@ -102,6 +103,7 @@ describe("EnvironmentalVariableSettings tests", () => {
             expect(envSettings.cliHome.value).toBeUndefined();
             expect(envSettings.promptPhrase.value).toBeUndefined();
             expect(envSettings.maskOutput.value).toEqual(Constants.DEFAULT_MASK_OUTPUT);
+            expect(envSettings.pluginsDir.value).toBeUndefined();
             expect(envSettings).toEqual(getEnvSettings(prefix));
         });
 
@@ -118,6 +120,7 @@ describe("EnvironmentalVariableSettings tests", () => {
             expect(envSettings.cliHome.value).toBeUndefined();
             expect(envSettings.promptPhrase.value).toBeUndefined();
             expect(envSettings.maskOutput.value).toEqual(maskLogLevel);
+            expect(envSettings.pluginsDir.value).toBeUndefined();
             expect(envSettings).toEqual(getEnvSettings(prefix));
         });
     });

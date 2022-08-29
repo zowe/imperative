@@ -18,8 +18,10 @@ import Mock = jest.Mock;
 describe("PMFConstants", () => {
     let {PMFConstants} = require("../../../src/plugins/utilities/PMFConstants");
     let {ImperativeConfig} = require("../../../../utilities/src/ImperativeConfig");
+    let {EnvironmentalVariableSettings} = require("../../../src/env/EnvironmentalVariableSettings");
     let {join} = require("path");
 
+    const cliInstallDir = "installed";
     const mocks = {
         join: join as Mock<typeof join>
     };
@@ -28,6 +30,7 @@ describe("PMFConstants", () => {
         jest.resetModules();
         ({PMFConstants} = await import("../../../src/plugins/utilities/PMFConstants"));
         ({ImperativeConfig} = await import("../../../../utilities/src/ImperativeConfig"));
+        ({EnvironmentalVariableSettings} = await import("../../../src/env/EnvironmentalVariableSettings"));
         ({join} = await import("path"));
 
         mocks.join = join;
@@ -36,11 +39,31 @@ describe("PMFConstants", () => {
     it("should initialize properly", () => {
         const pmfRoot = `${ImperativeConfig.instance.cliHome}/plugins`;
         const pluginJson = `${pmfRoot}/plugins.json`;
-        const cliInstallDir = "installed";
 
-        mocks.join
-            .mockReturnValueOnce(pmfRoot)
+        jest.spyOn(EnvironmentalVariableSettings, "read").mockReturnValueOnce({
+            pluginsDir: {}
+        } as any);
+        mocks.join.mockReturnValueOnce(pmfRoot)
             .mockReturnValueOnce(pluginJson)
+            .mockReturnValueOnce(cliInstallDir);
+
+        const pmf = PMFConstants.instance;
+
+        expect(pmf.PMF_ROOT).toBe(pmfRoot);
+        expect(pmf.PLUGIN_JSON).toBe(pluginJson);
+        expect(pmf.PLUGIN_INSTALL_LOCATION).toBe(cliInstallDir);
+        expect(pmf.CLI_CORE_PKG_NAME).toBe(ImperativeConfig.instance.hostPackageName);
+        expect(pmf.IMPERATIVE_PKG_NAME).toBe(ImperativeConfig.instance.imperativePackageName);
+    });
+
+    it("should initialize properly with custom plugins dir", () => {
+        const pmfRoot = "/tmp/zowe-plugins";
+        const pluginJson = `${pmfRoot}/plugins.json`;
+
+        jest.spyOn(EnvironmentalVariableSettings, "read").mockReturnValueOnce({
+            pluginsDir: { value: pmfRoot }
+        } as any);
+        mocks.join.mockReturnValueOnce(pluginJson)
             .mockReturnValueOnce(cliInstallDir);
 
         const pmf = PMFConstants.instance;
@@ -54,14 +77,18 @@ describe("PMFConstants", () => {
 
     describe("platform specific checks", () => {
         // Be sure to remember the current platform
-        const platform = process.platform;
+        const realPlatform = process.platform;
 
         afterEach(() => {
-            process.platform = platform;
+            Object.defineProperty(process, "platform", {
+                value: realPlatform
+            });
         });
 
         it("should point to the correct module location (win32)", () => {
-            process.platform = "win32";
+            Object.defineProperty(process, "platform", {
+                value: "win32"
+            });
 
             const pmf = PMFConstants.instance;
 
@@ -69,7 +96,9 @@ describe("PMFConstants", () => {
         });
 
         it("should point to the correct module location (linux)", () => {
-            process.platform = "linux";
+            Object.defineProperty(process, "platform", {
+                value: "linux"
+            });
 
             const pmf = PMFConstants.instance;
 
