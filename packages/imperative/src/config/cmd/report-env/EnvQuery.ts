@@ -224,9 +224,9 @@ export class EnvQuery {
             getResult.itemValMsg += "on";
 
             // skip the exe version if our NodeJS zowe command gives help
-            const cmdOutput: string = EnvQuery.getCmdOutput("zowe", ["--version-exe"]);
-            if (cmdOutput.match(/DESCRIPTION/) == null) {
-                getResult.itemValMsg += `${os.EOL}Zowe daemon executable version = ` + cmdOutput;
+            const exeVerOutput = EnvQuery.getCmdOutput("zowe", ["--version-exe"]);
+            if (exeVerOutput.match(/DESCRIPTION/) == null) {
+                getResult.itemValMsg += `${os.EOL}Zowe daemon executable version = ` + exeVerOutput;
             }
             getResult.itemValMsg += `${os.EOL}Zowe daemon executable in directory = ` +
                 path.normalize(ImperativeConfig.instance.cliHome + "/bin");
@@ -241,15 +241,23 @@ export class EnvQuery {
          */
         if ( getResult.itemVal == teamCfg) {
             getResult.itemValMsg += `${os.EOL}Team config files in effect:${os.EOL}`;
-            getResult.itemValMsg += EnvQuery.indent +
-                EnvQuery.getCmdOutput("zowe", ["config", "list", "--locations"])
-                    .match(/.*zowe\.config.*\.json:.*\n/g).join(EnvQuery.indent);
+            const cfgListOutput = EnvQuery.getCmdOutput("zowe", ["config", "list", "--locations"]);
 
-            // display all available zowe profile names
+            // extract all config file names from 'config list' command
+            getResult.itemValMsg += EnvQuery.indent +
+                cfgListOutput.match(/.*zowe\.config.*\.json:.*\n/g).join(EnvQuery.indent);
+
+            // extract all available zowe profile names from 'config profiles' command
             getResult.itemValMsg += `Available profile names:${os.EOL}`;
             getResult.itemValMsg += EnvQuery.indent +
                 EnvQuery.getCmdOutput("zowe", ["config", "profiles"])
                     .replace(EnvQuery.allEolRegex, "$1" + EnvQuery.indent) + os.EOL;
+
+            // extract default profile names from previous'config list' command
+            const escChar = "\x1B";
+            const defaultsRegex = new RegExp(`.*defaults:(.*)${escChar}.*autoStore:.*`, "ms");
+            getResult.itemValMsg += "Default profile names: " +
+                cfgListOutput.replace(defaultsRegex, "$1");
         }
 
         // add indent to each line
