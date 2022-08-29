@@ -197,6 +197,7 @@ export class WebHelpGenerator {
     private renderMarkdown(markdownContent: string): string {
         if (this.markdownIt == null) {
             this.markdownIt = require("markdown-it")({ breaks: true, linkify: true });
+            this.markdownIt.linkify.set({ fuzzyLink: false });  // Only linkify URLs that have a protocol
         }
 
         return this.markdownIt.render(markdownContent);

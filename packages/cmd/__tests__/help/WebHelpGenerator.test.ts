@@ -28,7 +28,7 @@ describe("WebHelpGenerator", () => {
         let configForHelp: IImperativeConfig;
         let webHelpDirNm: string;
         let rimraf: any;
-        let lorenIpsum: string;
+        let loremIpsum: string;
 
         beforeAll( async () => {
             rimraf = require("rimraf");
@@ -38,7 +38,7 @@ describe("WebHelpGenerator", () => {
             cliHome = "packages/__tests__/fakeCliHome";
             webHelpDirNm = path.join(cliHome, "web-help");
 
-            lorenIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore\n" +
+            loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore\n" +
             "et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n" +
             "consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.\n"+
             "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
@@ -73,7 +73,7 @@ describe("WebHelpGenerator", () => {
                                         name: "test-option",
                                         aliases: ["to"],
                                         type: "string",
-                                        description: lorenIpsum,
+                                        description: loremIpsum,
                                         allowableValues: {
                                             values: ["banana", "coconut"]
                                         },
@@ -81,6 +81,13 @@ describe("WebHelpGenerator", () => {
                                     }
                                 ],
                                 description: "this is a test for wordwrap and default/allowed values"
+                            },
+                            {
+                                name: "linkify",
+                                aliases: ["l"],
+                                type: "command",
+                                options: [],
+                                description: "this is a test for hyperlinks: database.name and https://example.com"
                             }
                         ]
                     }
@@ -154,11 +161,18 @@ describe("WebHelpGenerator", () => {
             expect(fileText).toContain(`<p>${moduleFileNm} hello wordWrap [options]</p>`);
             expect(fileText).toContain(`
 <li>
-<p>${lorenIpsum.split("\n").join("<br>\n")}</p>
+<p>${loremIpsum.split("\n").join("<br>\n")}</p>
 <p>Default value: banana<br>
 Allowed values: banana, coconut</p>
 </li>
 `);
+
+            fileNmToTest = webHelpDocsDirNm + "/" + moduleFileNm + "_hello_linkify.html";
+            fileText = fs.readFileSync(fileNmToTest, "utf8");
+            expect(fileText).toContain("<h4>Usage</h4>");
+            expect(fileText).toContain(`<p>${moduleFileNm} hello linkify [options]</p>`);
+            expect(fileText).toContain(`<p>this is a test for hyperlinks: database.name and ` +
+                `<a href="https://example.com">https://example.com</a></p>`);
 
             // do a reasonable set of generated files exist?
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + ".html")).toBe(true);
