@@ -113,8 +113,7 @@ export class EnvQuery {
                 break;
             }
             case ItemId.ZOWE_PLUGINS: {
-                getResult.itemValMsg = EnvQuery.divider +
-                    EnvQuery.getCmdOutput("zowe", ["plugins", "list"]) + EnvQuery.divider;
+                EnvQuery.getPluginInfo(getResult);
                 break;
             }
             default: {
@@ -366,6 +365,19 @@ export class EnvQuery {
         if (getResult.itemValMsg.length == 0) {
             getResult.itemValMsg += "No other 'ZOWE_' variables have been set.";
         }
+    }
+
+    // __________________________________________________________________________
+    /**
+     * Get information about Zowe plugins.
+     *
+     * @param getResult The itemVal and itemValMsg properties are filled
+     *                  by this function.
+     */
+    private static getPluginInfo(getResult: IGetItemVal): void {
+        let pluginsOutput = EnvQuery.getCmdOutput("zowe", ["plugins", "list"]);
+        pluginsOutput = pluginsOutput.replace(/^.*registry:.*\r?\n|\n$/gm, "");
+        getResult.itemValMsg = EnvQuery.divider + pluginsOutput + EnvQuery.divider;
     }
 
     // __________________________________________________________________________
