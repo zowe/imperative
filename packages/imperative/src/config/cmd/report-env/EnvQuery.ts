@@ -44,7 +44,7 @@ export class EnvQuery {
      * For the specified itemId, get its value.
      *
      * @param itemId ID of the environmental item for which we want get the value.
-     * @returns A string with the value of the item.
+     * @returns An object with the item value, a display message, and a problem message.
      */
     public static getEnvItemVal(itemId: ItemId): IGetItemVal {
         const getResult: IGetItemVal = { itemVal: null, itemValMsg: "", itemProbMsg: "" };
@@ -126,29 +126,6 @@ export class EnvQuery {
 
     // __________________________________________________________________________
     /**
-     * For the specified itemId, get any known problems.
-     *
-     * @param itemId ID of the environmental item for which we want to detect problems.
-     * @param itemVal The value of the environmental item.
-     * @returns A string with a message about the problems. An empty string if no problems are detected.
-     */
-    private static getEnvItemProblems(itemId: ItemId, itemVal: string): string {
-        let probMsgs: string = "";
-        for (const nextProbTest of probTests) {
-            if (itemId == nextProbTest.itemId) {
-                if (EnvQuery.detectProbVal(itemVal, nextProbTest)) {
-                    if (probMsgs.length > 0) {
-                        probMsgs += os.EOL;
-                    }
-                    probMsgs += nextProbTest.probMsg;
-                }
-            }
-        }
-        return probMsgs;
-    }
-
-    // __________________________________________________________________________
-    /**
      * Detect if a specified problem test finds a problem for the specified value.
      *
      * @param itemVal The value of the environmental item.
@@ -165,47 +142,45 @@ export class EnvQuery {
 
     // __________________________________________________________________________
     /**
-     * Get the Zowe version number.
+     * Run a command that displays output.
      *
-     * @param getResult The itemVal and itemValMsg properties are filled
-     *                  by this function.
-     */
-    private static getZoweVer(getResult: IGetItemVal): void {
-        const cliPackageJson: any = ImperativeConfig.instance.callerPackageJson;
-        if (Object.prototype.hasOwnProperty.call(cliPackageJson, "version")) {
-            getResult.itemVal = cliPackageJson.version;
-        }
-        else {
-            getResult.itemVal = "No version found in CLI package.json!";
-        }
-        getResult.itemValMsg =  EnvQuery.divider + "Zowe CLI version = " + getResult.itemVal;
-    }
-
-    // __________________________________________________________________________
-    /**
-     * Get information about the NPM configuration.
+     * @param cmdToRun The command name to be run.
+     * @param args The arguments to the command.
      *
-     * @param getResult The itemVal and itemValMsg properties are filled
-     *                  by this function.
+     * @return The output of the command.
      */
-    private static getNpmInfo(getResult: IGetItemVal): void {
-        getResult.itemVal = EnvQuery.getCmdOutput("npm", ["--version"]);
-        getResult.itemValMsg  = `${os.EOL}NPM version = ` + EnvQuery.getCmdOutput("npm", ["config", "get", "npm-version"]);
-        getResult.itemValMsg += `${os.EOL}Shell = ` + EnvQuery.getCmdOutput("npm", ["config", "get", "shell"]);
-        getResult.itemValMsg += `${os.EOL}Global prefix = ` + EnvQuery.getCmdOutput("npm", ["prefix", "-g"]);
-        getResult.itemValMsg += os.EOL + EnvQuery.indent + "The directory above contains the Zowe NodeJs command script.";
-        getResult.itemValMsg += `${os.EOL}Global root node modules = ` + EnvQuery.getCmdOutput("npm", ["root", "-g"]);
-        getResult.itemValMsg += `${os.EOL}Global config = ` + EnvQuery.getCmdOutput("npm", ["config", "get", "globalconfig"]);
-        getResult.itemValMsg += `${os.EOL}Local prefix = ` + EnvQuery.getCmdOutput("npm", ["prefix"]);
-        getResult.itemValMsg += `${os.EOL}Local root node modules = ` + EnvQuery.getCmdOutput("npm", ["root"]);
-        getResult.itemValMsg += `${os.EOL}User config = ` + EnvQuery.getCmdOutput("npm", ["config", "get", "userconfig"]);
-        getResult.itemValMsg += os.EOL + os.EOL + EnvQuery.getCmdOutput("npm", ["config", "list"]).match(
-            /.*registry =.*\n|"project.*\n|node bin location.*\n|cwd.*\n|HOME.*\n/g
-        ).join("");
+    private static getCmdOutput(cmdToRun: string, args: string[]): string {
+        let cmdOutput: string = "";
+        const ioOpts: StdioOptions = ["pipe", "pipe", "pipe"];
+        try {
+            const spawnResult = spawnSync(cmdToRun, args, {
+                stdio: ioOpts,
+                shell: true
+            });
+            if (spawnResult.stdout && spawnResult.stdout.length > 0) {
+                // remove any trailing newline from the output
+                cmdOutput = spawnResult.stdout.toString();
+            } else {
+                cmdOutput = cmdToRun + " does not appear to be installed.";
+                if (spawnResult.stderr) {
+                    cmdOutput += `${os.EOL}Reason = ` + spawnResult.stderr.toString();
+                }
+            }
+        } catch (err) {
+            cmdOutput = "Failed to run commmand = " + cmdToRun + " " + args.join(" ");
+            if (err.message) {
+                cmdOutput += `${os.EOL}Details = ` + err.message;
+            }
+            cmdOutput = TextUtils.chalk.red(cmdOutput);
+        }
 
-        // add indent to each line
-        getResult.itemValMsg  = EnvQuery.divider + "NPM information:" + os.EOL+ EnvQuery.indent +
-            getResult.itemValMsg.replace(EnvQuery.allEolRegex, "$1" + EnvQuery.indent);
+        // remove any trailing newline from the output
+        cmdOutput = cmdOutput.replace(EnvQuery.lastEolRegex, "");
+
+        if (cmdOutput.length == 0) {
+            cmdOutput = "Failed to get any information from " + cmdToRun + " " + args.join(" ");
+        }
+        return cmdOutput;
     }
 
     // __________________________________________________________________________
@@ -273,45 +248,52 @@ export class EnvQuery {
 
     // __________________________________________________________________________
     /**
-     * Run a command that displays output.
+     * For the specified itemId, get any known problems.
      *
-     * @param cmdToRun The command name to be run.
-     * @param args The arguments to the command.
-     *
-     * @return The output of the command.
+     * @param itemId ID of the environmental item for which we want to detect problems.
+     * @param itemVal The value of the environmental item.
+     * @returns A string with a message about the problems. An empty string if no problems are detected.
      */
-    private static getCmdOutput(cmdToRun: string, args: string[]): string {
-        let cmdOutput: string = "";
-        const ioOpts: StdioOptions = ["pipe", "pipe", "pipe"];
-        try {
-            const spawnResult = spawnSync(cmdToRun, args, {
-                stdio: ioOpts,
-                shell: true
-            });
-            if (spawnResult.stdout && spawnResult.stdout.length > 0) {
-                // remove any trailing newline from the output
-                cmdOutput = spawnResult.stdout.toString();
-            } else {
-                cmdOutput = cmdToRun + " does not appear to be installed.";
-                if (spawnResult.stderr) {
-                    cmdOutput += `${os.EOL}Reason = ` + spawnResult.stderr.toString();
+    private static getEnvItemProblems(itemId: ItemId, itemVal: string): string {
+        let probMsgs: string = "";
+        for (const nextProbTest of probTests) {
+            if (itemId == nextProbTest.itemId) {
+                if (EnvQuery.detectProbVal(itemVal, nextProbTest)) {
+                    if (probMsgs.length > 0) {
+                        probMsgs += os.EOL;
+                    }
+                    probMsgs += nextProbTest.probMsg;
                 }
             }
-        } catch (err) {
-            cmdOutput = "Failed to run commmand = " + cmdToRun + " " + args.join(" ");
-            if (err.message) {
-                cmdOutput += `${os.EOL}Details = ` + err.message;
-            }
-            cmdOutput = TextUtils.chalk.red(cmdOutput);
         }
+        return probMsgs;
+    }
 
-        // remove any trailing newline from the output
-        cmdOutput = cmdOutput.replace(EnvQuery.lastEolRegex, "");
+    // __________________________________________________________________________
+    /**
+     * Get information about the NPM configuration.
+     *
+     * @param getResult The itemVal and itemValMsg properties are filled
+     *                  by this function.
+     */
+    private static getNpmInfo(getResult: IGetItemVal): void {
+        getResult.itemVal = EnvQuery.getCmdOutput("npm", ["--version"]);
+        getResult.itemValMsg  = `${os.EOL}NPM version = ` + EnvQuery.getCmdOutput("npm", ["config", "get", "npm-version"]);
+        getResult.itemValMsg += `${os.EOL}Shell = ` + EnvQuery.getCmdOutput("npm", ["config", "get", "shell"]);
+        getResult.itemValMsg += `${os.EOL}Global prefix = ` + EnvQuery.getCmdOutput("npm", ["prefix", "-g"]);
+        getResult.itemValMsg += os.EOL + EnvQuery.indent + "The directory above contains the Zowe NodeJs command script.";
+        getResult.itemValMsg += `${os.EOL}Global root node modules = ` + EnvQuery.getCmdOutput("npm", ["root", "-g"]);
+        getResult.itemValMsg += `${os.EOL}Global config = ` + EnvQuery.getCmdOutput("npm", ["config", "get", "globalconfig"]);
+        getResult.itemValMsg += `${os.EOL}Local prefix = ` + EnvQuery.getCmdOutput("npm", ["prefix"]);
+        getResult.itemValMsg += `${os.EOL}Local root node modules = ` + EnvQuery.getCmdOutput("npm", ["root"]);
+        getResult.itemValMsg += `${os.EOL}User config = ` + EnvQuery.getCmdOutput("npm", ["config", "get", "userconfig"]);
+        getResult.itemValMsg += os.EOL + os.EOL + EnvQuery.getCmdOutput("npm", ["config", "list"]).match(
+            /.*registry =.*\n|"project.*\n|node bin location.*\n|cwd.*\n|HOME.*\n/g
+        ).join("");
 
-        if (cmdOutput.length == 0) {
-            cmdOutput = "Failed to get any information from " + cmdToRun + " " + args.join(" ");
-        }
-        return cmdOutput;
+        // add indent to each line
+        getResult.itemValMsg  = EnvQuery.divider + "NPM information:" + os.EOL+ EnvQuery.indent +
+            getResult.itemValMsg.replace(EnvQuery.allEolRegex, "$1" + EnvQuery.indent);
     }
 
     // __________________________________________________________________________
@@ -346,5 +328,23 @@ export class EnvQuery {
         if (getResult.itemValMsg.length == 0) {
             getResult.itemValMsg += "No other 'ZOWE_' variables have been set.";
         }
+    }
+
+    // __________________________________________________________________________
+    /**
+     * Get the Zowe version number.
+     *
+     * @param getResult The itemVal and itemValMsg properties are filled
+     *                  by this function.
+     */
+    private static getZoweVer(getResult: IGetItemVal): void {
+        const cliPackageJson: any = ImperativeConfig.instance.callerPackageJson;
+        if (Object.prototype.hasOwnProperty.call(cliPackageJson, "version")) {
+            getResult.itemVal = cliPackageJson.version;
+        }
+        else {
+            getResult.itemVal = "No version found in CLI package.json!";
+        }
+        getResult.itemValMsg =  EnvQuery.divider + "Zowe CLI version = " + getResult.itemVal;
     }
 }
