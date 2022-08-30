@@ -19,7 +19,8 @@ import { ImperativeConfig } from "../../../../../utilities/src/ImperativeConfig"
 import { IssueSeverity, PluginIssues } from "../../../../src/plugins/utilities/PluginIssues";
 import { resolve } from "path";
 import { TextUtils } from "../../../../../utilities";
-import ValidateHandler from "../../../../src/plugins/cmd/validate/validate.handler";
+import FirststepsHandler from "../../../../src/plugins/cmd/firststeps/firststeps.handler";
+import { ImperativeError } from "../../../../../error/src/ImperativeError";
 
 describe("Plugin validate command handler", () => {
 
@@ -64,147 +65,76 @@ describe("Plugin validate command handler", () => {
 
     describe("process function", () => {
         const params = getIHandlerParametersObject();
-        const valHandler = new ValidateHandler() as any;
+        const firststepsHandler = new FirststepsHandler() as any;
         const mockDisplayPluginIssues = jest.fn();
-        const orgDisplayPluginIssues = valHandler.displayPluginIssues;
+        const orgDisplayPluginIssues = firststepsHandler.displayPluginIssues;
 
         beforeEach(() => {
-            valHandler.displayPluginIssues = mockDisplayPluginIssues;
+            firststepsHandler.displayPluginIssues = mockDisplayPluginIssues;
         });
 
         afterEach(() => {
-            valHandler.displayPluginIssues = orgDisplayPluginIssues;
+            firststepsHandler.displayPluginIssues = orgDisplayPluginIssues;
         });
 
 
-        it("should display proper message when no plugin is installed", async () => {
+        it("should display proper message when no plugin is provided in arguments", async () => {
             pluginIssues.getInstalledPlugins = jest.fn().mockReturnValue({});
 
             // plugin name is null
             params.arguments.plugin = null;
-            await valHandler.process(params as IHandlerParameters);
-            expect(params.response.console.log).toHaveBeenCalledWith("No plugins have been installed into your CLI application.");
-
-            // plugin name is empty
-            params.arguments.plugin = "";
-            await valHandler.process(params as IHandlerParameters);
-            expect(params.response.console.log).toHaveBeenCalledWith("No plugins have been installed into your CLI application.");
-        });
-
-        it("should validate all installed plugin when no plugin is defined", async () => {
-            params.arguments.plugin = null;
-            let testPlugin: string = null;
-
-            await valHandler.process(params as IHandlerParameters);
-
-            for (testPlugin in pluginIssues.getInstalledPlugins()){
-                if (Object.prototype.hasOwnProperty.call(pluginIssues.getInstalledPlugins(), testPlugin)){
-                    expect(mockDisplayPluginIssues).toBeCalledWith(testPlugin, params.response, false);
-                }
+            let errorWithParameterNull;
+            try {
+                await firststepsHandler.process(params as IHandlerParameters);
+            } catch (err) {
+                errorWithParameterNull = err;
             }
+            expect(errorWithParameterNull).toBeDefined();
+            expect(errorWithParameterNull).toBeInstanceOf(ImperativeError);
+            expect(errorWithParameterNull.message).toBe(`${TextUtils.chalk.yellow.bold("Package name")} is required.`);
+
+            // // plugin name is empty
+            params.arguments.plugin = null;
+            let errorWithParameterEmpty;
+            try {
+                await firststepsHandler.process(params as IHandlerParameters);
+            } catch (err) {
+                errorWithParameterEmpty = err;
+            }
+            expect(errorWithParameterEmpty).toBeDefined();
+            expect(errorWithParameterEmpty).toBeInstanceOf(ImperativeError);
+            expect(errorWithParameterEmpty.message).toBe(`${TextUtils.chalk.yellow.bold("Package name")} is required.`);
         });
 
-        it("should validate with non-existent plugin name and not error", async () => {
+        it("should have no first steps with non-existent plugin name", async () => {
             params.arguments.plugin = ["NonExistentPluginName"];
             let error;
             try {
-                await valHandler.process(params as IHandlerParameters);
+                await firststepsHandler.process(params as IHandlerParameters);
             } catch (err) {
                 error = err;
             }
             expect(params.response.console.log).toHaveBeenCalledWith(
-                TextUtils.chalk.red(
-                    "The specified plugin 'NonExistentPluginName' has not been installed into your CLI application."
-                ));
+                "The specified plugin is not installed."
+                );
             expect(error).not.toBeDefined();
         });
 
-        it("should validate with non-existent plugin name and error", async () => {
-            params.arguments.plugin = ["NonExistentPluginName"];
-            params.arguments.failOnError = true;
-            params.response.data = {setExitCode: setExitCodeFunction, setObj: jest.fn(), setMessage: jest.fn()};
-            await valHandler.process(params as IHandlerParameters);
-            expect(params.response.console.log).toHaveBeenCalledWith(
-                TextUtils.chalk.red(
-                    "The specified plugin 'NonExistentPluginName' has not been installed into your CLI application."
-                ));
-            expect(params.response.console.error).toHaveBeenCalledWith(
-                TextUtils.chalk.red(
-                    "Problems detected during plugin validation. Please check above for more information."
-                ));
-            expect(setExitCodeFunction).toHaveBeenCalledTimes(1);
-            expect(setExitCodeFunction).toHaveBeenCalledWith(1);
-        });
-
-        it("should validate the specific plugin requested by user", async () => {
+        it("should have first steps with existent plugin name", async () => {
+            pluginIssues.getInstalledPlugins = jest.fn().mockReturnValue({});
             params.arguments.plugin = ["imperative-sample-plugin"];
-
-            await valHandler.process(params as IHandlerParameters);
-            expect(mockDisplayPluginIssues).toHaveBeenCalledWith(params.arguments.plugin, params.response, false);
+            let error;
+            try {
+                await firststepsHandler.process(params as IHandlerParameters);
+            } catch (err) {
+                error = err;
+            }
+            expect(params.response.console.log).toHaveBeenCalledWith(
+                "The first steps are not defined for this plugin."
+                );
+            expect(error).not.toBeDefined();
         });
     });
 
-    describe("displayPluginIssues function", () => {
-        const validateHandler = new ValidateHandler() as any;
-        const params = getIHandlerParametersObject();
-        const testPlugin = "test Plugin";
-
-        beforeEach(() => {
-            pluginIssues.removeIssuesForPlugin(testPlugin);
-        });
-
-        it("should call CommandResponse.console.log with proper parameter", () => {
-            const expectedMsg = `\n_____ Validation results for plugin '${testPlugin}' _____\n` +
-                `This plugin was successfully validated. Enjoy the plugin.`;
-
-            validateHandler.displayPluginIssues(testPlugin, params.response);
-
-            expect(params.response.console.log).toHaveBeenCalledWith(expectedMsg);
-        });
-
-        it("should call CommandResponse.console.log with proper warning parameter", () => {
-            const testErrorText = "test warning text";
-            let error: boolean = null;
-
-            pluginIssues.recordIssue(testPlugin, IssueSeverity.WARNING, testErrorText);
-            error = validateHandler.displayPluginIssues(testPlugin, params.response);
-
-            expect(params.response.console.log).toHaveBeenCalled();
-            const errorMsg = (params.response.console.log as Mock).mock.calls[0][0];
-            expect(errorMsg).toContain(testPlugin);
-            expect(errorMsg).toContain(`${IssueSeverity.WARNING}: ${testErrorText}`);
-            expect(error).toEqual(false);
-        });
-
-        it("should call CommandResponse.console.log with proper warning parameter and error", () => {
-            const testErrorText = "test warning text";
-            let error: boolean = null;
-
-            pluginIssues.recordIssue(testPlugin, IssueSeverity.WARNING, testErrorText);
-            error = validateHandler.displayPluginIssues(testPlugin, params.response, true);
-
-            expect(params.response.console.log).toHaveBeenCalled();
-            const errorMsg = (params.response.console.log as Mock).mock.calls[0][0];
-            expect(errorMsg).toContain(testPlugin);
-            expect(errorMsg).toContain(`${IssueSeverity.WARNING}: ${testErrorText}`);
-            expect(error).toEqual(true);
-        });
-
-        it("should call CommandResponse.console.log with proper error parameter", () => {
-            const testErrorText = "test error text";
-            let error: boolean = null;
-
-            pluginIssues.recordIssue(testPlugin, IssueSeverity.CMD_ERROR, testErrorText);
-            error = validateHandler.displayPluginIssues(testPlugin, params.response);
-
-            expect(params.response.console.log).toHaveBeenCalled();
-            const errorMsg = (params.response.console.log as Mock).mock.calls[0][0];
-            expect(errorMsg).toContain(testPlugin);
-            expect(errorMsg).toContain(`${IssueSeverity.CMD_ERROR}: ${testErrorText}`);
-            expect(errorMsg).toContain("This plugin has command errors. No plugin commands will be available.");
-            expect(error).toEqual(true);
-        });
-    });
-
-}); // end Plugin validate command handler
+});
 
