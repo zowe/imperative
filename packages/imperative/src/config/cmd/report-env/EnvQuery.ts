@@ -9,10 +9,12 @@
 *
 */
 
+import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import { spawnSync, StdioOptions } from "child_process";
 
+import { IO } from "../../../../../io";
 import { ImperativeConfig, TextUtils} from "../../../../../utilities";
 import { ItemId, IProbTest, probTests } from "./EnvItems";
 
@@ -216,10 +218,10 @@ export class EnvQuery {
         }
         getResult.itemValMsg += `${os.EOL}Zowe config type = ` + getResult.itemVal;
 
-        /* Display all relevant zowe team config files.
-         * Replace colon at end of config file name and indent another level.
-         */
         if ( getResult.itemVal == teamCfg) {
+            /* Display all relevant zowe team config files.
+             * Replace colon at end of config file name and indent another level.
+             */
             getResult.itemValMsg += `${os.EOL}Team config files in effect:${os.EOL}`;
             const cfgListOutput = EnvQuery.getCmdOutput("zowe", ["config", "list", "--locations"]);
 
@@ -238,6 +240,37 @@ export class EnvQuery {
             const defaultsRegex = new RegExp(`.*defaults:(.*)${escChar}.*autoStore:.*`, "ms");
             getResult.itemValMsg += "Default profile names: " +
                 cfgListOutput.replace(defaultsRegex, "$1");
+        } else {
+            // display V1 profile information
+            getResult.itemValMsg += `${os.EOL}Available profiles:${os.EOL}`;
+            const v1ProfilesDir = path.normalize(ImperativeConfig.instance.cliHome + "/profiles");
+            if (IO.isDir(v1ProfilesDir)) {
+                // read all of the subdirectories of the profiles directory
+                fs.readdirSync(v1ProfilesDir).forEach((nextProfileTypeNm) => {
+                    const profileTypeDir = path.normalize(v1ProfilesDir + "/" + nextProfileTypeNm);
+                    let profilesOfCurrType: string = "";
+
+                    // is the next candidate for nextProfileTypeNm a directory?
+                    if (IO.isDir(profileTypeDir)) {
+                        // does the next profile type directory have any profiles?
+                        fs.readdirSync(profileTypeDir).forEach((nextProfileNm) => {
+                            // exclude the meta files
+                            if (nextProfileNm.match(/.*_meta.yaml/) != null) {
+                                return;
+                            }
+                            profilesOfCurrType += EnvQuery.indent + EnvQuery.indent +
+                                nextProfileNm.replace(".yaml", "") + os.EOL;
+                        });
+                    }
+
+                    // did we find any profiles?
+                    if (profilesOfCurrType.length > 0) {
+                        getResult.itemValMsg += EnvQuery.indent + nextProfileTypeNm +
+                        " profiles: " + os.EOL + profilesOfCurrType;
+
+                    }
+                });
+            }
         }
 
         // add indent to each line
