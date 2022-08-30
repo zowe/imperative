@@ -13,6 +13,7 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import { spawnSync, StdioOptions } from "child_process";
+import stripAnsi = require("strip-ansi");
 
 import { IO } from "../../../../../io";
 import { ImperativeConfig, TextUtils} from "../../../../../utilities";
@@ -223,7 +224,7 @@ export class EnvQuery {
              * Replace colon at end of config file name and indent another level.
              */
             getResult.itemValMsg += `${os.EOL}Team config files in effect:${os.EOL}`;
-            const cfgListOutput = EnvQuery.getCmdOutput("zowe", ["config", "list", "--locations"]);
+            let cfgListOutput = stripAnsi(EnvQuery.getCmdOutput("zowe", ["config", "list", "--locations"]));
 
             // extract all config file names from 'config list' command
             getResult.itemValMsg += EnvQuery.indent +
@@ -235,11 +236,15 @@ export class EnvQuery {
                 EnvQuery.getCmdOutput("zowe", ["config", "profiles"])
                     .replace(EnvQuery.allEolRegex, "$1" + EnvQuery.indent) + os.EOL;
 
-            // extract default profile names from previous'config list' command
-            const escChar = "\x1B";
-            const defaultsRegex = new RegExp(`.*defaults:(.*)${escChar}.*autoStore:.*`, "ms");
-            getResult.itemValMsg += "Default profile names: " +
-                cfgListOutput.replace(defaultsRegex, "$1");
+            // extract default profile names from 'config list' command
+            const defaultsToEndRegEx = new RegExp(".*defaults:(.*)", "ms");
+            const removeAfterDefaultsRegex = new RegExp("(.*)^[^ ].*", "ms");
+            const fixIndentRegex = new RegExp("^ {2}", "gms");
+            cfgListOutput = stripAnsi(EnvQuery.getCmdOutput("zowe", ["config", "list"]));
+            cfgListOutput = cfgListOutput.replace(defaultsToEndRegEx, "$1");
+            cfgListOutput = cfgListOutput.replace(removeAfterDefaultsRegex, "$1") + os.EOL;
+            cfgListOutput = cfgListOutput.replace(fixIndentRegex, EnvQuery.indent);
+            getResult.itemValMsg += "Default profile names: " + cfgListOutput;
         } else {
             // display V1 profile information
             getResult.itemValMsg += `${os.EOL}Available profiles:${os.EOL}`;
