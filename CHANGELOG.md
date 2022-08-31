@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.5.1`
 
 - BugFix: Prevented base profile secure-property lookup on the global layer when there is not default base profile. [#881](https://github.com/zowe/imperative/issues/881)
 
