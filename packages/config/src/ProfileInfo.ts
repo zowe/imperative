@@ -603,6 +603,7 @@ export class ProfileInfo {
                 layerProperties = this.mLoadedConfig.findLayer(osLoc.user, osLoc.global)?.properties;
                 realBaseProfileName = layerProperties?.defaults.base;
                 if (realBaseProfileName) baseProfile = this.mLoadedConfig.api.profiles.buildProfile(realBaseProfileName, layerProperties?.profiles);
+                else baseProfile = null;
             }
             if (baseProfile != null) {
                 // Load args from default base profile if one exists
