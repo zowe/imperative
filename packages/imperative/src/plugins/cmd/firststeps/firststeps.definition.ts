@@ -12,9 +12,6 @@
 import { ICommandDefinition } from "../../../../../cmd";
 import { join } from "path";
 
-// const cliCmdName = ImperativeConfig.instance.findPackageBinName() ?
-//    ImperativeConfig.instance.findPackageBinName(): "Your_CLI_Command_Name";
-
 const pluginDescription =
     "The name of the installed plug-in to show first steps for.\n\n" +
     "If the plug-in argument is omitted, no action is taken.";

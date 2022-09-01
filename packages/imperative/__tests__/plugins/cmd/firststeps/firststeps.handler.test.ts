@@ -121,7 +121,6 @@ describe("Plugin validate command handler", () => {
         });
 
         it("should have first steps with existent plugin name", async () => {
-            pluginIssues.getInstalledPlugins = jest.fn().mockReturnValue({});
             params.arguments.plugin = ["imperative-sample-plugin"];
             let error;
             try {
