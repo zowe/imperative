@@ -189,7 +189,7 @@
       "__tests__/__snapshots__/"
     ],
     "setupFilesAfterEnv": [
-      "./__tests__/__integration__/imperative/__tests__/beforeTests.js"
+      "./__tests__/beforeTests.js"
     ],
     "testResultsProcessor": "jest-stare",
     "testRegex": "__tests__.*\\.(spec|test)\\.ts$",
