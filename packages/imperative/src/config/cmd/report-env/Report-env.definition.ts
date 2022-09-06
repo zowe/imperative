@@ -20,7 +20,7 @@ export const ReportEnvDefinition: ICommandDefinition = {
     name: "report-env",
     aliases: ["re"],
     type: "command",
-    handler: join(__dirname, "report-env.handler"),
+    handler: join(__dirname, "Report-env.handler"),
     summary: "Report the state of your working environment",
     description: "Reports key items from your environment and identifies problem conditions",
     examples: [
