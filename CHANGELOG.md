@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.5.2`
 
 - BugFix: Updated `Config.search` API to skip loading project config layers when project directory is an empty string. [#883](https://github.com/zowe/imperative/issues/883)
 
