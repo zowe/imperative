@@ -581,10 +581,17 @@ describe("Config tests", () => {
             expect(file).not.toBe(notExpectedPath);
             expect(file).toBe(path.resolve(expectedPath));
         });
+        it("should not search for a file when startDir is empty string", async () => {
+            const existsSpy = jest.spyOn(fs, "existsSync");
+            const file = Config.search(configFile, { startDir: "" });
+            expect(file).toBeNull();
+            expect(existsSpy).not.toHaveBeenCalled();
+        });
         it("should fail to find a file", async () => {
-            jest.spyOn(fs, "existsSync").mockReturnValue(false);
+            const existsSpy = jest.spyOn(fs, "existsSync").mockReturnValue(false);
             const file = Config.search(configFile, { startDir: configDir });
             expect(file).toBeNull();
+            expect(existsSpy).toHaveBeenCalledTimes(configDir.split(path.sep).length);
         });
 
         describe("without opts", () => {

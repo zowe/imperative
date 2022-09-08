@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Updated `Config.search` API to skip loading project config layers when project directory is an empty string. [#883](https://github.com/zowe/imperative/issues/883)
+
 ## `5.5.1`
 
 - BugFix: Prevented base profile secure-property lookup on the global layer when there is not default base profile. [#881](https://github.com/zowe/imperative/issues/881)
