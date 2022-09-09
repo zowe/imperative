@@ -2,6 +2,19 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## `5.5.2`
+
+- BugFix: Updated `Config.search` API to skip loading project config layers when project directory is an empty string. [#883](https://github.com/zowe/imperative/issues/883)
+
+## `5.5.1`
+
+- BugFix: Prevented base profile secure-property lookup on the global layer when there is not default base profile. [#881](https://github.com/zowe/imperative/issues/881)
+
+## `5.5.0`
+
+- Enhancement: Added ZOWE_CLI_PLUGINS_DIR environment variable to override location where plugins are installed. [zowe/zowe-cli#1483](https://github.com/zowe/zowe-cli/issues/1483)
+- BugFix: Fixed exception when non-string passed to ImperativeExpect.toBeDefinedAndNonBlank(). [#856](https://github.com/zowe/imperative/issues/856)
+
 ## `5.4.3`
 
 - BugFix: Removed periods in command example descriptions so descriptions look syntactically correct. [#795](https://github.com/zowe/imperative/issues/795)

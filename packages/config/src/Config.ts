@@ -166,8 +166,8 @@ export class Config {
      */
     public async reload(opts?: IConfigOpts) {
         this.mLayers = [];
-        this.mHomeDir = opts?.homeDir || this.mHomeDir || path.join(os.homedir(), `.${this.mApp}`);
-        this.mProjectDir = opts?.projectDir || process.cwd();
+        this.mHomeDir = opts?.homeDir ?? this.mHomeDir ?? path.join(os.homedir(), `.${this.mApp}`);
+        this.mProjectDir = opts?.projectDir ?? process.cwd();
 
         // Populate configuration file layers
         for (const layer of [
@@ -399,6 +399,7 @@ export class Config {
      */
     public static search(file: string, opts?: { ignoreDirs?: string[]; startDir?: string }): string {
         opts = opts || {};
+        if (opts.startDir === "") { return null; }
         const p = findUp.sync((directory: string) => {
             if (opts.ignoreDirs?.includes(directory)) return;
             return fs.existsSync(path.join(directory, file)) && directory;

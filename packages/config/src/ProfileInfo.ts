@@ -272,7 +272,8 @@ export class ProfileInfo {
                 }
 
                 // Update mOldSchoolProfileCache to get mergedArgs updated
-                this.mOldSchoolProfileCache.find(v => v.name === profileName).profile[options.property] = options.value;
+                const profile = this.mOldSchoolProfileCache.find(v => v.name === profileName);
+                if (profile != null) profile.profile[options.property] = options.value; // What should we do in the else case?
                 break;
             }
             case ProfLocType.TEAM_CONFIG: {
@@ -602,6 +603,7 @@ export class ProfileInfo {
                 layerProperties = this.mLoadedConfig.findLayer(osLoc.user, osLoc.global)?.properties;
                 realBaseProfileName = layerProperties?.defaults.base;
                 if (realBaseProfileName) baseProfile = this.mLoadedConfig.api.profiles.buildProfile(realBaseProfileName, layerProperties?.profiles);
+                else baseProfile = null;
             }
             if (baseProfile != null) {
                 // Load args from default base profile if one exists
