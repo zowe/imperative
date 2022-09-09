@@ -43,8 +43,9 @@ const DUMMY_PROFILE_TYPE_CONFIG: IProfileTypeConfiguration[] = [
     }
 ];
 describe("Imperative should provide advanced syntax validation rules", function () {
-
     const home = __dirname + "/validationtests";
+    const mainModule = process.mainModule;
+
     beforeAll(function () {
         (process.mainModule as any) = {
             filename: __filename
@@ -60,6 +61,7 @@ describe("Imperative should provide advanced syntax validation rules", function 
         });
     });
     afterAll(() => {
+        process.mainModule = mainModule;
         rimraf(home);
     });
     describe("Advanced syntax validation for commands using a test command", function () {
