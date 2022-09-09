@@ -11,7 +11,7 @@
 
 import { ChainedHandlerService } from "../src/ChainedHandlerUtils";
 import { IChainedHandlerEntry } from "../";
-import { TestLogger } from "../../../__tests__/TestLogger";
+import { TestLogger } from "../../../__tests__/src/TestLogger";
 import * as yargs from "yargs";
 
 const testLogger = TestLogger.getTestLogger();

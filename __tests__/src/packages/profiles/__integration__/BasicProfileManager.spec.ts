@@ -11,7 +11,7 @@
 
 import * as TestUtil from "../../../TestUtil";
 import { inspect } from "util";
-import { TestLogger } from "../../../../TestLogger";
+import { TestLogger } from "../../../../src/TestLogger";
 import { ProfileUtils } from "../../../../../packages/profiles";
 import { BANANA_AGE, getConfig, PROFILE_TYPE } from "../src/constants/BasicProfileManagerTestContants";
 

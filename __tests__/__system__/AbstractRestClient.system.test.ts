@@ -13,7 +13,7 @@ import * as dns from "dns";
 import { promisify } from "util";
 import { RestClient } from "../../packages/rest/src/client/RestClient";
 import { Session } from "../../packages/rest/src/session/Session";
-import { TestLogger } from "../TestLogger";
+import { TestLogger } from "../src/TestLogger";
 
 describe("AbstractRestClient system tests", () => {
     const exampleDomain = "dns.google.com";

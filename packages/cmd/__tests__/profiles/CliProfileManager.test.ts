@@ -10,7 +10,7 @@
 */
 
 import { ProfileUtils } from "../../../profiles/src/utils/ProfileUtils";
-import { TestLogger } from "../../../../__tests__/TestLogger";
+import { TestLogger } from "../../../../__tests__/src/TestLogger";
 import { ICommandProfileTypeConfiguration } from "../../src/doc/profiles/definition/ICommandProfileTypeConfiguration";
 import { ProfileIO } from "../../../profiles/src/utils/ProfileIO";
 import { CliProfileManager } from "../../src/profiles/CliProfileManager";

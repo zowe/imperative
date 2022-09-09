@@ -15,7 +15,7 @@ import { CommandProcessor, ICommandDefinition, ICommandResponse } from "../../..
 import { ValidationTestCommand } from "../ValidationTestCommand";
 import { Constants } from "../../../../../packages/constants/index";
 import { Imperative } from "../../../../../packages/imperative/src/Imperative";
-import { TestLogger } from "../../../../TestLogger";
+import { TestLogger } from "../../../../src/TestLogger";
 import { createUniqueTestDataDir, rimraf } from "../../../TestUtil";
 import { AbstractHelpGenerator } from "../../../../../packages/cmd/src/help/abstract/AbstractHelpGenerator";
 import { DefaultHelpGenerator } from "../../../../../packages/cmd/src/help/DefaultHelpGenerator";

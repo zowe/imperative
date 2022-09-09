@@ -11,7 +11,7 @@
 
 import { ICommandDefinition } from "../src/doc/ICommandDefinition";
 import { CommandPreparer } from "../src/CommandPreparer";
-import { TestLogger } from "../../../__tests__/TestLogger";
+import { TestLogger } from "../../../__tests__/src/TestLogger";
 import { inspect } from "util";
 import {
     MULTIPLE_GROUPS,

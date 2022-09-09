@@ -24,5 +24,8 @@
         "unit",
         "__system__"
     ],
-    "testRegex": "__integration__.*(test|spec)\\.(ts|js)"
+    "testRegex": "__integration__.*(test|spec)\\.(ts|js)",
+    "setupFilesAfterEnv": [
+        "../../beforeTests.js"
+    ]
 }

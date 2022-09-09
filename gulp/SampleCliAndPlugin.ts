@@ -16,7 +16,7 @@ import {join} from "path";
 import * as jsonfile from "jsonfile";
 import chalk from "chalk";
 import {PROJECTS, SAMPLE_CLI, TEST_REGISTRY} from "../__tests__/__src__/TestConstants";
-import {TestLogger} from "../__tests__/TestLogger";
+import {TestLogger} from "../__tests__/src/TestLogger";
 import {inspect} from "util";
 
 /**

@@ -20,7 +20,7 @@ import {
     STRAWBERRY_WITH_REQUIRED_APPLE_DEPENDENCY,
     TEST_PROFILE_ROOT_DIR
 } from "./TestConstants";
-import { TestLogger } from "../../../__tests__/TestLogger";
+import { TestLogger } from "../../../__tests__/src/TestLogger";
 import { IProfile, ProfileIO } from "../";
 import { inspect } from "util";
 

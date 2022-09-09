@@ -12,7 +12,7 @@
 jest.mock("../../../utilities/src/ImperativeConfig");
 jest.mock("../../../imperative/src/Imperative");
 
-import { TestLogger } from "../../../../__tests__/TestLogger";
+import { TestLogger } from "../../../../__tests__/src/TestLogger";
 import { ICommandDefinition, CommandResponse, CommandPreparer, ICommandHandler } from "../../../cmd";
 import { ICommandHandlerRequire } from "../../../cmd/src/doc/handler/ICommandHandlerRequire";
 import { ImperativeConfig } from "../../../utilities/src/ImperativeConfig";

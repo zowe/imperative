@@ -13,7 +13,7 @@ jest.mock("../../../../../packages/utilities/src/ImperativeConfig");
 
 import * as TestUtil from "../../../TestUtil";
 import { BasicProfileManager } from "../../../../../packages/index";
-import { TestLogger } from "../../../../TestLogger";
+import { TestLogger } from "../../../../src/TestLogger";
 import { PROFILE_TYPE, getConfig } from "../src/constants/BasicProfileManagerTestContants";
 import * as fs from "fs";
 
