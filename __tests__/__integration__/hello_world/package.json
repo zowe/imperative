@@ -48,7 +48,10 @@
       "ts",
       "js"
     ],
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "setupFilesAfterEnv": [
+      "../../beforeTests.js"
+    ]
   },
   "jest-html-reporter": {
     "pageTitle": "Sample \"hello world\" integration CLI Tests",
