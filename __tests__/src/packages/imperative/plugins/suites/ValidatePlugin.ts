@@ -10,7 +10,7 @@
 */
 
 import * as T from "../../../../../src/TestUtil";
-import { cliBin } from "../PluginTestContants";
+import { cliBin } from "../PluginTestConstants";
 import { join } from "path";
 import { execSync } from "child_process";
 

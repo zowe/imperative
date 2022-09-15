@@ -12,7 +12,7 @@
 import { IO } from "../../../../../packages/io";
 import * as T from "../../../TestUtil";
 import { join } from "path";
-import { config } from "../plugins/PluginTestContants";
+import { config } from "../plugins/PluginTestConstants";
 
 const testCliNodeModulePath = join(__dirname, "..", "plugins", "test_cli", "node_modules");
 const impLibDir = join(__dirname, "../../../../../lib");

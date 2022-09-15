@@ -13,7 +13,7 @@ import * as TestUtil from "../../../TestUtil";
 import { inspect } from "util";
 import { TestLogger } from "../../../../src/TestLogger";
 import { ProfileUtils } from "../../../../../packages/profiles";
-import { BANANA_AGE, getConfig, PROFILE_TYPE } from "../src/constants/BasicProfileManagerTestContants";
+import { BANANA_AGE, getConfig, PROFILE_TYPE } from "../src/constants/BasicProfileManagerTestConstants";
 
 describe("Imperative should allow CLI implementations to configure their own profiles and types", function () {
     const mainModule = process.mainModule;
