@@ -16,10 +16,6 @@ jest.mock("../../../../../cmd/src/response/HandlerResponse");
 
 import { CommandResponse, IHandlerParameters } from "../../../../../cmd";
 import { ImperativeConfig } from "../../../../../utilities/src/ImperativeConfig";
-import { IssueSeverity, PluginIssues } from "../../../../src/plugins/utilities/PluginIssues";
-// import { AppSettings } from "../../../settings";
-import { readFileSync, writeFileSync } from "jsonfile";
-import { ICommandDefinition } from "../../../../../cmd/src/doc/ICommandDefinition";
 import { IImperativeConfig } from "../../../../src/doc/IImperativeConfig";
 import { resolve } from "path";
 import { TextUtils } from "../../../../../utilities";
@@ -28,11 +24,10 @@ import { ImperativeError } from "../../../../../error/src/ImperativeError";
 import { IPluginCfgProps } from "../../../../src/plugins/doc/IPluginCfgProps";
 import { PluginManagementFacility } from "../../../../src/plugins/PluginManagementFacility";
 
-describe("Plugin validate command handler", () => {
+describe("Plugin first steps command handler", () => {
 
     const pluginName = "sample-plugin";
     const pluginNameFS = "sample-plugin-first-steps";
-    const pluginIssues: PluginIssues = PluginIssues.instance;
 
     /* Put a base CLI config into ImperativeConfig. It is required by infrastructure
     * that is called underneath the functions that we want to test.
@@ -136,7 +131,7 @@ describe("Plugin validate command handler", () => {
 
     const basePluginCfgProps: IPluginCfgProps = {
         pluginName: pluginName,
-        npmPackageName: "PluginHasNoNpmPkgName",
+        npmPackageName: "PluginNpmPkgName",
         impConfig: basePluginConfig,
         cliDependency: {
             peerDepName: "@zowe/cli",
@@ -150,7 +145,7 @@ describe("Plugin validate command handler", () => {
 
     const basePluginCfgPropFirstSteps: IPluginCfgProps = {
         pluginName: pluginNameFS,
-        npmPackageName: "PluginHasNoNpmPkgName",
+        npmPackageName: "PluginNpmPkgName",
         impConfig: basePluginConfigWithFirstSteps,
         cliDependency: {
             peerDepName: "@zowe/cli",
@@ -164,35 +159,6 @@ describe("Plugin validate command handler", () => {
 
     const mockInstalledPlugins: IPluginCfgProps[] = [basePluginCfgProps, basePluginCfgPropFirstSteps];
 
-
-
-    // const basePluginCmdDef: ICommandDefinition = {
-    //     name: basePluginConfig.name,
-    //     aliases: goodPluginAliases,
-    //     summary: goodPluginSummary,
-    //     description: basePluginConfig.rootCommandDescription,
-    //     type: "group",
-    //     children: basePluginConfig.definitions
-    // };
-
-    beforeEach(() => {
-        // Mocks need cleared after every test for clean test runs
-        jest.resetAllMocks();
-
-        pluginIssues.getInstalledPlugins = jest.fn().mockReturnValue({
-            "imperative-sample-plugin": {
-                package: "C:\\Some\\Path\\To\\imperative-plugins",
-                registry: "http://imperative-npm-registry:4873/",
-                version: "1.0.1"
-            }
-        });
-
-        // PluginManagementFacility.instance.allPluginCfgProps
-
-        
-    });
-
-    const setExitCodeFunction = jest.fn();
     /**
      * Create object to be passed to process function
      *
@@ -208,112 +174,86 @@ describe("Plugin validate command handler", () => {
         return x as IHandlerParameters;
     };
 
-    describe("process function", () => {
-        const params = getIHandlerParametersObject();
-        const firststepsHandler = new FirststepsHandler() as any;
-        const mockDisplayPluginIssues = jest.fn();
-        const orgDisplayPluginIssues = firststepsHandler.displayPluginIssues;
+    const params = getIHandlerParametersObject();
+    const firststepsHandler = new FirststepsHandler() as any;
 
-        beforeEach(() => {
-            firststepsHandler.displayPluginIssues = mockDisplayPluginIssues;
-        });
+    beforeEach(() => {
+        // Mocks need cleared after every test for clean test runs
+        jest.resetAllMocks();
 
-        afterEach(() => {
-            firststepsHandler.displayPluginIssues = orgDisplayPluginIssues;
-        });
+        jest.fn().mockReturnValue(mockInstalledPlugins);
 
+        PMF.mAllPluginCfgProps = mockInstalledPlugins;
+    });
 
-        it("should display proper message when no plugin is provided in arguments", async () => {
-            pluginIssues.getInstalledPlugins = jest.fn().mockReturnValue({});
+    it("should display proper message when no plugin is provided in arguments", async () => {
+        // plugin name is null
+        params.arguments.plugin = null;
+        let errorWithParameterNull;
+        try {
+            await firststepsHandler.process(params as IHandlerParameters);
+        } catch (err) {
+            errorWithParameterNull = err;
+        }
+        expect(errorWithParameterNull).toBeDefined();
+        expect(errorWithParameterNull).toBeInstanceOf(ImperativeError);
+        expect(errorWithParameterNull.message).toBe(`${TextUtils.chalk.yellow.bold("Package name")} is required.`);
 
-            // plugin name is null
-            params.arguments.plugin = null;
-            let errorWithParameterNull;
-            try {
-                await firststepsHandler.process(params as IHandlerParameters);
-            } catch (err) {
-                errorWithParameterNull = err;
-            }
-            expect(errorWithParameterNull).toBeDefined();
-            expect(errorWithParameterNull).toBeInstanceOf(ImperativeError);
-            expect(errorWithParameterNull.message).toBe(`${TextUtils.chalk.yellow.bold("Package name")} is required.`);
+        // // plugin name is empty
+        params.arguments.plugin = "";
+        let errorWithParameterEmpty;
+        try {
+            await firststepsHandler.process(params as IHandlerParameters);
+        } catch (err) {
+            errorWithParameterEmpty = err;
+        }
+        expect(errorWithParameterEmpty).toBeDefined();
+        expect(errorWithParameterEmpty).toBeInstanceOf(ImperativeError);
+        expect(errorWithParameterEmpty.message).toBe(`${TextUtils.chalk.yellow.bold("Package name")} is required.`);
+    });
 
-            // // plugin name is empty
-            params.arguments.plugin = null;
-            let errorWithParameterEmpty;
-            try {
-                await firststepsHandler.process(params as IHandlerParameters);
-            } catch (err) {
-                errorWithParameterEmpty = err;
-            }
-            expect(errorWithParameterEmpty).toBeDefined();
-            expect(errorWithParameterEmpty).toBeInstanceOf(ImperativeError);
-            expect(errorWithParameterEmpty.message).toBe(`${TextUtils.chalk.yellow.bold("Package name")} is required.`);
-        });
+    it("should have no first steps with non-existent plugin name", async () => {
+        params.arguments.plugin = ["NonExistentPluginName"];
+        let error;
+        try {
+            await firststepsHandler.process(params as IHandlerParameters);
+        } catch (err) {
+            error = err;
+        }
+        expect(params.response.console.log).toHaveBeenCalledWith(
+            "The specified plugin is not installed."
+        );
+        expect(error).not.toBeDefined();
+    });
 
-        it("should have no first steps with non-existent plugin name", async () => {
-            params.arguments.plugin = ["NonExistentPluginName"];
-            let error;
-            try {
-                await firststepsHandler.process(params as IHandlerParameters);
-            } catch (err) {
-                error = err;
-            }
-            expect(params.response.console.log).toHaveBeenCalledWith(
-                "The specified plugin is not installed."
-                );
-            expect(error).not.toBeDefined();
-        });
+    it("should have existent plugin name with no first steps", async () => {
+        params.arguments.plugin = ["sample-plugin"];
+        let error;
 
-        it("should have existent plugin name with no first steps", async () => {
-            params.arguments.plugin = ["sample-plugin"];
-            let error;
+        try {
+            await firststepsHandler.process(params as IHandlerParameters);
+        } catch (err) {
+            error = err;
+        }
+        expect(params.response.console.log).toHaveBeenCalledWith(
+            "The first steps are not defined for this plugin."
+        );
+        expect(error).not.toBeDefined();
+    });
 
-            const mocks = {
-                readFileSync: readFileSync as Mock<typeof readFileSync>,
-            };
+    it("should have existent plugin name with first steps defined", async () => {
+        params.arguments.plugin = ["sample-plugin-first-steps"];
+        let error;
 
-            jest.fn().mockReturnValue(mockInstalledPlugins);
-
-            const savedPluginCfgProps = PMF.mAllPluginCfgProps;
-            PMF.mAllPluginCfgProps = mockInstalledPlugins;
-
-
-            try {
-                await firststepsHandler.process(params as IHandlerParameters);
-            } catch (err) {
-                error = err;
-            }
-            expect(params.response.console.log).toHaveBeenCalledWith(
-                "The first steps are not defined for this plugin."
-                );
-            expect(error).not.toBeDefined();
-        });
-
-        it("should have existent plugin name with first steps defined", async () => {
-            params.arguments.plugin = ["sample-plugin-first-steps"];
-            let error;
-
-            const mocks = {
-                readFileSync: readFileSync as Mock<typeof readFileSync>,
-            };
-
-            jest.fn().mockReturnValue(mockInstalledPlugins);
-
-            const savedPluginCfgProps = PMF.mAllPluginCfgProps;
-            PMF.mAllPluginCfgProps = mockInstalledPlugins;
-
-
-            try {
-                await firststepsHandler.process(params as IHandlerParameters);
-            } catch (err) {
-                error = err;
-            }
-            expect(params.response.console.log).toHaveBeenCalledWith(
-                "These are the first steps"
-                );
-            expect(error).not.toBeDefined();
-        });
+        try {
+            await firststepsHandler.process(params as IHandlerParameters);
+        } catch (err) {
+            error = err;
+        }
+        expect(params.response.console.log).toHaveBeenCalledWith(
+            "These are the first steps"
+        );
+        expect(error).not.toBeDefined();
     });
 
 });
