@@ -16,6 +16,7 @@ import { ProfileUtils } from "../../../../../packages/profiles";
 import { BANANA_AGE, getConfig, PROFILE_TYPE } from "../src/constants/BasicProfileManagerTestContants";
 
 describe("Imperative should allow CLI implementations to configure their own profiles and types", function () {
+    const mainModule = process.mainModule;
     const loadChangingDependencies = () => {
         return {
             Imperative: require("../../../../../packages/imperative/src/Imperative").Imperative,
@@ -32,10 +33,14 @@ describe("Imperative should allow CLI implementations to configure their own pro
         ({Imperative, ImperativeError, ImperativeConfig} = loadChangingDependencies());
     });
 
-    beforeAll(function () {
+    beforeAll(() => {
         (process.mainModule as any) = {
             filename: __filename
         };
+    });
+
+    afterAll(() => {
+        process.mainModule = mainModule;
     });
 
     it("should be able to create a profile type and retrieve all defined types after init", async function () {
