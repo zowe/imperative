@@ -15,6 +15,8 @@ import { PMFConstants } from "../../utilities/PMFConstants";
 import { TextUtils } from "../../../../../utilities";
 import { ImperativeError } from "../../../../../error";
 import { PluginManagementFacility } from "../../PluginManagementFacility";
+import { IPluginJson } from "../../doc/IPluginJson";
+import { IssueSeverity, PluginIssues } from "../../utilities/PluginIssues";
 
 /**
  * The firststeps command handler for cli plugin firststeps.
@@ -36,6 +38,13 @@ export default class FirststepsHandler implements ICommandHandler {
      * @type {Logger}
      */
     private console: Logger = Logger.getImperativeLogger();
+        /**
+     * A class with recorded issues for each plugin for which problems were detected.
+     *
+     * @private
+     * @type {IPluginIssues}
+     */
+    private pluginIssues = PluginIssues.instance;
 
     /**
      * Process the command and input.
@@ -54,6 +63,7 @@ export default class FirststepsHandler implements ICommandHandler {
     public async process(params: IHandlerParameters): Promise<void> {
         const chalk = TextUtils.chalk;
         this.console.debug(`Root Directory: ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION}`);
+        // const installedPlugins: IPluginJson = this.pluginIssues.getInstalledPlugins();
 
         if (params.arguments.plugin == null || params.arguments.plugin.length === 0) {
             throw new ImperativeError({
@@ -61,12 +71,17 @@ export default class FirststepsHandler implements ICommandHandler {
             });
         } else {
             const pluginsProperties = PluginManagementFacility.instance.allPluginCfgProps;
+            // params.response.console.log("testing");
+            // params.response.console.log(pluginsProperties.toString());
 
             for (const nextPluginCfgProps of pluginsProperties) {
+                // params.response.console.log(nextPluginCfgProps.impConfig.toString());
                 if (params.arguments.plugin == nextPluginCfgProps.pluginName) {
                     if (nextPluginCfgProps.impConfig.pluginFirstSteps != undefined) {
+                        // params.response.console.log(nextPluginCfgProps.pluginName.toString());
                         params.response.console.log(nextPluginCfgProps.impConfig.pluginFirstSteps);
                     } else {
+                        // params.response.console.log(nextPluginCfgProps.impConfig.pluginFirstSteps);
                         params.response.console.log("The first steps are not defined for this plugin.");
                     }
                     return;

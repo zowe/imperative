@@ -39,7 +39,7 @@ export const firststepsDefinition: ICommandDefinition = {
     // ],
     examples: [
         {
-            description: `Show first steps for a plugin called 'my-plugin'.`,
+            description: `Show first steps for a plugin called 'my-plugin'`,
             options: "my-plugin"
         }
     ]

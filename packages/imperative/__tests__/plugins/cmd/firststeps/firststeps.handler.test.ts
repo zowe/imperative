@@ -17,14 +17,21 @@ jest.mock("../../../../../cmd/src/response/HandlerResponse");
 import { CommandResponse, IHandlerParameters } from "../../../../../cmd";
 import { ImperativeConfig } from "../../../../../utilities/src/ImperativeConfig";
 import { IssueSeverity, PluginIssues } from "../../../../src/plugins/utilities/PluginIssues";
+// import { AppSettings } from "../../../settings";
+import { readFileSync, writeFileSync } from "jsonfile";
+import { ICommandDefinition } from "../../../../../cmd/src/doc/ICommandDefinition";
+import { IImperativeConfig } from "../../../../src/doc/IImperativeConfig";
 import { resolve } from "path";
 import { TextUtils } from "../../../../../utilities";
 import FirststepsHandler from "../../../../src/plugins/cmd/firststeps/firststeps.handler";
 import { ImperativeError } from "../../../../../error/src/ImperativeError";
+import { IPluginCfgProps } from "../../../../src/plugins/doc/IPluginCfgProps";
+import { PluginManagementFacility } from "../../../../src/plugins/PluginManagementFacility";
 
 describe("Plugin validate command handler", () => {
 
     const pluginName = "sample-plugin";
+    const pluginNameFS = "sample-plugin-first-steps";
     const pluginIssues: PluginIssues = PluginIssues.instance;
 
     /* Put a base CLI config into ImperativeConfig. It is required by infrastructure
@@ -33,6 +40,140 @@ describe("Plugin validate command handler", () => {
     const impCfg: ImperativeConfig = ImperativeConfig.instance;
     impCfg.loadedConfig = require("../../__resources__/baseCliConfig.testData");
     impCfg.callerLocation = resolve("../../../../../../imperative-sample/lib/index.js");
+
+    const PMF = PluginManagementFacility.instance as any;
+
+    const goodPluginSummary: string = "This is my plugin summary!";
+    const goodPluginAliases: string[] = ["sp", "samp"];
+
+    const basePluginConfig: IImperativeConfig = {
+        name: "sample-plugin",
+        pluginAliases: goodPluginAliases,
+        pluginSummary: goodPluginSummary,
+        rootCommandDescription: "imperative sample plugin",
+        pluginHealthCheck: "./lib/sample-plugin/healthCheck.handler",
+        definitions: [
+            {
+                name: "foo",
+                description: "dummy foo command",
+                type: "command",
+                handler: "./lib/sample-plugin/cmd/foo/foo.handler"
+            },
+            {
+                name: "bar",
+                description: "dummy bar command",
+                type: "command",
+                handler: "./lib/sample-plugin/cmd/bar/bar.handler"
+            }
+        ],
+        profiles: [
+            {
+                type: "TestProfile",
+                schema: {
+                    type: "object",
+                    title: "The test profile schema",
+                    description: "The test command profile description",
+                    properties: {
+                        size: {
+                            optionDefinition: {
+                                description: "Some description of size",
+                                type: "string",
+                                name: "size", aliases: ["s"],
+                                required: true
+                            },
+                            type: "string",
+                        }
+                    }
+                }
+            }
+        ]
+    };
+
+    const basePluginConfigWithFirstSteps: IImperativeConfig = {
+        name: "sample-plugin-first-steps",
+        pluginAliases: goodPluginAliases,
+        pluginSummary: goodPluginSummary,
+        rootCommandDescription: "imperative sample plugin fs",
+        pluginHealthCheck: "./lib/sample-plugin/healthCheck.handler",
+        definitions: [
+            {
+                name: "foo",
+                description: "dummy foo command",
+                type: "command",
+                handler: "./lib/sample-plugin/cmd/foo/foo.handler"
+            },
+            {
+                name: "bar",
+                description: "dummy bar command",
+                type: "command",
+                handler: "./lib/sample-plugin/cmd/bar/bar.handler"
+            }
+        ],
+        profiles: [
+            {
+                type: "TestProfile",
+                schema: {
+                    type: "object",
+                    title: "The test profile schema",
+                    description: "The test command profile description",
+                    properties: {
+                        size: {
+                            optionDefinition: {
+                                description: "Some description of size",
+                                type: "string",
+                                name: "size", aliases: ["s"],
+                                required: true
+                            },
+                            type: "string",
+                        }
+                    }
+                }
+            }
+        ],
+        pluginFirstSteps: "These are the first steps"
+    };
+
+
+    const basePluginCfgProps: IPluginCfgProps = {
+        pluginName: pluginName,
+        npmPackageName: "PluginHasNoNpmPkgName",
+        impConfig: basePluginConfig,
+        cliDependency: {
+            peerDepName: "@zowe/cli",
+            peerDepVer: "-1"
+        },
+        impDependency: {
+            peerDepName: "@zowe/imperative",
+            peerDepVer: "-1"
+        }
+    };
+
+    const basePluginCfgPropFirstSteps: IPluginCfgProps = {
+        pluginName: pluginNameFS,
+        npmPackageName: "PluginHasNoNpmPkgName",
+        impConfig: basePluginConfigWithFirstSteps,
+        cliDependency: {
+            peerDepName: "@zowe/cli",
+            peerDepVer: "-1"
+        },
+        impDependency: {
+            peerDepName: "@zowe/imperative",
+            peerDepVer: "-1"
+        }
+    };
+
+    const mockInstalledPlugins: IPluginCfgProps[] = [basePluginCfgProps, basePluginCfgPropFirstSteps];
+
+
+
+    // const basePluginCmdDef: ICommandDefinition = {
+    //     name: basePluginConfig.name,
+    //     aliases: goodPluginAliases,
+    //     summary: goodPluginSummary,
+    //     description: basePluginConfig.rootCommandDescription,
+    //     type: "group",
+    //     children: basePluginConfig.definitions
+    // };
 
     beforeEach(() => {
         // Mocks need cleared after every test for clean test runs
@@ -45,6 +186,10 @@ describe("Plugin validate command handler", () => {
                 version: "1.0.1"
             }
         });
+
+        // PluginManagementFacility.instance.allPluginCfgProps
+
+        
     });
 
     const setExitCodeFunction = jest.fn();
@@ -120,9 +265,20 @@ describe("Plugin validate command handler", () => {
             expect(error).not.toBeDefined();
         });
 
-        it("should have first steps with existent plugin name", async () => {
-            params.arguments.plugin = ["imperative-sample-plugin"];
+        it("should have existent plugin name with no first steps", async () => {
+            params.arguments.plugin = ["sample-plugin"];
             let error;
+
+            const mocks = {
+                readFileSync: readFileSync as Mock<typeof readFileSync>,
+            };
+
+            jest.fn().mockReturnValue(mockInstalledPlugins);
+
+            const savedPluginCfgProps = PMF.mAllPluginCfgProps;
+            PMF.mAllPluginCfgProps = mockInstalledPlugins;
+
+
             try {
                 await firststepsHandler.process(params as IHandlerParameters);
             } catch (err) {
@@ -130,6 +286,31 @@ describe("Plugin validate command handler", () => {
             }
             expect(params.response.console.log).toHaveBeenCalledWith(
                 "The first steps are not defined for this plugin."
+                );
+            expect(error).not.toBeDefined();
+        });
+
+        it("should have existent plugin name with first steps defined", async () => {
+            params.arguments.plugin = ["sample-plugin-first-steps"];
+            let error;
+
+            const mocks = {
+                readFileSync: readFileSync as Mock<typeof readFileSync>,
+            };
+
+            jest.fn().mockReturnValue(mockInstalledPlugins);
+
+            const savedPluginCfgProps = PMF.mAllPluginCfgProps;
+            PMF.mAllPluginCfgProps = mockInstalledPlugins;
+
+
+            try {
+                await firststepsHandler.process(params as IHandlerParameters);
+            } catch (err) {
+                error = err;
+            }
+            expect(params.response.console.log).toHaveBeenCalledWith(
+                "These are the first steps"
                 );
             expect(error).not.toBeDefined();
         });
