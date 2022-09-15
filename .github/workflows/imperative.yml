@@ -19,6 +19,7 @@ jobs:
     env:
       OS: ${{ matrix.os }}
       NODE: ${{ matrix.node-version }}
+      NODE_OPTIONS: --max_old_space_size=4096
 
     timeout-minutes: 60
 
