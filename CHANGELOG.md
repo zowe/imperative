@@ -5,6 +5,7 @@ All notable changes to the Imperative package will be documented in this file.
 ## Recent Changes
 
 - BugFix: Updated `diff2html` and `npm-package-arg` dependencies for technical currency.
+- BugFix: Fixed inconsistent behavior of Config API introduced in the last version. It now skips loading project config layers when project directory is `false` instead of an empty string.
 
 ## `5.5.2`
 

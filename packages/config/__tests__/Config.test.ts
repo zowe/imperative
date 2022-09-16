@@ -128,6 +128,18 @@ describe("Config tests", () => {
             expect(config.properties).toMatchSnapshot();
         });
 
+        it("should not load project config files when projectDir is false", async () => {
+            jest.spyOn(Config, "search")
+                .mockReturnValueOnce(__dirname + "/__resources__/project.config.user.json")
+                .mockReturnValueOnce(__dirname + "/__resources__/project.config.json");
+            jest.spyOn(fs, "existsSync").mockReturnValue(false);
+            const config = await Config.load(MY_APP, { projectDir: false });
+            expect(config.layers[0].path).toBe("");
+            expect(config.layers[1].path).toBe("");
+            expect(config.layers[2].path).toContain(config.mHomeDir);
+            expect(config.layers[3].path).toContain(config.mHomeDir);
+        });
+
         it("should load a config and populate missing defaults", async () => {
             jest.spyOn(Config, "search").mockReturnValue(__dirname + "/__resources__/project.config.json");
             jest.spyOn(fs, "existsSync")
@@ -580,12 +592,6 @@ describe("Config tests", () => {
             const file = Config.search(configFile, { ignoreDirs: [path.join(configDir, "..")], startDir: configDir });
             expect(file).not.toBe(notExpectedPath);
             expect(file).toBe(path.resolve(expectedPath));
-        });
-        it("should not search for a file when startDir is empty string", async () => {
-            const existsSpy = jest.spyOn(fs, "existsSync");
-            const file = Config.search(configFile, { startDir: "" });
-            expect(file).toBeNull();
-            expect(existsSpy).not.toHaveBeenCalled();
         });
         it("should fail to find a file", async () => {
             const existsSpy = jest.spyOn(fs, "existsSync").mockReturnValue(false);
