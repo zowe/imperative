@@ -9,7 +9,7 @@
 *
 */
 
-import { TestLogger } from "../TestLogger";
+import { TestLogger } from "./TestLogger";
 import { isNullOrUndefined } from "util";
 
 const fnArgs = require("get-function-arguments");

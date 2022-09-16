@@ -12,7 +12,7 @@
 
 jest.mock("../src/utils/ProfileIO");
 import { BasicProfileManager } from "../src/BasicProfileManager";
-import { TestLogger } from "../../../__tests__/TestLogger";
+import { TestLogger } from "../../../__tests__/src/TestLogger";
 import { IProfileDeleted } from "../src/doc/response/IProfileDeleted";
 import { inspect } from "util";
 import {

@@ -19,6 +19,7 @@ export interface IConfigOpts {
 
     /**
      * Directory where project config files are located. Defaults to working directory.
+     * Specify an empty string to disable loading of project config files.
      */
     projectDir?: string;
 

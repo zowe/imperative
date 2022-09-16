@@ -22,7 +22,7 @@ import { inspect, isArray, isNullOrUndefined, isString } from "util";
 import { Constants } from "../../packages/constants";
 import { ICommandResponse } from "../../packages/cmd";
 import { ICompareParms } from "./doc/ICompareParms";
-import { TestLogger } from "../TestLogger";
+import { TestLogger } from "./TestLogger";
 import * as nodePath from "path";
 import { mkdirpSync } from "fs-extra";
 import * as fs from "fs";
@@ -58,10 +58,8 @@ export * from "fs";
 
 export { inspect } from "util";
 
-export * from "path";
 export { spawnSync, SpawnSyncReturns } from "child_process";
 export const DataObjectParser = require("dataobject-parser");
-export * from "fs";
 
 export const TEST_HOME: string = process.cwd() + "/__tests__/__results__/data/.testHomeDir";
 

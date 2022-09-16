@@ -11,6 +11,6 @@
 
 export class ExperimentalExampleConstants {
     public static readonly EXPERIMENTAL_DESCRIPTION =
-    "this is my custom experimental description help text. it explains" +
+        "this is my custom experimental description help text. it explains" +
         " what experimental commands mean to me";
 }

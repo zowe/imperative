@@ -16,7 +16,7 @@ jest.mock("../../../logger/src/LoggerUtils");
 import { CommandProfileLoader } from "../../src/profiles/CommandProfileLoader";
 import { ICommandDefinition } from "../../src/doc/ICommandDefinition";
 import { BasicProfileManager } from "../../../profiles/src/BasicProfileManager";
-import { TestLogger } from "../../../../__tests__/TestLogger";
+import { TestLogger } from "../../../../__tests__/src/TestLogger";
 import { CommandProfiles } from "../../src/profiles/CommandProfiles";
 import { ImperativeError } from "../../../error";
 import { BasicProfileManagerFactory, IProfileLoaded } from "../../../profiles";

@@ -15,7 +15,7 @@ jest.mock("chalk");
 import { CommandResponse } from "../../src/response/CommandResponse";
 import { ImperativeError } from "../../../error";
 import { inspect } from "util";
-import { TestLogger } from "../../../../__tests__/TestLogger";
+import { TestLogger } from "../../../../__tests__/src/TestLogger";
 import { IO } from "../../../io";
 import { OUTPUT_FORMAT } from "../..";
 import { CliUtils, IDaemonResponse } from "../../../utilities";

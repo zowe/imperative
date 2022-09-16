@@ -9,31 +9,10 @@
 *
 */
 
-import { IImperativeConfig } from "../../../../../packages/imperative";
 import { IO } from "../../../../../packages/io";
 import * as T from "../../../TestUtil";
 import { join } from "path";
-
-/////////////////////////////////////////////////////////////////////////////
-//////////// USE ONLY FROM WITHIN /test/src/packages/plugins ////////////////
-/////////////////////////////////////////////////////////////////////////////
-/**
- * The config of the test cli
- * @type {IImperativeConfig}
- */
-export const config: IImperativeConfig = require(join(__dirname, "..", "plugins", "test_cli", "TestConfiguration"));
-
-/**
- * The bin directory for plugins tests
- * @type {string}
- */
-export const cliBin: string = join(__dirname, "..", "plugins", "test_cli", "TestCLI.ts");
-
-/**
- * The name of the plugin group to run tests on. In the event it changes in the future
- * @type {string}
- */
-export const pluginGroup: string = "plugins";
+import { config } from "../plugins/PluginTestConstants";
 
 const testCliNodeModulePath = join(__dirname, "..", "plugins", "test_cli", "node_modules");
 const impLibDir = join(__dirname, "../../../../../lib");
