@@ -84,7 +84,7 @@ export class Config {
      * Directory where project config files are located. Defaults to working directory.
      * @internal
      */
-    public mProjectDir: string;
+    public mProjectDir: string | false;
 
     /**
      * Currently active layer whose properties will be manipulated
@@ -252,10 +252,12 @@ export class Config {
     private layerPath(layer: Layers): string {
         switch (layer) {
             case Layers.ProjectUser: {
+                if (this.mProjectDir === false) return "";
                 const userConfigPath = Config.search(this.userConfigName, { ignoreDirs: [this.mHomeDir], startDir: this.mProjectDir });
                 return userConfigPath || path.join(this.mProjectDir, this.userConfigName);
             }
             case Layers.ProjectConfig: {
+                if (this.mProjectDir === false) return "";
                 const configPath = Config.search(this.configName, { ignoreDirs: [this.mHomeDir], startDir: this.mProjectDir });
                 return configPath || path.join(this.mProjectDir, this.configName);
             }
@@ -399,7 +401,6 @@ export class Config {
      */
     public static search(file: string, opts?: { ignoreDirs?: string[]; startDir?: string }): string {
         opts = opts || {};
-        if (opts.startDir === "") { return null; }
         const p = findUp.sync((directory: string) => {
             if (opts.ignoreDirs?.includes(directory)) return;
             return fs.existsSync(path.join(directory, file)) && directory;

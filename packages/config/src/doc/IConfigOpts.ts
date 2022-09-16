@@ -19,8 +19,9 @@ export interface IConfigOpts {
 
     /**
      * Directory where project config files are located. Defaults to working directory.
+     * Specify `false` to disable loading of project config files.
      */
-    projectDir?: string;
+    projectDir?: string | false;
 
     /**
      * Vault object with methods for loading and saving secure credentials
