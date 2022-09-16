@@ -174,7 +174,7 @@ export class PluginRequireProvider {
 
         // Timerify the function if needed
         // Gave it a name so that we can more easily track it
-        Module.prototype.require = PerfTiming.api.watch(function PluginModuleLoader(...args: any[]) {
+        Module.prototype.require = PerfTiming.api.watch<any>(function PluginModuleLoader(...args: any[]) {
             // Check to see if the module should be injected
             const request: string = args[0];
             const doesUseOverrides = request.match(regex);

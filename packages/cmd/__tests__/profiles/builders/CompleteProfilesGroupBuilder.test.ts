@@ -13,7 +13,7 @@ jest.mock("../../../../utilities/src/ImperativeConfig");
 
 import { ImperativeConfig } from "../../../../utilities";
 import { deleteHandlerPaths, testBuilderProfiles } from "./ProfileBuilderTestConstants";
-import { TestLogger } from "../../../../../__tests__/TestLogger";
+import { TestLogger } from "../../../../../__tests__/src/TestLogger";
 import { CompleteProfilesGroupBuilder } from "../../../../imperative/src/profiles/builders/CompleteProfilesGroupBuilder";
 
 describe("Complete Profiles Group Builder", () => {

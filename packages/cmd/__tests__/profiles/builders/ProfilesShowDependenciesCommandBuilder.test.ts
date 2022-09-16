@@ -10,7 +10,7 @@
 */
 
 import { deleteHandlerPaths, testBuilderProfiles } from "./ProfileBuilderTestConstants";
-import { TestLogger } from "../../../../../__tests__/TestLogger";
+import { TestLogger } from "../../../../../__tests__/src/TestLogger";
 import { ProfilesShowDependenciesCommandBuilder } from "../../../../imperative/src/profiles/builders/ProfilesShowDependenciesCommandBuilder";
 
 describe("Profile Show Dependencies Command Builder", () => {

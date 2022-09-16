@@ -11,7 +11,7 @@
 
 jest.mock("../src/utils/ProfileIO");
 
-import { PROFILE_TYPE } from "../../../__tests__/src/packages/profiles/src/constants/BasicProfileManagerTestContants";
+import { PROFILE_TYPE } from "../../../__tests__/src/packages/profiles/src/constants/BasicProfileManagerTestConstants";
 import { BasicProfileManager } from "../src/BasicProfileManager";
 import {
     APPLE_PROFILE_TYPE,
@@ -20,7 +20,7 @@ import {
     STRAWBERRY_WITH_REQUIRED_APPLE_DEPENDENCY,
     TEST_PROFILE_ROOT_DIR
 } from "./TestConstants";
-import { TestLogger } from "../../../__tests__/TestLogger";
+import { TestLogger } from "../../../__tests__/src/TestLogger";
 import { IProfile, ProfileIO } from "../";
 import { inspect } from "util";
 

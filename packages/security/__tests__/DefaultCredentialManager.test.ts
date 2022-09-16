@@ -76,8 +76,9 @@ describe("DefaultCredentialManager", () => {
                 // Jest doesn't let us mock require.resolve, so instead we purposely
                 // fail the import and look for module path in the error message
                 const fakeCliPath = "/root/fakeCli";
+                const mainModule = process.mainModule;
                 process.mainModule = { filename: fakeCliPath } as any;
-                const pathResolveSpy = jest.spyOn(path, "resolve").mockReturnValueOnce(path.parse(__dirname).root);
+                const pathResolveSpy = jest.spyOn(path, "resolve").mockReturnValue(path.parse(__dirname).root);
 
                 // Force enter the try catch
                 Object.defineProperty(manager, "keytar", {
@@ -94,12 +95,13 @@ describe("DefaultCredentialManager", () => {
                     expect(error.message).toContain("Cannot resolve module");
                     expect(error.message).toContain(fakeCliPath);
                 } finally {
-                    delete process.mainModule;
+                    process.mainModule = mainModule;
                     pathResolveSpy.mockRestore();
                 }
             });
 
             it("should look for keytar in local node_modules folder", async () => {
+                const mainModule = process.mainModule;
                 process.mainModule = { filename: "/root/fakeCli" } as any;
 
                 // Force enter the try catch
@@ -116,7 +118,7 @@ describe("DefaultCredentialManager", () => {
                     expect(error).toBeDefined();
                     expect(error.message).toContain("Cannot assign to read only property");
                 } finally {
-                    delete process.mainModule;
+                    process.mainModule = mainModule;
                 }
             });
         });

@@ -15,7 +15,7 @@ import * as yargs from "yargs";
 import { Constants } from "../../../../../packages/constants";
 import { CommandProcessor, ICommandDefinition, ICommandProfileTypeConfiguration, ICommandResponse } from "../../../../../packages/cmd";
 import { isNullOrUndefined } from "util";
-import { TestLogger } from "../../../../TestLogger";
+import { TestLogger } from "../../../../src/TestLogger";
 import { AbstractHelpGenerator } from "../../../../../packages/cmd/src/help/abstract/AbstractHelpGenerator";
 import { DefaultHelpGenerator } from "../../../../../packages/cmd/src/help/DefaultHelpGenerator";
 import { BasicProfileManagerFactory } from "../../../../../packages/index";
@@ -119,7 +119,7 @@ describe("Imperative should allow CLI implementations to configure their own pro
             });
     }
 
-    // eslint-disable-next-line jest/no-disabled-tests
+    // eslint-disable-next-line jest/expect-expect, jest/no-disabled-tests
     it.skip("We should be able to issue a command and have a profile be automatically loaded", function () {
         // return issueCommand.bind(this, ["profile"], true)();
     });

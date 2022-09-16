@@ -9,7 +9,7 @@
 *
 */
 
-import { TestLogger } from "../../../__tests__/TestLogger";
+import { TestLogger } from "../../../__tests__/src/TestLogger";
 import { inspect } from "util";
 import { IProfileLoaded } from "../../profiles/src/doc/response/IProfileLoaded";
 import {

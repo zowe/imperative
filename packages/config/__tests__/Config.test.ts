@@ -392,7 +392,7 @@ describe("Config tests", () => {
             const config = await Config.load(MY_APP);
             config.setSchema({ $schema: "./schema.json" });
             expect(writeFileSpy).toHaveBeenCalledTimes(1);
-            const jsonText = writeFileSpy.mock.calls[0][1];
+            const jsonText = writeFileSpy.mock.calls[0][1] as string;
             expect(jsonText).toBeDefined();
             expect(jsonText.match(/^{\s*"\$schema":/)).not.toBeNull();
         });

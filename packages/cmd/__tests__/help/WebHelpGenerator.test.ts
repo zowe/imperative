@@ -23,6 +23,7 @@ import { ICommandDefinition } from "../../../cmd/src/doc/ICommandDefinition";
 
 describe("WebHelpGenerator", () => {
     describe("buildHelp", () => {
+        const mainModule = process.mainModule;
         let moduleFileNm: string;
         let cliHome: string;
         let configForHelp: IImperativeConfig;
@@ -30,7 +31,7 @@ describe("WebHelpGenerator", () => {
         let rimraf: any;
         let loremIpsum: string;
 
-        beforeAll( async () => {
+        beforeAll(async () => {
             rimraf = require("rimraf");
 
             // any file that lives under the imperative directory will work for our test
@@ -103,20 +104,16 @@ describe("WebHelpGenerator", () => {
             /* process.mainModule.filename was null, so we must give it a value.
              * mainModule is a getter of a property, so we mock the property.
              */
-            Object.defineProperty(process, "mainModule", {
-                configurable: true,
-                get: jest.fn(() => {
-                    return {
-                        filename: moduleFileNm
-                    };
-                })
-            });
+            (process.mainModule as any) = {
+                filename: moduleFileNm
+            };
 
             // imperative.init does all the setup for WebHelp to be run
             await Imperative.init(configForHelp);
         });
 
-        afterAll( async () => {
+        afterAll(() => {
+            process.mainModule = mainModule;
             rimraf.sync(cliHome);
         });
 

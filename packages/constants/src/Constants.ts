@@ -37,7 +37,7 @@ export class Constants {
      * @type {string}
      */
     public static readonly DEFAULT_EXPERIMENTAL_COMMAND_EXPLANATION: string =
-    "Experimental commands are commands that are not ready for general availability. If you " +
+        "Experimental commands are commands that are not ready for general availability. If you " +
         "decide to use these commands, you might encounter bugs, incompatibilities with your system, " +
         "or incomplete help text. ";
     /**

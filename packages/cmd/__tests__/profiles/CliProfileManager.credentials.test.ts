@@ -9,7 +9,7 @@
 *
 */
 
-import { TestLogger } from "../../../../__tests__/TestLogger";
+import { TestLogger } from "../../../../__tests__/src/TestLogger";
 import { ProfileIO } from "../../../profiles/src/utils/ProfileIO";
 import { CliProfileManager } from "../../src/profiles/CliProfileManager";
 import { IProfile } from "../../../profiles/src/doc/definition/IProfile";

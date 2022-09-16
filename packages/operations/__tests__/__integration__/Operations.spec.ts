@@ -17,7 +17,7 @@ import { isNullOrUndefined } from "util";
 import { TestOperations3 } from "../operation/TestOperations3";
 
 import { IOperationResult, Operation, Operations } from "../../index";
-import { TestLogger } from "../../../../__tests__/TestLogger";
+import { TestLogger } from "../../../../__tests__/src/TestLogger";
 
 const logger = TestLogger.getTestLogger();
 
