@@ -11,7 +11,7 @@
 
 jest.mock("../src/utils/ProfileIO");
 import { ImperativeError } from "../../error/src/ImperativeError";
-import { TestLogger } from "../../../__tests__/TestLogger";
+import { TestLogger } from "../../../__tests__/src/TestLogger";
 import { ISaveProfile } from "../src/doc/parms/ISaveProfile";
 import { inspect } from "util";
 import { IProfileSaved } from "../src/doc/response/IProfileSaved";

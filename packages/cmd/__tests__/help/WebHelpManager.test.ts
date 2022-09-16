@@ -41,11 +41,12 @@ describe("WebHelpManager", () => {
         const webHelpDirNm = path.join(mockCliHome, "web-help");
         const impCfg: ImperativeConfig = ImperativeConfig.instance;
         const cmdReponse = new CommandResponse({ silent: false });
+        const mainModule = process.mainModule;
         let opener: any;
         let instPluginsFileNm: string;
         let oldProcessEnv: any;
 
-        beforeAll( async () => {
+        beforeAll(async () => {
             jest.mock("opener");
             opener = require("opener");
 
@@ -54,14 +55,9 @@ describe("WebHelpManager", () => {
             /* getResolvedCmdTree calls getCallerLocation, and we need it to return some string.
              * getCallerLocation is a getter of a property, so we mock the property.
              */
-            Object.defineProperty(process, "mainModule", {
-                configurable: true,
-                get: jest.fn(() => {
-                    return {
-                        filename: "FakeCli"
-                    };
-                })
-            });
+            (process.mainModule as any) = {
+                filename: "FakeCli"
+            };
 
             // cliHome is a getter of a property, so mock the property
             Object.defineProperty(impCfg, "cliHome", {
@@ -84,7 +80,8 @@ describe("WebHelpManager", () => {
             process.env = oldProcessEnv;
         });
 
-        afterAll( async () => {
+        afterAll(() => {
+            process.mainModule = mainModule;
             rimraf.sync(mockCliHome);
         });
 

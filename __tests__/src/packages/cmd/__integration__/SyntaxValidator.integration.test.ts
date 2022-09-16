@@ -15,7 +15,7 @@ import { CommandProcessor, ICommandDefinition, ICommandResponse } from "../../..
 import { ValidationTestCommand } from "../ValidationTestCommand";
 import { Constants } from "../../../../../packages/constants/index";
 import { Imperative } from "../../../../../packages/imperative/src/Imperative";
-import { TestLogger } from "../../../../TestLogger";
+import { TestLogger } from "../../../../src/TestLogger";
 import { createUniqueTestDataDir, rimraf } from "../../../TestUtil";
 import { AbstractHelpGenerator } from "../../../../../packages/cmd/src/help/abstract/AbstractHelpGenerator";
 import { DefaultHelpGenerator } from "../../../../../packages/cmd/src/help/DefaultHelpGenerator";
@@ -43,8 +43,9 @@ const DUMMY_PROFILE_TYPE_CONFIG: IProfileTypeConfiguration[] = [
     }
 ];
 describe("Imperative should provide advanced syntax validation rules", function () {
-
     const home = __dirname + "/validationtests";
+    const mainModule = process.mainModule;
+
     beforeAll(function () {
         (process.mainModule as any) = {
             filename: __filename
@@ -60,6 +61,7 @@ describe("Imperative should provide advanced syntax validation rules", function 
         });
     });
     afterAll(() => {
+        process.mainModule = mainModule;
         rimraf(home);
     });
     describe("Advanced syntax validation for commands using a test command", function () {
