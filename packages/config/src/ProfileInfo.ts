@@ -219,7 +219,7 @@ export class ProfileInfo {
 
                 await ConfigAutoStore._storeSessCfgProps({
                     config: this.mLoadedConfig,
-                    defaultBaseProfileName: this.mLoadedConfig?.properties.defaults.base,
+                    defaultBaseProfileName: this.mLoadedConfig?.mProperties.defaults.base,
                     sessCfg: {
                         [options.property === "host" ? "hostname" : options.property]: options.value
                     },
@@ -250,7 +250,7 @@ export class ProfileInfo {
         const toUpdate = options.mergedArgs.knownArgs.find((v => v.argName === options.property)) ||
             options.mergedArgs.missingArgs.find((v => v.argName === options.property));
 
-        if (toUpdate == null || (toUpdate.argLoc.locType === ProfLocType.TEAM_CONFIG && !this.getTeamConfig().properties.autoStore)) {
+        if (toUpdate == null || (toUpdate.argLoc.locType === ProfLocType.TEAM_CONFIG && !this.getTeamConfig().mProperties.autoStore)) {
             return false;
         }
 
@@ -272,7 +272,8 @@ export class ProfileInfo {
                 }
 
                 // Update mOldSchoolProfileCache to get mergedArgs updated
-                this.mOldSchoolProfileCache.find(v => v.name === profileName).profile[options.property] = options.value;
+                const profile = this.mOldSchoolProfileCache.find(v => v.name === profileName);
+                if (profile != null) profile.profile[options.property] = options.value; // What should we do in the else case?
                 break;
             }
             case ProfLocType.TEAM_CONFIG: {
@@ -329,7 +330,7 @@ export class ProfileInfo {
 
         // Do we have team config profiles?
         if (this.mUsingTeamConfig) {
-            const teamConfigProfs = this.mLoadedConfig.layerMerge(true, options?.excludeHomeDir).profiles;
+            const teamConfigProfs = this.mLoadedConfig.layerMerge({ maskSecure: true, excludeGlobalLayer: options?.excludeHomeDir }).profiles;
             // Iterate over them
             for (const prof in teamConfigProfs) {
                 // Check if the profile has a type
@@ -404,7 +405,8 @@ export class ProfileInfo {
 
         if (this.usingTeamConfig) {
             // get default profile name from the team config
-            if (!Object.prototype.hasOwnProperty.call(this.mLoadedConfig.maskedProperties.defaults, profileType)) {
+            const configProperties = this.mLoadedConfig.mProperties;
+            if (!Object.prototype.hasOwnProperty.call(configProperties.defaults, profileType)) {
                 // no default exists for the requested type
                 this.mImpLogger.warn("Found no profile of type '" +
                     profileType + "' in team config."
@@ -413,7 +415,7 @@ export class ProfileInfo {
             }
 
             // extract info from the underlying team config
-            const foundProfNm = this.mLoadedConfig.maskedProperties.defaults[profileType];
+            const foundProfNm = configProperties.defaults[profileType];
 
             // for a team config, we use the last node of the jsonLoc as the name
             const foundJson = this.mLoadedConfig.api.profiles.expandPath(foundProfNm);
@@ -572,14 +574,16 @@ export class ProfileInfo {
             knownArgs: [],
             missingArgs: []
         };
+        let configProperties: IConfig;
 
         const osLocInfo = this.getOsLocInfo(profile)?.[0];
         if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
+            configProperties = this.mLoadedConfig.mProperties;
             if (profile.profName != null) {
                 // Load args from service profile if one exists
                 const serviceProfile = this.mLoadedConfig.api.profiles.get(profile.profName, false);
                 for (const [propName, propVal] of Object.entries(serviceProfile)) {
-                    const [argLoc, secure] = this.argTeamConfigLoc({ profileName: profile.profName, propName, osLocInfo });
+                    const [argLoc, secure] = this.argTeamConfigLoc({ profileName: profile.profName, propName, osLocInfo, configProperties });
                     mergedArgs.knownArgs.push({
                         argName: CliUtils.getOptionFormat(propName).camelCase,
                         dataType: this.argDataType(typeof propVal),  // TODO Is using `typeof` bad for "null" values that may be int or bool?
@@ -599,16 +603,17 @@ export class ProfileInfo {
                 layerProperties = this.mLoadedConfig.findLayer(osLoc.user, osLoc.global)?.properties;
                 realBaseProfileName = layerProperties?.defaults.base;
                 if (realBaseProfileName) baseProfile = this.mLoadedConfig.api.profiles.buildProfile(realBaseProfileName, layerProperties?.profiles);
+                else baseProfile = null;
             }
             if (baseProfile != null) {
                 // Load args from default base profile if one exists
-                const baseProfileName = realBaseProfileName ?? this.mLoadedConfig.properties.defaults.base;
+                const baseProfileName = realBaseProfileName ?? configProperties.defaults.base;
                 for (const [propName, propVal] of Object.entries(baseProfile)) {
                     const argName = CliUtils.getOptionFormat(propName).camelCase;
                     // Skip properties already loaded from service profile
                     if (!mergedArgs.knownArgs.find((arg) => arg.argName === argName)) {
                         const [argLoc, secure] = this.argTeamConfigLoc({
-                            profileName: baseProfileName, propName, osLocInfo, configProperties: layerProperties
+                            profileName: baseProfileName, propName, osLocInfo, configProperties: layerProperties ?? configProperties
                         });
                         mergedArgs.knownArgs.push({
                             argName,
@@ -684,13 +689,16 @@ export class ProfileInfo {
                     if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
                         let [argLoc, foundInSecureArray]: [IProfLoc, boolean] = [null, false];
                         try {
-                            [argLoc, foundInSecureArray] = this.argTeamConfigLoc({ profileName: profile.profName, propName, osLocInfo });
+                            [argLoc, foundInSecureArray] = this.argTeamConfigLoc({
+                                profileName: profile.profName,
+                                propName, osLocInfo, configProperties
+                            });
                             argFound = true;
                         } catch (_argNotFoundInServiceProfile) {
-                            if (this.mLoadedConfig.api.profiles.defaultGet("base")) {
+                            if (configProperties.defaults.base != null) {
                                 try {
                                     [argLoc, foundInSecureArray] = this.argTeamConfigLoc({
-                                        profileName: this.mLoadedConfig.properties.defaults.base, propName, osLocInfo
+                                        profileName: configProperties.defaults.base, propName, osLocInfo, configProperties
                                     });
                                     argFound = true;
                                 } catch (_argNotFoundInBaseProfile) {
@@ -947,7 +955,7 @@ export class ProfileInfo {
         if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
             const ret: IProfLocOsLoc[] = [];
             for (const loc of osLoc) {
-                for (const layer of this.mLoadedConfig.layers) {
+                for (const layer of this.mLoadedConfig.mLayers) {
                     if (layer.path === loc) {
                         // we found the config layer matching osLoc
                         ret.push({ name: profile.profName, path: loc, user: layer.user, global: layer.global });
@@ -969,7 +977,7 @@ export class ProfileInfo {
         switch (arg.argLoc.locType) {
             case ProfLocType.TEAM_CONFIG:
                 if (arg.argLoc.osLoc?.length > 0 && arg.argLoc.jsonLoc != null) {
-                    for (const layer of this.mLoadedConfig.layers) {
+                    for (const layer of this.mLoadedConfig.mLayers) {
                         if (layer.path === arg.argLoc.osLoc[0]) {
                             // we found the config layer matching arg.osLoc
                             argValue = lodash.get(layer.properties, arg.argLoc.jsonLoc);
@@ -1109,7 +1117,7 @@ export class ProfileInfo {
         if (this.mUsingTeamConfig) {
             // Load profile schemas for all layers
             let lastSchema: { path: string, json: any } = { path: null, json: null };
-            for (const layer of this.getTeamConfig().layers) {
+            for (const layer of this.getTeamConfig().mLayers) {
                 if (layer.properties.$schema == null) continue;
                 const schemaUri = new url.URL(layer.properties.$schema, url.pathToFileURL(layer.path));
                 if (schemaUri.protocol !== "file:") {
@@ -1225,16 +1233,17 @@ export class ProfileInfo {
      *          and a boolean false if the profile is not a default profile
      */
     private isDefaultTeamProfile(path: string, profileType?: string): boolean {
+        const configProperties = this.mLoadedConfig.mProperties;
 
         // Is it defined for a particular profile type?
         if (profileType) {
-            if (this.mLoadedConfig.maskedProperties.defaults[profileType] === path) return true;
+            if (configProperties.defaults[profileType] === path) return true;
             else return false;
         }
 
         // Iterate over defaults to see if it's a default profile
-        for (const def in this.mLoadedConfig.maskedProperties.defaults) {
-            if (this.mLoadedConfig.maskedProperties.defaults[def] === path) {
+        for (const def in configProperties.defaults) {
+            if (configProperties.defaults[def] === path) {
                 return true;
             }
         }
@@ -1250,7 +1259,7 @@ export class ProfileInfo {
      */
     private findTeamOsLocation(jsonPath: string, excludeHomeDir?: boolean): string[] {
         const files: string[] = [];
-        const layers = this.mLoadedConfig.layers;
+        const layers = this.mLoadedConfig.mLayers;
         for (const layer of layers) {
             if (excludeHomeDir && layer.global) continue;
             if (lodash.get(layer.properties, jsonPath) !== undefined && !files.includes(layer.path)) {
@@ -1291,7 +1300,7 @@ export class ProfileInfo {
         const secFields = this.getTeamConfig().api.secure.secureFields(osLocInfo);
         const buildPath = (ps: string[], p: string) => `${ps.join(".profiles.")}.properties.${p}`;
         while (segments.length > 0 &&
-            lodash.get(opts.configProperties ?? this.mLoadedConfig.properties, buildPath(segments, opts.propName)) === undefined &&
+            lodash.get(opts.configProperties ?? this.mLoadedConfig.mProperties, buildPath(segments, opts.propName)) === undefined &&
             secFields.indexOf(buildPath(segments, opts.propName)) === -1) {
             // Drop segment from end of path if property not found
             segments.pop();
@@ -1314,7 +1323,7 @@ export class ProfileInfo {
         if (_isPropInLayer(opts.configProperties) && opts.osLocInfo) {
             filePath = opts.osLocInfo.path;
         } else {
-            for (const layer of this.mLoadedConfig.layers) {
+            for (const layer of this.mLoadedConfig.mLayers) {
                 // Find the first layer that includes the JSON path
                 if (_isPropInLayer(layer.properties)) {
                     filePath = layer.path;
@@ -1367,7 +1376,7 @@ export class ProfileInfo {
                 schemaMapKey = `${profile.profLoc.osLoc[0]}:${profile.profType}`;
             } else {
                 // no profile exists, so loop through layers and use the first schema found
-                for (const layer of this.mLoadedConfig.layers) {
+                for (const layer of this.mLoadedConfig.mLayers) {
                     const tempKey = `${layer.path}:${profile.profType}`;
                     if (this.mProfileSchemaCache.has(tempKey)) {
                         schemaMapKey = tempKey;

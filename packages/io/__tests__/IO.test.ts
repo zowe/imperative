@@ -35,7 +35,7 @@ describe("IO tests", () => {
     });
 
     it("should return true for fs.stats says input is directory", () => {
-        const fn = fs.statSync as unknown as Mock<typeof fs.statSync>;
+        const fn = jest.mocked(fs.statSync);
         fn.mockImplementation(((somePath: fs.PathLike) => {
             return {
                 isDirectory: () => true,
@@ -45,7 +45,7 @@ describe("IO tests", () => {
     });
 
     it("should return false for fs.stats says input is not directory", () => {
-        const fn = fs.statSync as unknown as Mock<typeof fs.statSync>;
+        const fn = jest.mocked(fs.statSync);
         fn.mockImplementation(((somePath: fs.PathLike) => {
             return {
                 isDirectory: () => false,
@@ -82,7 +82,7 @@ describe("IO tests", () => {
     });
 
     it("should get true if file exists", () => {
-        const fn = fs.existsSync as unknown as Mock<typeof fs.existsSync>;
+        const fn = jest.mocked(fs.existsSync);
         fn.mockImplementation(((file: fs.PathLike) => {
             return true;
         }) as any);
@@ -90,7 +90,7 @@ describe("IO tests", () => {
     });
 
     it("should get false if file doesn't exist", () => {
-        const fn = fs.existsSync as unknown as Mock<typeof fs.existsSync>;
+        const fn = jest.mocked(fs.existsSync);
         fn.mockImplementation(((file: fs.PathLike) => {
             return false;
         }) as any);
@@ -108,11 +108,11 @@ describe("IO tests", () => {
     });
 
     it("should create a dir if file doesn't exist", () => {
-        const fn = fs.existsSync as unknown as Mock<typeof fs.existsSync>;
+        const fn = jest.mocked(fs.existsSync);
         fn.mockImplementation(((file: fs.PathLike) => {
             return false;
         }) as any);
-        const fnFm = fs.mkdirSync as Mock<typeof fs.mkdirSync>;
+        const fnFm = jest.mocked(fs.mkdirSync);
         fnFm.mockImplementation(((file: fs.PathLike) => {
             return; // do nothing but pretend to write
         }) as any);
@@ -121,11 +121,11 @@ describe("IO tests", () => {
     });
 
     it("should not create a dir if file exists", () => {
-        const fn = fs.existsSync as unknown as Mock<typeof fs.existsSync>;
+        const fn = jest.mocked(fs.existsSync);
         fn.mockImplementation(((file: fs.PathLike) => {
             return true;
         }) as any);
-        const fnFm = fs.mkdirSync as Mock<typeof fs.mkdirSync>;
+        const fnFm = jest.mocked(fs.mkdirSync);
         fnFm.mockImplementation(((file: fs.PathLike) => {
             return; // do nothing but pretend to write
         }) as any);
@@ -145,15 +145,15 @@ describe("IO tests", () => {
     });
 
     it("should create several dirs if dirs do not exist", () => {
-        const fn = fs.existsSync as unknown as Mock<typeof fs.existsSync>;
+        const fn = jest.mocked(fs.existsSync);
         fn.mockImplementation(((file: fs.PathLike) => {
             return false;
         }) as any);
-        const fnFm = fs.mkdirSync as Mock<typeof fs.mkdirSync>;
+        const fnFm = jest.mocked(fs.mkdirSync);
         fnFm.mockImplementation(((file: fs.PathLike) => {
             return; // do nothing but pretend to write
         }) as any);
-        const fnPr = path.resolve as unknown as Mock<typeof path.resolve>;
+        const fnPr = jest.mocked(path.resolve);
         fnPr.mockImplementation((...pathSegments: any[]) => {
             return pathSegments[0];
         });
@@ -164,15 +164,15 @@ describe("IO tests", () => {
     });
 
     it("should not create several dirs if dirs already exist", () => {
-        const fn = fs.existsSync as unknown as Mock<typeof fs.existsSync>;
+        const fn = jest.mocked(fs.existsSync);
         fn.mockImplementation(((file: fs.PathLike) => {
             return true;
         }) as any);
-        const fnFm = fs.mkdirSync as Mock<typeof fs.mkdirSync>;
+        const fnFm = jest.mocked(fs.mkdirSync);
         fnFm.mockImplementation(((file: fs.PathLike) => {
             return; // do nothing but pretend to write
         }) as any);
-        const fnPr = path.resolve as unknown as Mock<typeof path.resolve>;
+        const fnPr = jest.mocked(path.resolve);
         fnPr.mockImplementation((...pathSegments: any[]) => {
             return pathSegments[0];
         });
@@ -183,16 +183,16 @@ describe("IO tests", () => {
     });
 
     it("should only create dirs that do not exist", () => {
-        const fn = fs.existsSync as unknown as Mock<typeof fs.existsSync>;
+        const fn = jest.mocked(fs.existsSync);
         let data = 0;
         fn.mockImplementation(((file: fs.PathLike) => {
             return (data++ % 2); // pretend every other dir exists
         }) as any);
-        const fnFm = fs.mkdirSync as Mock<typeof fs.mkdirSync>;
+        const fnFm = jest.mocked(fs.mkdirSync);
         fnFm.mockImplementation(((file: fs.PathLike) => {
             return; // do nothing but pretend to write
         }) as any);
-        const fnPr = path.resolve as unknown as Mock<typeof path.resolve>;
+        const fnPr = jest.mocked(path.resolve);
         fnPr.mockImplementation((...pathSegments: any[]) => {
             return pathSegments[0];
         });
@@ -203,19 +203,19 @@ describe("IO tests", () => {
     });
 
     it("should create several dirs if dirs do not exist from input file", () => {
-        const fn = fs.existsSync as unknown as Mock<typeof fs.existsSync>;
+        const fn = jest.mocked(fs.existsSync);
         fn.mockImplementation(((file: fs.PathLike) => {
             return false;
         }) as any);
-        const fnFm = fs.mkdirSync as Mock<typeof fs.mkdirSync>;
+        const fnFm = jest.mocked(fs.mkdirSync);
         fnFm.mockImplementation(((file: fs.PathLike) => {
             return; // do nothing but pretend to write
         }) as any);
-        const fnPr = path.resolve as unknown as Mock<typeof path.resolve>;
+        const fnPr = jest.mocked(path.resolve);
         fnPr.mockImplementation((...pathSegments: any[]) => {
             return pathSegments[0];
         });
-        const fnPd = path.dirname as unknown as Mock<typeof path.dirname>;
+        const fnPd = jest.mocked(path.dirname);
         fnPd.mockImplementation(((...pathSegments: any[]) => {
             const toDir: string[] = pathSegments[0].split(IO.FILE_DELIM);
             toDir.pop();
@@ -228,19 +228,19 @@ describe("IO tests", () => {
     });
 
     it("should not create several dirs if dirs already exist from input file", () => {
-        const fn = fs.existsSync as unknown as Mock<typeof fs.existsSync>;
+        const fn = jest.mocked(fs.existsSync);
         fn.mockImplementation(((file: fs.PathLike) => {
             return true;
         }) as any);
-        const fnFm = fs.mkdirSync as Mock<typeof fs.mkdirSync>;
+        const fnFm = jest.mocked(fs.mkdirSync);
         fnFm.mockImplementation(((file: fs.PathLike) => {
             return; // do nothing but pretend to write
         }) as any);
-        const fnPr = path.resolve as unknown as Mock<typeof path.resolve>;
+        const fnPr = jest.mocked(path.resolve);
         fnPr.mockImplementation((...pathSegments: any[]) => {
             return pathSegments[0];
         });
-        const fnPd = path.dirname as unknown as Mock<typeof path.dirname>;
+        const fnPd = jest.mocked(path.dirname);
         fnPd.mockImplementation(((...pathSegments: any[]) => {
             const toDir: string[] = pathSegments[0].split(IO.FILE_DELIM);
             toDir.pop();
@@ -253,20 +253,20 @@ describe("IO tests", () => {
     });
 
     it("should only create dirs that do not exist from input file", () => {
-        const fn = fs.existsSync as unknown as Mock<typeof fs.existsSync>;
+        const fn = jest.mocked(fs.existsSync);
         let data = 0;
         fn.mockImplementation(((file: fs.PathLike) => {
             return (data++ % 2); // pretend every other dir exists
         }) as any);
-        const fnFm = fs.mkdirSync as Mock<typeof fs.mkdirSync>;
+        const fnFm = jest.mocked(fs.mkdirSync);
         fnFm.mockImplementation(((file: fs.PathLike) => {
             return; // do nothing but pretend to write
         }) as any);
-        const fnPr = path.resolve as unknown as Mock<typeof path.resolve>;
+        const fnPr = jest.mocked(path.resolve);
         fnPr.mockImplementation((...pathSegments: any[]) => {
             return pathSegments[0];
         });
-        const fnPd = path.dirname as unknown as Mock<typeof path.dirname>;
+        const fnPd = jest.mocked(path.dirname);
         fnPd.mockImplementation(((...pathSegments: any[]) => {
             const toDir: string[] = pathSegments[0].split(IO.FILE_DELIM);
             toDir.pop();

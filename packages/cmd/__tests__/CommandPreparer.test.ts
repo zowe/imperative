@@ -11,7 +11,7 @@
 
 import { ICommandDefinition } from "../src/doc/ICommandDefinition";
 import { CommandPreparer } from "../src/CommandPreparer";
-import { TestLogger } from "../../../__tests__/TestLogger";
+import { TestLogger } from "../../../__tests__/src/TestLogger";
 import { inspect } from "util";
 import {
     MULTIPLE_GROUPS,
@@ -24,9 +24,8 @@ import {
     SAMPLE_BASE_PROFILE
 } from "./__resources__/CommandDefinitions";
 import { ImperativeError } from "../../error/src/ImperativeError";
-import { UnitTestUtils } from "../../../__tests__/src/UnitTestUtils";
 
-UnitTestUtils.replaceIt();
+// UnitTestUtils.replaceIt();
 
 describe("Command Preparer", () => {
     it("should prepare the final command document for imperative usage", () => {

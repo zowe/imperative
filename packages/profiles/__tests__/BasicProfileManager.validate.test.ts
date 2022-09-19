@@ -10,7 +10,7 @@
 */
 
 import { BasicProfileManager } from "../src/BasicProfileManager";
-import { TestLogger } from "../../../__tests__/TestLogger";
+import { TestLogger } from "../../../__tests__/src/TestLogger";
 import { IProfileValidated } from "../src/doc/response/IProfileValidated";
 import {
     APPLE_PROFILE_TYPE,

@@ -18,6 +18,10 @@ Object {
     "key": "IMP_INTEGRATION_TESTING_APP_MASK_OUTPUT",
     "value": "TRUE",
   },
+  "pluginsDir": Object {
+    "key": "IMP_INTEGRATION_TESTING_CLI_PLUGINS_DIR",
+    "value": undefined,
+  },
   "promptPhrase": Object {
     "key": "IMP_INTEGRATION_TESTING_PROMPT_PHRASE",
     "value": undefined,

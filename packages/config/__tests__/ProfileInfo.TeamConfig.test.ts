@@ -46,6 +46,8 @@ describe("TeamConfig ProfileInfo tests", () => {
     const teamProjDir = path.join(testDir, testAppNm + "_team_config_proj");
     const userTeamProjDir = path.join(testDir, testAppNm + "_user_and_team_config_proj");
     const teamHomeProjDir = path.join(testDir, testAppNm + "_home_team_config_proj");
+    const largeTeamProjDir = path.join(testDir, testAppNm + "_large_team_config_proj");
+    const nestedTeamProjDir = path.join(testDir, testAppNm + "_nested_team_config_proj");
     let origDir: string;
 
     const envHost = testEnvPrefix + "_OPT_HOST";
@@ -755,6 +757,31 @@ describe("TeamConfig ProfileInfo tests", () => {
             expect(caughtError.errorCode).toBe(ProfInfoErr.LOAD_SCHEMA_FAILED);
             expect(caughtError.message).toContain("Failed to load schema for profile type zosmf");
         });
+
+        it("should not look for secure properties in the global-layer base profile if it does not exist", async () => {
+            process.env[testEnvPrefix + "_CLI_HOME"] = nestedTeamProjDir;
+            const profInfo = createNewProfInfo(userTeamProjDir);
+            await profInfo.readProfilesFromDisk();
+            const profiles = profInfo.getAllProfiles();
+            const desiredProfile = "TEST001.first";
+            const profAttrs = profiles.find(p => p.profName === desiredProfile);
+            let mergedArgs;
+            if (profAttrs) {
+                let unexpectedError;
+                try {
+                    mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
+                } catch (err) {
+                    unexpectedError = err;
+                }
+                expect(unexpectedError).toBeUndefined();
+            } else {
+                expect("Profile " + desiredProfile + "not found").toBeUndefined();
+            }
+            expect(mergedArgs.missingArgs.find(a => a.argName === "user")?.secure).toBeTruthy();
+            expect(mergedArgs.missingArgs.find(a => a.argName === "password")?.secure).toBeTruthy();
+            expect(mergedArgs.knownArgs.length).toEqual(3);
+        });
+
     });
 
     describe("mergeArgsForProfileType", () => {
@@ -1045,7 +1072,7 @@ describe("TeamConfig ProfileInfo tests", () => {
             // Mock autoStore false
             jest.spyOn(profInfo, "getTeamConfig").mockReturnValueOnce({
                 ...profInfo.getTeamConfig(),
-                properties: { ...profInfo.getTeamConfig().layerMerge(false), autoStore: false }
+                mProperties: { ...profInfo.getTeamConfig().mProperties, autoStore: false }
             } as any);
             const ret = await profInfo.updateKnownProperty({ mergedArgs: prof, property: "host", value: "example.com" });
             const newHost = profInfo.getTeamConfig().api.layers.get().properties.profiles.LPAR4.properties.host;
@@ -1160,5 +1187,17 @@ describe("TeamConfig ProfileInfo tests", () => {
             expect(osLocInfo[1].path).toBe(path.join(teamHomeProjDir, testAppNm + ".config.json"));
             expect(osLocInfo[1].name).toBe(conflictingProfile);
         });
+    });
+
+    it("should load 256 profiles in under 15 seconds", async () => {
+        const profInfo = createNewProfInfo(largeTeamProjDir);
+        await profInfo.readProfilesFromDisk();
+        const startTime = Date.now();
+        const zosmfProfiles = profInfo.getAllProfiles("zosmf", { excludeHomeDir: true });
+        expect(zosmfProfiles.length).toBe(256);
+        for (const profAttrs of zosmfProfiles) {
+            profInfo.mergeArgsForProfile(profAttrs);
+        }
+        expect(Date.now() - startTime).toBeLessThan(15000);
     });
 });

@@ -12,6 +12,7 @@
 import { ImperativeConfig } from "../../../../utilities";
 import { dirname, join } from "path";
 import { Config } from "../../../../config";
+import { EnvironmentalVariableSettings } from "../../env/EnvironmentalVariableSettings";
 
 /**
  * Constants used by the PMF.
@@ -111,7 +112,8 @@ export class PMFConstants {
         this.NPM_NAMESPACE = "@zowe";
         this.CLI_CORE_PKG_NAME = ImperativeConfig.instance.hostPackageName;
         this.IMPERATIVE_PKG_NAME = ImperativeConfig.instance.imperativePackageName;
-        this.PMF_ROOT = join(ImperativeConfig.instance.cliHome, "plugins");
+        const envPluginsDir = EnvironmentalVariableSettings.read(ImperativeConfig.instance.envVariablePrefix).pluginsDir.value;
+        this.PMF_ROOT = envPluginsDir || join(ImperativeConfig.instance.cliHome, "plugins");
         this.PLUGIN_JSON = join(this.PMF_ROOT, "plugins.json");
         this.PLUGIN_USING_CONFIG = ImperativeConfig.instance.config?.exists;
         this.PLUGIN_INSTALL_LOCATION = join(this.PMF_ROOT, "installed");

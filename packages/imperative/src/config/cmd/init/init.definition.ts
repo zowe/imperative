@@ -79,31 +79,31 @@ export const initDefinition: ICommandDefinition = {
     ],
     examples: [
         {
-            description: `Initialize configuration files in your home "~/.zowe" directory.`,
+            description: `Initialize configuration files in your home "~/.zowe" directory`,
             options: "--global-config"
         },
         {
-            description: `Do a dry run of initializing configuration files in your home "~/.zowe" directory.`,
+            description: `Do a dry run of initializing configuration files in your home "~/.zowe" directory`,
             options: "--global-config --dry-run"
         },
         {
-            description: "Initialize the user config files.",
+            description: "Initialize the user config files",
             options: "--user-config"
         },
         {
-            description: "Initialize the user config files and do not prompt for secure values.",
+            description: "Initialize the user config files and do not prompt for secure values",
             options: "--user-config --prompt false"
         },
         {
-            description: "Do a dry run of initializing the user config files and do not prompt for secure values.",
+            description: "Do a dry run of initializing the user config files and do not prompt for secure values",
             options: "--user-config --prompt false --dry-run"
         },
         {
-            description: "Overwrite any existing global config files.",
+            description: "Overwrite any existing global config files",
             options: "--global-config --overwrite --for-sure"
         },
         {
-            description: "Overwrite any existing user config files.",
+            description: "Overwrite any existing user config files",
             options: "--user-config --overwrite --for-sure"
         }
     ]

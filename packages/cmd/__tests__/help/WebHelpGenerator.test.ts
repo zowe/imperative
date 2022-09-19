@@ -23,14 +23,15 @@ import { ICommandDefinition } from "../../../cmd/src/doc/ICommandDefinition";
 
 describe("WebHelpGenerator", () => {
     describe("buildHelp", () => {
+        const mainModule = process.mainModule;
         let moduleFileNm: string;
         let cliHome: string;
         let configForHelp: IImperativeConfig;
         let webHelpDirNm: string;
         let rimraf: any;
-        let lorenIpsum: string;
+        let loremIpsum: string;
 
-        beforeAll( async () => {
+        beforeAll(async () => {
             rimraf = require("rimraf");
 
             // any file that lives under the imperative directory will work for our test
@@ -38,7 +39,7 @@ describe("WebHelpGenerator", () => {
             cliHome = "packages/__tests__/fakeCliHome";
             webHelpDirNm = path.join(cliHome, "web-help");
 
-            lorenIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore\n" +
+            loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore\n" +
             "et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n" +
             "consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.\n"+
             "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
@@ -73,7 +74,7 @@ describe("WebHelpGenerator", () => {
                                         name: "test-option",
                                         aliases: ["to"],
                                         type: "string",
-                                        description: lorenIpsum,
+                                        description: loremIpsum,
                                         allowableValues: {
                                             values: ["banana", "coconut"]
                                         },
@@ -81,6 +82,13 @@ describe("WebHelpGenerator", () => {
                                     }
                                 ],
                                 description: "this is a test for wordwrap and default/allowed values"
+                            },
+                            {
+                                name: "linkify",
+                                aliases: ["l"],
+                                type: "command",
+                                options: [],
+                                description: "this is a test for hyperlinks: database.name and https://example.com"
                             }
                         ]
                     }
@@ -96,20 +104,16 @@ describe("WebHelpGenerator", () => {
             /* process.mainModule.filename was null, so we must give it a value.
              * mainModule is a getter of a property, so we mock the property.
              */
-            Object.defineProperty(process, "mainModule", {
-                configurable: true,
-                get: jest.fn(() => {
-                    return {
-                        filename: moduleFileNm
-                    };
-                })
-            });
+            (process.mainModule as any) = {
+                filename: moduleFileNm
+            };
 
             // imperative.init does all the setup for WebHelp to be run
             await Imperative.init(configForHelp);
         });
 
-        afterAll( async () => {
+        afterAll(() => {
+            process.mainModule = mainModule;
             rimraf.sync(cliHome);
         });
 
@@ -154,11 +158,18 @@ describe("WebHelpGenerator", () => {
             expect(fileText).toContain(`<p>${moduleFileNm} hello wordWrap [options]</p>`);
             expect(fileText).toContain(`
 <li>
-<p>${lorenIpsum.split("\n").join("<br>\n")}</p>
+<p>${loremIpsum.split("\n").join("<br>\n")}</p>
 <p>Default value: banana<br>
 Allowed values: banana, coconut</p>
 </li>
 `);
+
+            fileNmToTest = webHelpDocsDirNm + "/" + moduleFileNm + "_hello_linkify.html";
+            fileText = fs.readFileSync(fileNmToTest, "utf8");
+            expect(fileText).toContain("<h4>Usage</h4>");
+            expect(fileText).toContain(`<p>${moduleFileNm} hello linkify [options]</p>`);
+            expect(fileText).toContain(`<p>this is a test for hyperlinks: database.name and ` +
+                `<a href="https://example.com">https://example.com</a></p>`);
 
             // do a reasonable set of generated files exist?
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + ".html")).toBe(true);

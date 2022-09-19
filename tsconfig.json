@@ -37,5 +37,8 @@
     "**/*.spec.ts",
     "**/*-spec.ts",
     "**/*.test.ts"
+  ],
+  "files": [
+    "./__types__/wontache.d.ts"
   ]
 }

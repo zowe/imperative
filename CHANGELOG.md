@@ -2,6 +2,30 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## `5.5.3`
+
+- BugFix: Updated `diff2html` and `npm-package-arg` dependencies for technical currency.
+- BugFix: Fixed inconsistent behavior of Config API introduced in the last version. It now skips loading project config layers when project directory is `false` instead of an empty string.
+
+## `5.5.2`
+
+- BugFix: Updated `Config.search` API to skip loading project config layers when project directory is an empty string. [#883](https://github.com/zowe/imperative/issues/883)
+
+## `5.5.1`
+
+- BugFix: Prevented base profile secure-property lookup on the global layer when there is not default base profile. [#881](https://github.com/zowe/imperative/issues/881)
+
+## `5.5.0`
+
+- Enhancement: Added ZOWE_CLI_PLUGINS_DIR environment variable to override location where plugins are installed. [zowe/zowe-cli#1483](https://github.com/zowe/zowe-cli/issues/1483)
+- BugFix: Fixed exception when non-string passed to ImperativeExpect.toBeDefinedAndNonBlank(). [#856](https://github.com/zowe/imperative/issues/856)
+
+## `5.4.3`
+
+- BugFix: Removed periods in command example descriptions so descriptions look syntactically correct. [#795](https://github.com/zowe/imperative/issues/795)
+- BugFix: Improved performance of ProfileInfo API to load large team config files. [zowe/vscode-extension-for-zowe#1911](https://github.com/zowe/vscode-extension-for-zowe/issues/1911)
+- BugFix: Fixed dot-separated words incorrectly rendered as links in the web help. [#869](https://github.com/zowe/imperative/issues/869)
+
 ## `5.4.2`
 
 - BugFix: Web-diff template directory included in files section of package.json file.

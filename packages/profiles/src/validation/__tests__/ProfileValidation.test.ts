@@ -10,7 +10,7 @@
 */
 
 import { inspect } from "util";
-import { TestLogger } from "../../../../../__tests__/TestLogger";
+import { TestLogger } from "../../../../../__tests__/src/TestLogger";
 import { IProfile } from "../../doc/definition/IProfile";
 import { IProfileValidationPlan } from "../doc/IProfileValidationPlan";
 import { IProfileValidationReport } from "../doc/IProfileValidationReport";
