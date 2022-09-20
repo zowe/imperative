@@ -11,7 +11,7 @@
 
 import { BasicProfileManager } from "../src/BasicProfileManager";
 import { APPLE_PROFILE_TYPE, ONLY_APPLE, TEST_PROFILE_ROOT_DIR } from "./TestConstants";
-import { TestLogger } from "../../../__tests__/TestLogger";
+import { TestLogger } from "../../../__tests__/src/TestLogger";
 import { IProfileUpdated } from "../src/doc/response/IProfileUpdated";
 
 jest.mock("../src/utils/ProfileIO");

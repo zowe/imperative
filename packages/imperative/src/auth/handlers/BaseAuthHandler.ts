@@ -147,8 +147,11 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
                 });
                 config.api.profiles.defaultSet(this.mProfileType, profileName);
             } else {
-                const { user, global } = config.api.layers.find(profileName);
-                config.api.layers.activate(user, global);
+                const layer = config.api.layers.find(profileName);
+                if (layer != null) {
+                    const { user, global } = layer;
+                    config.api.layers.activate(user, global);
+                }
             }
 
             const profilePath = config.api.profiles.expandPath(profileName);

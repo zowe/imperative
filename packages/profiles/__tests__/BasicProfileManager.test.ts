@@ -11,7 +11,7 @@
 
 jest.mock("../src/utils/ProfileIO");
 import { ImperativeError } from "../../error/src/ImperativeError";
-import { TestLogger } from "../../../__tests__/TestLogger";
+import { TestLogger } from "../../../__tests__/src/TestLogger";
 import { IProfileLoaded } from "../../profiles/src/doc/response/IProfileLoaded";
 import {
     APPLE_PROFILE_TYPE,

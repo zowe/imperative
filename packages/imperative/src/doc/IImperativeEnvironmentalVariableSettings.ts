@@ -47,4 +47,10 @@ export interface IImperativeEnvironmentalVariableSettings {
      * @type {IImperativeEnvironmentalVariableSetting}
      */
     maskOutput?: IImperativeEnvironmentalVariableSetting;
+
+    /**
+     * The directory where CLI plugins are installed.
+     * Default is `${cliHome}/plugins`.
+     */
+    pluginsDir?: IImperativeEnvironmentalVariableSetting;
 }

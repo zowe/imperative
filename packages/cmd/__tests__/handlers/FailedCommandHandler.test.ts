@@ -14,7 +14,7 @@ import { ICommandHandler } from "../../src/doc/handler/ICommandHandler";
 
 import { inspect } from "util";
 import { MULTIPLE_GROUPS } from "../__resources__/CommandDefinitions";
-import { TestLogger } from "../../../../__tests__/TestLogger";
+import { TestLogger } from "../../../../__tests__/src/TestLogger";
 import { ICommandHandlerRequire } from "../../src/doc/handler/ICommandHandlerRequire";
 
 jest.mock("../../../imperative/src/Imperative");

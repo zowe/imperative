@@ -26,7 +26,7 @@ export const schemaDefinition: ICommandDefinition = {
         "Direct the output of this command to a file and include in your config with '$schema' property to get editor completion.",
     examples: [
         {
-            description: "Display the JSON schema for the config.",
+            description: "Display the JSON schema for the config",
             options: ""
         }
     ]
