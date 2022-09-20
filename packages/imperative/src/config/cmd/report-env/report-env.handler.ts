@@ -39,13 +39,16 @@ export default class ReportEnvHandler  implements ICommandHandler {
      * @param consoleApi Console response object to which we will write messages.
      */
     private displayEnvReport(consoleApi: IHandlerResponseConsoleApi): void {
+        const { EOL } = require("os");
         for (const nextItemId of Object.keys(ItemId).map(
             keyVal => parseInt(keyVal)).filter(keyVal => !isNaN(keyVal)
         ))
         {
+            if (nextItemId == ItemId.NPM_VER || nextItemId == ItemId.ZOWE_CONFIG_TYPE) {
+                consoleApi.error(EOL + "...Please wait...");
+            }
             this.displayEnvItem(nextItemId, consoleApi);
         }
-        const { EOL } = require("os");
         consoleApi.log(`This information cantains site-specific data. Redact anything required${EOL}` +
             "by your company before sending this information to outside companies."
         );
