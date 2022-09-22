@@ -288,11 +288,11 @@ export interface IImperativeConfig {
 
     /**
      * If the project you are configuring is an Imperative plugin,
-     * you can assign the first steps to the plugin, where it will be 
-     * visible when running the firststeps command in the root plugins 
+     * you can assign the first steps to the plugin, where it will be
+     * visible when running the firststeps command in the root plugins
      * level help for the core CLI.
-     * 
-     * The first steps are a short list of steps required to set up 
+     *
+     * The first steps are a short list of steps required to set up
      * your plugin for use.
      *
      * Note: For plugins only. Ignored when specified on a core/base CLI
