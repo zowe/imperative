@@ -11,7 +11,7 @@
 
 import { ICommandDefinition } from "../../../../../cmd/src/doc/ICommandDefinition";
 
-describe("daemon group definition", () => {
+describe("report-env command definition", () => {
     it("should have the right command content", () => {
         const numOfDaemonCmds = 0;
         const definition: ICommandDefinition = require("../../../../src/config/cmd//report-env/report-env.definition");

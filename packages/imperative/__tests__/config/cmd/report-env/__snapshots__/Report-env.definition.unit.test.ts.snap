@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`daemon group definition should have the right command content 1`] = `
+exports[`report-env command definition should have the right command content 1`] = `
 Object {
   "ReportEnvDefinition": Object {
     "aliases": Array [
@@ -13,7 +13,7 @@ Object {
         "options": "",
       },
     ],
-    "handler": "C:\\\\ourstuff\\\\repos\\\\imperative\\\\packages\\\\imperative\\\\src\\\\config\\\\cmd\\\\report-env\\\\report-env.handler",
+    "handler": "C:\\\\ourstuff\\\\repos\\\\imperative\\\\packages\\\\imperative\\\\src\\\\config\\\\cmd\\\\report-env\\\\Report-env.handler",
     "name": "report-env",
     "summary": "Report the state of your working environment",
     "type": "command",
