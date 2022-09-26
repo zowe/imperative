@@ -174,7 +174,7 @@ export class PluginManagementFacility {
                 require("./cmd/uninstall/uninstall.definition").uninstallDefinition,
                 require("./cmd/update/update.definition").updateDefinition,
                 require("./cmd/validate/validate.definition").validateDefinition,
-                require("./cmd/firststeps/firststeps.definition").firststepsDefinition
+                require("./cmd/showfirststeps/showfirststeps.definition").firststepsDefinition
             ]
         });
 

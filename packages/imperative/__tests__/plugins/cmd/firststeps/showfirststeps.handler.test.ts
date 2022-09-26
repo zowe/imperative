@@ -19,7 +19,7 @@ import { ImperativeConfig } from "../../../../../utilities/src/ImperativeConfig"
 import { IImperativeConfig } from "../../../../src/doc/IImperativeConfig";
 import { resolve } from "path";
 import { TextUtils } from "../../../../../utilities";
-import FirststepsHandler from "../../../../src/plugins/cmd/firststeps/firststeps.handler";
+import FirststepsHandler from "../../../../src/plugins/cmd/showfirststeps/showfirststeps.handler";
 import { ImperativeError } from "../../../../../error/src/ImperativeError";
 import { IPluginCfgProps } from "../../../../src/plugins/doc/IPluginCfgProps";
 import { PluginManagementFacility } from "../../../../src/plugins/PluginManagementFacility";

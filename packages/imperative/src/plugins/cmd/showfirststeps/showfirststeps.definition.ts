@@ -21,12 +21,12 @@ const pluginDescription =
  * @type {ICommandDefinition}
  */
 export const firststepsDefinition: ICommandDefinition = {
-    name: "firststeps",
+    name: "show-first-steps",
     type: "command",
     aliases: ["fs"],
     summary: "Show first steps for a plugin",
     description: "Show first steps required to set up plugin for use.",
-    handler: join(__dirname, "firststeps.handler"),
+    handler: join(__dirname, "showfirststeps.handler"),
     positionals: [
         {
             name: "plugin",
