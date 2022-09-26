@@ -72,7 +72,7 @@ export class ProfileIO {
 
         let meta: IMetaProfile<T>;
         try {
-            meta = readYaml.safeLoad(fs.readFileSync(path), "utf8");
+            meta = readYaml.load(fs.readFileSync(path), "utf8");
         } catch (err) {
             throw new ImperativeError({
                 msg: `Error reading profile file ("${path}"). Error Details: ${err.message}`,
@@ -293,7 +293,7 @@ export class ProfileIO {
 
         let profile: IProfile;
         try {
-            profile = readYaml.safeLoad(fs.readFileSync(filePath, "utf8"));
+            profile = readYaml.load(fs.readFileSync(filePath, "utf8"));
         } catch (err) {
             throw new ImperativeError({
                 msg: `Error reading profile file ("${filePath}"). Error Details: ${err.message}`,
