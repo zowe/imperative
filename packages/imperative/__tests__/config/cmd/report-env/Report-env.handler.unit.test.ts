@@ -9,17 +9,98 @@
 *
 */
 
-import * as fs from "fs";
-import * as nodeJsPath from "path";
-
-import { ImperativeConfig, ImperativeError, IO, ProcessUtils, ISystemInfo } from "../../../../..";
+import ReportEnvHandler from "../../../../src/config/cmd/report-env/Report-env.handler";
+import { EnvQuery, IGetItemVal } from "../../../../src/config/cmd/report-env/EnvQuery";
+import { ItemId } from "../../../../src/config/cmd/report-env/EnvItems";
 
 describe("Handler for config report-env", () => {
 
+    let rptEnvHandler: any; // use "any" so we can call private functions
+
+    beforeAll(() => {
+        // instantiate our handler
+        rptEnvHandler = new ReportEnvHandler();
+    });
+
     describe("process method", () => {
 
-        it("should produce a report from the output of getEnvItemVal", async () => {
-            expect("We implemented no tests").toBe(false);
+        // fake command parms passed to process()
+        let stdoutMsg = "";
+        let stderrMsg = "";
+        let apiMessage = "";
+        let jsonObj;
+        const cmdParms = {
+            arguments: {
+                $0: "fake",
+                _: ["fake"]
+            },
+            response: {
+                data: {
+                    setMessage: jest.fn((setMsgArgs) => {
+                        apiMessage = setMsgArgs;
+                    }),
+                    setObj: jest.fn((setObjArgs) => {
+                        jsonObj = setObjArgs;
+                    }),
+                    setExitCode: jest.fn((exitCode) => {
+                        return exitCode;
+                    })
+                },
+                console: {
+                    log: jest.fn((logArgs) => {
+                        stdoutMsg += "\n" + logArgs;
+                    }),
+                    error: jest.fn((logArgs) => {
+                        stderrMsg += "\n" + logArgs;
+                    })
+                },
+                progress: {}
+            },
+            profiles: {}
+        } as any;
+
+        it("should report the output of getEnvItemVal", async () => {
+            stdoutMsg == "";
+            stderrMsg == "";
+            let caughtErr;
+
+            const getEnvItemValOrig = EnvQuery.getEnvItemVal;
+            (EnvQuery.getEnvItemVal as any) = jest.fn((itemId) => {
+                let itemResult : IGetItemVal = {
+                    itemVal: itemId,
+                    itemValMsg: `The message for item ID ${itemId} is 'all is good'`,
+                    itemProbMsg: ""
+                };
+                if (itemId == ItemId.NODEJS_VER) {
+                    // with this we get code coverage for problem messages
+                    itemResult = {
+                        itemVal: "19.9.9",
+                        itemValMsg: `The Node version for item ${itemId} is bad`,
+                        itemProbMsg: "You are using an awful version of Node"
+                    };
+                }
+                return itemResult;
+            });
+
+            try {
+                // Invoke the handler with mocked arguments and response functions
+                await rptEnvHandler.process(cmdParms);
+            } catch (e) {
+                caughtErr = e;
+            }
+
+            expect(caughtErr).toBeUndefined();
+            for (const nextItemId of Object.keys(ItemId).map(
+                keyVal => parseInt(keyVal)).filter(keyVal => !isNaN(keyVal)
+            ))
+            {
+                if (nextItemId == ItemId.NODEJS_VER) {
+                    expect(stdoutMsg).toContain(`You are using an awful version of Node`);
+                } else {
+                    expect(stdoutMsg).toContain(`item ID ${nextItemId} is 'all is good'`);
+                }
+            }
+            EnvQuery.getEnvItemVal = getEnvItemValOrig;
         });
     }); // end process method
 }); // end Handler
