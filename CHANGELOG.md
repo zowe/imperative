@@ -2,6 +2,9 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+- BugFix: Provided clarity to descriptive text for linux installation issues with secure credential storage [#1514](https://github.com/zowe/zowe-cli/issues/1514)
+
 ## `5.5.3`
 
 - BugFix: Updated `diff2html` and `npm-package-arg` dependencies for technical currency.
