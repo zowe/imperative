@@ -137,8 +137,9 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
 
     protected get possibleSolutions(): string[] {
         return [
-            `Reinstall ${this.name}. On Linux systems, also make sure to install the prerequisites listed in ${this.name} documentation.`,
-            `Ensure ${this.name} can access secure credential storage. ${this.name} needs access to the OS to securely save credentials.`
+            `Ensure ${this.name} has access to the OS to securely save credentials.`,
+            `Reinstall ${this.name}. On Linux systems, also make sure to install the secure credential storage prerequisites`+
+            `listed in ${this.name} documentation.`
         ];
     }
 
