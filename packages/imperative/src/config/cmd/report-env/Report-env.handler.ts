@@ -9,9 +9,9 @@
 *
 */
 
-import { ICommandHandler, IHandlerParameters, IHandlerResponseConsoleApi } from "../../../../../cmd";
+import { ICommandHandler, IHandlerParameters, IHandlerResponseApi } from "../../../../../cmd";
 import { ItemId } from "./EnvItems";
-import { EnvQuery } from "./EnvQuery";
+import { EnvQuery, IGetItemOpts } from "./EnvQuery";
 import { TextUtils } from "../../../../../utilities/src/TextUtils";
 
 /**
@@ -26,9 +26,9 @@ import { TextUtils } from "../../../../../utilities/src/TextUtils";
  *
  * @export
  */
-export default class ReportEnvHandler  implements ICommandHandler {
+export default class ReportEnvHandler implements ICommandHandler {
     public async process(cmdParams: IHandlerParameters): Promise<void> {
-        this.displayEnvReport(cmdParams.response.console);
+        await this.displayEnvReport(cmdParams.response);
         cmdParams.response.data.setExitCode(0);
     }
 
@@ -38,18 +38,21 @@ export default class ReportEnvHandler  implements ICommandHandler {
      *
      * @param consoleApi Console response object to which we will write messages.
      */
-    private displayEnvReport(consoleApi: IHandlerResponseConsoleApi): void {
+    private async displayEnvReport(responseApi: IHandlerResponseApi): Promise<void> {
         const { EOL } = require("os");
         for (const nextItemId of Object.keys(ItemId).map(
             keyVal => parseInt(keyVal)).filter(keyVal => !isNaN(keyVal)
         ))
         {
+            // These items have a progress bar. Output a newline beforehand.
             if (nextItemId == ItemId.NPM_VER || nextItemId == ItemId.ZOWE_CONFIG_TYPE) {
-                consoleApi.error(EOL + "...Please wait...");
+                responseApi.console.error(EOL);
             }
-            this.displayEnvItem(nextItemId, consoleApi);
+            await this.displayEnvItem(nextItemId, responseApi);
         }
-        consoleApi.log(`This information cantains site-specific data. Redact anything required${EOL}` +
+
+        responseApi.console.log(
+            `This information cantains site-specific data. Redact anything required${EOL}` +
             "by your company before sending this information to outside companies."
         );
     }
@@ -60,11 +63,14 @@ export default class ReportEnvHandler  implements ICommandHandler {
      *
      * @param consoleApi Console response object to which we will write messages.
      */
-    private displayEnvItem(itemId: ItemId, consoleApi: IHandlerResponseConsoleApi): void {
-        const getResult = EnvQuery.getEnvItemVal(itemId);
-        consoleApi.log(getResult.itemValMsg);
+    private async displayEnvItem(itemId: ItemId, responseApi: IHandlerResponseApi): Promise<void> {
+        const getItemOpts: IGetItemOpts = {
+            progressApi: responseApi.progress
+        };
+        const getResult = await EnvQuery.getEnvItemVal(itemId, getItemOpts);
+        responseApi.console.log(getResult.itemValMsg);
         if (getResult.itemProbMsg.length > 0) {
-            consoleApi.log(TextUtils.chalk.red("    " + getResult.itemProbMsg));
+            responseApi.console.log(TextUtils.chalk.red("    " + getResult.itemProbMsg));
         }
     }
 }

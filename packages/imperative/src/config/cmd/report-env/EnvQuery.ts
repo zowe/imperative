@@ -15,8 +15,12 @@ import * as path from "path";
 import { spawnSync, StdioOptions } from "child_process";
 import stripAnsi = require("strip-ansi");
 
+import { IHandlerProgressApi } from "../../../../../cmd";
 import { IO } from "../../../../../io";
-import { ImperativeConfig, TextUtils} from "../../../../../utilities";
+import { ImperativeConfig , TextUtils } from "../../../../../utilities";
+import { ITaskWithStatus, TaskProgress, TaskStage } from "../../../../../operations";
+import { CliUtils } from "../../../../../utilities/src/CliUtils";
+
 import { ItemId, IProbTest, probTests } from "./EnvItems";
 
 /**
@@ -28,6 +32,17 @@ export interface IGetItemVal {
     itemProbMsg: string;    /* Message to display any problems with the value.
                              * Empty string (length 0) when there are no problems.
                              */
+}
+
+/**
+ * This interface represents the the options for getEnvItemVal().
+ */
+export interface IGetItemOpts {
+    /**
+     * API to start/end progress bar for long running actions. Since this is a CLI thing,
+     * it is optional in case non-CLI programs want to call the getEnvItemVal function.
+     */
+    progressApi?: IHandlerProgressApi;   // API to start/end progress bar
 }
 
 /**
@@ -47,9 +62,11 @@ export class EnvQuery {
      * For the specified itemId, get its value.
      *
      * @param itemId ID of the environmental item for which we want get the value.
+     * @param getItemOpts options that affect our behavior.
+     *
      * @returns An object with the item value, a display message, and a problem message.
      */
-    public static getEnvItemVal(itemId: ItemId): IGetItemVal {
+    public static async getEnvItemVal(itemId: ItemId, getItemOpts: IGetItemOpts = {}): Promise<IGetItemVal> {
         const getResult: IGetItemVal = { itemVal: null, itemValMsg: "", itemProbMsg: "" };
         switch(itemId) {
             case ItemId.ZOWE_VER: {
@@ -77,7 +94,7 @@ export class EnvQuery {
                 break;
             }
             case ItemId.OS_PATH: {
-                getResult.itemVal = process.env.PATH;
+                getResult.itemVal = process.env.Path;
                 getResult.itemValMsg = os.EOL + "O.S. PATH = " + getResult.itemVal;
                 break;
             }
@@ -105,11 +122,11 @@ export class EnvQuery {
                 break;
             }
             case ItemId.NPM_VER: {
-                EnvQuery.getNpmInfo(getResult);
+                await EnvQuery.getNpmInfo(getResult, getItemOpts);
                 break;
             }
             case ItemId.ZOWE_CONFIG_TYPE: {
-                EnvQuery.getConfigInfo(getResult);
+                await EnvQuery.getConfigInfo(getResult, getItemOpts);
                 break;
             }
             case ItemId.ZOWE_PLUGINS: {
@@ -191,61 +208,110 @@ export class EnvQuery {
      *
      * @param getResult The itemVal and itemValMsg properties are filled
      *                  by this function.
+     * @param getItemOpts options that affect our behavior.
      */
-    private static getConfigInfo(getResult: IGetItemVal): void {
+    private static async getConfigInfo(
+        getResult: IGetItemVal, getItemOpts: IGetItemOpts
+    ): Promise<void> {
         const teamCfg: string = "V2 Team Config";
         const v1Profiles = "V1 Profiles";
+        const percentIncr: number = 20;
+        const doesProgBarExist: boolean = (getItemOpts?.progressApi) ? true: false;
+
+        // setup progress bar
+        const configProgress: ITaskWithStatus = {
+            percentComplete: TaskProgress.TEN_PERCENT,
+            statusMessage: "No value yet",
+            stageName: TaskStage.IN_PROGRESS
+        };
+
         if (ImperativeConfig.instance.config?.exists) {
             getResult.itemVal = teamCfg;
+            configProgress.statusMessage = "Retrieving V2 configuration";
+            configProgress.percentComplete = TaskProgress.TWENTY_PERCENT;
         } else {
             getResult.itemVal = v1Profiles;
+            configProgress.statusMessage = "Retrieving V1 configuration";
+            configProgress.percentComplete = TaskProgress.FIFTY_PERCENT;
+        }
+
+        if (doesProgBarExist) {
+            getItemOpts.progressApi.startBar({task: configProgress});
+            await EnvQuery.updateProgressBar(doesProgBarExist, true);
         }
 
         getResult.itemValMsg = "Zowe daemon mode = ";
         if (ImperativeConfig.instance.loadedConfig.daemonMode) {
             getResult.itemValMsg += "on";
 
-            // skip the exe version if our NodeJS zowe command gives help
+            configProgress.statusMessage = "Retrieving Zowe executable version";
+            await EnvQuery.updateProgressBar(doesProgBarExist);
+
             const exeVerOutput = EnvQuery.getCmdOutput("zowe", ["--version-exe"]);
             if (exeVerOutput.match(/DESCRIPTION/) == null) {
                 getResult.itemValMsg += `${os.EOL}Zowe daemon executable version = ` + exeVerOutput;
             }
-            getResult.itemValMsg += `${os.EOL}Default Zowe daemon executable directory = ` +
+            getResult.itemValMsg +=
+                `${os.EOL}Default Zowe daemon executable directory = ` +
                 path.normalize(ImperativeConfig.instance.cliHome + "/bin");
-
         } else {
             getResult.itemValMsg += "off";
         }
         getResult.itemValMsg += `${os.EOL}Zowe config type = ` + getResult.itemVal;
 
         if ( getResult.itemVal == teamCfg) {
-            /* Display all relevant zowe team config files.
-             * Replace colon at end of config file name and indent another level.
-             */
-            getResult.itemValMsg += `${os.EOL}Team config files in effect:${os.EOL}`;
-            let cfgListOutput = stripAnsi(EnvQuery.getCmdOutput("zowe", ["config", "list", "--locations"]));
+            if (ImperativeConfig.instance.loadedConfig.daemonMode) {
+                // The daemon appears unable to spawn additional "zowe" commands, so we quit
+                getResult.itemValMsg +=
+                    `${os.EOL}${os.EOL}The full Zowe configuration report ` +
+                    "is not available when running in daemon mode.";
+            } else {
+                // Display all relevant zowe team config files.
+                configProgress.statusMessage = "Retrieving active team config files";
+                configProgress.percentComplete = TaskProgress.THIRTY_PERCENT;
+                await EnvQuery.updateProgressBar(doesProgBarExist);
 
-            // extract all config file names from 'config list' command
-            getResult.itemValMsg += EnvQuery.indent +
-                cfgListOutput.match(/.*zowe\.config.*\.json:.*\n/g).join(EnvQuery.indent);
+                let cfgListOutput: string;
+                getResult.itemValMsg += `${os.EOL}Team config files in effect:${os.EOL}`;
+                cfgListOutput = stripAnsi(EnvQuery.getCmdOutput("zowe", ["config", "list", "--locations"]));
 
-            // extract all available zowe profile names from 'config profiles' command
-            getResult.itemValMsg += `Available profile names:${os.EOL}`;
-            getResult.itemValMsg += EnvQuery.indent +
-                EnvQuery.getCmdOutput("zowe", ["config", "profiles"])
-                    .replace(EnvQuery.allEolRegex, "$1" + EnvQuery.indent) + os.EOL;
+                /* Extract all config file names from 'config list' command.
+                * Replace colon at end of config file name and indent another level.
+                */
+                getResult.itemValMsg += EnvQuery.indent +
+                    cfgListOutput.match(/.*zowe\.config.*\.json:.*\n/g).join(EnvQuery.indent);
 
-            // extract default profile names from 'config list' command
-            const defaultsToEndRegEx = new RegExp(".*defaults:(.*)", "ms");
-            const removeAfterDefaultsRegex = new RegExp("(.*)^[^ ].*", "ms");
-            const fixIndentRegex = new RegExp("^ {2}", "gms");
-            cfgListOutput = stripAnsi(EnvQuery.getCmdOutput("zowe", ["config", "list"]));
-            cfgListOutput = cfgListOutput.replace(defaultsToEndRegEx, "$1");
-            cfgListOutput = cfgListOutput.replace(removeAfterDefaultsRegex, "$1") + os.EOL;
-            cfgListOutput = cfgListOutput.replace(fixIndentRegex, EnvQuery.indent);
-            getResult.itemValMsg += "Default profile names: " + cfgListOutput;
+                // extract all available zowe profile names from 'config profiles' command
+                configProgress.statusMessage = "Retrieving available profile names";
+                configProgress.percentComplete = TaskProgress.SIXTY_PERCENT;
+                await EnvQuery.updateProgressBar(doesProgBarExist);
+
+                getResult.itemValMsg += `Available profile names:${os.EOL}`;
+                getResult.itemValMsg += EnvQuery.indent +
+                    EnvQuery.getCmdOutput("zowe", ["config", "profiles"])
+                        .replace(EnvQuery.allEolRegex, "$1" + EnvQuery.indent) + os.EOL;
+
+                // extract default profile names from 'config list' command
+                configProgress.statusMessage = "Retrieving default profile names";
+                configProgress.percentComplete = TaskProgress.NINETY_PERCENT;
+                await EnvQuery.updateProgressBar(doesProgBarExist);
+
+                const defaultsToEndRegEx = new RegExp(".*defaults:(.*)", "ms");
+                const removeAfterDefaultsRegex = new RegExp("(.*)^[^ ].*", "ms");
+                const fixIndentRegex = new RegExp("^ {2}", "gms");
+
+                cfgListOutput = stripAnsi(EnvQuery.getCmdOutput("zowe", ["config", "list"]));
+                cfgListOutput = cfgListOutput.replace(defaultsToEndRegEx, "$1");
+                cfgListOutput = cfgListOutput.replace(removeAfterDefaultsRegex, "$1") + os.EOL;
+                cfgListOutput = cfgListOutput.replace(fixIndentRegex, EnvQuery.indent);
+                getResult.itemValMsg += "Default profile names: " + cfgListOutput;
+            }
         } else {
             // display V1 profile information
+            configProgress.statusMessage = "Retrieving available profile names";
+            configProgress.percentComplete = TaskProgress.NINETY_PERCENT;
+            await EnvQuery.updateProgressBar(doesProgBarExist);
+
             getResult.itemValMsg += `${os.EOL}Available profiles:${os.EOL}`;
             const v1ProfilesDir = path.normalize(ImperativeConfig.instance.cliHome + "/profiles");
             if (IO.isDir(v1ProfilesDir)) {
@@ -281,7 +347,15 @@ export class EnvQuery {
         getResult.itemValMsg  = EnvQuery.divider + "Zowe CLI configuration information:" +
             os.EOL + os.EOL + EnvQuery.indent +
             getResult.itemValMsg.replace(EnvQuery.allEolRegex, "$1" + EnvQuery.indent);
-    }
+
+        configProgress.statusMessage = "Complete";
+        configProgress.percentComplete = TaskProgress.ONE_HUNDRED_PERCENT;
+        configProgress.stageName = TaskStage.COMPLETE;
+        await EnvQuery.updateProgressBar(doesProgBarExist);
+        if (doesProgBarExist) {
+            getItemOpts.progressApi.endBar();
+        }
+    } // end getConfigInfo
 
     // __________________________________________________________________________
     /**
@@ -312,18 +386,68 @@ export class EnvQuery {
      *
      * @param getResult The itemVal and itemValMsg properties are filled
      *                  by this function.
+     * @param getItemOpts options that affect our behavior.
      */
-    private static getNpmInfo(getResult: IGetItemVal): void {
+    private static async getNpmInfo(
+        getResult: IGetItemVal,
+        getItemOpts: IGetItemOpts
+    ): Promise<void> {
+        const percentIncr: number = 10;
+        const doesProgBarExist: boolean = (getItemOpts?.progressApi) ? true: false;
+
+        // setup progress bar
+        const npmProgress: ITaskWithStatus = {
+            percentComplete: TaskProgress.TEN_PERCENT,
+            statusMessage: "Retrieving NPM Version",
+            stageName: TaskStage.IN_PROGRESS
+        };
+        if (doesProgBarExist) {
+            getItemOpts.progressApi.startBar({task: npmProgress});
+            await EnvQuery.updateProgressBar(doesProgBarExist, true);
+        }
+
         getResult.itemVal = EnvQuery.getCmdOutput("npm", ["--version"]);
-        getResult.itemValMsg  = `${os.EOL}NPM version = ` + EnvQuery.getCmdOutput("npm", ["config", "get", "npm-version"]);
+        getResult.itemValMsg  = `${os.EOL}NPM version = ` +  getResult.itemVal;
+
+        npmProgress.statusMessage = "Retrieving current shell";
+        npmProgress.percentComplete += percentIncr;
+        await EnvQuery.updateProgressBar(doesProgBarExist);
         getResult.itemValMsg += `${os.EOL}Shell = ` + EnvQuery.getCmdOutput("npm", ["config", "get", "shell"]);
+
+        npmProgress.statusMessage = "Retrieving NPM global prefix";
+        npmProgress.percentComplete += percentIncr;
+        await EnvQuery.updateProgressBar(doesProgBarExist);
         getResult.itemValMsg += `${os.EOL}Global prefix = ` + EnvQuery.getCmdOutput("npm", ["prefix", "-g"]);
         getResult.itemValMsg += os.EOL + EnvQuery.indent + "The directory above contains the Zowe NodeJs command script.";
+
+        npmProgress.statusMessage = "Retrieving NPM global root node modules";
+        npmProgress.percentComplete += percentIncr;
+        await EnvQuery.updateProgressBar(doesProgBarExist);
         getResult.itemValMsg += `${os.EOL}Global root node modules = ` + EnvQuery.getCmdOutput("npm", ["root", "-g"]);
+
+        npmProgress.statusMessage = "Retrieving NPM global config";
+        npmProgress.percentComplete += percentIncr;
+        await EnvQuery.updateProgressBar(doesProgBarExist);
         getResult.itemValMsg += `${os.EOL}Global config = ` + EnvQuery.getCmdOutput("npm", ["config", "get", "globalconfig"]);
+
+        npmProgress.statusMessage = "Retrieving NPM local prefix";
+        npmProgress.percentComplete += percentIncr;
+        await EnvQuery.updateProgressBar(doesProgBarExist);
         getResult.itemValMsg += `${os.EOL}Local prefix = ` + EnvQuery.getCmdOutput("npm", ["prefix"]);
+
+        npmProgress.statusMessage = "Retrieving NPM local root node modules";
+        npmProgress.percentComplete += percentIncr;
+        await EnvQuery.updateProgressBar(doesProgBarExist);
         getResult.itemValMsg += `${os.EOL}Local root node modules = ` + EnvQuery.getCmdOutput("npm", ["root"]);
+
+        npmProgress.statusMessage = "Retrieving NPM user config";
+        npmProgress.percentComplete += percentIncr;
+        await EnvQuery.updateProgressBar(doesProgBarExist);
         getResult.itemValMsg += `${os.EOL}User config = ` + EnvQuery.getCmdOutput("npm", ["config", "get", "userconfig"]);
+
+        npmProgress.statusMessage = "Retrieving NPM registry info";
+        npmProgress.percentComplete += percentIncr;
+        await EnvQuery.updateProgressBar(doesProgBarExist);
         getResult.itemValMsg += os.EOL + os.EOL + EnvQuery.getCmdOutput("npm", ["config", "list"]).match(
             /.*registry =.*\n|"project.*\n|node bin location.*\n|cwd.*\n|HOME.*\n/g
         ).join("");
@@ -331,7 +455,15 @@ export class EnvQuery {
         // add indent to each line
         getResult.itemValMsg  = EnvQuery.divider + "NPM information:" + os.EOL+ EnvQuery.indent +
             getResult.itemValMsg.replace(EnvQuery.allEolRegex, "$1" + EnvQuery.indent);
-    }
+
+        npmProgress.statusMessage = "Complete";
+        npmProgress.percentComplete = TaskProgress.ONE_HUNDRED_PERCENT;
+        npmProgress.stageName = TaskStage.COMPLETE;
+        await EnvQuery.updateProgressBar(doesProgBarExist);
+        if (doesProgBarExist) {
+            getItemOpts.progressApi.endBar();
+        }
+    } // end getNpmInfo
 
     // __________________________________________________________________________
     /**
@@ -375,6 +507,14 @@ export class EnvQuery {
      *                  by this function.
      */
     private static getPluginInfo(getResult: IGetItemVal): void {
+        if (ImperativeConfig.instance.loadedConfig.daemonMode) {
+            // The daemon appears unable to spawn additional "zowe" commands, so we quit
+            getResult.itemValMsg +=
+                EnvQuery.divider +
+                "The Zowe plugin report is not available when running in daemon mode." +
+                os.EOL + EnvQuery.divider;
+            return;
+        }
         let pluginsOutput = EnvQuery.getCmdOutput("zowe", ["plugins", "list"]);
         pluginsOutput = pluginsOutput.replace(/^.*registry:.*\r?\n|\n$/gm, "");
         getResult.itemValMsg = EnvQuery.divider + pluginsOutput + EnvQuery.divider;
@@ -396,5 +536,33 @@ export class EnvQuery {
             getResult.itemVal = "No version found in CLI package.json!";
         }
         getResult.itemValMsg =  EnvQuery.divider + "Zowe CLI version = " + getResult.itemVal;
+    }
+
+    // __________________________________________________________________________
+    /**
+     * If a progress bar is in use, pause long enough to let it update its status.
+     *
+     * @param doesProgBarExist
+     *        Is the progress bar availbale for use?
+     * @param firstUpdate
+     *        Is this our first progress bar update?
+     *        Initialization of the progress bar takes extra time.
+     */
+    private static async updateProgressBar(
+        doesProgBarExist: boolean,
+        firstUpdate: boolean = false
+    ): Promise<void> {
+        if (doesProgBarExist) {
+            const firstUpdateTime = 300; // millis
+            const laterUpdateTime = 100; // millis
+            let timeToUpdate: number;
+            if (firstUpdate) {
+                timeToUpdate = firstUpdateTime;
+                firstUpdate = false;
+            } else {
+                timeToUpdate = laterUpdateTime;
+            }
+            await CliUtils.sleep(timeToUpdate);
+        }
     }
 }
