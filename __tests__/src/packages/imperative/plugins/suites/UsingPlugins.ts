@@ -69,7 +69,7 @@ describe("Using a Plugin", () => {
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
         expect(result.stderr).toBe("");
         expect(result.stdout).toContain(pluginName);
-        // should use the the pluginSummary field as the summary for the group
+        // should use the pluginSummary field as the summary for the group
         expect(result.stdout).toContain("completely different");
         expect(result.stdout).toContain("summary");
 
@@ -185,7 +185,7 @@ describe("Using a Plugin", () => {
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
         expect(result.stderr).toBe("");
         expect(result.stdout).toContain(pluginName);
-        // should use the the pluginSummary field as the summary for the group
+        // should use the pluginSummary field as the summary for the group
         stdout = result.stdout.replace(/\r?\n/g, "");
         expect(stdout).toMatch(/This\s*plugin\s*is\s*intended\s*to\s*test\s*various\s*Imperative\s*features/);
 

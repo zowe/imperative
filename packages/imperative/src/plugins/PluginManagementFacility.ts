@@ -173,7 +173,8 @@ export class PluginManagementFacility {
                 require("./cmd/list/list.definition").listDefinition,
                 require("./cmd/uninstall/uninstall.definition").uninstallDefinition,
                 require("./cmd/update/update.definition").updateDefinition,
-                require("./cmd/validate/validate.definition").validateDefinition
+                require("./cmd/validate/validate.definition").validateDefinition,
+                require("./cmd/showfirststeps/showfirststeps.definition").firststepsDefinition
             ]
         });
 
