@@ -11,10 +11,12 @@
 
 import * as fs from "fs";
 import * as os from "os";
+import * as lodash from "lodash";
 import * as path from "path";
 import { spawnSync, StdioOptions } from "child_process";
 import stripAnsi = require("strip-ansi");
 
+import { ConfigConstants, IConfigProfile } from "../../../../../config";
 import { IHandlerProgressApi } from "../../../../../cmd";
 import { IO } from "../../../../../io";
 import { ImperativeConfig , TextUtils } from "../../../../../utilities";
@@ -260,51 +262,80 @@ export class EnvQuery {
         getResult.itemValMsg += `${os.EOL}Zowe config type = ` + getResult.itemVal;
 
         if ( getResult.itemVal == teamCfg) {
-            if (ImperativeConfig.instance.loadedConfig.daemonMode) {
-                // The daemon appears unable to spawn additional "zowe" commands, so we quit
-                getResult.itemValMsg +=
-                    `${os.EOL}${os.EOL}The full Zowe configuration report ` +
-                    "is not available when running in daemon mode.";
-            } else {
-                // Display all relevant zowe team config files.
-                configProgress.statusMessage = "Retrieving active team config files";
-                configProgress.percentComplete = TaskProgress.THIRTY_PERCENT;
-                await EnvQuery.updateProgressBar(doesProgBarExist);
+            // Display all relevant zowe team config files.
+            configProgress.statusMessage = "Retrieving active team config files";
+            configProgress.percentComplete = TaskProgress.THIRTY_PERCENT;
+            await EnvQuery.updateProgressBar(doesProgBarExist);
+            const config = ImperativeConfig.instance.config;
 
-                let cfgListOutput: string;
-                getResult.itemValMsg += `${os.EOL}Team config files in effect:${os.EOL}`;
-                cfgListOutput = stripAnsi(EnvQuery.getCmdOutput("zowe", ["config", "list", "--locations"]));
+            /* Get our list of config files.
+             * Logic stolen from "config list" handler.
+             */
+            const configListObj: any = {};
+            for (const layer of config.layers) {
+                if (layer.exists) {
+                    configListObj[layer.path] = layer.properties;
+                    if (configListObj[layer.path] != null) {
+                        for (const secureProp of config.api.secure.secureFields(layer)) {
+                            if (lodash.has(configListObj[layer.path], secureProp)) {
+                                lodash.set(configListObj[layer.path], secureProp, ConfigConstants.SECURE_VALUE);
+                            }
+                        }
+                    }
+                }
+            }
 
-                /* Extract all config file names from 'config list' command.
-                * Replace colon at end of config file name and indent another level.
-                */
-                getResult.itemValMsg += EnvQuery.indent +
-                    cfgListOutput.match(/.*zowe\.config.*\.json:.*\n/g).join(EnvQuery.indent);
+            getResult.itemValMsg += `${os.EOL}Team config files in effect:${os.EOL}`;
+            for (const configLoc  of Object.keys(configListObj)) {
+                getResult.itemValMsg += EnvQuery.indent + configLoc + os.EOL;
+            }
 
-                // extract all available zowe profile names from 'config profiles' command
-                configProgress.statusMessage = "Retrieving available profile names";
-                configProgress.percentComplete = TaskProgress.SIXTY_PERCENT;
-                await EnvQuery.updateProgressBar(doesProgBarExist);
+            // get default profile names
+            configProgress.statusMessage = "Retrieving default profile names";
+            configProgress.percentComplete = TaskProgress.SIXTY_PERCENT;
+            await EnvQuery.updateProgressBar(doesProgBarExist);
 
-                getResult.itemValMsg += `Available profile names:${os.EOL}`;
-                getResult.itemValMsg += EnvQuery.indent +
-                    EnvQuery.getCmdOutput("zowe", ["config", "profiles"])
-                        .replace(EnvQuery.allEolRegex, "$1" + EnvQuery.indent) + os.EOL;
+            getResult.itemValMsg += "Default profile names: "  + os.EOL;
+            let maxSpace: number = 1;
+            for (const profType of Object.keys(config.mProperties.defaults)) {
+                // calculate the max space we need between profile type and name
+                maxSpace = (maxSpace < profType.length) ? profType.length + 1 : maxSpace;
+            }
+            for (const profType of Object.keys(config.mProperties.defaults)) {
+                getResult.itemValMsg += EnvQuery.indent + profType + ":";
+                for (let count = 1; count <= maxSpace - profType.length; count ++) {
+                    getResult.itemValMsg += " ";
+                }
+                getResult.itemValMsg += config.mProperties.defaults[profType] + os.EOL;
+            }
 
-                // extract default profile names from 'config list' command
-                configProgress.statusMessage = "Retrieving default profile names";
-                configProgress.percentComplete = TaskProgress.NINETY_PERCENT;
-                await EnvQuery.updateProgressBar(doesProgBarExist);
+            // get all available zowe profile names
+            configProgress.statusMessage = "Retrieving available profile names";
+            configProgress.percentComplete = TaskProgress.NINETY_PERCENT;
+            await EnvQuery.updateProgressBar(doesProgBarExist);
 
-                const defaultsToEndRegEx = new RegExp(".*defaults:(.*)", "ms");
-                const removeAfterDefaultsRegex = new RegExp("(.*)^[^ ].*", "ms");
-                const fixIndentRegex = new RegExp("^ {2}", "gms");
-
-                cfgListOutput = stripAnsi(EnvQuery.getCmdOutput("zowe", ["config", "list"]));
-                cfgListOutput = cfgListOutput.replace(defaultsToEndRegEx, "$1");
-                cfgListOutput = cfgListOutput.replace(removeAfterDefaultsRegex, "$1") + os.EOL;
-                cfgListOutput = cfgListOutput.replace(fixIndentRegex, EnvQuery.indent);
-                getResult.itemValMsg += "Default profile names: " + cfgListOutput;
+            /* Recursive function to get our list of profiles.
+             * Logic stolen from "config profiles" handler.
+             */
+            const getProfList = function(
+                profiles: { [key: string]: IConfigProfile },
+                startLoc: string,
+                profPathNms: string[]
+            ) {
+                const currLoc = startLoc;
+                for (const [profNm, profObj] of Object.entries(profiles)) {
+                    const currPathNm = currLoc + `${currLoc.length > 0 ? "." : ""}${profNm}`;
+                    profPathNms.push(currPathNm);
+                    if (profObj.profiles != null) {
+                        getProfList(profObj.profiles, currPathNm, profPathNms);
+                    }
+                }
+            };
+            const profPathNms: string[] = [];
+            getProfList(config.properties.profiles, "", profPathNms);
+            getResult.itemValMsg += `Available profile names:${os.EOL}`;
+            for (const profPathNm of profPathNms) {
+                getResult.itemValMsg += EnvQuery.indent + profPathNm + os.EOL;
             }
         } else {
             // display V1 profile information
