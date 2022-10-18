@@ -14,7 +14,6 @@ import * as os from "os";
 import * as lodash from "lodash";
 import * as path from "path";
 import { spawnSync, StdioOptions } from "child_process";
-import stripAnsi = require("strip-ansi");
 
 import { ConfigConstants, IConfigProfile } from "../../../../../config";
 import { IHandlerProgressApi } from "../../../../../cmd";
@@ -22,6 +21,9 @@ import { IO } from "../../../../../io";
 import { ImperativeConfig , TextUtils } from "../../../../../utilities";
 import { ITaskWithStatus, TaskProgress, TaskStage } from "../../../../../operations";
 import { CliUtils } from "../../../../../utilities/src/CliUtils";
+
+import { IPluginJson } from "../../../plugins/doc/IPluginJson";
+import { PluginIssues } from "../../../plugins/utilities/PluginIssues";
 
 import { ItemId, IProbTest, probTests } from "./EnvItems";
 
@@ -132,7 +134,7 @@ export class EnvQuery {
                 break;
             }
             case ItemId.ZOWE_PLUGINS: {
-                EnvQuery.getPluginInfo(getResult);
+                await EnvQuery.getPluginInfo(getResult, getItemOpts);
                 break;
             }
             default: {
@@ -302,7 +304,7 @@ export class EnvQuery {
                 maxSpace = (maxSpace < profType.length) ? profType.length + 1 : maxSpace;
             }
             for (const profType of Object.keys(config.mProperties.defaults)) {
-                getResult.itemValMsg += EnvQuery.indent + profType + ":";
+                getResult.itemValMsg += EnvQuery.indent + profType + " =";
                 for (let count = 1; count <= maxSpace - profType.length; count ++) {
                     getResult.itemValMsg += " ";
                 }
@@ -533,22 +535,45 @@ export class EnvQuery {
     // __________________________________________________________________________
     /**
      * Get information about Zowe plugins.
+     * Logic stolen from plugins list command handler.
      *
      * @param getResult The itemVal and itemValMsg properties are filled
      *                  by this function.
      */
-    private static getPluginInfo(getResult: IGetItemVal): void {
-        if (ImperativeConfig.instance.loadedConfig.daemonMode) {
-            // The daemon appears unable to spawn additional "zowe" commands, so we quit
-            getResult.itemValMsg +=
-                EnvQuery.divider +
-                "The Zowe plugin report is not available when running in daemon mode." +
-                os.EOL + EnvQuery.divider;
-            return;
+    private static async getPluginInfo(
+        getResult: IGetItemVal, getItemOpts: IGetItemOpts
+    ): Promise<void> {
+        const doesProgBarExist: boolean = (getItemOpts?.progressApi) ? true: false;
+
+        // setup progress bar
+        const configProgress: ITaskWithStatus = {
+            percentComplete: TaskProgress.FIFTY_PERCENT,
+            statusMessage: "Retrieving installed plugins",
+            stageName: TaskStage.IN_PROGRESS
+        };
+
+        if (doesProgBarExist) {
+            getItemOpts.progressApi.startBar({task: configProgress});
+            await EnvQuery.updateProgressBar(doesProgBarExist, true);
         }
-        let pluginsOutput = EnvQuery.getCmdOutput("zowe", ["plugins", "list"]);
-        pluginsOutput = pluginsOutput.replace(/^.*registry:.*\r?\n|\n$/gm, "");
-        getResult.itemValMsg = EnvQuery.divider + pluginsOutput + EnvQuery.divider;
+
+        const installedPlugins: IPluginJson = PluginIssues.instance.getInstalledPlugins();
+        getResult.itemValMsg = EnvQuery.divider + "Installed plugins:" + os.EOL;
+        for (const nextPluginNm of Object.keys(installedPlugins)
+            .sort((a, b) => a.localeCompare(b)))
+        {
+            getResult.itemValMsg += os.EOL + EnvQuery.indent + nextPluginNm + os.EOL +
+                EnvQuery.indent + EnvQuery.indent + "Version = " +
+                installedPlugins[nextPluginNm].version + os.EOL +
+                EnvQuery.indent + EnvQuery.indent + "Package = " +
+                installedPlugins[nextPluginNm].package + os.EOL;
+        }
+        getResult.itemValMsg += EnvQuery.divider;
+
+        if (doesProgBarExist) {
+            configProgress.percentComplete = TaskProgress.ONE_HUNDRED_PERCENT;
+            await EnvQuery.updateProgressBar(doesProgBarExist);
+        }
     }
 
     // __________________________________________________________________________

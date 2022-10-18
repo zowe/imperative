@@ -9,8 +9,10 @@
 *
 */
 
+import * as fs from "fs";
 import * as path from "path";
 
+import { IO } from "../../../../../io";
 import { ImperativeConfig } from "../../../../../utilities";
 import { EnvQuery, IGetItemVal } from "../../../../src/config/cmd/report-env/EnvQuery";
 import { ItemId } from "../../../../src/config/cmd/report-env/EnvItems";
@@ -276,6 +278,7 @@ describe("Tests for EnvQuery module", () => {
         });
 
         /* TODO: Add tests for v1 profiles. This test does not work yet.
+        */
         it("should report Zowe V1 configuration info", async () => {
             // set ImperativeConfig properties to what we want
             Object.defineProperty(impCfg, "config", {
@@ -294,11 +297,19 @@ describe("Tests for EnvQuery module", () => {
             });
             (impCfg.loadedConfig as any) = { daemonMode: false };
 
-            const itemObj: IGetItemVal = EnvQuery.getEnvItemVal(ItemId.ZOWE_CONFIG_TYPE);
-            expect(itemObj.itemVal).toContain("V1 Team Config");
+            const isDirSpy = jest.spyOn(IO as any, "isDir")
+                .mockReturnValue(true);
+
+            const profDir1 = "ProfDir1";
+            const profDir2 = "ProfDir2";
+            const profDir3 = "ProfDir3";
+            const readDirSyncSpy = jest.spyOn(fs, "readdirSync")
+                .mockReturnValue([profDir1, profDir2, profDir3]);
+
+            const itemObj: IGetItemVal = await EnvQuery.getEnvItemVal(ItemId.ZOWE_CONFIG_TYPE);
+            expect(itemObj.itemVal).toContain("V1 Profiles");
             expect(itemObj.itemValMsg).toContain("zzz");
             expect(itemObj.itemProbMsg).toBe("");
         });
-        TODO: */
     }); // end getEnvItemVal function
 }); // end Handler
