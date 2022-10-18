@@ -18,6 +18,66 @@ import { EnvQuery, IGetItemVal } from "../../../../src/config/cmd/report-env/Env
 import { ItemId } from "../../../../src/config/cmd/report-env/EnvItems";
 
 describe("Tests for EnvQuery module", () => {
+    const fakeCliHomeDir = "this_is_a_fake_cli_home_dir";
+    let impCfg: ImperativeConfig;
+
+    beforeEach(() => {
+        // set ImperativeConfig properties for a v2 config
+        impCfg = ImperativeConfig.instance;
+        Object.defineProperty(impCfg, "config", {
+            configurable: true,
+            get: jest.fn(() => {
+                return {
+                    exists: true,
+                    properties: {
+                        profiles: {
+                            fakeBaseProfNm: {},
+                            fakeZosmfProfNm: {},
+                            fakeJclCheckProfNm: {},
+                            fakeTsoProfNm: {},
+                            fakeCicsProfNm: {}
+                        }
+                    },
+                    mProperties: {
+                        defaults: {
+                            base: "fakeBaseProfNm",
+                            zosmf: "fakeZosmfProfNm",
+                            jclcheck: "fakeJclCheckProfNm",
+                            tso: "fakeTsoProfNm",
+                            cics: "fakeCicsProfNm"
+                        }
+                    },
+                    layers: [{
+                        exists: true,
+                        global: true,
+                        user: false,
+                        path: "fakeDir/zowe.config.json",
+                        properties: {
+                            profiles: {
+                                fakeProf: {
+                                    secure: ["fakeSecureName"],
+                                    properties: {fakePropNm: "fakePropVal"}
+                                }
+                            }
+                        }
+                    }],
+                    api: {
+                        secure: {
+                            secureFields: jest.fn(() => { return []; })
+                        }
+                    }
+                };
+            })
+        });
+        Object.defineProperty(impCfg, "cliHome", {
+            configurable: true,
+            get: jest.fn(() => {
+                return fakeCliHomeDir;
+            })
+        });
+
+        (impCfg.loadedConfig as any) = { daemonMode: false };
+    });
 
     afterEach(() => {
         // Mocks need cleared after every test for clean test runs
@@ -25,40 +85,6 @@ describe("Tests for EnvQuery module", () => {
     });
 
     describe("test getEnvItemVal function", () => {
-        const impCfg: ImperativeConfig = ImperativeConfig.instance;
-
-        // fake values
-        const fakeDir = "this_is_a_fake_cli_home_dir";
-        const configLocOutput = `
-            dir1/zowe.config.json:
-            other stuff 1
-            other stuff 2
-            dir2/zowe.config.json:
-            dir2/zowe.config.user.json:
-        `;
-        const configProfilesOutput = `
-            zosmf_profile
-            tso_profile
-            endevor_profile
-            jclcheck_profile
-            cics_profile
-        `;
-        const configListOutput =
-            "my_zosmf_profile:\n" +
-            "    type:       zosmf\n" +
-            "    properties:\n" +
-            "    host:                 usilca31.lvn.broadcom.net\n" +
-            "    port:                 1443\n" +
-            "    responseFormatHeader: true\n" +
-            "defaults:\n" +
-            "  base:     my_base_profile\n" +
-            "  zosmf:    my_zosmf_profile\n" +
-            "  jclcheck: my_jck_profile\n" +
-            "  tso:      my_tso_profile\n" +
-            "  cics:     my_cics_profile\n" +
-            "autoStore: true\n"
-        ;
-
         it("should report the zowe version", async () => {
             const itemObj: IGetItemVal = await EnvQuery.getEnvItemVal(ItemId.ZOWE_VER);
             expect(itemObj.itemVal).toMatch(/[0-9]+.[0-9]+.[0-9]+/);
@@ -110,17 +136,16 @@ describe("Tests for EnvQuery module", () => {
 
         it("should report the ZOWE_CLI_HOME", async () => {
             // cliHome is a getter property, so mock the property
-            const fakeDir = "this_is_a_fake_cli_home_dir";
             Object.defineProperty(impCfg, "cliHome", {
                 configurable: true,
                 get: jest.fn(() => {
-                    return fakeDir;
+                    return fakeCliHomeDir;
                 })
             });
 
             const itemObj: IGetItemVal = await EnvQuery.getEnvItemVal(ItemId.ZOWE_CLI_HOME);
             expect(itemObj.itemVal).toContain("undefined");
-            expect(itemObj.itemVal).toContain("Default = " + fakeDir);
+            expect(itemObj.itemVal).toContain("Default = " + fakeCliHomeDir);
             expect(itemObj.itemValMsg).toContain("ZOWE_CLI_HOME =");
             expect(itemObj.itemProbMsg).toBe("");
         });
@@ -204,81 +229,31 @@ describe("Tests for EnvQuery module", () => {
         });
 
         it("should report Zowe V2 configuration info", async () => {
-            // set ImperativeConfig properties to what we want
-            Object.defineProperty(impCfg, "config", {
-                configurable: true,
-                get: jest.fn(() => {
-                    return {
-                        exists: true
-                    };
-                })
-            });
-            Object.defineProperty(impCfg, "cliHome", {
-                configurable: true,
-                get: jest.fn(() => {
-                    return fakeDir;
-                })
-            });
-            (impCfg.loadedConfig as any) = { daemonMode: false };
-
-            // return the values that we want from external commands
-            const createStdinStreamSpy = jest.spyOn(EnvQuery as any, "getCmdOutput")
-                .mockReturnValueOnce(configLocOutput)
-                .mockReturnValueOnce(configProfilesOutput)
-                .mockReturnValueOnce(configListOutput);
-
             const itemObj: IGetItemVal = await EnvQuery.getEnvItemVal(ItemId.ZOWE_CONFIG_TYPE);
             expect(itemObj.itemVal).toContain("V2 Team Config");
             expect(itemObj.itemValMsg).toContain("Zowe daemon mode = off");
             expect(itemObj.itemValMsg).toContain("Zowe config type = V2 Team Config");
             expect(itemObj.itemValMsg).toContain("Team config files in effect:");
-            expect(itemObj.itemValMsg).toContain("dir1/zowe.config.json:");
-            expect(itemObj.itemValMsg).toContain("dir2/zowe.config.json:");
-            expect(itemObj.itemValMsg).toContain("dir2/zowe.config.user.json:");
-            expect(itemObj.itemValMsg).toMatch(/base: +my_base_profile/);
-            expect(itemObj.itemValMsg).toMatch(/zosmf: +my_zosmf_profile/);
-            expect(itemObj.itemValMsg).toMatch(/jclcheck: +my_jck_profile/);
-            expect(itemObj.itemValMsg).toMatch(/tso: +my_tso_profile/);
-            expect(itemObj.itemValMsg).toMatch(/cics: +my_cics_profile/);
+            expect(itemObj.itemValMsg).toContain("fakeDir/zowe.config.json");
+            expect(itemObj.itemValMsg).toMatch(/base = +fakeBaseProfNm/);
+            expect(itemObj.itemValMsg).toMatch(/zosmf = +fakeZosmfProfNm/);
+            expect(itemObj.itemValMsg).toMatch(/jclcheck = +fakeJclCheckProfNm/);
+            expect(itemObj.itemValMsg).toMatch(/tso = +fakeTsoProfNm/);
+            expect(itemObj.itemValMsg).toMatch(/cics = +fakeCicsProfNm/);
             expect(itemObj.itemProbMsg).toBe("");
         });
 
         it("should report when daemon is on", async () => {
-            // set ImperativeConfig properties to what we want
-            Object.defineProperty(impCfg, "config", {
-                configurable: true,
-                get: jest.fn(() => {
-                    return {
-                        exists: true
-                    };
-                })
-            });
-            Object.defineProperty(impCfg, "cliHome", {
-                configurable: true,
-                get: jest.fn(() => {
-                    return fakeDir;
-                })
-            });
             (impCfg.loadedConfig as any) = { daemonMode: true };
 
             // return the values that we want from external commands
-            const exeVer = "1.2.3";
-            const createStdinStreamSpy = jest.spyOn(EnvQuery as any, "getCmdOutput")
-                .mockReturnValueOnce(exeVer)
-                .mockReturnValueOnce(configLocOutput)
-                .mockReturnValueOnce(configProfilesOutput)
-                .mockReturnValueOnce(configListOutput);
-
             const itemObj: IGetItemVal = await EnvQuery.getEnvItemVal(ItemId.ZOWE_CONFIG_TYPE);
             expect(itemObj.itemVal).toContain("V2 Team Config");
             expect(itemObj.itemValMsg).toContain("Zowe daemon mode = on");
-            expect(itemObj.itemValMsg).toContain("Zowe daemon executable version = " + exeVer);
             expect(itemObj.itemValMsg).toMatch(/Default Zowe daemon executable directory = this_is_a_fake_cli_home_dir.bin/);
             expect(itemObj.itemProbMsg).toBe("");
         });
 
-        /* TODO: Add tests for v1 profiles. This test does not work yet.
-        */
         it("should report Zowe V1 configuration info", async () => {
             // set ImperativeConfig properties to what we want
             Object.defineProperty(impCfg, "config", {
@@ -289,26 +264,51 @@ describe("Tests for EnvQuery module", () => {
                     };
                 })
             });
-            Object.defineProperty(impCfg, "cliHome", {
-                configurable: true,
-                get: jest.fn(() => {
-                    return fakeDir;
-                })
-            });
-            (impCfg.loadedConfig as any) = { daemonMode: false };
 
             const isDirSpy = jest.spyOn(IO as any, "isDir")
                 .mockReturnValue(true);
 
-            const profDir1 = "ProfDir1";
-            const profDir2 = "ProfDir2";
-            const profDir3 = "ProfDir3";
+            const endvProfDir = "endevor";
+            const tsoProfDir = "tso";
+            const zosmfProfDir = "zosmf";
+            const prof1 = "_prof_1";
+            const prof2 = "_prof_2";
+            const prof3 = "_prof_3";
             const readDirSyncSpy = jest.spyOn(fs, "readdirSync")
-                .mockReturnValue([profDir1, profDir2, profDir3]);
+                .mockReturnValueOnce([
+                    endvProfDir as unknown as fs.Dirent,
+                    tsoProfDir as unknown as fs.Dirent,
+                    zosmfProfDir as unknown as fs.Dirent
+                ]).mockReturnValueOnce([
+                    endvProfDir + prof1 as unknown as fs.Dirent,
+                    endvProfDir + prof2 as unknown as fs.Dirent,
+                    endvProfDir + prof3 as unknown as fs.Dirent
+                ]).mockReturnValueOnce([
+                    tsoProfDir + prof1 as unknown as fs.Dirent,
+                    tsoProfDir + prof2 as unknown as fs.Dirent,
+                    tsoProfDir + prof3 as unknown as fs.Dirent
+                ]).mockReturnValueOnce([
+                    zosmfProfDir + prof1 as unknown as fs.Dirent,
+                    zosmfProfDir + prof2 as unknown as fs.Dirent,
+                    zosmfProfDir + prof3 as unknown as fs.Dirent
+                ]);
 
             const itemObj: IGetItemVal = await EnvQuery.getEnvItemVal(ItemId.ZOWE_CONFIG_TYPE);
             expect(itemObj.itemVal).toContain("V1 Profiles");
-            expect(itemObj.itemValMsg).toContain("zzz");
+            expect(itemObj.itemValMsg).toContain("Zowe config type = V1 Profiles");
+            expect(itemObj.itemValMsg).toContain("Available profiles:");
+            expect(itemObj.itemValMsg).toContain(endvProfDir + " profiles:");
+            expect(itemObj.itemValMsg).toContain(endvProfDir + prof1);
+            expect(itemObj.itemValMsg).toContain(endvProfDir + prof2);
+            expect(itemObj.itemValMsg).toContain(endvProfDir + prof3);
+            expect(itemObj.itemValMsg).toContain(tsoProfDir + " profiles:");
+            expect(itemObj.itemValMsg).toContain(tsoProfDir + prof1);
+            expect(itemObj.itemValMsg).toContain(tsoProfDir + prof2);
+            expect(itemObj.itemValMsg).toContain(tsoProfDir + prof3);
+            expect(itemObj.itemValMsg).toContain(zosmfProfDir + " profiles:");
+            expect(itemObj.itemValMsg).toContain(zosmfProfDir + prof1);
+            expect(itemObj.itemValMsg).toContain(zosmfProfDir + prof2);
+            expect(itemObj.itemValMsg).toContain(zosmfProfDir + prof3);
             expect(itemObj.itemProbMsg).toBe("");
         });
     }); // end getEnvItemVal function
