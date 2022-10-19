@@ -251,7 +251,8 @@ export class EnvQuery {
             configProgress.statusMessage = "Retrieving Zowe executable version";
             await EnvQuery.updateProgressBar(doesProgBarExist);
 
-            const exeVerOutput = EnvQuery.getCmdOutput("zowe", ["--version-exe"]);
+            const cliCmdName = ImperativeConfig.instance.rootCommandName;
+            const exeVerOutput = EnvQuery.getCmdOutput(cliCmdName, ["--version-exe"]);
             if (exeVerOutput.match(/DESCRIPTION/) == null) {
                 getResult.itemValMsg += `${os.EOL}Zowe daemon executable version = ` + exeVerOutput;
             }
