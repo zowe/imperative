@@ -574,6 +574,7 @@ export class EnvQuery {
         if (doesProgBarExist) {
             configProgress.percentComplete = TaskProgress.ONE_HUNDRED_PERCENT;
             await EnvQuery.updateProgressBar(doesProgBarExist);
+            getItemOpts.progressApi.endBar();
         }
     }
 

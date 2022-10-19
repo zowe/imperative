@@ -360,4 +360,15 @@ describe("Tests for EnvQuery module", () => {
             expect(itemObj.itemProbMsg).toBe("");
         });
     }); // end getEnvItemVal function
+
+    describe("test getCmdOutput", () => {
+        it("should report an error on a bogus command", async () => {
+            /* Use EnvQuery["getCmdOutput"]() instead of EnvQuery.getCmdOutput()
+             * so that we can call a private function.
+             */
+            const cmdOutput = await EnvQuery["getCmdOutput"]("bogusCmd", ["bogusArg"]);
+            expect(cmdOutput).toContain("bogusCmd does not appear to be installed");
+        });
+    }); // end getCmdOutput function
+
 }); // end Handler
