@@ -12,11 +12,13 @@
 import * as fs from "fs";
 import * as path from "path";
 
+import { CommandResponse } from "../../../../../cmd/src/response/CommandResponse";
 import { IO } from "../../../../../io";
 import { ImperativeConfig } from "../../../../../utilities";
-import { EnvQuery, IGetItemVal } from "../../../../src/config/cmd/report-env/EnvQuery";
-import { ItemId } from "../../../../src/config/cmd/report-env/EnvItems";
 import { PluginIssues } from "../../../../src/plugins/utilities/PluginIssues";
+
+import { EnvQuery, IGetItemOpts, IGetItemVal } from "../../../../src/config/cmd/report-env/EnvQuery";
+import { ItemId } from "../../../../src/config/cmd/report-env/EnvItems";
 
 describe("Tests for EnvQuery module", () => {
     const fakeCliHomeDir = "this_is_a_fake_cli_home_dir";
@@ -254,7 +256,12 @@ describe("Tests for EnvQuery module", () => {
         });
 
         it("should report installed plugins", async () => {
-            const itemObj: IGetItemVal = await EnvQuery.getEnvItemVal(ItemId.ZOWE_PLUGINS);
+            const cmdResp: CommandResponse = new CommandResponse();
+            const getItemOpts: IGetItemOpts = {
+                progressApi: cmdResp.progress
+            };
+
+            const itemObj: IGetItemVal = await EnvQuery.getEnvItemVal(ItemId.ZOWE_PLUGINS, getItemOpts);
             expect(itemObj.itemVal).toBe(null);
             expect(itemObj.itemValMsg).toContain("Installed plugins");
             expect(itemObj.itemValMsg).toContain("endevor-for-zowe-cli");
