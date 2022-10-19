@@ -24,6 +24,9 @@ describe("Tests for EnvQuery module", () => {
     beforeEach(() => {
         // set ImperativeConfig properties for a v2 config
         impCfg = ImperativeConfig.instance;
+        impCfg.rootCommandName = "zowe";
+        (impCfg.loadedConfig as any) = { daemonMode: false };
+
         Object.defineProperty(impCfg, "config", {
             configurable: true,
             get: jest.fn(() => {
@@ -75,8 +78,6 @@ describe("Tests for EnvQuery module", () => {
                 return fakeCliHomeDir;
             })
         });
-
-        (impCfg.loadedConfig as any) = { daemonMode: false };
     });
 
     afterEach(() => {
@@ -226,6 +227,11 @@ describe("Tests for EnvQuery module", () => {
             expect(itemObj.itemValMsg).toContain("cwd =");
             expect(itemObj.itemValMsg).toContain("HOME =");
             expect(itemObj.itemProbMsg).toBe("");
+        });
+
+        it("should report an unknown item id", async () => {
+            const itemObj: IGetItemVal = await EnvQuery.getEnvItemVal(999);
+            expect(itemObj.itemProbMsg).toBe("An unknown item ID was supplied = 999");
         });
 
         it("should report Zowe V2 configuration info", async () => {
