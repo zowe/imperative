@@ -16,12 +16,41 @@ import { IO } from "../../../../../io";
 import { ImperativeConfig } from "../../../../../utilities";
 import { EnvQuery, IGetItemVal } from "../../../../src/config/cmd/report-env/EnvQuery";
 import { ItemId } from "../../../../src/config/cmd/report-env/EnvItems";
+import { PluginIssues } from "../../../../src/plugins/utilities/PluginIssues";
 
 describe("Tests for EnvQuery module", () => {
     const fakeCliHomeDir = "this_is_a_fake_cli_home_dir";
     let impCfg: ImperativeConfig;
+    let pluginIssInst: PluginIssues;
+    let getPluginsSpy;
 
-    beforeEach(() => {
+    beforeAll(() => {
+        // set list of installed plugins
+        pluginIssInst = PluginIssues.instance;
+        getPluginsSpy = jest.spyOn(pluginIssInst as any, "getInstalledPlugins")
+            .mockReturnValue({
+                "@broadcom/qwikref-for-zowe-cli": {
+                    package: "C:\\ourstuff\\repos\\plugins\\qwikref-cli",
+                    registry: "https://registry.npmjs.org/",
+                    version: "1.0.1"
+                },
+                "@zowe/zos-ftp-for-zowe-cli": {
+                    package: "@zowe/zos-ftp-for-zowe-cli",
+                    registry: "https://registry.npmjs.org/",
+                    version: "2.1.0"
+                },
+                "@broadcom/endevor-for-zowe-cli": {
+                    package: "@broadcom/endevor-for-zowe-cli@zowe-v2-lts",
+                    registry: "https://registry.npmjs.org/",
+                    version: "7.1.0"
+                },
+                "@broadcom/jclcheck-for-zowe-cli": {
+                    package: "@broadcom/jclcheck-for-zowe-cli",
+                    registry: "https://registry.npmjs.org/",
+                    version: "1.1.2"
+                }
+            });
+
         // set ImperativeConfig properties for a v2 config
         impCfg = ImperativeConfig.instance;
         impCfg.rootCommandName = "zowe";
@@ -78,11 +107,6 @@ describe("Tests for EnvQuery module", () => {
                 return fakeCliHomeDir;
             })
         });
-    });
-
-    afterEach(() => {
-        // Mocks need cleared after every test for clean test runs
-        jest.resetAllMocks();
     });
 
     describe("test getEnvItemVal function", () => {
@@ -226,6 +250,17 @@ describe("Tests for EnvQuery module", () => {
             expect(itemObj.itemValMsg).toContain("registry =");
             expect(itemObj.itemValMsg).toContain("cwd =");
             expect(itemObj.itemValMsg).toContain("HOME =");
+            expect(itemObj.itemProbMsg).toBe("");
+        });
+
+        it("should report installed plugins", async () => {
+            const itemObj: IGetItemVal = await EnvQuery.getEnvItemVal(ItemId.ZOWE_PLUGINS);
+            expect(itemObj.itemVal).toBe(null);
+            expect(itemObj.itemValMsg).toContain("Installed plugins");
+            expect(itemObj.itemValMsg).toContain("endevor-for-zowe-cli");
+            expect(itemObj.itemValMsg).toContain("jclcheck-for-zowe-cli");
+            expect(itemObj.itemValMsg).toContain("qwikref-for-zowe-cli");
+            expect(itemObj.itemValMsg).toContain("zos-ftp-for-zowe-cli");
             expect(itemObj.itemProbMsg).toBe("");
         });
 
