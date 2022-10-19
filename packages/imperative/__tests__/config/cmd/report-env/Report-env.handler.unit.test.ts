@@ -65,18 +65,20 @@ describe("Handler for config report-env", () => {
             let caughtErr;
 
             const getEnvItemValOrig = EnvQuery.getEnvItemVal;
-            (EnvQuery.getEnvItemVal as any) = jest.fn((itemId) => {
-                let itemResult : IGetItemVal = {
-                    itemVal: itemId,
-                    itemValMsg: `The message for item ID ${itemId} is 'all is good'`,
-                    itemProbMsg: ""
-                };
-                if (itemId == ItemId.NODEJS_VER) {
+            (EnvQuery.getEnvItemVal as any) = jest.fn(async (itemId: ItemId) => {
+                let itemResult : IGetItemVal;
+                if (itemId === ItemId.NODEJS_VER) {
                     // with this we get code coverage for problem messages
                     itemResult = {
                         itemVal: "19.9.9",
                         itemValMsg: `The Node version for item ${itemId} is bad`,
                         itemProbMsg: "You are using an awful version of Node"
+                    };
+                } else {
+                    itemResult = {
+                        itemVal: itemId.toString(),
+                        itemValMsg: `The message for item ID ${itemId} is 'all is good'`,
+                        itemProbMsg: ""
                     };
                 }
                 return itemResult;
@@ -90,11 +92,9 @@ describe("Handler for config report-env", () => {
             }
 
             expect(caughtErr).toBeUndefined();
-            for (const nextItemId of Object.keys(ItemId).map(
-                keyVal => parseInt(keyVal)).filter(keyVal => !isNaN(keyVal)
-            ))
-            {
-                if (nextItemId == ItemId.NODEJS_VER) {
+            for (const nextItemId of Object.values(ItemId).filter((v) => !isNaN(Number(v)))) {
+                if (nextItemId === ItemId.NODEJS_VER) {
+                    expect(stdoutMsg).toContain(`The Node version for item ${nextItemId} is bad`);
                     expect(stdoutMsg).toContain(`You are using an awful version of Node`);
                 } else {
                     expect(stdoutMsg).toContain(`item ID ${nextItemId} is 'all is good'`);
