@@ -184,7 +184,7 @@ export class EnvQuery {
                 // remove any trailing newline from the output
                 cmdOutput = spawnResult.stdout.toString();
             } else {
-                cmdOutput = cmdToRun + " does not appear to be installed.";
+                cmdOutput = cmdToRun + " failed to display any output.";
                 if (spawnResult.stderr) {
                     cmdOutput += `${os.EOL}Reason = ` + spawnResult.stderr.toString();
                 }

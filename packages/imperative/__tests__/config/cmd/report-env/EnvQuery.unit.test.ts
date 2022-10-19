@@ -10,6 +10,7 @@
 */
 
 import * as fs from "fs";
+import * as os from "os";
 import * as path from "path";
 
 import { CommandResponse } from "../../../../../cmd/src/response/CommandResponse";
@@ -362,13 +363,25 @@ describe("Tests for EnvQuery module", () => {
     }); // end getEnvItemVal function
 
     describe("test getCmdOutput", () => {
-        it("should report an error on a bogus command", async () => {
+        it("should report a command that produces no output", async () => {
             /* Use EnvQuery["getCmdOutput"]() instead of EnvQuery.getCmdOutput()
              * so that we can call a private function.
              */
             const cmdOutput = await EnvQuery["getCmdOutput"]("bogusCmd", ["bogusArg"]);
-            expect(cmdOutput).toContain("bogusCmd does not appear to be installed");
+            expect(cmdOutput).toContain("bogusCmd failed to display any output");
+        });
+
+        it("should report a command gave no output when it only outputs a newline", async () => {
+            /* Use EnvQuery["getCmdOutput"]() instead of EnvQuery.getCmdOutput()
+             * so that we can call a private function.
+             */
+            let cmdOutput: string;
+            if (os.platform() === "win32") {
+                cmdOutput = await EnvQuery["getCmdOutput"]("cmd", ["/C", "echo."]);
+            } else {
+                cmdOutput = await EnvQuery["getCmdOutput"]("echo", [""]);
+            }
+            expect(cmdOutput).toContain("Failed to get any information from");
         });
     }); // end getCmdOutput function
-
 }); // end Handler
