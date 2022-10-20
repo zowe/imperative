@@ -157,7 +157,6 @@ describe("Tests for EnvQuery module", () => {
 
         it("should report the OS command path", async () => {
             const itemObj: IGetItemVal = await EnvQuery.getEnvItemVal(ItemId.OS_PATH);
-            expect(itemObj.itemVal).toContain(path.sep + "node");
             expect(itemObj.itemValMsg).toContain("O.S. PATH =");
             expect(itemObj.itemProbMsg).toBe("");
         });
