@@ -383,5 +383,17 @@ describe("Tests for EnvQuery module", () => {
             }
             expect(cmdOutput).toContain("Failed to get any information from");
         });
+
+        it("should catch errors thrown by spawnSync", async () => {
+            const childProc = require("child_process");
+            const spawnError = new Error("Pretend this was thrown by spawnSync");
+            const isDirSpy = jest.spyOn(childProc, "spawnSync").mockImplementation(() => {
+                throw spawnError;
+            });
+
+            const cmdOutput = await EnvQuery["getCmdOutput"]("bogusCmd", ["bogusArg"]);
+            expect(cmdOutput).toContain("Failed to run commmand = bogusCmd");
+            expect(cmdOutput).toContain("Pretend this was thrown by spawnSync");
+        });
     }); // end getCmdOutput function
 }); // end Handler
