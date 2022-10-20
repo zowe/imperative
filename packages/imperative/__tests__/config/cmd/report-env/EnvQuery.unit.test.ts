@@ -129,7 +129,7 @@ describe("Tests for EnvQuery module", () => {
 
         it("should report the NVM version", async () => {
             const itemObj: IGetItemVal = await EnvQuery.getEnvItemVal(ItemId.NVM_VER);
-            if (itemObj.itemVal.length !== 0) {
+            if (!itemObj.itemVal.includes("nvm failed to display any output")) {
                 expect(itemObj.itemVal).toMatch(/[0-9]+.[0-9]+.[0-9]+/);
                 expect(itemObj.itemValMsg).toContain("Node Version Manager version =");
             }
