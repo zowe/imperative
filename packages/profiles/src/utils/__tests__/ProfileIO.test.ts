@@ -36,7 +36,7 @@ const writeYaml = require("yamljs");
 
 const mocks = {
     createDirsSync: IO.createDirsSync as Mock<typeof IO.createDirsSync>,
-    safeLoad: readYaml.safeLoad as Mock<typeof readYaml.readYaml>,
+    safeLoad: readYaml.load as Mock<typeof readYaml.readYaml>,
     writeFileSync: fs.writeFileSync as Mock<typeof fs.writeFileSync>,
     yamlStringify: writeYaml.stringify as Mock<typeof writeYaml.stringify>,
     unlinkSync: fs.unlinkSync as Mock<typeof fs.unlinkSync>,

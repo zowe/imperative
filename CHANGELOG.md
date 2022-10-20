@@ -2,6 +2,14 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## `5.6.0`
+
+- Extend zowe plugins verbs to show information for a plugin's first steps [#1325](https://github.com/zowe/zowe-cli/issues/1325)
+
+## `5.5.4`
+
+- BugFix: Updated `glob` and `js-yaml` dependencies for technical currency.
+
 ## `5.5.3`
 
 - BugFix: Updated `diff2html` and `npm-package-arg` dependencies for technical currency.
