@@ -159,7 +159,7 @@ export class EnvQuery {
     private static detectProbVal(value: string, probTest: IProbTest): boolean {
         /* eslint-disable unused-imports/no-unused-vars */
         const semver = require('semver');
-        const probExprWithVals = probTest.probExpr.replaceAll("{val}", value);
+        const probExprWithVals = probTest.probExpr.replace(/{val}/g, value);
         return eval(probExprWithVals);
     }
 
@@ -402,7 +402,7 @@ export class EnvQuery {
     private static getEnvItemProblems(itemId: ItemId, itemVal: string): string {
         let probMsgs: string = "";
         for (const nextProbTest of probTests) {
-            if (itemId == nextProbTest.itemId) {
+            if (itemId === nextProbTest.itemId) {
                 if (EnvQuery.detectProbVal(itemVal, nextProbTest)) {
                     if (probMsgs.length > 0) {
                         probMsgs += os.EOL;
