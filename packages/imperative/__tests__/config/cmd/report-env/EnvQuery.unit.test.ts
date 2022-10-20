@@ -123,7 +123,7 @@ describe("Tests for EnvQuery module", () => {
         it("should report the NodeJs version", async () => {
             const itemObj: IGetItemVal = await EnvQuery.getEnvItemVal(ItemId.NODEJS_VER);
             expect(itemObj.itemVal).toMatch(/[0-9]+.[0-9]+.[0-9]+/);
-            expect(itemObj.itemValMsg).toContain("NodeJS version =");
+            expect(itemObj.itemValMsg).toContain("Node.js version =");
             expect(itemObj.itemProbMsg).toBe("");
         });
 
@@ -157,7 +157,7 @@ describe("Tests for EnvQuery module", () => {
 
         it("should report the OS command path", async () => {
             const itemObj: IGetItemVal = await EnvQuery.getEnvItemVal(ItemId.OS_PATH);
-            expect(itemObj.itemVal).toContain(path.sep + "nodejs");
+            expect(itemObj.itemVal).toContain(path.sep + "node");
             expect(itemObj.itemValMsg).toContain("O.S. PATH =");
             expect(itemObj.itemProbMsg).toBe("");
         });
@@ -244,7 +244,7 @@ describe("Tests for EnvQuery module", () => {
             expect(itemObj.itemValMsg).toContain("NPM version =");
             expect(itemObj.itemValMsg).toContain("Shell =");
             expect(itemObj.itemValMsg).toContain("Global prefix =");
-            expect(itemObj.itemValMsg).toContain("The directory above contains the Zowe NodeJs command script.");
+            expect(itemObj.itemValMsg).toContain("The directory above contains the Zowe Node.js command script.");
             expect(itemObj.itemValMsg).toContain("Global root node modules =");
             expect(itemObj.itemValMsg).toContain("Global config =");
             expect(itemObj.itemValMsg).toContain("Local prefix =");

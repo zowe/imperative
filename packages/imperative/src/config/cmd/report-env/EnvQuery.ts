@@ -79,7 +79,7 @@ export class EnvQuery {
             }
             case ItemId.NODEJS_VER: {
                 getResult.itemVal = process.versions.node;
-                getResult.itemValMsg = "NodeJS version = " + getResult.itemVal;
+                getResult.itemValMsg = "Node.js version = " + getResult.itemVal;
                 break;
             }
             case ItemId.NVM_VER: {
@@ -452,7 +452,7 @@ export class EnvQuery {
         npmProgress.percentComplete += percentIncr;
         await EnvQuery.updateProgressBar(doesProgBarExist);
         getResult.itemValMsg += `${os.EOL}Global prefix = ` + EnvQuery.getCmdOutput("npm", ["prefix", "-g"]);
-        getResult.itemValMsg += os.EOL + EnvQuery.indent + "The directory above contains the Zowe NodeJs command script.";
+        getResult.itemValMsg += os.EOL + EnvQuery.indent + "The directory above contains the Zowe Node.js command script.";
 
         npmProgress.statusMessage = "Retrieving NPM global root node modules";
         npmProgress.percentComplete += percentIncr;
