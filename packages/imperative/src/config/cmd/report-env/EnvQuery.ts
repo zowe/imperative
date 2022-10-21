@@ -219,7 +219,6 @@ export class EnvQuery {
     ): Promise<void> {
         const teamCfg: string = "V2 Team Config";
         const v1Profiles = "V1 Profiles";
-        const percentIncr: number = 20;
         const doesProgBarExist: boolean = (getItemOpts?.progressApi) ? true: false;
 
         // setup progress bar
@@ -616,7 +615,6 @@ export class EnvQuery {
             let timeToUpdate: number;
             if (firstUpdate) {
                 timeToUpdate = firstUpdateTime;
-                firstUpdate = false;
             } else {
                 timeToUpdate = laterUpdateTime;
             }
