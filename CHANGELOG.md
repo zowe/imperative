@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Add `zowe config report-env` command to show a diagnostic report of the CLI's working environment.
+
 ## `5.6.0`
 
 - Extend zowe plugins verbs to show information for a plugin's first steps [#1325](https://github.com/zowe/zowe-cli/issues/1325)
