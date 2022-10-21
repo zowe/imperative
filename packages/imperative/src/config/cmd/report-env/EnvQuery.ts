@@ -359,7 +359,7 @@ export class EnvQuery {
                         // does the next profile type directory have any profiles?
                         fs.readdirSync(profileTypeDir).forEach((nextProfileNm) => {
                             // exclude the meta files
-                            if (nextProfileNm.match(/.*_meta.yaml/) != null) {
+                            if (nextProfileNm.endsWith("_meta.yaml")) {
                                 return;
                             }
                             profilesOfCurrType += EnvQuery.indent + EnvQuery.indent +
