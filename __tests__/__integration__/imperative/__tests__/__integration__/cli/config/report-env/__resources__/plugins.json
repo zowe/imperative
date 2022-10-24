@@ -1,0 +1,22 @@
+{
+  "@broadcom/qwikref-for-zowe-cli": {
+    "package": "C:\\ourstuff\\repos\\plugins\\qwikref-cli",
+    "registry": "https://registry.npmjs.org/",
+    "version": "1.0.1"
+  },
+  "@zowe/zos-ftp-for-zowe-cli": {
+    "package": "@zowe/zos-ftp-for-zowe-cli",
+    "registry": "https://registry.npmjs.org/",
+    "version": "2.1.0"
+  },
+  "@broadcom/endevor-for-zowe-cli": {
+    "package": "@broadcom/endevor-for-zowe-cli@zowe-v2-lts",
+    "registry": "https://registry.npmjs.org/",
+    "version": "7.1.0"
+  },
+  "@broadcom/jclcheck-for-zowe-cli": {
+    "package": "@broadcom/jclcheck-for-zowe-cli",
+    "registry": "https://registry.npmjs.org/",
+    "version": "1.1.2"
+  }
+}
