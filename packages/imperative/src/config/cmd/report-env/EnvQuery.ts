@@ -98,7 +98,7 @@ export class EnvQuery {
                 break;
             }
             case ItemId.OS_PATH: {
-                getResult.itemVal = process.env.Path;
+                getResult.itemVal = process.env.PATH;
                 getResult.itemValMsg = os.EOL + "O.S. PATH = " + getResult.itemVal;
                 break;
             }
