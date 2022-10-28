@@ -19,7 +19,6 @@
                                 "zosmf",
                                 "tso",
                                 "ssh",
-                                "qwikref",
                                 "zftp",
                                 "endevor",
                                 "endevor-location",
@@ -248,70 +247,6 @@
                                                 "user",
                                                 "password",
                                                 "keyPassphrase"
-                                            ]
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            "if": {
-                                "properties": {
-                                    "type": {
-                                        "const": "qwikref"
-                                    }
-                                }
-                            },
-                            "then": {
-                                "properties": {
-                                    "properties": {
-                                        "type": "object",
-                                        "title": "Qwikref Profile",
-                                        "description": "A Qwikref profile is required to issue commands in the jcl command group that interact with Qwikref. The Qwikref profile contains your host and port for the Qwikref instance of your choice.",
-                                        "properties": {
-                                            "host": {
-                                                "type": "string",
-                                                "description": "Host name of the Qwikref API service that is running on the mainframe system."
-                                            },
-                                            "port": {
-                                                "type": "number",
-                                                "description": "Port for the Qwikref API service that is running on the mainframe system.",
-                                                "default": 1689
-                                            },
-                                            "user": {
-                                                "type": "string",
-                                                "description": "User name for authenticating connections to the Qwikref API service that is running on the mainframe system."
-                                            },
-                                            "password": {
-                                                "type": "string",
-                                                "description": "Password for authenticating connections to the Qwikref API service that is running on the mainframe system."
-                                            },
-                                            "basePath": {
-                                                "type": "string",
-                                                "description": "The base path for your API mediation layer instance. Specify this option to prepend the base path to all resources when making REST requests. Do not specify this option if you are not using an API mediation layer."
-                                            },
-                                            "rejectUnauthorized": {
-                                                "type": "boolean",
-                                                "description": "Reject self-signed certificates.",
-                                                "default": true
-                                            },
-                                            "protocol": {
-                                                "type": "string",
-                                                "description": "Specifies protocol to use for Qwikref connection (http or https).",
-                                                "default": "https",
-                                                "enum": [
-                                                    "http",
-                                                    "https"
-                                                ]
-                                            }
-                                        },
-                                        "required": []
-                                    },
-                                    "secure": {
-                                        "items": {
-                                            "enum": [
-                                                "user",
-                                                "password"
                                             ]
                                         }
                                     }
@@ -681,10 +616,6 @@
                 },
                 "ssh": {
                     "description": "Default ssh profile",
-                    "type": "string"
-                },
-                "qwikref": {
-                    "description": "Default qwikref profile",
                     "type": "string"
                 },
                 "zftp": {

@@ -31,25 +31,25 @@ describe("Tests for EnvQuery module", () => {
         pluginIssInst = PluginIssues.instance;
         getPluginsSpy = jest.spyOn(pluginIssInst as any, "getInstalledPlugins")
             .mockReturnValue({
-                "@broadcom/qwikref-for-zowe-cli": {
-                    package: "C:\\ourstuff\\repos\\plugins\\qwikref-cli",
+                "@zowe/cics-for-zowe-cli": {
+                    package: "@zowe/cics-for-zowe-cli",
                     registry: "https://registry.npmjs.org/",
-                    version: "1.0.1"
-                },
-                "@zowe/zos-ftp-for-zowe-cli": {
-                    package: "@zowe/zos-ftp-for-zowe-cli",
-                    registry: "https://registry.npmjs.org/",
-                    version: "2.1.0"
+                    version: "5.0.0"
                 },
                 "@broadcom/endevor-for-zowe-cli": {
                     package: "@broadcom/endevor-for-zowe-cli@zowe-v2-lts",
                     registry: "https://registry.npmjs.org/",
                     version: "7.1.0"
                 },
-                "@broadcom/jclcheck-for-zowe-cli": {
-                    package: "@broadcom/jclcheck-for-zowe-cli",
+                "@zowe/ims-for-zowe-cli": {
+                    package: "@zowe/ims-for-zowe-cli",
                     registry: "https://registry.npmjs.org/",
-                    version: "1.1.2"
+                    version: "3.0.0"
+                },
+                "@zowe/zos-ftp-for-zowe-cli": {
+                    package: "@zowe/zos-ftp-for-zowe-cli",
+                    registry: "https://registry.npmjs.org/",
+                    version: "2.1.0"
                 }
             });
 
@@ -263,9 +263,9 @@ describe("Tests for EnvQuery module", () => {
             const itemObj: IGetItemVal = await EnvQuery.getEnvItemVal(ItemId.ZOWE_PLUGINS, getItemOpts);
             expect(itemObj.itemVal).toBe(null);
             expect(itemObj.itemValMsg).toContain("Installed plugins");
+            expect(itemObj.itemValMsg).toContain("cics-for-zowe-cli");
             expect(itemObj.itemValMsg).toContain("endevor-for-zowe-cli");
-            expect(itemObj.itemValMsg).toContain("jclcheck-for-zowe-cli");
-            expect(itemObj.itemValMsg).toContain("qwikref-for-zowe-cli");
+            expect(itemObj.itemValMsg).toContain("ims-for-zowe-cli");
             expect(itemObj.itemValMsg).toContain("zos-ftp-for-zowe-cli");
             expect(itemObj.itemProbMsg).toBe("");
         });

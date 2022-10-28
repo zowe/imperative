@@ -89,8 +89,9 @@ describe("imperative-test-cli config report-env", () => {
             expect(response.output.toString()).toContain("Available profile names:");
             expect(response.output.toString()).toContain("mySecondaryZosmf");
             expect(response.output.toString()).toContain("Installed plugins:");
+            expect(response.output.toString()).toContain("Package = @zowe/cics-for-zowe-cli");
             expect(response.output.toString()).toContain("Package = @broadcom/endevor-for-zowe-cli@zowe-v2-lts");
-            expect(response.output.toString()).toContain("Package = @broadcom/jclcheck-for-zowe-cli");
+            expect(response.output.toString()).toContain("Package = @zowe/ims-for-zowe-cli");
             expect(response.output.toString()).toContain("Package = @zowe/zos-ftp-for-zowe-cli");
             expect(response.output.toString()).toContain("This information contains site-specific data. Redact anything required");
         });
