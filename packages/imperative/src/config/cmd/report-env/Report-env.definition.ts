@@ -27,6 +27,10 @@ export const ReportEnvDefinition: ICommandDefinition = {
         {
             description: "Report information and issues about your working environment",
             options: ""
+        },
+        {
+            description: "Save the report about your working environment to a file",
+            options: "> report.log"
         }
     ]
 };
