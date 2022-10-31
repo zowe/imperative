@@ -60,8 +60,8 @@ describe("Handler for config report-env", () => {
         } as any;
 
         it("should report the output of getEnvItemVal", async () => {
-            stdoutMsg == "";
-            stderrMsg == "";
+            stdoutMsg = "";
+            stderrMsg = "";
             let caughtErr;
 
             const getEnvItemValOrig = EnvQuery.getEnvItemVal;
