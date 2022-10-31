@@ -177,6 +177,7 @@ describe("Tests for EnvQuery module", () => {
         });
 
         it("should report an undefined ZOWE_APP_LOG_LEVEL", async () => {
+            delete process.env.ZOWE_APP_LOG_LEVEL;
             const itemObj: IGetItemVal = await EnvQuery.getEnvItemVal(ItemId.ZOWE_APP_LOG_LEVEL);
             expect(itemObj.itemVal).toBeUndefined();
             expect(itemObj.itemValMsg).toContain("ZOWE_APP_LOG_LEVEL = undefined");
@@ -224,7 +225,7 @@ describe("Tests for EnvQuery module", () => {
             expect(itemObj.itemValMsg).toContain("ZOWE_PASSWORD_VAR = " + "******");
             expect(itemObj.itemProbMsg).toBe("");
 
-            delete  process.env.ZOWE_SOME_NEW_VAR;
+            delete process.env.ZOWE_SOME_NEW_VAR;
             delete process.env.ZOWE_SOME_OTHER_VAR;
             delete process.env.ZOWE_PASSWORD_VAR;
         });
