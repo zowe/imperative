@@ -53,7 +53,7 @@ export default class ReportEnvHandler implements ICommandHandler {
 
         responseApi.console.log(
             `This information contains site-specific data. Redact anything required${EOL}` +
-            "by your company before sending this information to outside companies."
+            "by your organization before sending this information to outside companies."
         );
     }
 
