@@ -11,7 +11,6 @@
 
 const childProcess = require("child_process");
 const path = require("path");
-const concurrently = require("concurrently");
 const glob = require("glob");
 
 process.chdir(__dirname + "/..");
@@ -24,7 +23,7 @@ function runAll(callback, parallel=false) {
             childProcess.execSync(command.command, { cwd: command.cwd, stdio: "inherit" });
         });
     } else {
-        concurrently(glob.sync("__tests__/__integration__/*").map((dir) => callback(dir)));
+        require("concurrently")(glob.sync("__tests__/__integration__/*").map((dir) => callback(dir)));
     }
 }
 
@@ -36,6 +35,8 @@ switch (process.argv[2]) {
         runAll((dir) => ({ command: `npm install -g . --prefix ${npmPrefix}`, cwd: dir }));
         break;
     case "uninstall":
-        runAll((dir) => ({ command: `npm uninstall -g ${path.basename(dir)} --prefix ${npmPrefix}` }));
+        // Delete install folder since npm uninstall doesn't work as expected: https://github.com/npm/npm/issues/17905
+        // runAll((dir) => ({ command: `npm uninstall -g ${path.basename(dir)} --prefix ${npmPrefix}` }));
+        require("rimraf").sync(npmPrefix);
         break;
 }
