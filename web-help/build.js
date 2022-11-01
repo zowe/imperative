@@ -59,6 +59,7 @@ function postcssTransform(data, path) {
 
 process.stdout.write("compiling web help bundle");
 Promise.all([
+    fs.mkdir(__dirname + "/dist/js", { recursive: true }),
     concatFiles(bundleJsFiles, __dirname + "/dist/js/bundle.js"),
     concatFiles(bundleCssFiles, __dirname + "/dist/css/bundle.css", postcssTransform),
     concatFiles(bundleDocsJsFiles, __dirname + "/dist/js/bundle-docs.js"),
