@@ -29,7 +29,7 @@
   "typings": "lib/index.d.ts",
   "scripts": {
     "audit:public": "npm audit --registry https://registry.npmjs.org/",
-    "build:packages": "tsc && node scripts/updateLicenses.js && npm run lint",
+    "build:packages": "tsc && node scripts/updateLicenses.js && npm run lint && npm run circularDependencyCheck",
     "build": "npm run build:packages && npm run build:webHelp",
     "postbuild": "node scripts/sampleCliTool.js build && npm run checkTestsCompile",
     "checkTestsCompile": "echo \"Checking that test source compiles\" && tsc --noEmit -p tsconfig-tests.json",
