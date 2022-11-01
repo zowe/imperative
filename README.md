@@ -46,22 +46,19 @@ To build the entire project (including test stand-alone CLIs):
 `npm run build`
 
 To build only imperative source:
-`gulp build`
+`npm run build:packages`
 
 ### Run Tests
 Command | Description
 --- | ---
-`npm run test` | Run all tests (unit & integration)
-`npm test:integration` | Run integration tests
+`npm run test` | Run all automated tests (unit & integration)
 `npm test:unit` | Run unit tests
+`npm test:integration` | Run integration tests
+`npm test:system` | Run system tests (requires IPv6 connection)
 
-**Note:** To run the integration tests via gulp, install all dependencies for test CLIs, build all test CLIs, & install all sample CLIs globally using the following sequence:
-1. `gulp build:install-all-cli-dependencies`
-2. `gulp build:all-clis`
-3. `gulp test:installSampleClis`
-
- **Note:** For more information about the tasks (details and descriptions), issue the following gulp command:
- `gulp --tasks`
+**Note:** To build and install the test CLIs used by the integration tests:
+1. `node scripts/sampleCliTool.js build`
+2. `node scripts/sampleCliTool.js install`
 
 ### Sample Applications
 
