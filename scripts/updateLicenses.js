@@ -14,7 +14,7 @@ const os = require("os");
 const ansiColors = require("ansi-colors");
 const fancylog = require("fancy-log");
 
-require("glob")("{__mocks__,packages,gulp,__tests__}/**/*.ts",
+require("glob")("{__mocks__,packages,__tests__}/**/*.ts",
     (globErr, filePaths) => {
         if (globErr) {
             throw(globErr);
