@@ -23,6 +23,8 @@
   },
   "devDependencies": {
     "@types/jquery": "^3.3.31",
-    "@types/jstree": "^3.3.39"
+    "@types/jstree": "^3.3.39",
+    "postcss": "^8.3.6",
+    "postcss-url": "^10.1.3"
   }
 }
