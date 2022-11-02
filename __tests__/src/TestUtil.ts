@@ -169,11 +169,8 @@ export function executeTestCLICommand(cliBinModule: string, testContext: any, ar
     env: { [key: string]: string } = process.env): SpawnSyncReturns<string> {
     const testLogger = TestLogger.getTestLogger();
     const nodeCommand = "node";
-    // run the command with ts-node/register if we're not running via gulp
-    // nyc already is configured to require ts-node/register so duplicating that here
-    // causes problems
-    const starterArguments = isNullOrUndefined(process.env.INVOKED_VIA_GULP) ?
-        ["--require", "ts-node/register", cliBinModule] : [cliBinModule];
+    // run the command with ts-node/register
+    const starterArguments = ["--require", "ts-node/register", cliBinModule];
     args = starterArguments.concat(args);
 
     const commandExecutionMessage = "Executing " + nodeCommand + " " + args.join(" ");
@@ -422,6 +419,13 @@ export function runCliScript(scriptPath: string, cwd: string, args: any = [], en
         // Color can vary OS/terminal
         const childEnv = JSON.parse(JSON.stringify(process.env));
         childEnv.FORCE_COLOR = "0";
+
+        // Add .npm-global folder where test CLIs are installed to front of PATH
+        if (process.platform === "win32") {
+            childEnv.Path = nodePath.join(__dirname, "..", "..", ".npm-global") + ";" + childEnv.Path;
+        } else {
+            childEnv.PATH = nodePath.join(__dirname, "..", "..", ".npm-global", "bin") + ":" + childEnv.PATH;
+        }
 
         // Add the ENV vars if any are specified
         if (envVars != null) {
