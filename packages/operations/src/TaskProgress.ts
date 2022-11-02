@@ -19,6 +19,7 @@ export class TaskProgress {
     public static readonly THIRTY_PERCENT = 30;
     public static readonly FOURTY_PERCENT = 40;
     public static readonly FIFTY_PERCENT = 50;
+    public static readonly SIXTY_PERCENT = 60;
     public static readonly SEVENTY_PERCENT = 70;
     public static readonly EIGHTY_PERCENT = 80;
     public static readonly NINETY_PERCENT = 90;

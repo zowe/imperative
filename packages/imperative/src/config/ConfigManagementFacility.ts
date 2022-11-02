@@ -21,6 +21,7 @@ import { setDefinition } from "./cmd/set/set.definition";
 import { editDefinition } from "./cmd/edit/edit.definition";
 import { importDefinition } from "./cmd/import/import.definition";
 import { convertProfilesDefinition } from "./cmd/convert-profiles/convert-profiles.definition";
+import { ReportEnvDefinition } from "./cmd/report-env/Report-env.definition";
 import { updateSchemasDefinition } from "./cmd/update-schemas/update-schemas.definition";
 
 export class ConfigManagementFacility {
@@ -80,6 +81,7 @@ export class ConfigManagementFacility {
                 editDefinition,
                 importDefinition,
                 convertProfilesDefinition,
+                ReportEnvDefinition,
                 updateSchemasDefinition
             ]
         });
