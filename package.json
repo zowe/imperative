@@ -1,6 +1,6 @@
 {
   "name": "@zowe/imperative",
-  "version": "5.6.0",
+  "version": "5.7.0",
   "description": "framework for building configurable CLIs",
   "author": "Zowe",
   "license": "EPL-2.0",
@@ -138,6 +138,14 @@
     "uuid": "^3.3.2",
     "web-help": "file:web-help",
     "yargs-parser": "^18.1.2"
+  },
+  "overrides": {
+    "glob-parent": "~5.1.2",
+    "serve": {
+      "serve-handler": {
+        "minimatch": "~3.1.2"
+      }
+    }
   },
   "engines": {
     "node": ">=14.0.0"
