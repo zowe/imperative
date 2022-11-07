@@ -11,7 +11,8 @@
 
 import { PMFConstants } from "./PMFConstants";
 import * as path from "path";
-import { execSync, StdioOptions } from "child_process";
+import * as which from "which";
+import { spawnSync, StdioOptions } from "child_process";
 import { readFileSync } from "jsonfile";
 import * as npmPackageArg from "npm-package-arg";
 import * as pacote from "pacote";
@@ -21,21 +22,12 @@ import * as findUp from "find-up";
 const npmCmd = cmdToRun();
 
 /**
- * Common function that requires npm and node.exe if not found just returns npm command as a string.
+ * Common function that returns npm command as a string.
  *
- * @return {string} command with node.exe and npm paths or 'npm'
- *
+ * @return {string} command with npm path
  */
 export function cmdToRun() {
-    let command;
-    try {
-        const npmExecPath = getNpmPath();
-        const nodeExecPath = process.execPath;
-        command = `"${nodeExecPath}" "${npmExecPath}"` ;
-    } catch (err) {
-        command = "npm";
-    }
-    return command;
+    return which.sync("npm");
 }
 
 /**
@@ -52,12 +44,19 @@ export function cmdToRun() {
 export function installPackages(prefix: string, registry: string, npmPackage: string): string {
     const pipe: StdioOptions = ["pipe", "pipe", process.stderr];
     try {
-        const execOutput = execSync(`${npmCmd} install "${npmPackage}" --prefix "${prefix}" ` +
-            `-g --registry "${registry}" --legacy-peer-deps`, {
-            cwd: PMFConstants.instance.PMF_ROOT,
-            stdio: pipe
-        });
-        return execOutput.toString();
+        const execOutput = spawnSync(npmCmd,
+            [
+                "install", npmPackage,
+                "--prefix", prefix,
+                "-g",
+                "--registry", registry,
+                "--legacy-peer-deps"
+            ], {
+                cwd: PMFConstants.instance.PMF_ROOT,
+                stdio: pipe
+            }
+        );
+        return execOutput.stdout.toString();
     } catch (err) {
         throw (err.message);
     }
@@ -70,8 +69,8 @@ export function installPackages(prefix: string, registry: string, npmPackage: st
  */
 export function getRegistry(): string {
     try {
-        const execOutput = execSync(`${npmCmd} config get registry`);
-        return execOutput.toString();
+        const execOutput = spawnSync(npmCmd, [ "config", "get", "registry" ]);
+        return execOutput.stdout.toString();
     } catch (err) {
         throw(err.message);
     }
@@ -83,8 +82,16 @@ export function getRegistry(): string {
  */
 export function npmLogin(registry: string) {
     try {
-        execSync(`${npmCmd} adduser --registry ${registry} ` +
-            `--always-auth --auth-type=legacy`, {stdio: [0,1,2]});
+        spawnSync(npmCmd,
+            [
+                "adduser",
+                "--registry", registry,
+                "--always-auth",
+                "--auth-type=legacy"
+            ], {
+                stdio: [0,1,2]
+            }
+        );
     } catch (err) {
         throw(err.message);
     }
