@@ -14,24 +14,25 @@ Imperative CLI Framework is a command processing system that lets you quickly bu
 
 ## Install Imperative as a Dependency
 
-Issue the following commands to install Imperative CLI Framework as a dependency. Note that the registry URL differs between versions of Imperative CLI Framework.
+Issue the following commands to install Imperative CLI Framework as a dependency.
 
 - **Install `@latest` version:**
 
     Be aware that if you update via `@latest`, you accept breaking changes into your project.
 
     ``` bash
-    npm install --@zowe:registry=https://registry.npmjs.org --no-package-lock --force
-    npm install --save @zowe/imperative
+    npm install @zowe/imperative
     ```
 
-- **Install `@lts-incremental` version:**
+- **Install `@zowe-v2-lts` version:**
+
+    This is a Long Term Support release that is guaranteed to have no breaking changes.
 
     ``` bash
-    npm install --@zowe:registry=https://registry.npmjs.org --no-package-lock --force
-    npm install --save @zowe/imperative@lts-incremental
+    npm install @zowe/imperative@zowe-v2-lts
     ```
 
+**Note:** If you want to install the bleeding edge version of Imperative, you can append `--@zowe:registry=https://zowe.jfrog.io/zowe/api/npm/npm-release/` to the install command to get it from a staging registry. It is not recommended to use this registry for production dependencies.
 
 ### Build and Install Imperative CLI Framework from Source
 To build and install the Imperative CLI Framework, follow these steps:
