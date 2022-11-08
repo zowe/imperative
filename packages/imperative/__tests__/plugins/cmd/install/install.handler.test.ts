@@ -14,7 +14,6 @@ import Mock = jest.Mock;
 
 jest.mock("child_process");
 jest.mock("jsonfile");
-jest.mock("path");
 jest.mock("../../../../src/plugins/utilities/npm-interface/install");
 jest.mock("../../../../src/plugins/utilities/runValidatePlugin");
 jest.mock("../../../../src/plugins/utilities/PMFConstants");
@@ -24,6 +23,19 @@ jest.mock("../../../../../cmd/src/doc/handler/IHandlerParameters");
 jest.mock("../../../../../logger");
 jest.mock("../../../../src/Imperative");
 jest.mock("../../../../src/plugins/utilities/NpmFunctions");
+jest.doMock("path", () => {
+    const originalPath = jest.requireActual("path");
+    return {
+        ...originalPath,
+        resolve: (...path: string[]) => {
+            if (path[0] == expectedVal) {
+                return returnedVal ? returnedVal : expectedVal;
+            } else {
+                return originalPath.resolve(...path);
+            }
+        }
+    }
+});
 
 import { CommandResponse, IHandlerParameters } from "../../../../../cmd";
 import { Console } from "../../../../../console";
@@ -35,9 +47,11 @@ import { IPluginJson } from "../../../../src/plugins/doc/IPluginJson";
 import { Logger } from "../../../../../logger";
 import { readFileSync, writeFileSync } from "jsonfile";
 import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
-import { resolve } from "path";
 import { TextUtils } from "../../../../../utilities";
 import { getRegistry, npmLogin } from "../../../../src/plugins/utilities/NpmFunctions";
+
+let expectedVal;
+let returnedVal;
 
 describe("Plugin Management Facility install handler", () => {
 
@@ -48,8 +62,7 @@ describe("Plugin Management Facility install handler", () => {
         readFileSync: readFileSync as Mock<typeof readFileSync>,
         writeFileSync: writeFileSync as Mock<typeof writeFileSync>,
         install: install as Mock<typeof install>,
-        runValidatePlugin: runValidatePlugin as Mock<typeof runValidatePlugin>,
-        resolve: resolve as Mock<typeof resolve>
+        runValidatePlugin: runValidatePlugin as Mock<typeof runValidatePlugin>
     };
 
     // two plugin set of values
@@ -64,12 +77,22 @@ describe("Plugin Management Facility install handler", () => {
     const finalValidationMsg = "The final message from runPluginValidation";
 
     beforeEach(() => {
-    // Mocks need cleared after every test for clean test runs
-        jest.resetAllMocks();
+        // Mocks need cleared after every test for clean test runs
+        jest.clearAllMocks();
 
         // This needs to be mocked before running process function of uninstall handler
         (Logger.getImperativeLogger as Mock<typeof Logger.getImperativeLogger>).mockReturnValue(new Logger(new Console()));
+        mocks.getRegistry.mockReturnValue(packageRegistry);
+        mocks.readFileSync.mockReturnValue({});
+        npmLogin(packageRegistry);
+        mocks.runValidatePlugin.mockReturnValue(finalValidationMsg);
+        expectedVal = undefined;
+        returnedVal = undefined;
     });
+
+    afterAll(() => {
+        jest.resetAllMocks();
+    })
 
     /**
    *  Create object to be passed to process function
@@ -86,14 +109,6 @@ describe("Plugin Management Facility install handler", () => {
         };
         return x as IHandlerParameters;
     };
-
-    beforeEach(() => {
-        mocks.getRegistry.mockReturnValue(packageRegistry);
-        mocks.readFileSync.mockReturnValue({});
-        npmLogin(packageRegistry);
-
-        mocks.runValidatePlugin.mockReturnValue(finalValidationMsg);
-    });
 
     /**
    * Validates that an getRegistry was called
@@ -187,7 +202,8 @@ describe("Plugin Management Facility install handler", () => {
         params.arguments.file = "prod-plugins.json";
 
         const resolveVal = `/some/test/directory/${params.arguments.file}`;
-        mocks.resolve.mockReturnValue(resolveVal);
+        expectedVal = params.arguments.file;
+        returnedVal = resolveVal;
 
         await handler.process(params as IHandlerParameters);
 
