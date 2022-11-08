@@ -11,11 +11,11 @@
 
 /* eslint-disable jest/expect-expect */
 import Mock = jest.Mock;
+let expectedVal;
+let returnedVal;
 
 jest.mock("child_process");
 jest.mock("jsonfile");
-jest.mock("path");
-jest.mock("fs");
 jest.mock("find-up");
 jest.mock("../../../../src/plugins/utilities/PMFConstants");
 jest.mock("../../../../src/plugins/PluginManagementFacility");
@@ -26,14 +26,25 @@ jest.mock("../../../../../logger");
 jest.mock("../../../../../cmd/src/response/CommandResponse");
 jest.mock("../../../../../cmd/src/response/HandlerResponse");
 jest.mock("../../../../src/plugins/utilities/NpmFunctions");
+jest.doMock("path", () => {
+    const originalPath = jest.requireActual("path");
+    return {
+        ...originalPath,
+        resolve: (...path: string[]) => {
+            if (path[0] == expectedVal) {
+                return returnedVal ? returnedVal : expectedVal;
+            } else {
+                return originalPath.resolve(...path);
+            }
+        }
+    }
+});
 
 import { Console } from "../../../../../console";
-import { existsSync, lstatSync } from "fs";
 import { ImperativeError } from "../../../../../error";
 import { install } from "../../../../src/plugins/utilities/npm-interface";
 import { IPluginJson } from "../../../../src/plugins/doc/IPluginJson";
 import { IPluginJsonObject } from "../../../../src/plugins/doc/IPluginJsonObject";
-import { dirname, isAbsolute, join, resolve, normalize } from "path";
 import { Logger } from "../../../../../logger";
 import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
 import { readFileSync, writeFileSync } from "jsonfile";
@@ -43,21 +54,21 @@ import { ConfigSchema } from "../../../../../config/src/ConfigSchema";
 import { PluginManagementFacility } from "../../../../src/plugins/PluginManagementFacility";
 import { ConfigurationLoader } from "../../../../src/ConfigurationLoader";
 import { UpdateImpConfig } from "../../../../src/UpdateImpConfig";
+import * as fs from "fs";
+import * as path from "path";
+
+function setResolve(toResolve: string, resolveTo?: string) {
+    expectedVal = toResolve;
+    returnedVal = resolveTo;
+}
 
 describe("PMF: Install Interface", () => {
     // Objects created so types are correct.
     const pmfI = PluginManagementFacility.instance;
     const mocks = {
-        dirname: dirname as Mock<typeof dirname>,
         installPackages: installPackages as Mock<typeof installPackages>,
-        existsSync: existsSync as Mock<typeof existsSync>,
-        isAbsolute: isAbsolute as Mock<typeof isAbsolute>,
-        join: join as Mock<typeof join>,
         readFileSync: readFileSync as Mock<typeof readFileSync>,
-        resolve: resolve as Mock<typeof resolve>,
         writeFileSync: writeFileSync as Mock<typeof writeFileSync>,
-        normalize: normalize as Mock<typeof normalize>,
-        lstatSync: lstatSync as Mock<typeof lstatSync>,
         sync: sync as Mock<typeof sync>,
         getPackageInfo: getPackageInfo as Mock<typeof getPackageInfo>,
         ConfigSchema_updateSchema: ConfigSchema.updateSchema as Mock<typeof ConfigSchema.updateSchema>,
@@ -72,7 +83,9 @@ describe("PMF: Install Interface", () => {
 
     beforeEach(() => {
         // Mocks need cleared after every test for clean test runs
-        jest.resetAllMocks();
+        // jest.resetAllMocks();
+        expectedVal = undefined;
+        returnedVal = undefined;
 
         // This needs to be mocked before running install
         (Logger.getImperativeLogger as Mock<typeof Logger.getImperativeLogger>).mockReturnValue(new Logger(new Console()));
@@ -82,12 +95,14 @@ describe("PMF: Install Interface", () => {
         */
         mocks.readFileSync.mockReturnValue({});
         mocks.sync.mockReturnValue("fake_find-up_sync_result");
-        mocks.dirname.mockReturnValue("fake-dirname");
-        mocks.resolve.mockReturnValue(packageName);
-        mocks.join.mockReturnValue("/fake/join/path");
-
+        jest.spyOn(path, "dirname").mockReturnValue("fake-dirname");
+        jest.spyOn(path, "join").mockReturnValue("/fake/join/path");
         mocks.ConfigurationLoader_load.mockReturnValue({ profiles: ["fake"] });
     });
+
+    afterAll(() => {
+        jest.resetAllMocks();
+    })
 
     /**
      * Validates that an npm install call was valid based on the parameters passed.
@@ -146,14 +161,15 @@ describe("PMF: Install Interface", () => {
     describe("Basic install", () => {
         beforeEach(() => {
             mocks.getPackageInfo.mockResolvedValue({ name: packageName, version: packageVersion });
-            mocks.existsSync.mockReturnValue(true);
-            mocks.normalize.mockReturnValue("testing");
-            mocks.lstatSync.mockReturnValue({
+            jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
+            jest.spyOn(path, "normalize").mockReturnValue("testing");
+            jest.spyOn(fs, "lstatSync").mockReturnValue({
                 isSymbolicLink: jest.fn().mockReturnValue(true)
             });
         });
 
         it("should install from the npm registry", async () => {
+            setResolve(packageName);
             await install(packageName, packageRegistry);
 
             // Validate the install
@@ -168,8 +184,8 @@ describe("PMF: Install Interface", () => {
         it("should install an absolute file path", async () => {
             const rootFile = "/root/a";
 
-            mocks.isAbsolute.mockReturnValue(true);
-
+            jest.spyOn(path, "isAbsolute").mockReturnValueOnce(true);
+            setResolve(rootFile);
             await install(rootFile, packageRegistry);
 
             // Validate the install
@@ -187,15 +203,16 @@ describe("PMF: Install Interface", () => {
 
             // Mock these before each test here since they are common
             beforeEach(() => {
-                mocks.isAbsolute.mockReturnValue(false);
-                mocks.resolve.mockReturnValue(absolutePath);
+                jest.spyOn(path, "isAbsolute").mockReturnValueOnce(false);
+                jest.spyOn(path, "resolve").mockReturnValueOnce(absolutePath);
             });
 
             it("should install a relative file path", async () => {
                 // Setup mocks for install function
-                mocks.existsSync.mockReturnValue(true);
+                jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
 
                 // Call the install function
+                setResolve(relativePath, absolutePath);
                 await install(relativePath, packageRegistry);
 
                 // Validate results
@@ -210,7 +227,7 @@ describe("PMF: Install Interface", () => {
 
         it("should install from a url", async () => {
             const installUrl = "http://www.example.com";
-            mocks.resolve.mockReturnValue(installUrl);
+            setResolve(installUrl);
 
             // mocks.isUrl.mockReturnValue(true);
 
@@ -244,11 +261,11 @@ describe("PMF: Install Interface", () => {
             // are validated to have been called or not.
             const location = "/this/should/not/change";
 
-            mocks.isAbsolute.mockReturnValue(false);
-            mocks.existsSync.mockReturnValue(true);
+            jest.spyOn(path, "isAbsolute").mockReturnValueOnce(false);
+            jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
             mocks.getPackageInfo.mockResolvedValue({ name: packageName, version: packageVersion });
-            mocks.normalize.mockReturnValue("testing");
-            mocks.lstatSync.mockReturnValue({
+            jest.spyOn(path, "normalize").mockReturnValue("testing");
+            jest.spyOn(fs, "lstatSync").mockReturnValue({
                 isSymbolicLink: jest.fn().mockReturnValue(true)
             });
 
@@ -262,20 +279,21 @@ describe("PMF: Install Interface", () => {
             const semverVersion = "^1.5.2";
             const semverPackage = `${packageName}@${semverVersion}`;
 
-            mocks.existsSync.mockReturnValue(true);
-            mocks.normalize.mockReturnValue("testing");
-            mocks.lstatSync.mockReturnValue({
+            jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
+            jest.spyOn(path, "normalize").mockReturnValue("testing");
+            jest.spyOn(fs, "lstatSync").mockReturnValue({
                 isSymbolicLink: jest.fn().mockReturnValue(true)
             });
 
             // While this doesn't replicate the function, we are installing an npm package
             // so it is shorter to just skip the if condition in install.
-            mocks.isAbsolute.mockReturnValue(true);
+            jest.spyOn(path, "isAbsolute").mockReturnValueOnce(true);
 
             // This is valid under semver ^1.5.2
             mocks.getPackageInfo.mockResolvedValue({ name: packageName, version: "1.5.16" });
 
             // Call the install
+            setResolve(semverPackage);
             await install(semverPackage, packageRegistry);
 
             // Test that shit happened
@@ -298,13 +316,14 @@ describe("PMF: Install Interface", () => {
             };
 
             mocks.getPackageInfo.mockResolvedValue({ name: packageName, version: packageVersion });
-            mocks.existsSync.mockReturnValue(true);
-            mocks.normalize.mockReturnValue("testing");
-            mocks.lstatSync.mockReturnValue({
+            jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
+            jest.spyOn(path, "normalize").mockReturnValue("testing");
+            jest.spyOn(fs, "lstatSync").mockReturnValue({
                 isSymbolicLink: jest.fn().mockReturnValue(true)
             });
             mocks.readFileSync.mockReturnValue(oneOldPlugin);
 
+            setResolve(packageName);
             await install(packageName, packageRegistry);
 
             wasNpmInstallCallValid(packageName, packageRegistry);
