@@ -61,6 +61,9 @@ describe("Plugin Management Facility update handler", () => {
 
         // This needs to be mocked before running process function of update handler
         (Logger.getImperativeLogger as Mock<typeof Logger.getImperativeLogger>).mockReturnValue(new Logger(new Console()));
+        mocks.execSync.mockReturnValue(packageRegistry);
+        mocks.readFileSync.mockReturnValue({});
+        npmLogin(packageRegistry);
     });
 
     /**
@@ -78,10 +81,8 @@ describe("Plugin Management Facility update handler", () => {
         return x as IHandlerParameters;
     };
 
-    beforeEach(() => {
-        mocks.execSync.mockReturnValue(packageRegistry);
-        mocks.readFileSync.mockReturnValue({});
-        npmLogin(packageRegistry);
+    afterAll(() => {
+        jest.restoreAllMocks();
     });
 
     /**
