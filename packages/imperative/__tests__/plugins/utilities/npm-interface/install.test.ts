@@ -75,6 +75,7 @@ describe("PMF: Install Interface", () => {
         PMF_requirePluginModuleCallback: pmfI.requirePluginModuleCallback as Mock<typeof pmfI.requirePluginModuleCallback>,
         ConfigurationLoader_load: ConfigurationLoader.load as Mock<typeof ConfigurationLoader.load>,
         UpdateImpConfig_addProfiles: UpdateImpConfig.addProfiles as Mock<typeof UpdateImpConfig.addProfiles>,
+        path: path as Mock<typeof path>
     };
 
     const packageName = "a";
@@ -101,7 +102,7 @@ describe("PMF: Install Interface", () => {
     });
 
     afterAll(() => {
-        jest.resetAllMocks();
+        jest.restoreAllMocks();
     });
 
     /**
