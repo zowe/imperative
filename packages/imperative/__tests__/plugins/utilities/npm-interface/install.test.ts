@@ -61,7 +61,8 @@ describe("PMF: Install Interface", () => {
         readFileSync: readFileSync as Mock<typeof readFileSync>,
         writeFileSync: writeFileSync as Mock<typeof writeFileSync>,
         sync: sync as Mock<typeof sync>,
-        getPackageInfo: getPackageInfo as Mock<typeof getPackageInfo>
+        getPackageInfo: getPackageInfo as Mock<typeof getPackageInfo>,
+        path: path as Mock<typeof path>
     };
 
     const packageName = "a";
@@ -86,7 +87,7 @@ describe("PMF: Install Interface", () => {
     });
 
     afterAll(() => {
-        jest.resetAllMocks();
+        jest.restoreAllMocks();
     });
 
     /**
