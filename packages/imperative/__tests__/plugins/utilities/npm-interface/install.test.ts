@@ -33,7 +33,7 @@ jest.doMock("path", () => {
                 return originalPath.resolve(...path);
             }
         }
-    }
+    };
 });
 
 import { Console } from "../../../../../console";
@@ -87,7 +87,7 @@ describe("PMF: Install Interface", () => {
 
     afterAll(() => {
         jest.resetAllMocks();
-    })
+    });
 
     /**
    * Validates that an npm install call was valid based on the parameters passed.

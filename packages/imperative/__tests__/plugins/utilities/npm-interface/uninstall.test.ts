@@ -59,8 +59,14 @@ describe("PMF: Uninstall Interface", () => {
    * @param {string} expectedPackage The package that should be sent to npm uninstall
    */
     const wasSpawnSyncCallValid = (expectedPackage: string) => {
-        expect(mocks.spawnSync).toHaveBeenCalledWith(npmCmd, ["uninstall", expectedPackage, "--prefix", PMFConstants.instance.PLUGIN_INSTALL_LOCATION, "-g"],
-            {
+        expect(mocks.spawnSync).toHaveBeenCalledWith(npmCmd,
+            [
+                "uninstall",
+                expectedPackage,
+                "--prefix",
+                PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
+                "-g"
+            ], {
                 cwd  : PMFConstants.instance.PMF_ROOT,
                 stdio: ["pipe", "pipe", process.stderr]
             }
