@@ -25,7 +25,7 @@ const cmdOutputJson = {
     stderr: "The validate commands's standard error",
     data: {}
 };
-const spawnSyncOutput = { stdout: JSON.stringify(cmdOutputJson) }
+const spawnSyncOutput = { stdout: JSON.stringify(cmdOutputJson) };
 
 describe("runValidatePlugin", () => {
     const mainModule = process.mainModule;
@@ -38,7 +38,7 @@ describe("runValidatePlugin", () => {
 
     afterEach(() => {
         process.mainModule = mainModule;
-        mocks.spawnSync.mockReset()
+        mocks.spawnSync.mockReset();
     });
 
     const mocks = {

@@ -34,7 +34,7 @@ jest.doMock("path", () => {
                 return originalPath.resolve(...path);
             }
         }
-    }
+    };
 });
 
 import { CommandResponse, IHandlerParameters } from "../../../../../cmd";
@@ -92,7 +92,7 @@ describe("Plugin Management Facility install handler", () => {
 
     afterAll(() => {
         jest.resetAllMocks();
-    })
+    });
 
     /**
      *  Create object to be passed to process function
