@@ -50,7 +50,10 @@ describe("PMF: Uninstall Interface", () => {
 
         // This needs to be mocked before running uninstall
         (Logger.getImperativeLogger as Mock<typeof Logger.getImperativeLogger>).mockReturnValue(new Logger(new Console()));
+    });
 
+    afterAll(() => {
+        jest.restoreAllMocks();
     });
 
     /**

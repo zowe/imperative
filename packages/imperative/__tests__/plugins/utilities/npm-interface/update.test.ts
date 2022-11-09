@@ -52,6 +52,10 @@ describe("PMF: update Interface", () => {
         mocks.readFileSync.mockReturnValue({});
     });
 
+    afterAll(() => {
+        jest.restoreAllMocks();
+    });
+
     /**
    * Validates that an spawnSync npm install call was valid based on the parameters passed.
    *
