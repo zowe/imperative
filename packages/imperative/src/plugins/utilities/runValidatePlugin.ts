@@ -9,7 +9,7 @@
 *
 */
 
-import { execSync } from "child_process";
+import { spawnSync } from "child_process";
 import { Logger } from "../../../../logger";
 import { PMFConstants } from "./PMFConstants";
 
@@ -28,18 +28,26 @@ import { PMFConstants } from "./PMFConstants";
  */
 export function runValidatePlugin(pluginName: string): string {
     const extLen = 3;
-    let cmdToRun = `"${process.execPath}"`;
-    const cliPgmToRun = process.mainModule.filename;
+    const cmdToRun = process.execPath;
+    const cliPgmToRun = require.main.filename;
+    let cmdToRunArgs: string[] = [];
     if (cliPgmToRun.substring(cliPgmToRun.length - extLen) === ".ts") {
-        cmdToRun += " --require ts-node/register";
+        cmdToRunArgs = ["--require", "ts-node/register"];
     }
-    cmdToRun += ` "${cliPgmToRun}"`;
+    cmdToRunArgs.push(cliPgmToRun);
 
     const impLogger = Logger.getImperativeLogger();
-    impLogger.debug(`Running plugin validation command = ${cmdToRun} plugins validate "${pluginName}" --response-format-json`);
-    const valOutputJsonTxt = execSync(`${cmdToRun} plugins validate "${pluginName}" --response-format-json --no-fail-on-error`, {
-        cwd: PMFConstants.instance.PMF_ROOT
-    }).toString();
+    impLogger.debug(`Running plugin validation command = ${cmdToRun} plugins validate "${pluginName}" --response-format-json --no-fail-on-error`);
+    const valOutputJsonTxt = spawnSync(cmdToRun,
+        [
+            ...cmdToRunArgs,
+            "plugins", "validate", pluginName,
+            "--response-format-json",
+            "--no-fail-on-error"
+        ], {
+            cwd: PMFConstants.instance.PMF_ROOT
+        }
+    ).stdout.toString();
 
     // Debug trace information
     impLogger.trace(`Command Output: ${valOutputJsonTxt}`);

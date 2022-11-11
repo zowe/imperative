@@ -10,7 +10,7 @@
 */
 
 import { runValidatePlugin } from "../../../src/plugins/utilities/runValidatePlugin";
-import { execSync } from "child_process";
+import { spawnSync } from "child_process";
 import { Imperative } from "../../..";
 import Mock = jest.Mock;
 
@@ -21,10 +21,11 @@ const pluginName = "fakePluginName";
 const cmdOutputJson = {
     success: true,
     message: "",
-    stdout: "",
-    stderr: "",
+    stdout: "The validate commands's standard output",
+    stderr: "The validate commands's standard error",
     data: {}
 };
+const spawnSyncOutput = { stdout: JSON.stringify(cmdOutputJson) };
 
 describe("runValidatePlugin", () => {
     const mainModule = process.mainModule;
@@ -37,17 +38,16 @@ describe("runValidatePlugin", () => {
 
     afterEach(() => {
         process.mainModule = mainModule;
+        mocks.spawnSync.mockReset();
     });
 
     const mocks = {
-        execSync: execSync as Mock<typeof execSync>
+        spawnSync: spawnSync as Mock<typeof spawnSync>
     };
 
     it("should display both the stdout and stderr of the validate command", () => {
         // mock the output of executing the validatePlugin command
-        cmdOutputJson.stdout = "The validate commands's standard output";
-        cmdOutputJson.stderr = "The validate commands's standard error";
-        mocks.execSync.mockReturnValue(JSON.stringify(cmdOutputJson));
+        mocks.spawnSync.mockReturnValue(spawnSyncOutput);
         (Imperative as any).mRootCommandName = "dummy";
         const resultMsg = runValidatePlugin(pluginName);
         expect(resultMsg).toContain(cmdOutputJson.stdout);
