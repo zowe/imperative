@@ -84,7 +84,7 @@ export function npmLogin(registry: string) {
     try {
         spawnSync(npmCmd,
             [
-                "adduser",
+                "login",
                 "--registry", registry,
                 "--always-auth",
                 "--auth-type=legacy"
