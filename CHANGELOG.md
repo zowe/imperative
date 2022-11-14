@@ -2,9 +2,13 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Updated plugins `--login` command option to behave as expected when running in an NPM 9 environment
+
 ## `4.18.10`
 
-- BugFix: Clean up uses of execSync in Imperative where it makes sense to do so.
+- BugFix: Cleaned up uses of execSync in Imperative where it makes sense to do so.
 
 ## `4.18.9`
 
