@@ -29,7 +29,7 @@ const loginDescription =
     "If you used this flag once for specific registry, you don't have to use it again, it uses credentials from .npmrc file.\n" +
     "\n" +
     "For more information about npm registries, see: \n" +
-    "https://docs.npmjs.com/cli/login for NPM > 9\n" +
+    "https://docs.npmjs.com/cli/login for NPM >= 9\n" +
     "https://docs.npmjs.com/cli/adduser for NPM < 9";
 
 /**
