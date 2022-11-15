@@ -84,7 +84,7 @@ describe("PMF: Install Interface", () => {
 
     beforeEach(() => {
         // Mocks need cleared after every test for clean test runs
-        // jest.resetAllMocks();
+        jest.clearAllMocks();
         expectedVal = undefined;
         returnedVal = undefined;
 
@@ -244,6 +244,7 @@ describe("PMF: Install Interface", () => {
 
         it("should install plugin that does not define profiles", async () => {
             mocks.ConfigurationLoader_load.mockReturnValueOnce({});
+            setResolve(packageName);
             await install(packageName, packageRegistry);
 
             // Validate the install

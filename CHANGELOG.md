@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Clean up uses of execSync in Imperative where it makes sense to do so.
+
 ## `5.7.0`
 
 - Enhancement: Add `zowe config report-env` command to show a diagnostic report of the CLI's working environment.
