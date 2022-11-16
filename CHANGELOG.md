@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Added validation for null/undefined command definitions [#868](https://github.com/zowe/imperative/issues/868)
+
 ## `5.7.0`
 
 - Enhancement: Add `zowe config report-env` command to show a diagnostic report of the CLI's working environment.
