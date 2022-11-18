@@ -25,11 +25,12 @@ const registryDescription =
 
 const loginDescription =
     "The flag to add a registry user account to install from secure registry. It saves credentials " +
-    "to the .npmrc file using `npm adduser`. When this value is omitted, credentials from .npmrc file is used. " +
+    "to the .npmrc file using `npm login`. When this value is omitted, credentials from .npmrc file is used. " +
     "If you used this flag once for specific registry, you don't have to use it again, it uses credentials from .npmrc file.\n" +
     "\n" +
-    "For more information about npm registries, see: " +
-    "https://docs.npmjs.com/cli/adduser";
+    "For more information about npm registries, see: \n" +
+    "https://docs.npmjs.com/cli/login for NPM >= 9\n" +
+    "https://docs.npmjs.com/cli/adduser for NPM < 9";
 
 /**
  * Definition of the update command.

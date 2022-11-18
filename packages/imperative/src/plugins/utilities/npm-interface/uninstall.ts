@@ -17,7 +17,7 @@ import { IPluginJson } from "../../doc/IPluginJson";
 import { Logger } from "../../../../../logger";
 import { ImperativeError } from "../../../../../error";
 import { TextUtils } from "../../../../../utilities";
-import { execSync, StdioOptions } from "child_process";
+import { spawnSync, StdioOptions } from "child_process";
 import { cmdToRun } from "../NpmFunctions";
 const npmCmd = cmdToRun();
 
@@ -64,13 +64,20 @@ export function uninstall(packageName: string): void {
         // formatting or colors but at least I can get the output of stdout right. (comment from install handler)
         iConsole.info("Uninstalling package...this may take some time.");
 
-        execSync(`${npmCmd} uninstall "${npmPackage}" ` +
-            `--prefix "${PMFConstants.instance.PLUGIN_INSTALL_LOCATION}" -g`, {
-            cwd: PMFConstants.instance.PMF_ROOT,
-            // We need to capture stdout but apparently stderr also gives us a progress
-            // bar from the npm install.
-            stdio: pipe
-        });
+        spawnSync(npmCmd,
+            [
+                "uninstall",
+                npmPackage,
+                "--prefix",
+                PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
+                "-g"
+            ], {
+                cwd: PMFConstants.instance.PMF_ROOT,
+                // We need to capture stdout but apparently stderr also gives us a progress
+                // bar from the npm install.
+                stdio: pipe
+            }
+        );
 
         const installFolder = path.join(PMFConstants.instance.PLUGIN_HOME_LOCATION, npmPackage);
         if (fs.existsSync(installFolder)) {

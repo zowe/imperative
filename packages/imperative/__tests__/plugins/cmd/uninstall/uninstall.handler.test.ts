@@ -14,7 +14,6 @@ import Mock = jest.Mock;
 
 jest.mock("child_process");
 jest.mock("jsonfile");
-jest.mock("path");
 jest.mock("../../../../src/plugins/utilities/npm-interface/uninstall");
 jest.mock("../../../../src/plugins/utilities/PMFConstants");
 jest.mock("../../../../../cmd/src/response/CommandResponse");
@@ -28,7 +27,6 @@ import { IPluginJson } from "../../../../src/plugins/doc/IPluginJson";
 import { ImperativeError } from "../../../../../error";
 import { Logger } from "../../../../../logger";
 import { readFileSync, writeFileSync } from "jsonfile";
-import { resolve } from "path";
 import { TextUtils } from "../../../../../utilities";
 import { uninstall } from "../../../../src/plugins/utilities/npm-interface";
 import UninstallHandler from "../../../../src/plugins/cmd/uninstall/uninstall.handler";
@@ -40,8 +38,7 @@ describe("Plugin Management Facility uninstall handler", () => {
         execSync: execSync as Mock<typeof execSync>,
         readFileSync: readFileSync as Mock<typeof readFileSync>,
         writeFileSync: writeFileSync as Mock<typeof writeFileSync>,
-        uninstall: uninstall as Mock<typeof uninstall>,
-        resolve: resolve as Mock<typeof resolve>
+        uninstall: uninstall as Mock<typeof uninstall>
     };
 
     // two plugin set of values
@@ -59,6 +56,8 @@ describe("Plugin Management Facility uninstall handler", () => {
 
         // This needs to be mocked before running process function of uninstall handler
         (Logger.getImperativeLogger as Mock<typeof Logger.getImperativeLogger>).mockReturnValue(new Logger(new Console()));
+        mocks.execSync.mockReturnValue(packageRegistry);
+        mocks.readFileSync.mockReturnValue({});
     });
 
     /**
@@ -76,9 +75,8 @@ describe("Plugin Management Facility uninstall handler", () => {
         return x as IHandlerParameters;
     };
 
-    beforeEach(() => {
-        mocks.execSync.mockReturnValue(packageRegistry);
-        mocks.readFileSync.mockReturnValue({});
+    afterAll(() => {
+        jest.restoreAllMocks();
     });
 
     /**

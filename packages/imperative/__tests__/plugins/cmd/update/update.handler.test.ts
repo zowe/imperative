@@ -13,7 +13,6 @@ import Mock = jest.Mock;
 
 jest.mock("child_process");
 jest.mock("jsonfile");
-jest.mock("path");
 jest.mock("../../../../src/plugins/utilities/npm-interface/update");
 jest.mock("../../../../src/plugins/utilities/PMFConstants");
 jest.mock("../../../../../cmd/src/doc/handler/IHandlerParameters");
@@ -28,7 +27,6 @@ import { readFileSync, writeFileSync } from "jsonfile";
 import { IPluginJson } from "../../../../src/plugins/doc/IPluginJson";
 import { Logger } from "../../../../../logger";
 import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
-import { resolve } from "path";
 import { update } from "../../../../src/plugins/utilities/npm-interface";
 import UpdateHandler from "../../../../src/plugins/cmd/update/update.handler";
 import { npmLogin } from "../../../../src/plugins/utilities/NpmFunctions";
@@ -43,8 +41,7 @@ describe("Plugin Management Facility update handler", () => {
         execSync: execSync as Mock<typeof execSync>,
         readFileSync: readFileSync as Mock<typeof readFileSync>,
         writeFileSync: writeFileSync as Mock<typeof writeFileSync>,
-        update: update as Mock<typeof update>,
-        resolve: resolve as Mock<typeof resolve>
+        update: update as Mock<typeof update>
     };
 
     // two plugin set of values
@@ -64,6 +61,9 @@ describe("Plugin Management Facility update handler", () => {
 
         // This needs to be mocked before running process function of update handler
         (Logger.getImperativeLogger as Mock<typeof Logger.getImperativeLogger>).mockReturnValue(new Logger(new Console()));
+        mocks.execSync.mockReturnValue(packageRegistry);
+        mocks.readFileSync.mockReturnValue({});
+        npmLogin(packageRegistry);
     });
 
     /**
@@ -81,10 +81,8 @@ describe("Plugin Management Facility update handler", () => {
         return x as IHandlerParameters;
     };
 
-    beforeEach(() => {
-        mocks.execSync.mockReturnValue(packageRegistry);
-        mocks.readFileSync.mockReturnValue({});
-        npmLogin(packageRegistry);
+    afterAll(() => {
+        jest.restoreAllMocks();
     });
 
     /**
@@ -153,8 +151,6 @@ describe("Plugin Management Facility update handler", () => {
         mocks.readFileSync.mockReturnValueOnce(fileJson);
 
         const handler = new UpdateHandler();
-
-        mocks.resolve.mockReturnValue(resolveVal);
 
         const params = getIHandlerParametersObject();
         params.arguments.plugin = pluginName;
