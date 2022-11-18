@@ -13,8 +13,6 @@ import Mock = jest.Mock;
 
 jest.mock("child_process");
 jest.mock("jsonfile");
-jest.mock("path");
-jest.mock("fs");
 jest.mock("../../../../src/plugins/utilities/PMFConstants");
 jest.mock("../../../../../logger");
 jest.mock("../../../../../cmd/src/response/CommandResponse");
@@ -22,7 +20,6 @@ jest.mock("../../../../../cmd/src/response/HandlerResponse");
 jest.mock("../../../../src/plugins/utilities/NpmFunctions");
 
 import { Console } from "../../../../../console";
-import { existsSync } from "fs";
 import { IPluginJson } from "../../../../src/plugins/doc/IPluginJson";
 import { Logger } from "../../../../../logger";
 import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
@@ -34,7 +31,6 @@ describe("PMF: update Interface", () => {
     // Objects created so types are correct.
     const mocks = {
         installPackages: installPackages as Mock<typeof installPackages>,
-        existsSync: existsSync as Mock<typeof existsSync>,
         readFileSync: readFileSync as Mock<typeof readFileSync>,
         getPackageInfo: getPackageInfo as Mock<typeof getPackageInfo>
     };
@@ -56,14 +52,18 @@ describe("PMF: update Interface", () => {
         mocks.readFileSync.mockReturnValue({});
     });
 
+    afterAll(() => {
+        jest.restoreAllMocks();
+    });
+
     /**
-     * Validates that an execSync npm install call was valid based on the parameters passed.
-     *
-     * @param {string} expectedPackage The package that should be sent to npm update
-     * @param {string} expectedRegistry The registry that should be sent to npm update
-     * @param {boolean} [updateFromFile=false] was the update from a file. This affects
-     *                                          the pipe sent to execSync stdio option.
-     */
+   * Validates that an spawnSync npm install call was valid based on the parameters passed.
+   *
+   * @param {string} expectedPackage The package that should be sent to npm update
+   * @param {string} expectedRegistry The registry that should be sent to npm update
+   * @param {boolean} [updateFromFile=false] was the update from a file. This affects
+   *                                          the pipe sent to spawnSync stdio option.
+   */
     const wasNpmInstallCallValid = (expectedPackage: string, expectedRegistry: string) => {
         expect(mocks.installPackages).toHaveBeenCalledWith(PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
             expectedRegistry, expectedPackage);

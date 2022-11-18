@@ -14,8 +14,6 @@ import Mock = jest.Mock;
 
 jest.mock("child_process");
 jest.mock("jsonfile");
-jest.mock("path");
-jest.mock("fs");
 jest.mock("../../../../src/plugins/utilities/PMFConstants");
 jest.mock("../../../../../logger");
 jest.mock("../../../../../cmd/src/response/CommandResponse");
@@ -23,7 +21,7 @@ jest.mock("../../../../../cmd/src/response/HandlerResponse");
 
 import * as fs from "fs";
 import { Console } from "../../../../../console";
-import { execSync } from "child_process";
+import { spawnSync } from "child_process";
 import { ImperativeError } from "../../../../../error";
 import { IPluginJson } from "../../../../src/plugins/doc/IPluginJson";
 import { Logger } from "../../../../../logger";
@@ -36,7 +34,7 @@ import { uninstall } from "../../../../src/plugins/utilities/npm-interface";
 describe("PMF: Uninstall Interface", () => {
     // Objects created so types are correct.
     const mocks = {
-        execSync: execSync as Mock<typeof execSync>,
+        spawnSync: spawnSync as Mock<typeof spawnSync>,
         readFileSync: readFileSync as Mock<typeof readFileSync>,
         writeFileSync: writeFileSync as Mock<typeof writeFileSync>
     };
@@ -52,18 +50,26 @@ describe("PMF: Uninstall Interface", () => {
 
         // This needs to be mocked before running uninstall
         (Logger.getImperativeLogger as Mock<typeof Logger.getImperativeLogger>).mockReturnValue(new Logger(new Console()));
+    });
 
+    afterAll(() => {
+        jest.restoreAllMocks();
     });
 
     /**
-     * Validates that an execSync npm uninstall call was valid based on the parameters passed.
-     *
-     * @param {string} expectedPackage The package that should be sent to npm uninstall
-     */
-    const wasExecSyncCallValid = (expectedPackage: string) => {
-        expect(mocks.execSync).toHaveBeenCalledWith(
-            `${npmCmd} uninstall "${expectedPackage}" --prefix "${PMFConstants.instance.PLUGIN_INSTALL_LOCATION}" -g`,
-            {
+   * Validates that an spawnSync npm uninstall call was valid based on the parameters passed.
+   *
+   * @param {string} expectedPackage The package that should be sent to npm uninstall
+   */
+    const wasSpawnSyncCallValid = (expectedPackage: string) => {
+        expect(mocks.spawnSync).toHaveBeenCalledWith(npmCmd,
+            [
+                "uninstall",
+                expectedPackage,
+                "--prefix",
+                PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
+                "-g"
+            ], {
                 cwd  : PMFConstants.instance.PMF_ROOT,
                 stdio: ["pipe", "pipe", process.stderr]
             }
@@ -95,7 +101,7 @@ describe("PMF: Uninstall Interface", () => {
 
     describe("Basic uninstall", () => {
         beforeEach(() => {
-            mocks.execSync.mockReturnValue(`+ ${packageName}`);
+            mocks.spawnSync.mockReturnValue(`+ ${packageName}`);
         });
 
         it("should uninstall", () => {
@@ -118,7 +124,7 @@ describe("PMF: Uninstall Interface", () => {
             uninstall(packageName);
 
             // Validate the install
-            wasExecSyncCallValid(packageName);
+            wasSpawnSyncCallValid(packageName);
             wasWriteFileSyncCallValid();
         });
 
@@ -142,7 +148,7 @@ describe("PMF: Uninstall Interface", () => {
             uninstall(samplePackageName);
 
             // Validate the install
-            wasExecSyncCallValid(samplePackageName);
+            wasSpawnSyncCallValid(samplePackageName);
             wasWriteFileSyncCallValid();
         });
 
@@ -189,7 +195,7 @@ describe("PMF: Uninstall Interface", () => {
             }
 
             // Validate the install
-            wasExecSyncCallValid(packageName);
+            wasSpawnSyncCallValid(packageName);
             expect(caughtError.message).toContain("Failed to uninstall plugin, install folder still exists");
         });
     });
