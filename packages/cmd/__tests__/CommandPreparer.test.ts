@@ -453,6 +453,50 @@ describe("Command Preparer", () => {
         }
     });
 
+    it("should be able to detect options that are null", () => {
+        try {
+            const cmd: ICommandDefinition = JSON.parse(JSON.stringify(PASS_ON_MULTIPLE_GROUPS));
+            (cmd.options as any) = [null];
+            CommandPreparer.prepare(cmd);
+            expect(0).toBe(1);
+        } catch (e) {
+            TestLogger.info(e.message);
+            expect(e instanceof ImperativeError).toBe(true);
+            expect(e.message).toContain(`option definition is null or undefined`);
+        }
+    });
+
+    it("should be able to detect options that are undefined", () => {
+        try {
+            const cmd: ICommandDefinition = JSON.parse(JSON.stringify(PASS_ON_MULTIPLE_GROUPS));
+            (cmd.options as any) = [undefined];
+            CommandPreparer.prepare(cmd);
+            expect(0).toBe(1);
+        } catch (e) {
+            TestLogger.info(e.message);
+            expect(e instanceof ImperativeError).toBe(true);
+            expect(e.message).toContain(`option definition is null or undefined`);
+        }
+    });
+
+    it("should be able to group required profile options, if specified", () => {
+        const cmd: ICommandDefinition = JSON.parse(JSON.stringify(PASS_ON_MULTIPLE_GROUPS));
+        cmd.options = [
+            {
+                name: "test-option",
+                description: "Used to test command def. checks",
+                group: undefined,
+                required: true,
+                type: "string"
+            }
+        ];
+
+        const cmdDef = CommandPreparer.prepare(cmd);
+        const cmdOpts = cmdDef.options;
+        expect(cmdOpts).not.toBe(undefined);
+        expect(cmdOpts[0]?.group).toBe("Required Options");
+    });
+
     it("should be able to detect positionals that are not an array", () => {
         try {
             const cmd: ICommandDefinition = JSON.parse(JSON.stringify(PASS_ON_MULTIPLE_GROUPS));

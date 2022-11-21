@@ -9,7 +9,6 @@
 *
 */
 
-import { isNullOrUndefined } from "util";
 import { Constants } from "../../constants/src/Constants";
 import { ICommandDefinitionPassOn, ICommandDefinitionPassOnIgnore } from "./doc/ICommandDefinitionPassOn";
 import { ImperativeError } from "../../error/src/ImperativeError";
@@ -37,8 +36,8 @@ export class CommandPreparer {
         /**
          * Ensure it was specified
          */
-        if (isNullOrUndefined(original)) {
-            throw new ImperativeError({msg: `The command definition document must not be null/undefined.`});
+        if (original == null) {
+            throw new ImperativeError({ msg: `The command definition document must not be null/undefined.` });
         }
 
         /**
@@ -50,7 +49,7 @@ export class CommandPreparer {
         try {
             copy = JSON.parse(JSON.stringify(original));
         } catch (e) {
-            throw new ImperativeError({msg: `An error occurred copying the original command document: ${e.message}`});
+            throw new ImperativeError({ msg: `An error occurred copying the original command document: ${e.message}` });
         }
 
         /**
@@ -137,15 +136,15 @@ export class CommandPreparer {
         if (props.indexOf("name") < 0 && props.indexOf("description") < 0 && props.indexOf("type") < 0) {
             throw new ImperativeError({
                 msg: `The command definition node being validated does NOT contain any of the required fields (name, description, type). ` +
-                `Either the definition supplied is completely incorrect (see ICommandDefinition interface for required fields) ` +
-                `OR you did NOT export the definition in your command definition module (found via the command definition glob). ` +
-                `Keys/properties present on the definition: ${props.join(",")}. ${definitonDetails}`,
+                    `Either the definition supplied is completely incorrect (see ICommandDefinition interface for required fields) ` +
+                    `OR you did NOT export the definition in your command definition module (found via the command definition glob). ` +
+                    `Keys/properties present on the definition: ${props.join(",")}. ${definitonDetails}`,
                 additionalDetails: JSON.stringify(definition)
             });
         }
 
         // All nodes must have a non-blank name
-        if (!(definition as any).isRoot && (isNullOrUndefined(definition.name) || definition.name.trim().length === 0)) {
+        if (!(definition as any).isRoot && (definition.name == null || definition.name.trim().length === 0)) {
             throw new ImperativeError({
                 msg: `A command definition node contains an undefined or empty name. ${definitonDetails}`,
                 additionalDetails: JSON.stringify(definition)
@@ -156,7 +155,7 @@ export class CommandPreparer {
         if (definition.handler != null && definition.chainedHandlers != null && definition.chainedHandlers.length > 0) {
             throw new ImperativeError({
                 msg: `A command definition node (${definition.name}) contains both a handler and chained handler ` +
-                `configuration. The two are mutually exclusive. ${definitonDetails}`,
+                    `configuration. The two are mutually exclusive. ${definitonDetails}`,
                 additionalDetails: JSON.stringify(definition)
             });
         }
@@ -174,14 +173,14 @@ export class CommandPreparer {
                         throw new ImperativeError({
                             msg: "Property to argument mapping is invalid for chained handler: " + chainedHandler.handler,
                             additionalDetails: "Argument mapping does not have a 'to' field. Unable to determine " +
-                            "where to place the arguments for this chained handler."
+                                "where to place the arguments for this chained handler."
                         });
                     }
                     if (mapping.from != null && mapping.value != null) {
                         throw new ImperativeError({
                             msg: "Property to argument mapping is invalid for chained handler: " + chainedHandler.handler,
                             additionalDetails: "Argument mapping has both a 'from' field and a 'value' field. " +
-                            "These two fields are mutually exclusive."
+                                "These two fields are mutually exclusive."
                         });
                     }
                     const indicesAhead = mapping.applyToHandlers == null ? [1] : mapping.applyToHandlers;
@@ -203,7 +202,7 @@ export class CommandPreparer {
         }
 
         // All nodes must have a type
-        if (isNullOrUndefined(definition.type) || definition.type.trim().length === 0) {
+        if (definition.type == null || definition.type.trim().length === 0) {
             throw new ImperativeError({
                 msg: `A command definition node (${definition.name}) contains an undefined or empty type. ${definitonDetails}`,
                 additionalDetails: JSON.stringify(definition)
@@ -211,45 +210,46 @@ export class CommandPreparer {
         }
 
         // All nodes must have a description
-        if (!(definition as any).isRoot && (isNullOrUndefined(definition.description) || definition.description.trim().length === 0)) {
+        if (!(definition as any).isRoot &&
+            (definition.description == null || definition.description.trim().length === 0)) {
             throw new ImperativeError({
                 msg: `A command definition node (${definition.name} of type ${definition.type}) contains an ` +
-                `undefined or empty description. ${definitonDetails}`,
+                    `undefined or empty description. ${definitonDetails}`,
                 additionalDetails: JSON.stringify(definition)
             });
         }
 
 
         // Options, if specified, must be an array
-        if (!isNullOrUndefined(definition.options) && !Array.isArray(definition.options)) {
-            throw new ImperativeError({
-                msg: `A command definition node (${definition.name} of type ${definition.type}) options are invalid (not an array). ` +
-                `${definitonDetails}`,
-                additionalDetails: JSON.stringify(definition)
-            });
-        }
+        if (definition.options != null) {
+            if (!Array.isArray(definition.options)) {
+                throw new ImperativeError({
+                    msg: `A command definition node (${definition.name} of type ${definition.type}) options are invalid (not an array). ` +
+                        `${definitonDetails}`,
+                    additionalDetails: JSON.stringify(definition)
+                });
+            }
 
-        // If options are specified, perform validation
-        if (!isNullOrUndefined(definition.options)) {
+            // If options are specified, perform validation
             CommandPreparer.performBasicOptionValidation(definition.options, definitions);
         }
 
         // Check positional arguments are an array
-        if (!isNullOrUndefined(definition.positionals) && !Array.isArray(definition.positionals)) {
-            throw new ImperativeError({
-                msg: `A command definition node (${definition.name} of type ${definition.type}) positionals are invalid (not an array). ` +
-                `${definitonDetails}`,
-                additionalDetails: JSON.stringify(definition)
-            });
-        }
+        if (definition.positionals != null) {
+            if (!Array.isArray(definition.positionals)) {
+                throw new ImperativeError({
+                    msg: `A command definition node (${definition.name} of type ${definition.type}) positionals are invalid (not an array). ` +
+                        `${definitonDetails}`,
+                    additionalDetails: JSON.stringify(definition)
+                });
+            }
 
-        // If positionals are specified, perform validation
-        if (!isNullOrUndefined(definition.positionals)) {
+            // If positionals are specified, perform validation
             CommandPreparer.performBasicPositionalValidation(definition.positionals, definitions);
         }
 
         // Children must be an array
-        if (!isNullOrUndefined(definition.children) && !Array.isArray(definition.children)) {
+        if (definition.children != null && !Array.isArray(definition.children)) {
             throw new ImperativeError({
                 msg: `A command definition node (${definition.name} of type ${definition.type}) contains ill-formed children. ${definitonDetails}`,
                 additionalDetails: JSON.stringify(definition)
@@ -257,7 +257,7 @@ export class CommandPreparer {
         }
 
         // A group must have children
-        if (definition.type === "group" && (isNullOrUndefined(definition.children) || definition.children.length === 0)) {
+        if (definition.type === "group" && (definition.children == null || definition.children.length === 0)) {
             throw new ImperativeError({
                 msg: `A "group" command definition node (${definition.name}) contains no children. A group implies children. ${definitonDetails}`,
                 additionalDetails: JSON.stringify(definition)
@@ -265,7 +265,7 @@ export class CommandPreparer {
         }
 
         // Perform validation for each child
-        if (!isNullOrUndefined(definition.children)) {
+        if (definition.children != null) {
             for (const child of definition.children) {
                 CommandPreparer.perfomBasicValidation(child, definitions.concat(definition));
             }
@@ -285,7 +285,7 @@ export class CommandPreparer {
             /**
              * All positionals must have a name
              */
-            if (isNullOrUndefined(pos.name) || pos.name.trim().length === 0) {
+            if (pos.name == null || pos.name.trim().length === 0) {
                 throw new ImperativeError({
                     msg: `A positional definition contains an undefined or empty name.`,
                     additionalDetails: "POSITIONAL_DEFINITION:\n" + JSON.stringify(pos) + "\nCURRENT_TREE:\n" + JSON.stringify(currentDefinitions)
@@ -295,7 +295,7 @@ export class CommandPreparer {
             /**
              * All positionals must have a type
              */
-            if (isNullOrUndefined(pos.type) || pos.type.trim().length === 0) {
+            if (pos.type == null || pos.type.trim().length === 0) {
                 throw new ImperativeError({
                     msg: `A positional definition (${pos.name}) contains an undefined or empty type.`,
                     additionalDetails: "POSITIONAL_DEFINITION:\n" + JSON.stringify(pos) + "\nCURRENT_TREE:\n" + JSON.stringify(currentDefinitions)
@@ -305,10 +305,10 @@ export class CommandPreparer {
             /**
              * All positionals must have a non-blank description
              */
-            if (isNullOrUndefined(pos.description) || pos.description.trim().length === 0) {
+            if (pos.description == null || pos.description.trim().length === 0) {
                 throw new ImperativeError({
                     msg: `A positional definition (${pos.name} of type ${pos.type}) contains an ` +
-                    `undefined or empty description.`,
+                        `undefined or empty description.`,
                     additionalDetails: "POSITIONAL_DEFINITION:\n" + JSON.stringify(pos) + "\nCURRENT_TREE:\n" + JSON.stringify(currentDefinitions)
                 });
             }
@@ -325,10 +325,17 @@ export class CommandPreparer {
      */
     private static performBasicOptionValidation(options: ICommandOptionDefinition[], currentDefinitions: ICommandDefinition[]) {
         for (const opt of options) {
+            if (opt == null) {
+                throw new ImperativeError({
+                    msg: `An option definition is null or undefined.`,
+                    additionalDetails: `CURRENT_TREE:\n${JSON.stringify(currentDefinitions)}`
+                });
+            }
+
             /**
              * All options must have a name
              */
-            if (isNullOrUndefined(opt.name) || opt.name.trim().length === 0) {
+            if (opt.name == null || opt.name.trim().length === 0) {
                 throw new ImperativeError({
                     msg: `An option definition contains an undefined or empty name.`,
                     additionalDetails: "OPTION_DEFINITION:\n" + JSON.stringify(opt) + "\nCURRENT_TREE:\n" + JSON.stringify(currentDefinitions)
@@ -338,7 +345,7 @@ export class CommandPreparer {
             /**
              * All options must have a type
              */
-            if (isNullOrUndefined(opt.type) || opt.type.trim().length === 0) {
+            if (opt.type == null || opt.type.trim().length === 0) {
                 throw new ImperativeError({
                     msg: `An option definition (${opt.name}) contains an undefined or empty type.`,
                     additionalDetails: "OPTION_DEFINITION:\n" + JSON.stringify(opt) + "\nCURRENT_TREE:\n" + JSON.stringify(currentDefinitions)
@@ -348,10 +355,10 @@ export class CommandPreparer {
             /**
              * All options must have a non-blank description
              */
-            if (isNullOrUndefined(opt.description) || opt.description.trim().length === 0) {
+            if (opt.description == null || opt.description.trim().length === 0) {
                 throw new ImperativeError({
                     msg: `An option definition (${opt.name} of type ${opt.type}) contains an ` +
-                    `undefined or empty description.`,
+                        `undefined or empty description.`,
                     additionalDetails: "OPTION_DEFINITION:\n" + JSON.stringify(opt) + "\nCURRENT_TREE:\n" + JSON.stringify(currentDefinitions)
                 });
             }
@@ -372,7 +379,7 @@ export class CommandPreparer {
         definition.positionals = definition.positionals || [];
         definition.passOn = definition.passOn || [];
 
-        if (!isNullOrUndefined(definition.children)) {
+        if (definition.children != null) {
             for (const child of definition.children) {
                 CommandPreparer.setDefaultValues(child);
             }
@@ -393,13 +400,20 @@ export class CommandPreparer {
          * we are passing-on the trait as-is from the parent).
          */
         for (const trait of definition.passOn) {
-            if (isNullOrUndefined(trait.value)) {
-                trait.value = (isNullOrUndefined(definition[trait.property])) ? undefined :
-                    JSON.parse(JSON.stringify(definition[trait.property]));
-                if (isNullOrUndefined(trait.value)) {
+            if (trait.value == null) {
+                const traitPropertyDef = definition[trait.property];
+                if (traitPropertyDef == null) {
                     throw new ImperativeError({
                         msg: `You cannot pass on a trait (${trait.property}) with a value of ` +
-                        `undefined (current command definition name: ${definition.name} of type ${definition.type}).`
+                            `undefined (current command definition name: ${definition.name} of type ${definition.type}).`
+                    });
+                }
+
+                trait.value = JSON.parse(JSON.stringify(traitPropertyDef));
+                if (trait.value == null) {
+                    throw new ImperativeError({
+                        msg: `You cannot pass on a trait (${trait.property}) with a value of ` +
+                            `undefined (current command definition name: ${definition.name} of type ${definition.type}).`
                     });
                 }
             }
@@ -408,7 +422,7 @@ export class CommandPreparer {
         /**
          * Perform for every child
          */
-        if (!isNullOrUndefined(definition.children)) {
+        if (definition.children != null) {
             for (const child of definition.children) {
                 CommandPreparer.setDefaultValues(child);
             }
@@ -485,7 +499,7 @@ export class CommandPreparer {
         /**
          * Append any profile related options
          */
-        if (!isNullOrUndefined(definition.profile)) {
+        if (definition.profile != null) {
             let types: string[] = [];
             if (definition.profile.required) {
                 types = types.concat(definition.profile.required);
@@ -493,10 +507,10 @@ export class CommandPreparer {
             if (definition.profile.optional) {
                 types = types.concat(definition.profile.optional);
             }
-            const profileOptions: string[] = types.filter((type) => {
-                return (isNullOrUndefined(definition.profile.suppressOptions) ?
-                    true : (definition.profile.suppressOptions.indexOf(type) < 0));
-            });
+            const profileOptions: string[] = types.filter((type) => (
+                !Array.isArray(definition.profile.suppressOptions) ?
+                    true : definition.profile.suppressOptions.indexOf(type) < 0
+            ));
 
             profileOptions.forEach((profOpt) => {
                 const [profOptName, profOptAlias] = ProfileUtils.getProfileOptionAndAlias(profOpt);
@@ -520,7 +534,7 @@ export class CommandPreparer {
             }
         }
 
-        if (!isNullOrUndefined(definition.children)) {
+        if (definition.children != null) {
             let allChildrenAreExperimental: boolean = true;
             for (const child of definition.children) {
                 if (!child.experimental) {
@@ -554,14 +568,14 @@ export class CommandPreparer {
         }
 
         definition.options = definition.options.map((option) => {
-            if (isNullOrUndefined(option.group)) {
+            if (option.group == null) {
                 if (option.required) {
                     option.group = "Required Options";
                 } else {
                     option.group = "Options";
                 }
             }
-            if (isNullOrUndefined(option.aliases)) {
+            if (option.aliases == null) {
                 option.aliases = [];
             }
             return option;
@@ -590,7 +604,7 @@ export class CommandPreparer {
         /**
          * Apply the attributes to the current node - assuming the conditions are met
          */
-        if (!isNullOrUndefined(inherit)) {
+        if (inherit != null) {
             /**
              * Ensure this passOn specification wants this node to inherit the field
              */
@@ -599,20 +613,20 @@ export class CommandPreparer {
                     /**
                      * Either merge/append or overwrite the field in the definition.
                      */
-                    const cloned = (!isNullOrUndefined(trait.value)) ?
+                    const cloned = (trait.value != null) ?
                         JSON.parse(JSON.stringify(trait.value)) : undefined;
 
-                    if (isNullOrUndefined(cloned)) {
+                    if (cloned == null) {
                         throw new ImperativeError({
                             msg: `The trait (${trait.property}) to pass on cannot have a ` +
-                            `value of undefined. (Current definition name: ${definition.name} ` +
-                            `of type: ${definition.type})`
+                                `value of undefined. (Current definition name: ${definition.name} ` +
+                                `of type: ${definition.type})`
                         });
                     }
 
                     if (trait.merge && Array.isArray(definition[trait.property])) {
                         definition[trait.property] = definition[trait.property].concat(cloned);
-                    } else if (trait.merge && !isNullOrUndefined(definition[trait.property])) {
+                    } else if (trait.merge && definition[trait.property] != null) {
                         definition[trait.property] = DeepMerge(definition[trait.property], cloned);
                     } else {
                         definition[trait.property] = cloned;
@@ -628,7 +642,7 @@ export class CommandPreparer {
          * any number of ancestors.
          */
         inherit = definition.passOn.concat(inherit);
-        if (!isNullOrUndefined(definition.children)) {
+        if (definition.children != null) {
             for (const child of definition.children) {
                 CommandPreparer.passOn(child, inherit);
             }
@@ -643,25 +657,25 @@ export class CommandPreparer {
      * @returns {boolean} - True if we are to ignore passing on attributes to the passed definition node.
      */
     private static ignoreNode(node: ICommandDefinition, ignore: ICommandDefinitionPassOnIgnore[]): boolean {
-        if (isNullOrUndefined(ignore)) {
+        if (ignore == null) {
             return false;
         }
 
         for (const ig of ignore) {
-            if (!isNullOrUndefined(ig.name) && !isNullOrUndefined(ig.type)) {
+            if (ig.name != null && ig.type != null) {
                 if (ig.name === node.name && ig.type === node.type) {
                     return true;
                 }
             }
 
-            if (isNullOrUndefined(ig.type)) {
-                if (!isNullOrUndefined(ig.name) && (ig.name === node.name)) {
+            if (ig.type == null) {
+                if (ig.name != null && ig.name === node.name) {
                     return true;
                 }
             }
 
-            if (isNullOrUndefined(ig.name)) {
-                if (!isNullOrUndefined(ig.type) && (ig.type === node.type)) {
+            if (ig.name == null) {
+                if (ig.type != null && ig.type === node.type) {
                     return true;
                 }
             }
