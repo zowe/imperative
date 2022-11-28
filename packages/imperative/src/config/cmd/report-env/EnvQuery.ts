@@ -481,12 +481,19 @@ export class EnvQuery {
         npmProgress.statusMessage = "Retrieving NPM registry info";
         npmProgress.percentComplete += percentIncr;
         await EnvQuery.updateProgressBar(doesProgBarExist);
-        getResult.itemValMsg += os.EOL + os.EOL + EnvQuery.getCmdOutput("npm", ["config", "list"]).match(
-            /.*registry =.*\n|"project.*\n|node bin location.*\n|cwd.*\n|HOME.*\n/g
-        ).join("");
+        getResult.itemValMsg += os.EOL + os.EOL + EnvQuery.getCmdOutput("npm", ["config", "list"])
+            .split(EnvQuery.allEolRegex)
+            .reduce((lines, line) => {
+                const match = /.*registry =|"project"|node bin location =|cwd =|HOME =/.exec(line);
+                if (match) {
+                    lines.push(line.slice(match.index));
+                }
+                return lines;
+            }, [])
+            .join(os.EOL);
 
         // add indent to each line
-        getResult.itemValMsg  = EnvQuery.divider + "NPM information:" + os.EOL+ EnvQuery.indent +
+        getResult.itemValMsg = EnvQuery.divider + "NPM information:" + os.EOL + EnvQuery.indent +
             getResult.itemValMsg.replace(EnvQuery.allEolRegex, "$1" + EnvQuery.indent);
 
         npmProgress.statusMessage = "Complete";
