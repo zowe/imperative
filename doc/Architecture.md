@@ -357,7 +357,6 @@ Good question Dan, I'll get back to you later. But I don't see why we can't poin
 As you can see by the above documentation, it is still very unclear how plugins are to be documented.
 
 [Angular CLI]: https://cli.angular.io/
-[POC]: https://github-isl-01.ca.com/wrich04/Imperative-Plugins-POC
 
 ## Logging
 Imperative uses [log4js](https://www.npmjs.com/package/log4js).  An instance of log4js is created whenever a call is made to 
