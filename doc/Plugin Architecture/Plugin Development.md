@@ -625,8 +625,6 @@ export interface PluginMain {
 [Plugin Lifecycle]: ./Plugin%20Management.md#plugin-lifecycle
 [Config Group]: ./Plugin%20Management.md#config-group
 
-[POC Application]: https://github-isl-01.ca.com/wrich04/Imperative-Plugins-POC
-
 [Plugin Workflow]: ./High_Level_Plugin_Workflow.png
 
 [PMF Initialization]: #pmf-initialization
