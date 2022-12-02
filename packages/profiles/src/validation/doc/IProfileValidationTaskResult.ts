@@ -31,7 +31,7 @@ export interface IProfileValidationTaskResult {
     /**
      * A description of the result of the validation test, whether
      * it succeeded or failed. Example:
-     *    Successfully submitted job BOECH02(JOB00001)
+     *    Successfully submitted job USER(JOB00001)
      *    or
      *    Failed to submit job due to the following error:
      *    Input was not recognized by the system as a job RC 4 RSN ...
