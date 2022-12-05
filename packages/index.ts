@@ -24,4 +24,5 @@ export * from "./interfaces";
 export * from "./profiles";
 export * from "./rest";
 export * from "./security";
+export * from "./settings";
 export * from "./utilities";
