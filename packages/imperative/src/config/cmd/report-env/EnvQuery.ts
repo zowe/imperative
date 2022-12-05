@@ -481,9 +481,14 @@ export class EnvQuery {
         npmProgress.statusMessage = "Retrieving NPM registry info";
         npmProgress.percentComplete += percentIncr;
         await EnvQuery.updateProgressBar(doesProgBarExist);
-        getResult.itemValMsg += os.EOL + os.EOL + EnvQuery.getCmdOutput("npm", ["config", "list"]).match(
-            /((@[^:]+:)?registry =|"project"|node bin location =|cwd =|HOME =).*$/gm
-        ).join(os.EOL);
+
+        // Filter the output of "npm config list" command to only include lines we are interested in.
+        // Also remove "; " prefix from lines where it was added by npm and is not a user-added comment.
+        getResult.itemValMsg += os.EOL + os.EOL + EnvQuery.getCmdOutput("npm", ["config", "list"])
+            .split(EnvQuery.allEolRegex)
+            .filter(line => /registry =|"project"|node bin location =|cwd =|HOME =/.test(line))
+            .map(line => line.includes("registry =") ? line : line.replace(/^; /, ""))
+            .join(os.EOL);
 
         // add indent to each line
         getResult.itemValMsg = EnvQuery.divider + "NPM information:" + os.EOL + EnvQuery.indent +
