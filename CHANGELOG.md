@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Exported `AppSettings` for cli and other apps to use [#840](https://github.com/zowe/imperative/issues/840)
+
 ## `5.7.2`
 
 - BugFix: Added validation for null/undefined command definitions [#868](https://github.com/zowe/imperative/issues/868)
