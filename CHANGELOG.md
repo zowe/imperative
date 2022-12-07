@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Exported the IAuthHandlerApi from imperative package
+
 ## `5.7.2`
 
 - BugFix: Added validation for null/undefined command definitions [#868](https://github.com/zowe/imperative/issues/868)
