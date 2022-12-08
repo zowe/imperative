@@ -1150,7 +1150,7 @@ export class ProfileInfo {
             }
         } else {
             // Load profile schemas from meta files in profile root dir
-            for (const { type } of this.mOldSchoolProfileCache) {
+            for (const type of ProfileIO.getAllProfileDirectories(this.mOldSchoolProfileRootDir)) {
                 const metaPath = this.oldProfileFilePath(type, type + AbstractProfileManager.META_FILE_SUFFIX);
                 if (fs.existsSync(metaPath)) {
                     try {

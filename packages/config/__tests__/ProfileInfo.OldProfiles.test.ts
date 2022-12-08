@@ -69,7 +69,7 @@ describe("Old-school ProfileInfo tests", () => {
             await profInfo.readProfilesFromDisk();
             const profAttrs = profInfo.getDefaultProfile("ThisTypeDoesNotExist");
             expect(profAttrs).toBeNull();
-            expect(warnSpy).toHaveBeenCalledTimes(1);
+            expect(warnSpy).toHaveBeenCalledTimes(2);
             expect(warnSpy).toHaveBeenCalledWith("Found no old-school profile for type 'ThisTypeDoesNotExist'.");
         });
 
@@ -398,6 +398,21 @@ describe("Old-school ProfileInfo tests", () => {
     });
 
     describe("loadAllSchemas", () => {
+        it("should load schema for profile type that does not exist", async () => {
+            const profInfo = createNewProfInfo(homeDirPath);
+            await profInfo.readProfilesFromDisk();
+            let caughtError;
+
+            try {
+                (profInfo as any).loadAllSchemas();
+            } catch (error) {
+                caughtError = error;
+            }
+
+            expect(caughtError).toBeUndefined();
+            expect((profInfo as any).mProfileSchemaCache.size).toBe(4);
+        });
+
         it("should throw when schema file is invalid", async () => {
             const profInfo = createNewProfInfo(homeDirPath);
             await profInfo.readProfilesFromDisk();

@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed ProfileInfo API failing to load schema for v1 profile when schema exists but no profiles of that type exist. [#645](https://github.com/zowe/imperative/issues/645)
+
 ## `5.7.3`
 
 - Enhancement: Exported `AppSettings` for cli and other apps to use [#840](https://github.com/zowe/imperative/issues/840)
