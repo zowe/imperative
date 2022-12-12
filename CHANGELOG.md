@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Exported the IAuthHandlerApi from imperative package [#839](https://github.com/zowe/imperative/issues/839)
+
 ## `5.7.3`
 
 - Enhancement: Exported `AppSettings` for cli and other apps to use [#840](https://github.com/zowe/imperative/issues/840)
