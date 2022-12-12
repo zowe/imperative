@@ -24,6 +24,7 @@ import { IProfileSchema } from "../../profiles";
 import { AbstractSession, SessConstants } from "../../rest";
 import { ConfigAutoStore } from "../src/ConfigAutoStore";
 import { ImperativeConfig } from "../../utilities/src/ImperativeConfig";
+import { ImperativeError } from "../../error";
 
 const testAppNm = "ProfInfoApp";
 const testEnvPrefix = testAppNm.toUpperCase();
@@ -277,7 +278,7 @@ describe("TeamConfig ProfileInfo tests", () => {
             const profInfo = createNewProfInfo(teamProjDir);
             await profInfo.readProfilesFromDisk();
             const desiredProfType = "tso";
-            const profAttrs = profInfo.getDefaultProfile(desiredProfType);
+            const profAttrs = profInfo.getDefaultProfile(desiredProfType) as IProfAttrs;
 
             expect(profAttrs).not.toBeNull();
             expect(profAttrs.isDefaultProfile).toBe(true);
@@ -439,7 +440,7 @@ describe("TeamConfig ProfileInfo tests", () => {
         it("should find known args in simple service profile", async () => {
             const profInfo = createNewProfInfo(teamProjDir);
             await profInfo.readProfilesFromDisk();
-            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const profAttrs = profInfo.getDefaultProfile("zosmf") as IProfAttrs;
             delete profInfo.getTeamConfig().layerActive().properties.defaults.base;
             // Since ProjectDir and HomeDir are the same (based on the ZOWE_CLI_HOME),
             // we also need to delete the base profile from that layer (even though is't just a copy)
@@ -465,7 +466,7 @@ describe("TeamConfig ProfileInfo tests", () => {
         it("should find known args in nested service profile", async () => {
             const profInfo = createNewProfInfo(teamProjDir);
             await profInfo.readProfilesFromDisk();
-            const profAttrs = profInfo.getDefaultProfile("tso");
+            const profAttrs = profInfo.getDefaultProfile("tso") as IProfAttrs;
             delete profInfo.getTeamConfig().layerActive().properties.defaults.base;
             // Since ProjectDir and HomeDir are the same (based on the ZOWE_CLI_HOME),
             // we also need to delete the base profile from that layer (even though is't just a copy)
@@ -498,7 +499,7 @@ describe("TeamConfig ProfileInfo tests", () => {
         it("should find known args in service and base profile", async () => {
             const profInfo = createNewProfInfo(teamProjDir);
             await profInfo.readProfilesFromDisk();
-            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const profAttrs = profInfo.getDefaultProfile("zosmf") as IProfAttrs;
             const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
 
             const expectedArgs = [
@@ -558,7 +559,7 @@ describe("TeamConfig ProfileInfo tests", () => {
 
             const profInfo = createNewProfInfo(teamProjDir, { overrideWithEnv: true });
             await profInfo.readProfilesFromDisk();
-            const profAttrs = profInfo.getDefaultProfile("dummy");
+            const profAttrs = profInfo.getDefaultProfile("dummy") as IProfAttrs;
             delete profInfo.getTeamConfig().layerActive().properties.defaults.base;
             // Since ProjectDir and HomeDir are the same (based on the ZOWE_CLI_HOME),
             // we also need to delete the base profile from that layer (even though is't just a copy)
@@ -604,7 +605,7 @@ describe("TeamConfig ProfileInfo tests", () => {
             const profInfo = createNewProfInfo(teamProjDir);
             await profInfo.readProfilesFromDisk();
             profInfo.getTeamConfig().set("profiles.LPAR1.properties.base-path", fakeBasePath);
-            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const profAttrs = profInfo.getDefaultProfile("zosmf") as IProfAttrs;
             delete profInfo.getTeamConfig().layerActive().properties.defaults.base;
             // Since ProjectDir and HomeDir are the same (based on the ZOWE_CLI_HOME),
             // we also need to delete the base profile from that layer (even though is't just a copy)
@@ -669,7 +670,7 @@ describe("TeamConfig ProfileInfo tests", () => {
         it("should list optional args missing in service profile", async () => {
             const profInfo = createNewProfInfo(teamProjDir);
             await profInfo.readProfilesFromDisk();
-            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const profAttrs = profInfo.getDefaultProfile("zosmf") as IProfAttrs;
             delete profInfo.getTeamConfig().layerActive().properties.defaults.base;
             // Since ProjectDir and HomeDir are the same (based on the ZOWE_CLI_HOME),
             // we also need to delete the base profile from that layer (even though is't just a copy)
@@ -694,7 +695,7 @@ describe("TeamConfig ProfileInfo tests", () => {
         it("should throw if there are required args missing in service profile", async () => {
             const profInfo = createNewProfInfo(teamProjDir);
             await profInfo.readProfilesFromDisk();
-            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const profAttrs = profInfo.getDefaultProfile("zosmf") as IProfAttrs;
             jest.spyOn(profInfo as any, "loadSchema").mockReturnValueOnce(requiredProfSchema);
             let caughtError;
 
@@ -713,7 +714,7 @@ describe("TeamConfig ProfileInfo tests", () => {
         it("should validate profile for missing args when schema exists", async () => {
             const profInfo = createNewProfInfo(teamProjDir);
             await profInfo.readProfilesFromDisk();
-            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const profAttrs = profInfo.getDefaultProfile("zosmf") as IProfAttrs;
             delete profInfo.getTeamConfig().layerActive().properties.defaults.base;
             // Since ProjectDir and HomeDir are the same (based on the ZOWE_CLI_HOME),
             // we also need to delete the base profile from that layer (even though is't just a copy)
@@ -742,7 +743,7 @@ describe("TeamConfig ProfileInfo tests", () => {
         it("should throw if schema fails to load", async () => {
             const profInfo = createNewProfInfo(teamProjDir);
             await profInfo.readProfilesFromDisk();
-            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const profAttrs = profInfo.getDefaultProfile("zosmf") as IProfAttrs;
             jest.spyOn(profInfo as any, "loadSchema").mockReturnValueOnce(null);
             let caughtError;
 
@@ -782,6 +783,22 @@ describe("TeamConfig ProfileInfo tests", () => {
             expect(mergedArgs.knownArgs.length).toEqual(3);
         });
 
+        it("should throw if profile attributes are undefined", async () => {
+            const profInfo = createNewProfInfo(teamProjDir);
+            await profInfo.readProfilesFromDisk();
+            const profAttrs = profInfo.getDefaultProfile("missing") as IProfAttrs;
+            let caughtError;
+
+            try {
+                profInfo.mergeArgsForProfile(profAttrs);
+            } catch (error) {
+                expect(error instanceof ImperativeError).toBe(true);
+                caughtError = error;
+            }
+
+            expect(caughtError).toBeDefined();
+            expect(caughtError.message).toContain("Profile attributes must be defined");
+        });
     });
 
     describe("mergeArgsForProfileType", () => {
@@ -1086,7 +1103,7 @@ describe("TeamConfig ProfileInfo tests", () => {
         it("should load secure args from team config", async () => {
             const profInfo = createNewProfInfo(teamProjDir);
             await profInfo.readProfilesFromDisk();
-            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const profAttrs = profInfo.getDefaultProfile("zosmf") as IProfAttrs;
             const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
 
             const userArg = mergedArgs.knownArgs.find((arg) => arg.argName === "user");
@@ -1101,7 +1118,7 @@ describe("TeamConfig ProfileInfo tests", () => {
         it("should get secure values with mergeArgsForProfile:getSecureVals for team config", async () => {
             const profInfo = createNewProfInfo(teamProjDir);
             await profInfo.readProfilesFromDisk();
-            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const profAttrs = profInfo.getDefaultProfile("zosmf") as IProfAttrs;
             const mergedArgs = profInfo.mergeArgsForProfile(profAttrs, { getSecureVals: true });
 
             const userArg = mergedArgs.knownArgs.find((arg) => arg.argName === "user");
@@ -1155,7 +1172,7 @@ describe("TeamConfig ProfileInfo tests", () => {
         it("should return basic osLoc information for a unique profile", async () => {
             const profInfo = createNewProfInfo(teamProjDir);
             await profInfo.readProfilesFromDisk();
-            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const profAttrs = profInfo.getDefaultProfile("zosmf") as IProfAttrs;
             const osLocInfo = profInfo.getOsLocInfo(profAttrs);
             const expectedObjs = [
                 { name: profAttrs.profName, path: profAttrs.profLoc.osLoc[0], user: false, global: false },

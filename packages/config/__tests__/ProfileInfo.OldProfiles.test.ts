@@ -11,10 +11,12 @@
 
 import * as path from "path";
 import { ProfileInfo } from "../src/ProfileInfo";
+import { IProfAttrs } from "../src/doc/IProfAttrs";
 import { IProfOpts } from "../src/doc/IProfOpts";
 import { ProfInfoErr } from "../src/ProfInfoErr";
 import { ProfLocType } from "../src/doc/IProfLoc";
 import { IProfileSchema, ProfileIO } from "../../profiles";
+import { ImperativeError } from "../../error";
 
 const testAppNm = "ProfInfoApp";
 const testEnvPrefix = testAppNm.toUpperCase();
@@ -108,7 +110,7 @@ describe("Old-school ProfileInfo tests", () => {
             const profInfo = createNewProfInfo(homeDirPath);
             await profInfo.readProfilesFromDisk();
             const desiredProfType = "tso";
-            const profAttrs = profInfo.getDefaultProfile(desiredProfType);
+            const profAttrs = profInfo.getDefaultProfile(desiredProfType) as IProfAttrs;
 
             expect(profAttrs).not.toBeNull();
             expect(profAttrs.isDefaultProfile).toBe(true);
@@ -222,7 +224,7 @@ describe("Old-school ProfileInfo tests", () => {
         it("should find known args in simple service profile", async () => {
             const profInfo = createNewProfInfo(homeDirPath);
             await profInfo.readProfilesFromDisk();
-            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const profAttrs = profInfo.getDefaultProfile("zosmf") as IProfAttrs;
             delete (profInfo as any).mOldSchoolProfileDefaults.base;
             const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
 
@@ -246,7 +248,7 @@ describe("Old-school ProfileInfo tests", () => {
         it("should find known args in service and base profile", async () => {
             const profInfo = createNewProfInfo(homeDirPath);
             await profInfo.readProfilesFromDisk();
-            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const profAttrs = profInfo.getDefaultProfile("zosmf") as IProfAttrs;
             (profInfo as any).mOldSchoolProfileDefaults.base = "base_apiml";
             const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
 
@@ -317,7 +319,7 @@ describe("Old-school ProfileInfo tests", () => {
         it("should throw if there are required args missing in service profile", async () => {
             const profInfo = createNewProfInfo(homeDirPath);
             await profInfo.readProfilesFromDisk();
-            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const profAttrs = profInfo.getDefaultProfile("zosmf") as IProfAttrs;
             jest.spyOn(profInfo as any, "loadSchema").mockReturnValue(requiredProfSchema);
 
             let caughtError;
@@ -357,7 +359,7 @@ describe("Old-school ProfileInfo tests", () => {
         it("should throw if schema fails to load", async () => {
             const profInfo = createNewProfInfo(homeDirPath);
             await profInfo.readProfilesFromDisk();
-            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const profAttrs = profInfo.getDefaultProfile("zosmf") as IProfAttrs;
             jest.spyOn(profInfo as any, "loadSchema").mockReturnValueOnce(null);
             let caughtError;
 
@@ -371,6 +373,23 @@ describe("Old-school ProfileInfo tests", () => {
             expect(caughtError).toBeDefined();
             expect(caughtError.errorCode).toBe(ProfInfoErr.LOAD_SCHEMA_FAILED);
             expect(caughtError.message).toContain("Failed to load schema for profile type zosmf");
+        });
+
+        it("should throw if profile attributes are undefined", async () => {
+            const profInfo = createNewProfInfo(homeDirPath);
+            await profInfo.readProfilesFromDisk();
+            const profAttrs = profInfo.getDefaultProfile("missing") as IProfAttrs;
+            let caughtError;
+
+            try {
+                profInfo.mergeArgsForProfile(profAttrs);
+            } catch (error) {
+                expect(error instanceof ImperativeError).toBe(true);
+                caughtError = error;
+            }
+
+            expect(caughtError).toBeDefined();
+            expect(caughtError.message).toContain("Profile attributes must be defined");
         });
     });
 
@@ -474,7 +493,7 @@ describe("Old-school ProfileInfo tests", () => {
         it("should load secure args from old school profiles", async () => {
             const profInfo = createNewProfInfo(homeDirPath);
             await profInfo.readProfilesFromDisk();
-            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const profAttrs = profInfo.getDefaultProfile("zosmf") as IProfAttrs;
             const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
 
             const userArg = mergedArgs.knownArgs.find((arg) => arg.argName === "user");
@@ -489,7 +508,7 @@ describe("Old-school ProfileInfo tests", () => {
         it("should get secure values with mergeArgsForProfile:getSecureVals for old school profiles", async () => {
             const profInfo = createNewProfInfo(homeDirPath);
             await profInfo.readProfilesFromDisk();
-            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const profAttrs = profInfo.getDefaultProfile("zosmf") as IProfAttrs;
             const mergedArgs = profInfo.mergeArgsForProfile(profAttrs, { getSecureVals: true });
 
             const userArg = mergedArgs.knownArgs.find((arg) => arg.argName === "user");
@@ -511,7 +530,7 @@ describe("Old-school ProfileInfo tests", () => {
         it("should return basic osLoc information for a regular v1 profile", async () => {
             const profInfo = createNewProfInfo(homeDirPath);
             await profInfo.readProfilesFromDisk();
-            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const profAttrs = profInfo.getDefaultProfile("zosmf") as IProfAttrs;
             const osLocInfo = profInfo.getOsLocInfo(profAttrs);
             expect(osLocInfo).toBeDefined();
             expect(osLocInfo.length).toBe(1);

@@ -391,7 +391,7 @@ export class ProfileInfo {
      * @returns The default profile. If no profile exists
      *          for the specified type, we return null;
      */
-    public getDefaultProfile(profileType: string): IProfAttrs {
+    public getDefaultProfile(profileType: string): IProfAttrs | null {
         this.ensureReadFromDisk();
 
         const defaultProfile: IProfAttrs = {
@@ -570,6 +570,7 @@ export class ProfileInfo {
         profile: IProfAttrs,
         mergeOpts: IProfMergeArgOpts = { getSecureVals: false }
     ): IProfMergedArg {
+        ImperativeExpect.toNotBeNullOrUndefined(profile, "Profile attributes must be defined");
         const mergedArgs: IProfMergedArg = {
             knownArgs: [],
             missingArgs: []
@@ -1150,7 +1151,9 @@ export class ProfileInfo {
             }
         } else {
             // Load profile schemas from meta files in profile root dir
-            for (const type of ProfileIO.getAllProfileDirectories(this.mOldSchoolProfileRootDir)) {
+            const profTypes = fs.existsSync(this.mOldSchoolProfileRootDir) ?
+                ProfileIO.getAllProfileDirectories(this.mOldSchoolProfileRootDir) : [];
+            for (const type of profTypes) {
                 const metaPath = this.oldProfileFilePath(type, type + AbstractProfileManager.META_FILE_SUFFIX);
                 if (fs.existsSync(metaPath)) {
                     try {
