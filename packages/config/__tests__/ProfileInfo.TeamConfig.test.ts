@@ -226,11 +226,23 @@ describe("TeamConfig ProfileInfo tests", () => {
             expect(caughtError.message).toBe("Failed to initialize secure credential manager");
         });
 
-        it("should throw exception if readProfilesFromDisk not called", async () => {
+        const methodNames: (keyof ProfileInfo)[] = [
+            "updateProperty",
+            "updateKnownProperty",
+            "getAllProfiles",
+            "getDefaultProfile",
+            "getTeamConfig",
+            "mergeArgsForProfile",
+            "mergeArgsForProfileType",
+            "usingTeamConfig",
+            "getOsLocInfo",
+            "loadSecureArg"
+        ];
+        it.each(methodNames)("should throw exception if readProfilesFromDisk not called before %s", async (methodName) => {
             let caughtErr: ProfInfoErr;
             const profInfo = createNewProfInfo(teamProjDir);
             try {
-                profInfo.getDefaultProfile("zosmf");
+                await (profInfo as any)[methodName]();
             } catch (err) {
                 expect(err instanceof ProfInfoErr).toBe(true);
                 caughtErr = err;
@@ -646,8 +658,9 @@ describe("TeamConfig ProfileInfo tests", () => {
             expect(caughtError.message).toContain("Failed to find property fake in the profile doesNotExist");
         });
 
-        it("should throw if profile location type is invalid", () => {
+        it("should throw if profile location type is invalid", async () => {
             const profInfo = createNewProfInfo(teamProjDir);
+            await profInfo.readProfilesFromDisk();
             let caughtError;
 
             try {
@@ -1130,6 +1143,8 @@ describe("TeamConfig ProfileInfo tests", () => {
 
         it("should treat secure arg as plain text if loaded from environment variable", async () => {
             const profInfo = createNewProfInfo(teamProjDir);
+            await profInfo.readProfilesFromDisk();
+
             const expectedValue = "insecure";
             const actualValue = profInfo.loadSecureArg({
                 argName: "test",
@@ -1143,6 +1158,7 @@ describe("TeamConfig ProfileInfo tests", () => {
 
         it("should fail to load secure arg when not found", async () => {
             const profInfo = createNewProfInfo(teamProjDir);
+            await profInfo.readProfilesFromDisk();
             let caughtError;
 
             try {
@@ -1162,8 +1178,9 @@ describe("TeamConfig ProfileInfo tests", () => {
     });
 
     describe("getOsLocInfo", () => {
-        it("should return undefined if no osLoc is present", () => {
+        it("should return undefined if no osLoc is present", async () => {
             const profInfo = createNewProfInfo(teamProjDir);
+            await profInfo.readProfilesFromDisk();
             const prof = { profName: "test", profLoc: { locType: 1 }, profType: "test", isDefaultProfile: false };
             expect(profInfo.getOsLocInfo(prof)).toBeUndefined();
             expect(profInfo.getOsLocInfo({ ...prof, profLoc: { locType: 1, osLoc: [] } })).toBeUndefined();
