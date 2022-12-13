@@ -520,8 +520,9 @@ describe("Old-school ProfileInfo tests", () => {
     });
 
     describe("getOsLocInfo", () => {
-        it("should return undefined if no osLoc is present", () => {
+        it("should return undefined if no osLoc is present", async () => {
             const profInfo = createNewProfInfo(homeDirPath);
+            await profInfo.readProfilesFromDisk();
             const prof = { profName: "test", profLoc: { locType: 0 }, profType: "test", isDefaultProfile: false };
             expect(profInfo.getOsLocInfo(prof)).toBeUndefined();
             expect(profInfo.getOsLocInfo({...prof, profLoc: {locType: 0, osLoc: []}})).toBeUndefined();
