@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.7.5`
 
 - BugFix: Fixed ProfileInfo API failing to load schema for v1 profile when schema exists but no profiles of that type exist. [#645](https://github.com/zowe/imperative/issues/645)
 - BugFix: Updated return type of `ProfileInfo.getDefaultProfile` method to indicate that it returns null when no profile exists for the specified type.
