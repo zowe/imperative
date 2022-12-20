@@ -148,6 +148,7 @@ export class ProfileInfo {
     private mOldSchoolProfileCache: IProfileLoaded[] = null;
     private mOldSchoolProfileRootDir: string = null;
     private mOldSchoolProfileDefaults: { [key: string]: string } = null;
+    private mOldSchoolProfileTypes: string[];
     private mOverrideWithEnv: boolean = false;
     /**
      * Cache of profile schema objects mapped by profile type and config path
@@ -189,6 +190,7 @@ export class ProfileInfo {
      * @param options Set of options needed to update a given property
      */
     public async updateProperty(options: IProfInfoUpdatePropOpts): Promise<void> {
+        this.ensureReadFromDisk();
         const desiredProfile = this.getAllProfiles(options.profileType).find(v => v.profName === options.profileName);
         if (desiredProfile == null) {
             throw new ProfInfoErr({
@@ -247,6 +249,7 @@ export class ProfileInfo {
      * @param options Set of options required to update a known property
      */
     public async updateKnownProperty(options: IProfInfoUpdateKnownPropOpts): Promise<boolean> {
+        this.ensureReadFromDisk();
         const toUpdate = options.mergedArgs.knownArgs.find((v => v.argName === options.property)) ||
             options.mergedArgs.missingArgs.find((v => v.argName === options.property));
 
@@ -391,7 +394,7 @@ export class ProfileInfo {
      * @returns The default profile. If no profile exists
      *          for the specified type, we return null;
      */
-    public getDefaultProfile(profileType: string): IProfAttrs {
+    public getDefaultProfile(profileType: string): IProfAttrs | null {
         this.ensureReadFromDisk();
 
         const defaultProfile: IProfAttrs = {
@@ -570,6 +573,9 @@ export class ProfileInfo {
         profile: IProfAttrs,
         mergeOpts: IProfMergeArgOpts = { getSecureVals: false }
     ): IProfMergedArg {
+        this.ensureReadFromDisk();
+        ImperativeExpect.toNotBeNullOrUndefined(profile, "Profile attributes must be defined");
+
         const mergedArgs: IProfMergedArg = {
             knownArgs: [],
             missingArgs: []
@@ -799,6 +805,7 @@ export class ProfileInfo {
         profileType: string,
         mergeOpts: IProfMergeArgOpts = { getSecureVals: false }
     ): IProfMergedArg {
+        this.ensureReadFromDisk();
         return this.mergeArgsForProfile(
             {
                 profName: null,
@@ -901,10 +908,10 @@ export class ProfileInfo {
             this.mOldSchoolProfileDefaults = {};
             // Try to get profiles and types
             this.mOldSchoolProfileRootDir = path.join(ImperativeConfig.instance.cliHome, "profiles");
-            const profTypes = fs.existsSync(this.mOldSchoolProfileRootDir) ?
+            this.mOldSchoolProfileTypes = fs.existsSync(this.mOldSchoolProfileRootDir) ?
                 ProfileIO.getAllProfileDirectories(this.mOldSchoolProfileRootDir) : [];
             // Iterate over the types
-            for (const profType of profTypes) {
+            for (const profType of this.mOldSchoolProfileTypes) {
                 // Set up the profile manager and list of profile names
                 const profileManager = new CliProfileManager({ profileRootDirectory: this.mOldSchoolProfileRootDir, type: profType });
                 const profileList = profileManager.getAllProfileNames();
@@ -950,6 +957,7 @@ export class ProfileInfo {
      * @param profile Profile attributes gathered from getAllProfiles
      */
     public getOsLocInfo(profile: IProfAttrs): IProfLocOsLoc[] {
+        this.ensureReadFromDisk();
         const osLoc = profile?.profLoc?.osLoc;
         if (!osLoc?.length) return undefined;
         if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
@@ -972,6 +980,7 @@ export class ProfileInfo {
      * @param arg Secure argument object
      */
     public loadSecureArg(arg: IProfArgAttrs): any {
+        this.ensureReadFromDisk();
         let argValue;
 
         switch (arg.argLoc.locType) {
@@ -1150,7 +1159,7 @@ export class ProfileInfo {
             }
         } else {
             // Load profile schemas from meta files in profile root dir
-            for (const { type } of this.mOldSchoolProfileCache) {
+            for (const type of this.mOldSchoolProfileTypes) {
                 const metaPath = this.oldProfileFilePath(type, type + AbstractProfileManager.META_FILE_SUFFIX);
                 if (fs.existsSync(metaPath)) {
                     try {
