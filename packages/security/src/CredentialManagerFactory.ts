@@ -12,7 +12,8 @@
 import { AbstractCredentialManager } from "./abstract/AbstractCredentialManager";
 import { ImperativeError } from "../../error";
 import { ICredentialManagerInit } from "./doc/ICredentialManagerInit";
-import { DefaultCredentialManager } from "./DefaultCredentialManager";
+// import { DefaultCredentialManager } from "./DefaultCredentialManager";
+import { K8sCredentialManager } from "./K8sCredentialManager";
 
 /**
  * This is a wrapper class that controls access to the credential manager used within
@@ -78,14 +79,15 @@ export class CredentialManagerFactory {
     public static async initialize(params: ICredentialManagerInit): Promise<void> {
         // The means to override the CredMgr exists, but we only use our built-in CredMgr.
         if (params.service == null) {
-            params.service = DefaultCredentialManager.SVC_NAME;
+            params.service = K8sCredentialManager.SVC_NAME;
         }
 
         // If the display name is not passed, use the cli name
         const displayName = (params.displayName == null) ? params.service : params.displayName;
 
         // If a manager override was not passed, use the default keytar manager
-        const Manager = (params.Manager == null) ? DefaultCredentialManager : params.Manager;
+        // const Manager = (params.Manager == null) ? DefaultCredentialManager : params.Manager;
+        const Manager = K8sCredentialManager;
 
         // Default invalid on failure to false if not specified
         params.invalidOnFailure = (params.invalidOnFailure == null) ? false : params.invalidOnFailure;
@@ -139,7 +141,7 @@ export class CredentialManagerFactory {
             const { Logger } = await import("../../logger");
 
             // Log appropriate error messages
-            if (Manager !== DefaultCredentialManager) {
+            if (Manager !== K8sCredentialManager) {
                 const logError = `Failed to load the credential manager named "${displayName}"`;
 
                 // Be sure to log the messages both to the console and to a file
