@@ -9,16 +9,16 @@
 *
 */
 
-import * as DeepMerge from "deepmerge";
+import DeepMerge from "deepmerge";
 import { existsSync } from "fs";
-import { ISettingsFile } from "./doc/ISettingsFile";
+import { ISettingsFile, ICredentialManager } from "./doc/ISettingsFile";
 import { Logger } from "../../logger";
 import { ISettingsFilePersistence } from "./persistance/ISettingsFilePersistence";
 import { JSONSettingsFilePersistence } from "./persistance/JSONSettingsFilePersistence";
 import { IO } from "../../io";
 import { ImperativeError } from "../../error";
 
-type SettingValue = false | string;
+type SettingValue = false | string | ICredentialManager;
 
 /**
  * This class represents settings for an Imperative CLI application that can be configured
