@@ -48,7 +48,7 @@ interface IOverridesRestriction {
  * and can be of either constructor or string type.
  */
 type ConstructorOrString<T extends IOverridesRestriction> = {
-    [K in keyof T] ?: T[K] | string;
+    [K in keyof T] ?: T[K] | string | Object;
 };
 
 /**

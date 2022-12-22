@@ -12,8 +12,10 @@
 import { AbstractCredentialManager } from "./abstract/AbstractCredentialManager";
 import { ImperativeError } from "../../error";
 import { ICredentialManagerInit } from "./doc/ICredentialManagerInit";
-// import { DefaultCredentialManager } from "./DefaultCredentialManager";
+import { ImperativeConfig } from "../../utilities";
+import { DefaultCredentialManager } from "./DefaultCredentialManager";
 import { K8sCredentialManager } from "./K8sCredentialManager";
+import { Logger } from "../../logger";
 
 /**
  * This is a wrapper class that controls access to the credential manager used within
@@ -79,15 +81,14 @@ export class CredentialManagerFactory {
     public static async initialize(params: ICredentialManagerInit): Promise<void> {
         // The means to override the CredMgr exists, but we only use our built-in CredMgr.
         if (params.service == null) {
-            params.service = K8sCredentialManager.SVC_NAME;
+            params.service = DefaultCredentialManager.SVC_NAME;
         }
 
         // If the display name is not passed, use the cli name
         const displayName = (params.displayName == null) ? params.service : params.displayName;
 
         // If a manager override was not passed, use the default keytar manager
-        // const Manager = (params.Manager == null) ? DefaultCredentialManager : params.Manager;
-        const Manager = K8sCredentialManager;
+        const Manager: any = CredentialManagerFactory.determineCredentialManagerType(params.Manager);
 
         // Default invalid on failure to false if not specified
         params.invalidOnFailure = (params.invalidOnFailure == null) ? false : params.invalidOnFailure;
@@ -128,20 +129,17 @@ export class CredentialManagerFactory {
                     msg: message
                 });
             }
-
             if (this.mManager.initialize) {
                 await this.mManager.initialize();
-                const { Logger } = await import("../../logger");
                 Logger.getImperativeLogger().debug(`Initialized the "${displayName}" credential manager for "${params.service}".`);
             }
 
         } catch (error) {
             // Perform dynamic requires when an error happens
             const { InvalidCredentialManager } = await import("./InvalidCredentialManager");
-            const { Logger } = await import("../../logger");
 
             // Log appropriate error messages
-            if (Manager !== K8sCredentialManager) {
+            if (Manager !== DefaultCredentialManager) {
                 const logError = `Failed to load the credential manager named "${displayName}"`;
 
                 // Be sure to log the messages both to the console and to a file
@@ -180,6 +178,29 @@ export class CredentialManagerFactory {
      * @private
      */
     private static mManager: AbstractCredentialManager;
+
+    /**
+     * Determines the type of CredentialManager to use from passed in type from imperative.json.
+     * If no type is found and manager param is a string, will check if a manager override was
+     * not passed, use the default keytar manager.
+     * @param manager the manager containing the type of CredentialManager to use or string
+     * @returns an Object of AbstractCredentialManager with the CredentialManager to use
+     */
+    private static determineCredentialManagerType(manager: any): any {
+        if(ImperativeConfig.instance.isCredentialManager(manager)) {
+            switch(manager.type) {
+                case 'k8s':
+                    return K8sCredentialManager;
+                case 'keytar':
+                    return DefaultCredentialManager;
+                default:
+                    throw new ImperativeError({ msg: `Invalid CredentialManager of type ${manager.type} passed in` });
+            }
+        }
+        else {
+            return (manager == null) ? DefaultCredentialManager : manager;
+        }
+    }
 
     /**
      * @returns {AbstractCredentialManager} - The credential manager that Imperative should use to

@@ -64,19 +64,27 @@ export class OverridesLoader {
     ): Promise<void> {
         const overrides: IImperativeOverrides = config.overrides;
 
-        // The manager display name used to populate the "managed by" fields in profiles
-        const displayName: string = (
+        // Plugin to be used by imperative for securing profile credentials
+        let displayName: string;
+
+        if (
             overrides.CredentialManager != null
             && AppSettings.initialized
             && AppSettings.instance.getNamespace("overrides") != null
             && AppSettings.instance.get("overrides", "CredentialManager") != null
             && AppSettings.instance.get("overrides", "CredentialManager") !== false
-        ) ?
-            // App settings is configured - use the plugin name for the manager name
-            AppSettings.instance.get("overrides", "CredentialManager") as string
-            :
+        ) {
+            if(typeof AppSettings.instance.get("overrides", "CredentialManager") === "string") {
+                // App settings is configured - use the plugin name for the manager name
+                displayName = AppSettings.instance.get("overrides", "CredentialManager") as string;
+            } else {
+                const credentialManagerObject = AppSettings.instance.get("overrides", "CredentialManager") as any;
+                displayName = credentialManagerObject.plugin ? credentialManagerObject.plugin : "@zowe/cli";
+            }
+        } else {
             // App settings is not configured - use the CLI display name OR the package name as the manager name
-            config.productDisplayName || config.name;
+            displayName = config.productDisplayName || config.name;
+        }
 
         // Initialize the credential manager if an override was supplied and/or keytar was supplied in package.json
         if (overrides.CredentialManager != null || this.shouldUseKeytar(packageJson, useTeamConfig)) {

@@ -17,6 +17,7 @@ import { EnvironmentalVariableSettings } from "../../imperative/src/env/Environm
 import { IDaemonContext } from "../../imperative/src/doc/IDaemonContext";
 import { ICommandProfileSchema } from "../../cmd";
 import { Config } from "../../config";
+import { ICredentialManager } from "../../settings/src/doc/ISettingsFile";
 
 /**
  * This class is used to contain all configuration being set by Imperative.
@@ -300,5 +301,22 @@ export class ImperativeConfig {
         if (ImperativeConfig.instance.loadedConfig.profiles != null)
             ImperativeConfig.instance.loadedConfig.profiles.forEach(profile => schemas[profile.type] = profile.schema);
         return schemas;
+    }
+
+    /**
+     * Checks if obj complies with the { @link ICredentialManager } interface
+     * @throws ImperativeError if object is of type ICredentialManager but does not have required 'type' property
+     * @returns boolean representing whether it complies or not with the interface
+     */
+    public isCredentialManager(obj: any): obj is ICredentialManager {
+        if(typeof obj !== 'object' && obj !== null) {
+            return false;
+        }
+        if(!('type' in obj)) {
+            throw new ImperativeError({
+                msg: "imperative.json setting for override on credential manager's property 'type' was not defined"
+            });
+        }
+        return true;
     }
 }
