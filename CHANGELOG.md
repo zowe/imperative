@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## `5.8.0`
+## Recent Changes
 
 - Enhancement: Added support for using Kubernetes secrets for storing Zowe credentials. [#918](https://github.com/zowe/imperative/pull/918)
 
