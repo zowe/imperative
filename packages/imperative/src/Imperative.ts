@@ -17,7 +17,7 @@ import { PerfTiming } from "@zowe/perf-timing";
 import { Logger} from "../../logger/src/Logger";
 import { LoggerConfigBuilder } from "../../logger/src/LoggerConfigBuilder";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
-import yargs from "yargs";
+import * as yargs from "yargs";
 import { ConfigurationLoader } from "./ConfigurationLoader";
 import { ConfigurationValidator } from "./ConfigurationValidator";
 import { ImperativeApi } from "./api/ImperativeApi";

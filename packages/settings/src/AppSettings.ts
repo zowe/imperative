@@ -9,7 +9,7 @@
 *
 */
 
-import DeepMerge from "deepmerge";
+import * as DeepMerge from "deepmerge";
 import { existsSync } from "fs";
 import { ISettingsFile, ICredentialManager } from "./doc/ISettingsFile";
 import { Logger } from "../../logger";

@@ -10,9 +10,11 @@
 */
 
 import { AbstractCredentialManager, SecureCredential } from "./abstract/AbstractCredentialManager";
-import * as k8s from '@kubernetes/client-node';
 import { ImperativeError } from "../../error";
 import { Logger } from "../../logger";
+
+// Has to be required instead of imported since it causes import issues
+const k8s = require("@kubernetes/client-node");
 
 type KubeConfig = {
     namespace: string;
@@ -24,7 +26,7 @@ export class K8sCredentialManager extends AbstractCredentialManager {
     private allServices: string[];
     private secretName: string;
     private kubeConfig: KubeConfig;
-    private kc: k8s.CoreV1Api;
+    private kc: any;
 
     constructor(service: string, displayName: string = "K8s Credential Manager") {
         super(service, displayName);
@@ -177,9 +179,9 @@ export class K8sCredentialManager extends AbstractCredentialManager {
      *
      * @throws {@link ImperativeError} if kube config file was not able to be opened.
      */
-    private setupKubeConfig(): k8s.CoreV1Api {
+    private setupKubeConfig(): any {
         try {
-            const kc: k8s.KubeConfig = new k8s.KubeConfig();
+            const kc: any = new k8s.KubeConfig();
             kc.loadFromDefault();
 
             // Check if oc login was performed

@@ -14,7 +14,7 @@ import * as path from "path";
 import * as which from "which";
 import { spawnSync, StdioOptions } from "child_process";
 import { readFileSync } from "jsonfile";
-import npmPackageArg from "npm-package-arg";
+import * as npmPackageArg from "npm-package-arg";
 import * as pacote from "pacote";
 import * as fs from "fs";
 import { ImperativeError } from "../../../../error/src/ImperativeError";
