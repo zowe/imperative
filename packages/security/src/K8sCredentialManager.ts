@@ -50,15 +50,13 @@ export class K8sCredentialManager extends AbstractCredentialManager {
         try {
             await this.kc.readNamespace(this.kubeConfig.namespace, "true");
             Logger.getImperativeLogger().debug(`Namespace ${this.kubeConfig.namespace} was found`);
-        } catch (err) {
+        } catch (err: any) {
+            const authenticationErrorCode = 403;
+            if(err.statusCode === authenticationErrorCode) {
+                throw new ImperativeError({ msg: "Authentication error when trying to access kubernetes cluster. Login to cluster and try again." });
+            }
             Logger.getImperativeLogger().debug(`Namespace ${this.kubeConfig.namespace} not found, creating the namespace now`);
-            await this.kc.createNamespace({
-                apiVersion: "v1",
-                metadata: {
-                    name: this.kubeConfig.namespace
-                }
-            }, "true");
-            Logger.getImperativeLogger().debug(`Namespace ${this.kubeConfig.namespace} was created successfully`);
+            await this.createNamespace();
         }
     }
 
@@ -210,6 +208,24 @@ export class K8sCredentialManager extends AbstractCredentialManager {
             return kc.makeApiClient(k8s.CoreV1Api);
         } catch (err) {
             throw new ImperativeError({ msg: err.message });
+        }
+    }
+
+    /**
+     * Create a new namespace in kubernetes cluster from the value of this.kubeConfig.namespace
+     * @throws {@link ImperativeError} if an error is catched while making a request to the kubernetes API
+     */
+    private async createNamespace(): Promise<void> {
+        try {
+            await this.kc.createNamespace({
+                apiVersion: "v1",
+                metadata: {
+                    name: this.kubeConfig.namespace
+                }
+            }, "true");
+            Logger.getImperativeLogger().debug(`Namespace ${this.kubeConfig.namespace} was created successfully`);
+        } catch (err) {
+            throw new ImperativeError({ msg: err });
         }
     }
 }
