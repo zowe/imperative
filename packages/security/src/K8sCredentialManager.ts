@@ -69,7 +69,7 @@ export class K8sCredentialManager extends AbstractCredentialManager {
         Logger.getImperativeLogger().debug(`Loading k8s secret ${this.secretName}`);
         let secureValue: any = null;
         try {
-            const response: any = await this.readNamespacedSecret(true);
+            const response: any = await this.readNamespacedSecret();
             secureValue = response.body.data["credentials"];
         } catch (err) {
             secureValue = null;
@@ -103,7 +103,11 @@ export class K8sCredentialManager extends AbstractCredentialManager {
      * @throws {@link ImperativeError} if call to K8s API fails.
      */
     protected async saveCredentials(account: string, credentials: SecureCredential): Promise<void> {
-        await this.deleteCredentials(account);
+        try {
+            await this.deleteCredentials(account);
+        } catch (err) {
+            Logger.getImperativeLogger().debug(`No previous secret ${this.secretName} found for deletion.`);
+        }
         try {
             // Create K8s secret
             Logger.getImperativeLogger().debug(`Creating k8s secret as ${this.secretName}`);
@@ -139,8 +143,8 @@ export class K8sCredentialManager extends AbstractCredentialManager {
      * @throws {@link ImperativeError} if call to K8s API fails.
      */
     protected async deleteCredentials(account: string): Promise<void> {
-        await this.readNamespacedSecret(false);
         try {
+            await this.readNamespacedSecret();
             Logger.getImperativeLogger().debug(`Deleting k8s secret ${this.secretName}`);
             await this.kc.deleteNamespacedSecret(this.secretName, this.kubeConfig.namespace, "true");
         } catch (err) {
@@ -193,7 +197,7 @@ export class K8sCredentialManager extends AbstractCredentialManager {
             // Get namespace name from current context string from current login session
             // parse username for case where illegal characters are present
             let username = currentUser.name.split("/")[0];
-            const email = /\S+@\S+\.\S+/;
+            const email = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
             if(email.test(username)) {
                 username = username.substring(0, username.indexOf("@"));
             } else {
@@ -236,13 +240,11 @@ export class K8sCredentialManager extends AbstractCredentialManager {
      * @throws {@link ImperativeError} if an error if secret was not found an optional was set to true
      * @returns {Promise<any>} an object representing the kubernetes secret
      */
-    private async readNamespacedSecret(optional: boolean): Promise<any> {
+    private async readNamespacedSecret(): Promise<any> {
         try {
             return await this.kc.readNamespacedSecret(this.secretName, this.kubeConfig.namespace, "true");
         } catch (err) {
-            if(optional) {
-                throw new ImperativeError({ msg: `${this.secretName} does not exist` });
-            }
+            throw new ImperativeError({ msg: `${this.secretName} does not exist` });
         }
     }
 }

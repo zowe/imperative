@@ -65,26 +65,7 @@ export class OverridesLoader {
         const overrides: IImperativeOverrides = config.overrides;
 
         // Plugin to be used by imperative for securing profile credentials
-        let displayName: string;
-
-        if (
-            overrides.CredentialManager != null
-            && AppSettings.initialized
-            && AppSettings.instance.getNamespace("overrides") != null
-            && AppSettings.instance.get("overrides", "CredentialManager") != null
-            && AppSettings.instance.get("overrides", "CredentialManager") !== false
-        ) {
-            if(typeof AppSettings.instance.get("overrides", "CredentialManager") === "string") {
-                // App settings is configured - use the plugin name for the manager name
-                displayName = AppSettings.instance.get("overrides", "CredentialManager") as string;
-            } else {
-                const credentialManagerObject = AppSettings.instance.get("overrides", "CredentialManager") as any;
-                displayName = credentialManagerObject.plugin ? credentialManagerObject.plugin : "@zowe/cli";
-            }
-        } else {
-            // App settings is not configured - use the CLI display name OR the package name as the manager name
-            displayName = config.productDisplayName || config.name;
-        }
+        const displayName: string = OverridesLoader.determineDisplayName(overrides, config);
 
         // Initialize the credential manager if an override was supplied and/or keytar was supplied in package.json
         if (overrides.CredentialManager != null || this.shouldUseKeytar(packageJson, useTeamConfig)) {
@@ -145,5 +126,24 @@ export class OverridesLoader {
             // Secure vault is optional since we can prompt for values instead
             Logger.getImperativeLogger().warn(`Secure vault not enabled. Reason: ${err.message}`);
         }
+    }
+
+    private static determineDisplayName(overrides: IImperativeOverrides, config: IImperativeConfig): string {
+        if (
+            overrides.CredentialManager != null
+            && AppSettings.initialized
+            && AppSettings.instance.getNamespace("overrides") != null
+            && AppSettings.instance.get("overrides", "CredentialManager") != null
+            && AppSettings.instance.get("overrides", "CredentialManager") !== false
+        ) {
+            if(typeof AppSettings.instance.get("overrides", "CredentialManager") === "string") {
+                // App settings is configured - use the plugin name for the manager name
+                return AppSettings.instance.get("overrides", "CredentialManager") as string;
+            }
+            const credentialManagerObject = AppSettings.instance.get("overrides", "CredentialManager") as any;
+            return credentialManagerObject.plugin ? credentialManagerObject.plugin : "@zowe/cli";
+        }
+        // App settings is not configured - use the CLI display name OR the package name as the manager name
+        return config.productDisplayName || config.name;
     }
 }
