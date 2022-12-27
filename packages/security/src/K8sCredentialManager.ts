@@ -40,7 +40,7 @@ export class K8sCredentialManager extends AbstractCredentialManager {
 
     /**
      * Called by {@link CredentialManagerFactory.initialize}
-     * Creates the desired namespace if it doesn't exist on OCP system
+     * Creates the desired namespace if it doesn't exist on Kubernetes
      *
      * @returns {Promise<void>} A promise that the function has completed.
      *
@@ -61,8 +61,7 @@ export class K8sCredentialManager extends AbstractCredentialManager {
     }
 
     /**
-     * Helper to load credentials from vault that supports values longer than
-     * `DefaultCredentialManager.WIN32_CRED_MAX_STRING_LENGTH` on Windows.
+     * Helper to load credentials from Kubernetes cluster
      * @param account The string account name.
      * @returns A promise for the credential string.
      */
@@ -70,7 +69,7 @@ export class K8sCredentialManager extends AbstractCredentialManager {
         Logger.getImperativeLogger().debug(`Loading k8s secret ${this.secretName}`);
         let secureValue: any = null;
         try {
-            const response: any = await this.kc.readNamespacedSecret(this.secretName, this.kubeConfig.namespace, "true");
+            const response: any = await this.readNamespacedSecret(true);
             secureValue = response.body.data["credentials"];
         } catch (err) {
             secureValue = null;
@@ -93,7 +92,7 @@ export class K8sCredentialManager extends AbstractCredentialManager {
     }
 
     /**
-     * Calls the K8s REST API to store as secrets with {@link DefaultCredentialManager#service} and the
+     * Calls the K8s API to store as secrets with {@link DefaultCredentialManager#service} and the
      * account and credentials passed to the function by Imperative.
      *
      * @param {string} account The account to set credentials
@@ -101,7 +100,7 @@ export class K8sCredentialManager extends AbstractCredentialManager {
      *
      * @returns {Promise<void>} A promise that the function has completed.
      *
-     * @throws {@link ImperativeError} if call to K8s REST API fails.
+     * @throws {@link ImperativeError} if call to K8s API fails.
      */
     protected async saveCredentials(account: string, credentials: SecureCredential): Promise<void> {
         await this.deleteCredentials(account);
@@ -123,31 +122,33 @@ export class K8sCredentialManager extends AbstractCredentialManager {
             Logger.getImperativeLogger().debug(`Successfully stored credentials as a kubernetes secret on namespace ${this.kubeConfig.namespace}`);
         } catch (err) {
             throw new ImperativeError({
-                msg: "Error when saving k8s secret",
+                msg: `Error when saving k8s secret ${this.secretName}`,
                 additionalDetails: err
             });
         }
     }
 
     /**
-     * Calls the K8s REST API to delete secrets with {@link DefaultCredentialManager#service} and the
+     * Calls the K8s API to delete secrets with {@link K8sCredentialManager#service} and the
      * account is passed to the function by Imperative.
      *
      * @param {string} account The account to set credentials
      *
      * @returns {Promise<void>} A promise that the function has completed.
      *
-     * @throws {@link ImperativeError} if call to K8s REST API fails.
+     * @throws {@link ImperativeError} if call to K8s API fails.
      */
     protected async deleteCredentials(account: string): Promise<void> {
+        await this.readNamespacedSecret(false);
         try {
-            await this.kc.readNamespacedSecret(this.secretName, this.kubeConfig.namespace, "true");
+            Logger.getImperativeLogger().debug(`Deleting k8s secret ${this.secretName}`);
+            await this.kc.deleteNamespacedSecret(this.secretName, this.kubeConfig.namespace, "true");
         } catch (err) {
-            Logger.getImperativeLogger().debug(`${this.secretName} does not exist`);
-            return;
+            throw new ImperativeError({
+                msg: `Failed to delete secret ${this.secretName} in namespace ${this.kubeConfig.namespace}`,
+                additionalDetails: err.message
+            });
         }
-        Logger.getImperativeLogger().debug(`Deleting k8s secret ${this.secretName}`);
-        await this.kc.deleteNamespacedSecret(this.secretName, this.kubeConfig.namespace, "true");
     }
 
     private get defaultService(): string {
@@ -182,14 +183,14 @@ export class K8sCredentialManager extends AbstractCredentialManager {
             const kc: any = new k8s.KubeConfig();
             kc.loadFromDefault();
 
-            // Check if oc login was performed
+            // Check if login was performed
             const currentContextNamespace = kc.getContextObject(kc.getCurrentContext())?.namespace;
             const currentUser = kc.getCurrentUser();
             if(!currentContextNamespace || !currentUser) {
-                throw new Error("Current context was not found, check if 'oc login' command was performed.");
+                throw new Error("Current context was not found, check if login command was performed.");
             }
 
-            // Get namespace name from current context string from current oc login session
+            // Get namespace name from current context string from current login session
             // parse username for case where illegal characters are present
             let username = currentUser.name.split("/")[0];
             const email = /\S+@\S+\.\S+/;
@@ -226,6 +227,22 @@ export class K8sCredentialManager extends AbstractCredentialManager {
             Logger.getImperativeLogger().debug(`Namespace ${this.kubeConfig.namespace} was created successfully`);
         } catch (err) {
             throw new ImperativeError({ msg: err });
+        }
+    }
+
+    /**
+     * read a kubernetes secret from a specific namespace defined in kubeconfig
+     * @param {boolean} optional whether or not we need the value to be returned
+     * @throws {@link ImperativeError} if an error if secret was not found an optional was set to true
+     * @returns {Promise<any>} an object representing the kubernetes secret
+     */
+    private async readNamespacedSecret(optional: boolean): Promise<any> {
+        try {
+            return await this.kc.readNamespacedSecret(this.secretName, this.kubeConfig.namespace, "true");
+        } catch (err) {
+            if(optional) {
+                throw new ImperativeError({ msg: `${this.secretName} does not exist` });
+            }
         }
     }
 }
