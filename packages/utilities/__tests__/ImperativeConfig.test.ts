@@ -10,6 +10,7 @@
 */
 
 import { Constants } from "../../constants";
+import { ICredentialManager } from "../../settings/src/doc/ISettingsFile";
 
 describe("ImperativeConfig", () => {
     const {ImperativeConfig} = require("../../utilities/src/ImperativeConfig");
@@ -94,6 +95,26 @@ describe("ImperativeConfig", () => {
             const pkgJson = ImperativeConfig.instance.callerPackageJson;
             expect(pkgJson.name).toBe("@zowe/imperative");
             expect(pkgJson.repository.url).toBe("https://github.com/zowe/imperative.git");
+        });
+
+        it("should return true if the object passed in from override fulfills the ICredentialManager interface", () => {
+            const sampleObject: ICredentialManager = {
+                "plugin": "@zowe/cli",
+                "type": "k8s"
+            };
+            expect(ImperativeConfig.instance.isCredentialManager(sampleObject)).toBe(true);
+        });
+
+        it("should throw an error if object passed in from override does not contain a type parameter", () => {
+            const sampleObject: Object = {
+                "plugin": "@zowe/cli"
+            };
+            expect(() => ImperativeConfig.instance.isCredentialManager(sampleObject)).toThrow();
+        });
+
+        it("should throw an error if object passed in from override is an empty object", () => {
+            const sampleObject: Object = {};
+            expect(() => ImperativeConfig.instance.isCredentialManager(sampleObject)).toThrow();
         });
     });
 

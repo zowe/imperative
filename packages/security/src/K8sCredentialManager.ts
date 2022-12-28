@@ -201,7 +201,7 @@ export class K8sCredentialManager extends AbstractCredentialManager {
             if(email.test(username)) {
                 username = username.substring(0, username.indexOf("@"));
             } else {
-                username = username.replace(/[^a-zA-Z]/g, "-");
+                username = username.replace(/[^a-zA-Z0-9]/g, "");
             }
 
             // set all variables

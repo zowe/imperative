@@ -12,6 +12,7 @@
 import { UnitTestUtils } from "../../../__tests__/src/UnitTestUtils";
 import { resolve } from "path";
 import { generateRandomAlphaNumericString } from "../../../__tests__/src/TestUtil";
+import { ICredentialManager } from "../../settings/src/doc/ISettingsFile";
 
 const ORIG_ERR = process.stderr.write;
 
@@ -161,6 +162,14 @@ describe("CredentialManagerFactory", () => {
             expect(CredentialManagerFactory.manager).toBeInstanceOf(GoodCredentialManager);
             expect((CredentialManagerFactory.manager as any).service).toEqual(GoodCredentialManager.hardcodeService);
             expect(CredentialManagerFactory.manager.name).toBe(name);
+        });
+
+        it("should throw an error if an unsupported credential manager type was passed in as an override", () => {
+            const sampleObject: ICredentialManager = {
+                plugin: "@zowe/cli",
+                type: "notSupportedTypeExample"
+            };
+            expect(() => CredentialManagerFactory.determineCredentialManagerType(sampleObject)).toThrow();
         });
     });
 });

@@ -98,6 +98,65 @@ describe("K8sCredentialManager", () => {
             });
         });
 
+        describe("setupKubeConfig", () => {
+            it("should throw an error if the current context is not found", async () => {
+                const mockKubeConfig = jest.spyOn(K8s, "KubeConfig");
+                mockKubeConfig.mockImplementation(() => {
+                    return {
+                        loadFromDefault: jest.fn(),
+                        getContextObject: jest.fn(() => null),
+                        getCurrentContext: jest.fn(() => null),
+                        getCurrentUser: jest.fn(() => null)
+                    };
+                });
+                expect(() => privateManager.setupKubeConfig()).toThrow();
+            });
+            it("should remove invalid characters for secret names on kubernetes if present", async () => {
+                const mockKubeConfig = jest.spyOn(K8s, "KubeConfig");
+                mockKubeConfig.mockImplementation(() => {
+                    return {
+                        loadFromDefault: jest.fn(),
+                        getContextObject: jest.fn((context: string) => {
+                            return {
+                                "cluster": "api-sample-cluster-com:1234",
+                                "namespace": "test",
+                                "user": "testUser123@sample.com/api-sample-cluster-com:1234"
+                            };
+                        }),
+                        getCurrentContext: jest.fn().mockImplementation(() => "test/sample-com:1234/testUser123@sample.com"),
+                        getCurrentUser: jest.fn(() => {
+                            return {
+                                "name": "test!##$$%^&*()).+++~~~User123/api-sample-cluster-com:1234",
+                                "user": {
+                                    "client-certificate": "sample/path/client.crt",
+                                    "client-key": "sample/path/client.key"
+                                }
+                            };
+                        }),
+                        makeApiClient: jest.fn(),
+                    };
+                });
+                privateManager.setupKubeConfig();
+                expect(privateManager.kubeConfig.username).toMatch("testUser123");
+            });
+            it("should throw an error if KubeConfig was not able to be accessed from Kubernetes", async () => {
+                const mockKubeConfig = jest.spyOn(K8s, "KubeConfig");
+                mockKubeConfig.mockImplementation(() => {
+                    throw new Error("No information available on KubeConfig");
+                });
+                expect(() => privateManager.setupKubeConfig()).toThrow();
+            });
+        });
+
+        describe("createNamespace", () => {
+            it("should throw an error if namespace was not able to be created", async () => {
+                privateManager.kc.createNamespace = jest.fn(() => {
+                    throw new Error("failed to create namespace");
+                });
+                await expect(privateManager.createNamespace()).rejects.toThrow();
+            });
+        });
+
         describe("loadCredentials", () => {
             it("should return secret if credentials exists in kubernetes", async () => {
                 const expectedValue = Buffer.from(values.credentials, "base64").toString();
@@ -153,6 +212,12 @@ describe("K8sCredentialManager", () => {
             });
             it("should save a kubernetes secret successfully if credentials are found and deleted",async () => {
                 await expect(manager.save(values.account, values.credentials)).resolves.not.toThrow();
+            });
+            it("should throw an error if a secret was not able to be stored", async () => {
+                privateManager.kc.createNamespacedSecret = jest.fn(() => {
+                    throw new Error("Failed to save secret");
+                });
+                await expect(manager.save(values.account, values.credentials)).rejects.toThrow();
             });
         });
 
