@@ -56,8 +56,9 @@ export class K8sCredentialManager extends AbstractCredentialManager {
             if(err.statusCode === authenticationErrorCode || err.statusCode === unauthorizedErrorCode) {
                 throw new ImperativeError({ msg: "Authentication error when trying to access kubernetes cluster. Login to cluster and try again." });
             }
-            Logger.getImperativeLogger().debug(`Namespace ${this.kubeConfig.namespace} not found, creating the namespace now`);
-            await this.createNamespace();
+            throw new ImperativeError({
+                msg: `Namespace ${this.kubeConfig.namespace} does not exist`
+            });
         }
     }
 
@@ -209,24 +210,6 @@ export class K8sCredentialManager extends AbstractCredentialManager {
                 msg: "Failed to access Kubernetes, login into your cluster and try again.",
                 additionalDetails: err.message
             });
-        }
-    }
-
-    /**
-     * Create a new namespace in kubernetes cluster from the value of this.kubeConfig.namespace
-     * @throws {@link ImperativeError} if an error is catched while making a request to the kubernetes API
-     */
-    private async createNamespace(): Promise<void> {
-        try {
-            await this.kc.createNamespace({
-                apiVersion: "v1",
-                metadata: {
-                    name: this.kubeConfig.namespace
-                }
-            }, "true");
-            Logger.getImperativeLogger().debug(`Namespace ${this.kubeConfig.namespace} was created successfully`);
-        } catch (err) {
-            throw new ImperativeError({ msg: err });
         }
     }
 

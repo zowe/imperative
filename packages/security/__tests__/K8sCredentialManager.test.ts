@@ -102,11 +102,11 @@ describe("K8sCredentialManager", () => {
             it("should properly check if namespace exists in kubernetes cluster and find it", async () => {
                 await expect(manager.initialize()).resolves.not.toThrow();
             });
-            it("Should create a namespace if the namespace defined does not exist in cluster", async () => {
+            it("Should throw an error if the namespace defined does not exist in cluster", async () => {
                 privateManager.kc.readNamespace = jest.fn((namespace: string, pretty: string) => {
                     throw new Error("Namespace not found");
                 });
-                await expect(manager.initialize()).resolves.not.toThrow();
+                await expect(manager.initialize()).rejects.toThrow();
             });
         });
 
@@ -159,15 +159,6 @@ describe("K8sCredentialManager", () => {
                     throw new Error("No information available on KubeConfig");
                 });
                 expect(() => privateManager.setupKubeConfig()).toThrow();
-            });
-        });
-
-        describe("createNamespace", () => {
-            it("should throw an error if namespace was not able to be created", async () => {
-                privateManager.kc.createNamespace = jest.fn(() => {
-                    throw new Error("failed to create namespace");
-                });
-                await expect(privateManager.createNamespace()).rejects.toThrow();
             });
         });
 
