@@ -75,12 +75,24 @@ describe("K8sCredentialManager", () => {
         });
 
         describe("initialize", () => {
-            it("should throw an authentication error if user has not logged into kubernetes", async () => {
+            it("should throw an authentication error if user has not logged into kubernetes with error 403", async () => {
                 const expectedValue = "Authentication error when trying to access kubernetes cluster. Login to cluster and try again.";
                 privateManager.kc.readNamespace = jest.fn((namespace: string, pretty: string) => {
                     const error = new Error(expectedValue);
                     Object.defineProperty(error, "statusCode", {
                         value: 403,
+                        writable: false
+                    });
+                    throw error;
+                });
+                await expect(manager.initialize()).rejects.toThrow(expectedValue);
+            });
+            it("should throw an authentication error if user has not logged into kubernetes with error 401", async () => {
+                const expectedValue = "Authentication error when trying to access kubernetes cluster. Login to cluster and try again.";
+                privateManager.kc.readNamespace = jest.fn((namespace: string, pretty: string) => {
+                    const error = new Error(expectedValue);
+                    Object.defineProperty(error, "statusCode", {
+                        value: 401,
                         writable: false
                     });
                     throw error;

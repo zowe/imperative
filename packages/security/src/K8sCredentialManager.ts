@@ -52,7 +52,8 @@ export class K8sCredentialManager extends AbstractCredentialManager {
             Logger.getImperativeLogger().debug(`Namespace ${this.kubeConfig.namespace} was found`);
         } catch (err: any) {
             const authenticationErrorCode = 403;
-            if(err.statusCode === authenticationErrorCode) {
+            const unauthorizedErrorCode = 401;
+            if(err.statusCode === authenticationErrorCode || err.statusCode === unauthorizedErrorCode) {
                 throw new ImperativeError({ msg: "Authentication error when trying to access kubernetes cluster. Login to cluster and try again." });
             }
             Logger.getImperativeLogger().debug(`Namespace ${this.kubeConfig.namespace} not found, creating the namespace now`);
@@ -191,7 +192,7 @@ export class K8sCredentialManager extends AbstractCredentialManager {
             const currentContextNamespace = kc.getContextObject(kc.getCurrentContext())?.namespace;
             const currentUser = kc.getCurrentUser();
             if(!currentContextNamespace || !currentUser) {
-                throw new Error("Current context was not found, check if login command was performed.");
+                throw new Error("Current context was not found");
             }
 
             // Get namespace name from current context string from current login session
@@ -212,7 +213,10 @@ export class K8sCredentialManager extends AbstractCredentialManager {
 
             return kc.makeApiClient(k8s.CoreV1Api);
         } catch (err) {
-            throw new ImperativeError({ msg: err.message });
+            throw new ImperativeError({
+                msg: "Failed to access Kubernetes, login into your cluster and try again.",
+                additionalDetails: err.message
+            });
         }
     }
 
