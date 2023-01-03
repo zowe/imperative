@@ -123,7 +123,7 @@ describe("K8sCredentialManager", () => {
                 });
                 expect(() => privateManager.setupKubeConfig()).toThrow();
             });
-            it("should remove invalid characters for secret names on kubernetes if present", async () => {
+            it("should create a uid associated with the kubeconfig email", async () => {
                 const mockKubeConfig = jest.spyOn(K8s, "KubeConfig");
                 mockKubeConfig.mockImplementation(() => {
                     return {
@@ -132,13 +132,13 @@ describe("K8sCredentialManager", () => {
                             return {
                                 "cluster": "api-sample-cluster-com:1234",
                                 "namespace": "test",
-                                "user": "testUser123@sample.com/api-sample-cluster-com:1234"
+                                "user": "test_User123@sample.com/api-sample-cluster-com:1234"
                             };
                         }),
-                        getCurrentContext: jest.fn().mockImplementation(() => "test/sample-com:1234/testUser123@sample.com"),
+                        getCurrentContext: jest.fn().mockImplementation(() => "test/sample-com:1234/test_User123@sample.com"),
                         getCurrentUser: jest.fn(() => {
                             return {
-                                "name": "test!##$$%^&*()).+++~~~User123/api-sample-cluster-com:1234",
+                                "name": "test_User123@sample.com/api-sample-cluster-com:1234",
                                 "user": {
                                     "client-certificate": "sample/path/client.crt",
                                     "client-key": "sample/path/client.key"
@@ -149,7 +149,9 @@ describe("K8sCredentialManager", () => {
                     };
                 });
                 privateManager.setupKubeConfig();
-                expect(privateManager.kubeConfig.username).toMatch("testUser123");
+
+                const expectedResult = Buffer.from("test_User123@sample.com", "binary").toString("base64").toLowerCase().replace(/=/g, "");
+                expect(privateManager.kubeConfig.uid).toMatch(expectedResult);
             });
             it("should throw an error if KubeConfig was not able to be accessed from Kubernetes", async () => {
                 const mockKubeConfig = jest.spyOn(K8s, "KubeConfig");

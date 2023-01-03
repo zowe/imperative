@@ -18,7 +18,7 @@ const k8s = require("@kubernetes/client-node");
 
 type KubeConfig = {
     namespace: string;
-    username: string;
+    uid: string;
 };
 
 export class K8sCredentialManager extends AbstractCredentialManager {
@@ -35,7 +35,7 @@ export class K8sCredentialManager extends AbstractCredentialManager {
             this.allServices.push("@zowe/cli", "Zowe-Plugin", "Broadcom-Plugin");
         }
         this.kc = this.setupKubeConfig();
-        this.secretName = `zowe-creds-${this.kubeConfig.username}`;
+        this.secretName = `zowe-creds-${this.kubeConfig.uid}`;
     }
 
     /**
@@ -195,20 +195,12 @@ export class K8sCredentialManager extends AbstractCredentialManager {
                 throw new Error("Current context was not found");
             }
 
-            // Get namespace name from current context string from current login session
-            // parse username for case where illegal characters are present
-            let username = currentUser.name.split("/")[0];
-            const email = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
-            if(email.test(username)) {
-                username = username.substring(0, username.indexOf("@"));
-            } else {
-                username = username.replace(/[^a-zA-Z0-9]/g, "");
-            }
-
             // set all variables
+            const username = currentUser.name.split("/")[0];
+            const uid = Buffer.from(username, "binary").toString("base64").toLowerCase().replace(/=/g, "");
             this.kubeConfig = {
                 namespace: currentContextNamespace,
-                username: username
+                uid: uid
             };
 
             return kc.makeApiClient(k8s.CoreV1Api);
