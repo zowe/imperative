@@ -1142,51 +1142,54 @@ export class PluginManagementFacility {
             } else {
                 // is this entry a command?
                 if (pluginCmdDef.type.toLowerCase() === "command") {
-                    // a command might have chained handlers
-                    if (!Object.prototype.hasOwnProperty.call(pluginCmdDef, "chainedHandlers"))
-                        // if not, a command must have a handler
-                        if (!Object.prototype.hasOwnProperty.call(pluginCmdDef, "handler")) {
-                            this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
-                                "Command name = '" + pluginCmdName + "' has no 'handler' property");
-                        } else {
-                            // the handler file must exist
-                            const handlerModulePath =
-                                this.formPluginRuntimePath(pluginName, pluginCmdDef.handler);
-                            const handlerFilePath = handlerModulePath + ".js";
-                            if (existsSync(handlerFilePath)) {
-                                // replace relative path with absolute path in the handler property
-                                pluginCmdDef.handler = handlerModulePath;
-                            } else {
-                                this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
-                                    "The handler for command = '" + pluginCmdName +
-                                    "' does not exist: " + handlerFilePath);
-                            }
-                        }
-                    else {
-                        // if the command has chained handlers, verify they exist
-                        if (pluginCmdDef.chainedHandlers.length > 0) {
-                            for (const cmdHandler of pluginCmdDef.chainedHandlers) {
-                                if (!Object.prototype.hasOwnProperty.call(cmdHandler, "handler")) {
-                                    this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
-                                        "Command name = '" + pluginCmdName + "' has no 'handler' property in one of its chained handlers.");
-                                } else {
-                                    // the handler file must exist
-                                    const handlerModulePath =
-                                        this.formPluginRuntimePath(pluginName, cmdHandler.handler);
-                                    const handlerFilePath = handlerModulePath + ".js";
-                                    if (existsSync(handlerFilePath)) {
-                                        // replace relative path with absolute path in the handler property
-                                        cmdHandler.handler = handlerModulePath;
-                                    } else {
+                    // a command must have a handler or a chained handler
+                    if (!Object.prototype.hasOwnProperty.call(pluginCmdDef, "handler")) {
+                        // if it doesn't have a handler, does it have a chained handler
+                        if (Object.prototype.hasOwnProperty.call(pluginCmdDef, "chainedHandlers")) {
+                            // if the command has chained handlers, verify they exist
+                            if (pluginCmdDef.chainedHandlers.length > 0) {
+                                for (const cmdHandler of pluginCmdDef.chainedHandlers) {
+                                    if (!Object.prototype.hasOwnProperty.call(cmdHandler, "handler")) {
+                                        // the chained handler doesn't contain a handler
                                         this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
-                                            "A chained handler for command = '" + pluginCmdName +
-                                            "' does not exist: " + handlerFilePath);
+                                            "Command name = '" + pluginCmdName + "' has no 'handler' property in one of its chained handlers.");
+                                    } else {
+                                        // the handler file must exist
+                                        const handlerModulePath =
+                                            this.formPluginRuntimePath(pluginName, cmdHandler.handler);
+                                        const handlerFilePath = handlerModulePath + ".js";
+                                        if (existsSync(handlerFilePath)) {
+                                            // replace relative path with absolute path in the handler property
+                                            cmdHandler.handler = handlerModulePath;
+                                        } else {
+                                            this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
+                                                "A chained handler for command = '" + pluginCmdName +
+                                                "' does not exist: " + handlerFilePath);
+                                        }
                                     }
                                 }
+                            } else {
+                                // the chained handler list is empty
+                                this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
+                                    "Command name = '" + pluginCmdName + "' has defined 'chainedHandler' property but contains no handlers.");
                             }
                         } else {
+                            // there was not a handler or a chained handler
                             this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
-                                "Command name = '" + pluginCmdName + "' has defined 'chainedHandler' property but contains no handlers.");
+                                "Command name = '" + pluginCmdName + "' has no 'handler' property");
+                        }
+                    } else {
+                        // the handler file must exist
+                        const handlerModulePath =
+                            this.formPluginRuntimePath(pluginName, pluginCmdDef.handler);
+                        const handlerFilePath = handlerModulePath + ".js";
+                        if (existsSync(handlerFilePath)) {
+                            // replace relative path with absolute path in the handler property
+                            pluginCmdDef.handler = handlerModulePath;
+                        } else {
+                            this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
+                                "The handler for command = '" + pluginCmdName +
+                                "' does not exist: " + handlerFilePath);
                         }
                     }
                 } else if (pluginCmdDef.type.toLowerCase() === "group") {
