@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed a logic error where chained command handlers would cause plugin validation to fail [#320](https://github.com/zowe/imperative/issues/320)
+
 ## `5.7.5`
 
 - BugFix: Fixed ProfileInfo API failing to load schema for v1 profile when schema exists but no profiles of that type exist. [#645](https://github.com/zowe/imperative/issues/645)
