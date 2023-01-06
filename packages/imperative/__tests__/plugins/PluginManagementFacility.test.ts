@@ -822,6 +822,79 @@ describe("Plugin Management Facility", () => {
                     join(PMFConstants.instance.PLUGIN_HOME_LOCATION, "sample-plugin/This/File/Does/Not/Exist.js"));
             });
 
+            it("should record an error when a plugin command has an empty chained handler", () => {
+                // remove handler property from a command definition
+                const badPluginCmdDef: ICommandDefinition = JSON.parse(JSON.stringify(basePluginCmdDef));
+                delete badPluginCmdDef.children[0].handler;
+                badPluginCmdDef.children[0].chainedHandlers = [];
+
+                // Ensure we get to the function that we want to validate
+                mocks.existsSync.mockReturnValue(true);
+
+                PMF.validatePluginCmdDefs(pluginName, [badPluginCmdDef], 1);
+
+                expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                    IssueSeverity.CMD_ERROR
+                ])).toBe(true);
+                const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
+                expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
+                expect(issue.issueText).toContain(
+                    "Command name = 'foo (at depth = 2)' has defined 'chainedHandler' property but contains no handlers.");
+            });
+
+            it("should record an error when a plugin command has a missing chained handler", () => {
+                // remove handler property from a command definition
+                const badPluginCmdDef: ICommandDefinition = JSON.parse(JSON.stringify(basePluginCmdDef));
+                delete badPluginCmdDef.children[0].handler;
+                badPluginCmdDef.children[0].chainedHandlers = [
+                    {
+                        "handler": "./lib/sample-plugin/cmd/foo/foo.handler"
+                    },
+                    {}
+                ];
+
+                // Ensure we get to the function that we want to validate
+                mocks.existsSync.mockReturnValue(true);
+
+                PMF.validatePluginCmdDefs(pluginName, [badPluginCmdDef], 1);
+
+                expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                    IssueSeverity.CMD_ERROR
+                ])).toBe(true);
+                const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
+                expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
+                expect(issue.issueText).toContain(
+                    "Command name = 'foo (at depth = 2)' has no 'handler' property in one of its chained handlers.");
+            });
+
+            it("should record an error when a plugin chained command handler file does not exist", () => {
+                // set a handler property to a bad path
+                const badPluginCmdDef: ICommandDefinition = JSON.parse(JSON.stringify(basePluginCmdDef));
+                delete badPluginCmdDef.children[0].handler;
+                badPluginCmdDef.children[0].chainedHandlers = [
+                    {
+                        "handler": "./lib/sample-plugin/cmd/bad/bad.handler"
+                    },
+                    {
+                        "handler": "./lib/sample-plugin/cmd/bad/bad.handler"
+                    },
+                ];
+
+                // Ensure we get to the function that we want to test
+                mocks.existsSync.mockReturnValueOnce(false).mockReturnValueOnce(false);
+
+                PMF.validatePluginCmdDefs(pluginName, [badPluginCmdDef], 1);
+
+                expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                    IssueSeverity.CMD_ERROR
+                ])).toBe(true);
+                const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
+                expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
+                expect(issue.issueText).toContain(
+                    "A chained handler for command = 'foo (at depth = 2)' does not exist: " +
+                    join(PMFConstants.instance.PLUGIN_HOME_LOCATION, "sample-plugin/lib/sample-plugin/cmd/bad/bad.handler.js"));
+            });
+
             it("should record an error when a plugin command has no description", () => {
                 // remove description property from a command definition
                 const badPluginCmdDef: ICommandDefinition = JSON.parse(JSON.stringify(basePluginCmdDef));
