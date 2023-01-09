@@ -1116,31 +1116,16 @@ describe("TeamConfig ProfileInfo tests", () => {
         it("should remove the property", async () => {
             const profInfo = createNewProfInfo(teamProjDir);
             await profInfo.readProfilesFromDisk();
-            jest.spyOn(profInfo as any, "getAllProfiles").mockReturnValue([{ profName: "test", profType: 'zosmf' }]);
-            jest.spyOn(profInfo as any, "mergeArgsForProfile").mockReturnValue({
-                knownArgs: [
-                    {
-                        argName: 'someProperty',
-                        dataType: 'string',
-                        argValue: 'someValue',
-                        argLoc: {
-                            locType: ProfLocType.TEAM_CONFIG
-                        }
-                    } as IProfArgAttrs
-                ]
-            });
 
-            const mergedArgs = profInfo.mergeArgsForProfile((profInfo.getAllProfiles('zosmf').find(v => v.profName === 'test')) as IProfAttrs);
-            const removeKnownPropertySpy = jest.spyOn(profInfo as any, 'removeKnownProperty').mockResolvedValue(true);
-            let caughtError;
-            try {
-                await profInfo.removeKnownProperty({mergedArgs: mergedArgs, property: 'someProperty'});
-            } catch (error) {
-                caughtError = error;
-            }
+            const prof = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("dummy")[0]);
+            await profInfo.updateProperty({profileName: 'LPAR4', property: "someProperty", value: "example.com", profileType: "dummy"});
+            const afterUpdate = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("dummy")[0]);
+            expect(afterUpdate.knownArgs.find(v => v.argName === 'someProperty')?.argValue).toBe('example.com');
 
-            expect(caughtError).toBeUndefined();
-            expect(removeKnownPropertySpy).toHaveBeenCalledWith({mergedArgs, property: 'someProperty'});
+            await profInfo.removeKnownProperty({mergedArgs: afterUpdate, property: 'someProperty'});
+            const afterRemove = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("dummy")[0]);
+
+            expect(afterRemove.knownArgs.find(v => v.argName === 'someProperty')).toBeUndefined();
         });
     });
 

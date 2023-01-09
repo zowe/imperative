@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## `5.8.0`
+## Recent Changes
 - Enhancement: Add `ProfileInfo.removeKnownProperty`, a convenience method for removing properties instead of `ProfileInfo.updateKnownProperty`. [#917](https://github.com/zowe/imperative/issues/917)
 - Enhancement: Allow type `IProfArgValue` to be of type `undefined` to support removing properties more easily. [#917](https://github.com/zowe/imperative/issues/917)
 
