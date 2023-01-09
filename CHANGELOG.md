@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed a logic error where chained command handlers would cause plugin validation to fail [#320](https://github.com/zowe/imperative/issues/320)
+
 ## `4.18.11`
 
 - BugFix: Updated plugins `--login` command option to behave as expected when running in an NPM 9 environment

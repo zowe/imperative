@@ -85,6 +85,21 @@ describe("Validate plugin", () => {
             expect(result.stderr).toEqual("");
             expect(result.stdout).toContain("successfully validated.");
         });
+
+        it("when imperative object in package.json does not contains a handler property but contains a chained handler", () => {
+            const pluginName = "chained-handler-plugin";
+            const testPlugin = join(testPluginDir, "chained_handler_plugin");
+            let cmd = `plugins install ${testPlugin}`;
+            let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+            expect(result.stdout).toContain(`Installed plugin name = '${pluginName}'`);
+
+            cmd = `plugins validate ${pluginName}`;
+            result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+            expect(result.stderr).toEqual("");
+            expect(result.stdout).toContain("successfully validated.");
+            expect(result.stderr).not.toContain("Problems detected during plugin validation.");
+            expect(result.status).not.toEqual(1);
+        });
     });
 
     describe("should display proper error message", () => {
@@ -548,6 +563,7 @@ describe("Validate plugin", () => {
                     expect(result.stdout).toContain(testPlugin);
                     expect(result.stdout).toContain("Error");
                     expect(result.stdout).toContain("has no 'handler' property");
+                    expect(result.stdout).not.toContain("has no 'handler' property in one of its chained handlers.");
                     expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
                 });
 
@@ -564,6 +580,117 @@ describe("Validate plugin", () => {
                     expect(result.stdout).toContain(testPlugin);
                     expect(result.stdout).toContain("Error");
                     expect(result.stdout).toContain("has no 'handler' property");
+                    expect(result.stdout).not.toContain("has no 'handler' property in one of its chained handlers.");
+                    expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
+                    expect(result.stderr).toContain("Problems detected during plugin validation.");
+                    expect(result.status).toEqual(1);
+                });
+
+                it("is defined with definition which does not contain handler in chained handler property", () => {
+                    const testPlugin = "definition_missing_chained_handler";
+                    const fullPluginPath = join(testPluginDir, "error_plugins", testPlugin);
+
+                    let cmd = `plugins install ${fullPluginPath}`;
+                    let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
+
+                    cmd = `plugins validate ${testPlugin} --no-fail-on-error`;
+                    result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(testPlugin);
+                    expect(result.stdout).toContain("Error");
+                    expect(result.stdout).toContain("has no 'handler' property in one of its chained handlers.");
+                    expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
+                    expect(result.stderr).not.toContain("Problems detected during plugin validation.");
+                    expect(result.status).not.toEqual(1);
+                });
+
+                it("is defined with definition which does not contain handler in chained handler property - error", () => {
+                    const testPlugin = "definition_missing_chained_handler";
+                    const fullPluginPath = join(testPluginDir, "error_plugins", testPlugin);
+
+                    let cmd = `plugins install ${fullPluginPath}`;
+                    let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
+
+                    cmd = `plugins validate ${testPlugin} --fail-on-error`;
+                    result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(testPlugin);
+                    expect(result.stdout).toContain("Error");
+                    expect(result.stdout).toContain("has no 'handler' property in one of its chained handlers.");
+                    expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
+                    expect(result.stderr).toContain("Problems detected during plugin validation.");
+                    expect(result.status).toEqual(1);
+                });
+
+                it("is defined with definition which does not contain anything in chained handler property", () => {
+                    const testPlugin = "definition_empty_chained_handler";
+                    const fullPluginPath = join(testPluginDir, "error_plugins", testPlugin);
+
+                    let cmd = `plugins install ${fullPluginPath}`;
+                    let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
+
+                    cmd = `plugins validate ${testPlugin} --no-fail-on-error`;
+                    result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(testPlugin);
+                    expect(result.stdout).toContain("Error");
+                    expect(result.stdout).toContain("has defined 'chainedHandler' property but contains no handlers.");
+                    expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
+                    expect(result.stderr).not.toContain("Problems detected during plugin validation.");
+                    expect(result.status).not.toEqual(1);
+                });
+
+                it("is defined with definition which does not contain anything in chained handler property - error", () => {
+                    const testPlugin = "definition_empty_chained_handler";
+                    const fullPluginPath = join(testPluginDir, "error_plugins", testPlugin);
+
+                    let cmd = `plugins install ${fullPluginPath}`;
+                    let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
+
+                    cmd = `plugins validate ${testPlugin} --fail-on-error`;
+                    result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(testPlugin);
+                    expect(result.stdout).toContain("Error");
+                    expect(result.stdout).toContain("has defined 'chainedHandler' property but contains no handlers.");
+                    expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
+                    expect(result.stderr).toContain("Problems detected during plugin validation.");
+                    expect(result.status).toEqual(1);
+                });
+
+                it("is defined with definition which has a bad handler path in chained handler property", () => {
+                    const testPlugin = "definition_bad_chained_handler";
+                    const fullPluginPath = join(testPluginDir, "error_plugins", testPlugin);
+
+                    let cmd = `plugins install ${fullPluginPath}`;
+                    let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
+
+                    cmd = `plugins validate ${testPlugin} --no-fail-on-error`;
+                    result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(testPlugin);
+                    expect(result.stdout).toContain("Error");
+                    expect(result.stdout).toContain("A chained handler for command");
+                    expect(result.stdout).toContain("does not exist:");
+                    expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
+                    expect(result.stderr).not.toContain("Problems detected during plugin validation.");
+                    expect(result.status).not.toEqual(1);
+                });
+
+                it("is defined with definition which has a bad handler path in chained handler property - error", () => {
+                    const testPlugin = "definition_bad_chained_handler";
+                    const fullPluginPath = join(testPluginDir, "error_plugins", testPlugin);
+
+                    let cmd = `plugins install ${fullPluginPath}`;
+                    let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
+
+                    cmd = `plugins validate ${testPlugin} --fail-on-error`;
+                    result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(testPlugin);
+                    expect(result.stdout).toContain("Error");
+                    expect(result.stdout).toContain("A chained handler for command");
+                    expect(result.stdout).toContain("does not exist:");
                     expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
                     expect(result.stderr).toContain("Problems detected during plugin validation.");
                     expect(result.status).toEqual(1);
