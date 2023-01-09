@@ -13,7 +13,6 @@ import { UnitTestUtils } from "../../../__tests__/src/UnitTestUtils";
 import { resolve } from "path";
 import { generateRandomAlphaNumericString } from "../../../__tests__/src/TestUtil";
 import { ICredentialManager } from "../../settings/src/doc/ISettingsFile";
-import { DefaultCredentialManager } from "../src/DefaultCredentialManager";
 
 const ORIG_ERR = process.stderr.write;
 
@@ -156,7 +155,7 @@ describe("CredentialManagerFactory", () => {
         });
 
         it("should log an error messsage that the manager override supplied is invalid with its type", async () => {
-            await expect(CredentialManagerFactory.initialize({ 
+            await expect(CredentialManagerFactory.initialize({
                 Manager: { "plugin": "@zowe/cli", "type": "unsupportedType" }
             })).rejects.toThrowError("Invalid CredentialManager of type unsupportedType passed in");
         });
