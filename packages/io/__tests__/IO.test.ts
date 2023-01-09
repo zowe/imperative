@@ -360,20 +360,20 @@ describe("IO tests", () => {
         expect(error.message).toMatchSnapshot();
     });
 
-    it("should get an error for no input on writeFileAsync", () => {
+    it("should get an error for no input on writeFileAsync", async () => {
         let error;
         try {
-            IO.writeFileAsync("   ", "   ");
+            await IO.writeFileAsync("   ", "   ");
         } catch (thrownError) {
             error = thrownError;
         }
         expect(error.message).toMatchSnapshot();
     });
 
-    it("should get an error for no input on writeFileAsync second parm", () => {
+    it("should get an error for no input on writeFileAsync second parm", async () => {
         let error;
         try {
-            IO.writeFileAsync("data", undefined);
+            await IO.writeFileAsync("data", undefined);
         } catch (thrownError) {
             error = thrownError;
         }
