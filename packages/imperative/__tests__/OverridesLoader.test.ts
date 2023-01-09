@@ -101,6 +101,22 @@ describe("OverridesLoader", () => {
 
             expect(privateOverridesLoader.determineDisplayName(defaultSettings.overrides, config)).toEqual("@zowe/cli");
         });
+
+        it("should return the credential manager override from the appSettings instance", async () => {
+            const privateOverridesLoader: any = OverridesLoader;
+
+            jest.spyOn(AppSettings, "initialized", "get").mockReturnValue(true);
+            jest.spyOn(AppSettings, "instance", "get").mockReturnValue({
+                getNamespace: () => ({ CredentialManager: "@zowe/cli" }),
+                get: () => ({
+                    "plugin": "@zowe/cli",
+                    "type": "keytar"
+                })
+            } as any);
+            await OverridesLoader.load(config, packageJson);
+
+            expect(privateOverridesLoader.determineDisplayName(defaultSettings.overrides, config)).toEqual("@zowe/cli");
+        });
     });
 
     describe("loadCredentialManager", () => {
