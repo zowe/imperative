@@ -214,16 +214,7 @@ describe("TeamConfig ProfileInfo tests", () => {
             jest.spyOn((profInfo as any).mCredentials, "loadManager").mockImplementationOnce(async () => {
                 throw new Error("bad credential manager");
             });
-            let caughtError;
-
-            try {
-                await profInfo.readProfilesFromDisk();
-            } catch (error) {
-                caughtError = error;
-            }
-
-            expect(caughtError).toBeDefined();
-            expect(caughtError.message).toBe("Failed to initialize secure credential manager");
+            await expect(profInfo.readProfilesFromDisk()).rejects.toThrowError();
         });
 
         const methodNames: (keyof ProfileInfo)[] = [

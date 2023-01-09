@@ -12,6 +12,7 @@
 
 import { Config } from "../../../config/src/__mocks__/Config";
 import { IImperativeConfig } from "../../../imperative/src/doc/IImperativeConfig";
+import { ICredentialManager } from "../../../settings/src/doc/ISettingsFile";
 
 export class ImperativeConfig {
     private static mInstance: ImperativeConfig = null;
@@ -80,5 +81,9 @@ export class ImperativeConfig {
 
     public get envVariablePrefix(): string {
         return this.loadedConfig.envVariablePrefix == null ? this.loadedConfig.name : this.loadedConfig.envVariablePrefix;
+    }
+
+    public isCredentialManager(obj: any): obj is ICredentialManager {
+        return false;
     }
 }

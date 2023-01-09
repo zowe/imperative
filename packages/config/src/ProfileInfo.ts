@@ -897,7 +897,7 @@ export class ProfileInfo {
         } catch (error) {
             throw new ProfInfoErr({
                 errorCode: ProfInfoErr.LOAD_CRED_MGR_FAILED,
-                msg: "Failed to initialize secure credential manager",
+                msg: "Failed to initialize secure credential manager\n" + error,
                 causeErrors: error
             });
         }

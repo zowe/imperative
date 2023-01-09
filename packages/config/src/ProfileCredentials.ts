@@ -13,6 +13,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 import { ImperativeError } from "../../error";
+import { IImperativeOverrides } from "../../imperative/src/doc/IImperativeOverrides";
 import { CredentialManagerFactory, DefaultCredentialManager } from "../../security";
 import { ImperativeConfig } from "../../utilities";
 import { ProfileInfo } from "./ProfileInfo";
@@ -62,7 +63,10 @@ export class ProfileCredentials {
             try {
                 // TODO? Make CredentialManagerFactory.initialize params optional
                 // see https://github.com/zowe/imperative/issues/545
-                await CredentialManagerFactory.initialize({ service: null });
+                await CredentialManagerFactory.initialize({
+                    service: null,
+                    Manager: this.getCredentialManagerOverride()
+                });
             } catch (error) {
                 throw (error instanceof ImperativeError) ? error : new ImperativeError({
                     msg: `Failed to load CredentialManager class: ${error.message}`,
@@ -94,6 +98,26 @@ export class ProfileCredentials {
     }
 
     /**
+     * Get override for credential manager from imperative.json
+     * @returns IImperativeOverride and undefined if the override was set to the string of "@zowe/cli"
+     */
+    private getCredentialManagerOverride(): IImperativeOverrides {
+        const fileName = path.join(ImperativeConfig.instance.cliHome, "settings", "imperative.json");
+        let settings: any;
+        if (fs.existsSync(fileName)) {
+            settings = JSON.parse(fs.readFileSync(fileName, "utf-8"));
+        }
+
+        let override;
+        if(settings?.overrides.CredentialManager !== undefined) {
+            override = settings?.overrides.CredentialManager;
+        } else if(settings?.overrides["credential-manager"] !== undefined) {
+            override = settings?.overrides["credential-manager"];
+        }
+        return override === "@zowe/cli" ? undefined : override;
+    }
+
+    /**
      * Check whether a custom CredentialManager is defined in the Imperative
      * settings.json file.
      */
@@ -106,7 +130,12 @@ export class ProfileCredentials {
             }
             const value1 = settings?.overrides.CredentialManager;
             const value2 = settings?.overrides["credential-manager"];
-            return (typeof value1 === "string" && value1.length > 0) || (typeof value2 === "string" && value2.length > 0);
+            return (
+                (typeof value1 === "string" && value1.length > 0)
+                || (typeof value2 === "string" && value2.length > 0)
+                || ImperativeConfig.instance.isCredentialManager(value1)
+                || ImperativeConfig.instance.isCredentialManager(value2)
+            );
         } catch (error) {
             throw new ImperativeError({
                 msg: "Unable to read Imperative settings file",
