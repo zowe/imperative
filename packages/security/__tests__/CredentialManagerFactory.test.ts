@@ -13,6 +13,7 @@ import { UnitTestUtils } from "../../../__tests__/src/UnitTestUtils";
 import { resolve } from "path";
 import { generateRandomAlphaNumericString } from "../../../__tests__/src/TestUtil";
 import { ICredentialManager } from "../../settings/src/doc/ISettingsFile";
+import { DefaultCredentialManager } from "../src/DefaultCredentialManager";
 
 const ORIG_ERR = process.stderr.write;
 
@@ -154,6 +155,12 @@ describe("CredentialManagerFactory", () => {
             }).toThrowError("Credential Manager not yet initialized!");
         });
 
+        it("should log an error messsage that the manager override supplied is invalid with its type", async () => {
+            await expect(CredentialManagerFactory.initialize({ 
+                Manager: { "plugin": "@zowe/cli", "type": "unsupportedType" }
+            })).rejects.toThrowError("Invalid CredentialManager of type unsupportedType passed in");
+        });
+
         it("should initialize a credential manager with a display name", async () => {
             const classFile = resolve(__dirname, testClassDir, "GoodCredentialManager.ts");
             const GoodCredentialManager = await import(classFile);
@@ -170,6 +177,14 @@ describe("CredentialManagerFactory", () => {
                 type: "notSupportedTypeExample"
             };
             expect(() => CredentialManagerFactory.determineCredentialManagerType(sampleObject)).toThrow();
+        });
+
+        it("should use the DefaultCredentialManager if keytar is passed as a type in manager override", () => {
+            const sampleObject: ICredentialManager = {
+                plugin: "@zowe/cli",
+                type: "keytar"
+            };
+            expect(CredentialManagerFactory.determineCredentialManagerType(sampleObject)).toBe(DefaultCredentialManager);
         });
     });
 });
