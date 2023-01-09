@@ -384,7 +384,7 @@ describe("IO tests", () => {
 
         // mock fs.writeFile
         (fs.writeFile as any) = jest.fn((file: string, content: string, UTF8: string, callBack) => {
-            callBack();
+            process.nextTick(callBack);
         });
 
         let error;
@@ -402,7 +402,7 @@ describe("IO tests", () => {
         (fs.writeFile as any) = jest.fn((file: string, content: string, UTF8: string, callBack) => {
             const ioError = new Error();
             ioError.message = "Fake IO error";
-            callBack(ioError);
+            process.nextTick(() => callBack(ioError));
         });
 
         let error;
