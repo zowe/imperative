@@ -885,7 +885,7 @@ describe("Plugin Management Facility", () => {
                 expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
                 expect(issue.issueText).toContain(
                     "A chained handler for command = 'foo (at depth = 2)' does not exist: " +
-                    join(PMFConstants.instance.PLUGIN_HOME_LOCATION, "sample-plugin/lib/sample-plugin/cmd/bad/bad.handler.js"));
+                    join(PMFConstants.instance.PLUGIN_NODE_MODULE_LOCATION, "sample-plugin/lib/sample-plugin/cmd/bad/bad.handler.js"));
             });
 
             it("should record an error when a plugin command has no description", () => {

@@ -612,7 +612,7 @@ describe("Validate plugin", () => {
                     let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                     expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
 
-                    cmd = `plugins validate ${testPlugin}`;
+                    cmd = `plugins validate ${testPlugin} --fail-on-error`;
                     result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                     expect(result.stdout).toContain(testPlugin);
                     expect(result.stdout).toContain("Error");
@@ -648,7 +648,7 @@ describe("Validate plugin", () => {
                     let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                     expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
 
-                    cmd = `plugins validate ${testPlugin}`;
+                    cmd = `plugins validate ${testPlugin} --fail-on-error`;
                     result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                     expect(result.stdout).toContain(testPlugin);
                     expect(result.stdout).toContain("Error");
@@ -685,7 +685,7 @@ describe("Validate plugin", () => {
                     let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                     expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
 
-                    cmd = `plugins validate ${testPlugin}`;
+                    cmd = `plugins validate ${testPlugin} --fail-on-error`;
                     result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                     expect(result.stdout).toContain(testPlugin);
                     expect(result.stdout).toContain("Error");
