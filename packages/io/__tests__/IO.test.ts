@@ -360,20 +360,20 @@ describe("IO tests", () => {
         expect(error.message).toMatchSnapshot();
     });
 
-    it("should get an error for no input on writeFileAsync", () => {
+    it("should get an error for no input on writeFileAsync", async () => {
         let error;
         try {
-            IO.writeFileAsync("   ", "   ");
+            await IO.writeFileAsync("   ", "   ");
         } catch (thrownError) {
             error = thrownError;
         }
         expect(error.message).toMatchSnapshot();
     });
 
-    it("should get an error for no input on writeFileAsync second parm", () => {
+    it("should get an error for no input on writeFileAsync second parm", async () => {
         let error;
         try {
-            IO.writeFileAsync("data", undefined);
+            await IO.writeFileAsync("data", undefined);
         } catch (thrownError) {
             error = thrownError;
         }
@@ -384,7 +384,7 @@ describe("IO tests", () => {
 
         // mock fs.writeFile
         (fs.writeFile as any) = jest.fn((file: string, content: string, UTF8: string, callBack) => {
-            callBack();
+            process.nextTick(callBack);
         });
 
         let error;
@@ -402,7 +402,7 @@ describe("IO tests", () => {
         (fs.writeFile as any) = jest.fn((file: string, content: string, UTF8: string, callBack) => {
             const ioError = new Error();
             ioError.message = "Fake IO error";
-            callBack(ioError);
+            process.nextTick(() => callBack(ioError));
         });
 
         let error;

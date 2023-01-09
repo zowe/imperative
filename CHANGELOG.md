@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed `IO.writeFileAsync` method throwing uncatchable errors. [#896](https://github.com/zowe/imperative/issues/896)
+
 ## `4.18.12`
 
 - BugFix: Fixed a logic error where chained command handlers would cause plugin validation to fail [#320](https://github.com/zowe/imperative/issues/320)
