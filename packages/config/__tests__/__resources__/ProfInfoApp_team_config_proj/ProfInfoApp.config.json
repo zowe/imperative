@@ -57,6 +57,7 @@
         "LPAR4": {
             "type": "dummy",
             "properties": {
+                "host": "LPAR4.your.domain.net",
                 "responseFormatHeader": true
             }
         }
