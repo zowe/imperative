@@ -12,7 +12,6 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
-import { isNullOrUndefined } from "util";
 import { ImperativeReject } from "../../interfaces";
 import { ImperativeError } from "../../error";
 import { ImperativeExpect } from "../../expect";
@@ -86,7 +85,7 @@ export class IO {
     public static normalizeExtension(extension: string): string {
         ImperativeExpect.toNotBeNullOrUndefined(extension, "extension");
         extension = extension.trim();
-        if (!isNullOrUndefined(extension) && extension.length > 0 && extension[0] !== ".") {
+        if (extension != null && extension.length > 0 && extension[0] !== ".") {
             // add a '.' character to the extension if omitted
             // (if someone specifies just "bin", make the extension ".bin" )
             extension = "." + extension;
@@ -316,16 +315,12 @@ export class IO {
         ImperativeExpect.toBeDefinedAndNonBlank(file, "file");
         ImperativeExpect.toNotBeNullOrUndefined(content, "Content to write to the file must not be null or undefined");
         return new Promise<void>((resolve, reject: ImperativeReject) => {
-            try {
-                fs.writeFile(file, content, IO.UTF8, (err) => {
-                    if (!isNullOrUndefined(err)) {
-                        throw new ImperativeError({msg: err.message});
-                    }
-                    resolve();
-                });
-            } catch (error) {
-                throw new ImperativeError({msg: error.message});
-            }
+            fs.writeFile(file, content, IO.UTF8, (err) => {
+                if (err != null) {
+                    reject(new ImperativeError({msg: err.message}));
+                }
+                resolve();
+            });
         });
     }
 
