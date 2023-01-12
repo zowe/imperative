@@ -31,6 +31,7 @@ export * from "./src/doc/IConfigVault";
 export * from "./src/doc/IProfArgAttrs";
 export * from "./src/doc/IProfAttrs";
 export * from "./src/doc/IProfInfoUpdatePropOpts";
+export * from "./src/doc/IProfInfoRemoveKnownPropOpts";
 export * from "./src/doc/IProfInfoErrParms";
 export * from "./src/doc/IProfLoc";
 export * from "./src/doc/IProfMergeArgOpts";

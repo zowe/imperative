@@ -53,7 +53,7 @@ export interface IProfInfoUpdatePropCommonOpts {
     /**
      * Value to use when updating the given property
      */
-    value: IProfArgValue;
+    value: IProfArgValue | undefined;
 
     /**
      * Specifies if the property should be stored securely or not

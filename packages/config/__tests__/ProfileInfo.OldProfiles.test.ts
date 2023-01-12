@@ -17,6 +17,7 @@ import { ProfInfoErr } from "../src/ProfInfoErr";
 import { ProfLocType } from "../src/doc/IProfLoc";
 import { IProfileSchema, ProfileIO } from "../../profiles";
 import { ImperativeError } from "../../error";
+import { IProfArgAttrs } from "../src/doc/IProfArgAttrs";
 
 const testAppNm = "ProfInfoApp";
 const testEnvPrefix = testAppNm.toUpperCase();
@@ -276,7 +277,7 @@ describe("Old-school ProfileInfo tests", () => {
             await profInfo.readProfilesFromDisk();
             const profAttrs = profInfo.getAllProfiles("zosmf").find(obj => obj.profName === "lpar2_zosmf");
             delete (profInfo as any).mOldSchoolProfileDefaults.base;
-            const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
+            const mergedArgs = profInfo.mergeArgsForProfile(profAttrs as IProfAttrs);
 
             const expectedArgs = [
                 { argName: "host", dataType: "string" },
@@ -301,7 +302,7 @@ describe("Old-school ProfileInfo tests", () => {
             const profAttrs = profInfo.getAllProfiles("zosmf").find(obj => obj.profName === "lpar3_zosmf");
             delete (profInfo as any).mOldSchoolProfileDefaults.base;
             jest.spyOn(profInfo as any, "loadSchema").mockReturnValue(profSchema);
-            const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
+            const mergedArgs = profInfo.mergeArgsForProfile(profAttrs as IProfAttrs);
 
             const expectedArgs = [
                 { argName: "user", dataType: "string", argValue: "admin" },
@@ -340,7 +341,7 @@ describe("Old-school ProfileInfo tests", () => {
             await profInfo.readProfilesFromDisk();
             const profAttrs = profInfo.getAllProfiles("zosmf").find(obj => obj.profName === "lpar3_zosmf");
             delete (profInfo as any).mOldSchoolProfileDefaults.base;
-            const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
+            const mergedArgs = profInfo.mergeArgsForProfile(profAttrs as IProfAttrs);
 
             const expectedArgs = [
                 { argName: "user", dataType: "string" },
@@ -460,15 +461,15 @@ describe("Old-school ProfileInfo tests", () => {
             const testHost = "lpar4.fakehost.com";
             const profInfo = createNewProfInfo(homeDirPath);
             await profInfo.readProfilesFromDisk();
-            const before = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf));
+            const before = profInfo.mergeArgsForProfile((profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf)) as IProfAttrs);
             await profInfo.updateProperty({ profileName: testProf, profileType: "zosmf", property: "host", value: "example.com" });
-            const after = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf));
+            const after = profInfo.mergeArgsForProfile((profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf)) as IProfAttrs);
 
             expect(before.knownArgs.find(v => v.argName === "host").argValue).toEqual(testHost);
             expect(after.knownArgs.find(v => v.argName === "host").argValue).toEqual("example.com");
 
             await profInfo.updateProperty({ profileName: testProf, profileType: "zosmf", property: "host", value: testHost });
-            const afterTests = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf));
+            const afterTests = profInfo.mergeArgsForProfile((profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf)) as IProfAttrs);
             expect(afterTests.knownArgs.find(v => v.argName === "host").argValue).toEqual(testHost);
         });
 
@@ -476,16 +477,32 @@ describe("Old-school ProfileInfo tests", () => {
             const profInfo = createNewProfInfo(homeDirPath);
             await profInfo.readProfilesFromDisk();
             const testProf = "lpar4_zosmf";
-            const before = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf));
+            const before = profInfo.mergeArgsForProfile((profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf)) as IProfAttrs);
             await profInfo.updateProperty({ profileName: testProf, profileType: "zosmf", property: "dummy", value: "example.com" });
-            const after = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf));
+            const after = profInfo.mergeArgsForProfile((profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf)) as IProfAttrs);
 
             expect(before.knownArgs.find(v => v.argName === "dummy")).toBeUndefined();
             expect(after.knownArgs.find(v => v.argName === "dummy").argValue).toEqual("example.com");
 
             await profInfo.updateProperty({ profileName: testProf, profileType: "zosmf", property: "dummy", value: undefined });
-            const removed = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf));
+            const removed = profInfo.mergeArgsForProfile((profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf)) as IProfAttrs);
             expect(removed.knownArgs.find(v => v.argName === "dummy")).toBeUndefined();
+        });
+    });
+
+    describe("removeKnownProperty oldProfile tests", () => {
+        it("should remove property", async () => {
+            const profInfo = createNewProfInfo(homeDirPath);
+            await profInfo.readProfilesFromDisk();
+            const testProf = "lpar4_zosmf";
+            await profInfo.updateProperty({ profileName: testProf, profileType: "zosmf", property: "dummy", value: "example.com"});
+            const afterUpdate = profInfo.mergeArgsForProfile((profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf)) as IProfAttrs);
+
+            await profInfo.removeKnownProperty({mergedArgs: afterUpdate, property: 'dummy'});
+            const afterRemove = profInfo.mergeArgsForProfile((profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf)) as IProfAttrs);
+
+            expect(afterUpdate.knownArgs.find(v => v.argName === "dummy")?.argValue).toEqual("example.com");
+            expect(afterRemove.knownArgs.find(v => v.argName === "dummy")).toBeUndefined();
         });
     });
 
@@ -498,11 +515,11 @@ describe("Old-school ProfileInfo tests", () => {
 
             const userArg = mergedArgs.knownArgs.find((arg) => arg.argName === "user");
             expect(userArg.argValue).toBeUndefined();
-            expect(profInfo.loadSecureArg(userArg)).toBe("someUser");
+            expect(profInfo.loadSecureArg(userArg as IProfArgAttrs)).toBe("someUser");
 
             const passwordArg = mergedArgs.knownArgs.find((arg) => arg.argName === "password");
             expect(passwordArg.argValue).toBeUndefined();
-            expect(profInfo.loadSecureArg(passwordArg)).toBe("somePassword");
+            expect(profInfo.loadSecureArg(passwordArg as IProfArgAttrs)).toBe("somePassword");
         });
 
         it("should get secure values with mergeArgsForProfile:getSecureVals for old school profiles", async () => {
