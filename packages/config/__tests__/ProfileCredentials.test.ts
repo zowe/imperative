@@ -270,4 +270,27 @@ describe("ProfileCredentials tests", () => {
             expect(caughtError.message).toBe("Unable to read Imperative settings file");
         });
     });
+
+    describe("getCredentialManagerOverride", () => {
+        const sampleOverride = {
+            "overrides": {
+                "CredentialManager": {
+                    "plugin": "@zowe/cli",
+                    "type": "k8s"
+                }
+            }
+        };
+        it("retrieve the override settings if the file exists", () => {
+            const profCreds: any = new ProfileCredentials({
+                usingTeamConfig: false
+            } as any);
+            const expectedResult = {
+                "plugin": "@zowe/cli",
+                "type": "k8s"
+            };
+            jest.spyOn(fs, "existsSync").mockImplementation(() => true);
+            jest.spyOn(fs, "readFileSync").mockReturnValueOnce(Buffer.from(JSON.stringify(sampleOverride)));
+            expect(profCreds.getCredentialManagerOverride()).toEqual(expectedResult);
+        });
+    });
 });
