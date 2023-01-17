@@ -27,6 +27,7 @@ import { DefinitionTreeResolver } from "../DefinitionTreeResolver";
 import { IImperativeOverrides } from "../doc/IImperativeOverrides";
 import { AppSettings } from "../../../settings";
 import { IO } from "../../../io";
+import { ICredentialManager } from "../../../settings/src/doc/ISettingsFile";
 
 /**
  * This class is the main engine for the Plugin Management Facility. The
@@ -262,16 +263,7 @@ export class PluginManagementFacility {
         // of code that I have ever written :/
         for (const [setting, plugin] of Object.entries(AppSettings.instance.getNamespace("overrides"))) {
 
-            let pluginName;
-            if(ImperativeConfig.instance.isCredentialManager(plugin)) {
-                pluginName = plugin.plugin ? plugin.plugin : "@zowe/cli";
-                (this.mPluginOverrides as any)[setting] = {
-                    plugin: pluginName,
-                    type: plugin.type
-                };
-            } else {
-                pluginName = plugin;
-            }
+            const pluginName = this.getPluginName(plugin, setting);
 
             if (pluginName !== false && pluginName !== ImperativeConfig.instance.hostPackageName) {
                 Logger.getImperativeLogger().debug(
@@ -1270,6 +1262,19 @@ export class PluginManagementFacility {
                     );
                 }
             }
+        }
+    }
+
+    private getPluginName(plugin: string | false | ICredentialManager, setting: string): string | boolean {
+        if(ImperativeConfig.instance.isCredentialManager(plugin)) {
+            const pluginName = plugin.plugin ? plugin.plugin : "@zowe/cli";
+            (this.mPluginOverrides as any)[setting] = {
+                plugin: pluginName,
+                type: plugin.type
+            };
+            return pluginName;
+        } else {
+            return plugin;
         }
     }
 } // end PluginManagementFacility

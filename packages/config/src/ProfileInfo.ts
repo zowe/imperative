@@ -50,6 +50,7 @@ import { IProfInfoUpdateKnownPropOpts, IProfInfoUpdatePropOpts } from "./doc/IPr
 import { ConfigAutoStore } from "./ConfigAutoStore";
 import { IGetAllProfilesOptions } from "./doc/IProfInfoProps";
 import { IConfig } from "./doc/IConfig";
+import { IProfInfoRemoveKnownPropOpts } from "./doc/IProfInfoRemoveKnownPropOpts";
 
 /**
  * This class provides functions to retrieve profile-related information.
@@ -308,6 +309,33 @@ export class ProfileInfo {
             }
         }
         return true;
+    }
+
+    /**
+     * Remove a known property from the ProfileInfo class
+     * This method will call the updateKnownProperty method with a value set to `undefined` and serves as a helper function
+     * to make is easier to understand when a known property is removed.
+     * @example
+     * The example below describes how to remove a property
+     * ```
+     *     // Using the removeKnownProperty method
+     *     profileInfo.removeKnownProperty({mergedArgs, property: "someProperty"});
+     *     // Using the updateKnownProperty method
+     *     profileInfo.updateKnownProperty({mergedArgs, property: "someProperty", value: undefined, isSecure: false});
+     * ```
+     * @param options Set of options required to remove a known property
+     * @returns Returns a boolean indicating if the property has been removed
+     */
+    public removeKnownProperty(options: IProfInfoRemoveKnownPropOpts): Promise<boolean> {
+        const updatePropertyOptions: IProfInfoUpdateKnownPropOpts = {
+            mergedArgs: options.mergedArgs,
+            property: options.property,
+            value: undefined,
+            setSecure: false,
+            osLocInfo: options.osLocInfo
+        };
+
+        return this.updateKnownProperty(updatePropertyOptions);
     }
 
     // _______________________________________________________________________

@@ -1,6 +1,6 @@
 {
   "name": "@zowe/imperative",
-  "version": "5.7.6",
+  "version": "5.8.0",
   "description": "framework for building configurable CLIs",
   "author": "Zowe",
   "license": "EPL-2.0",
@@ -52,7 +52,7 @@
     "clean": "rimraf lib tsconfig.tsbuildinfo"
   },
   "dependencies": {
-    "@kubernetes/client-node": "^0.18.0",
+    "@kubernetes/client-node": "0.18.0",
     "@types/yargs": "13.0.4",
     "@zowe/perf-timing": "1.0.7",
     "chalk": "2.4.2",

@@ -529,7 +529,7 @@ describe("TeamConfig ProfileInfo tests", () => {
             await profInfo.readProfilesFromDisk({ homeDir: teamHomeProjDir });
 
             const profAttrs = profInfo.getAllProfiles("zosmf").find(p => p.profName === "LPAR2_home");
-            const mergedArgs = profInfo.mergeArgsForProfile(profAttrs, { getSecureVals: true });
+            const mergedArgs = profInfo.mergeArgsForProfile(profAttrs as IProfAttrs, { getSecureVals: true });
 
             const expectedArgs = [
                 { argName: "host", dataType: "string", argValue: "LPAR2.your.domain.net" },
@@ -1103,6 +1103,23 @@ describe("TeamConfig ProfileInfo tests", () => {
         });
     });
 
+    describe("removeKnownProperty TeamConfig tests", () => {
+        it("should remove the property", async () => {
+            const profInfo = createNewProfInfo(teamProjDir);
+            await profInfo.readProfilesFromDisk();
+
+            const prof = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("dummy")[0]);
+            await profInfo.updateProperty({profileName: 'LPAR4', property: "someProperty", value: "example.com", profileType: "dummy"});
+            const afterUpdate = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("dummy")[0]);
+            expect(afterUpdate.knownArgs.find(v => v.argName === 'someProperty')?.argValue).toBe('example.com');
+
+            await profInfo.removeKnownProperty({mergedArgs: afterUpdate, property: 'someProperty'});
+            const afterRemove = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("dummy")[0]);
+
+            expect(afterRemove.knownArgs.find(v => v.argName === 'someProperty')).toBeUndefined();
+        });
+    });
+
     describe("loadSecureArg", () => {
         it("should load secure args from team config", async () => {
             const profInfo = createNewProfInfo(teamProjDir);
@@ -1112,11 +1129,11 @@ describe("TeamConfig ProfileInfo tests", () => {
 
             const userArg = mergedArgs.knownArgs.find((arg) => arg.argName === "user");
             expect(userArg.argValue).toBe("userNameBase");
-            expect(profInfo.loadSecureArg(userArg)).toBe("userNameBase");
+            expect(profInfo.loadSecureArg(userArg as IProfArgAttrs)).toBe("userNameBase");
 
             const passwordArg = mergedArgs.knownArgs.find((arg) => arg.argName === "password");
             expect(passwordArg.argValue).toBe("passwordBase");
-            expect(profInfo.loadSecureArg(passwordArg)).toBe("passwordBase");
+            expect(profInfo.loadSecureArg(passwordArg as IProfArgAttrs)).toBe("passwordBase");
         });
 
         it("should get secure values with mergeArgsForProfile:getSecureVals for team config", async () => {
@@ -1199,7 +1216,7 @@ describe("TeamConfig ProfileInfo tests", () => {
             const profInfo = createNewProfInfo(teamProjDir);
             await profInfo.readProfilesFromDisk({ homeDir: teamHomeProjDir });
             const profAttrs = profInfo.getAllProfiles(desiredProfType).find(p => p.profName === conflictingProfile);
-            const osLocInfo = profInfo.getOsLocInfo(profAttrs);
+            const osLocInfo = profInfo.getOsLocInfo(profAttrs as IProfAttrs);
             expect(osLocInfo.length).toBe(2);
 
             expect(osLocInfo[0].global).toBe(false);

@@ -118,10 +118,41 @@ describe("K8sCredentialManager", () => {
                         loadFromDefault: jest.fn(),
                         getContextObject: jest.fn(() => null),
                         getCurrentContext: jest.fn(() => null),
+                        getCurrentUser: jest.fn(() => "userName")
+                    };
+                });
+                expect(() => privateManager.setupKubeConfig()).toThrowError("Failed to access Kubernetes, login into your cluster and try again.");
+            });
+            it("should throw an error if the user was not found", () => {
+                const mockKubeConfig = jest.spyOn(K8s, "KubeConfig");
+                mockKubeConfig.mockImplementation(() => {
+                    return {
+                        loadFromDefault: jest.fn(),
+                        getContextObject: jest.fn(() => ({
+                            "cluster": "api-sample-cluster-com:1234",
+                            "namespace": "test",
+                            "user": "testUser123@sample.com/api-sample-cluster-com:1234"
+                        })),
+                        getCurrentContext: jest.fn(() => "someContext"),
                         getCurrentUser: jest.fn(() => null)
                     };
                 });
-                expect(() => privateManager.setupKubeConfig()).toThrow();
+                expect(() => privateManager.setupKubeConfig()).toThrowError("Failed to access Kubernetes, login into your cluster and try again.");
+            });
+            it("should throw an error if namespace was not found through current context object name or namespace property", () => {
+                const mockKubeConfig = jest.spyOn(K8s, "KubeConfig");
+                mockKubeConfig.mockImplementation(() => {
+                    return {
+                        loadFromDefault: jest.fn(),
+                        getContextObject: jest.fn(() => ({
+                            namespace: null,
+                            name: null
+                        })),
+                        getCurrentContext: jest.fn(() => "test"),
+                        getCurrentUser: jest.fn(() => "test")
+                    };
+                });
+                expect(() => privateManager.setupKubeConfig()).toThrowError("Failed to access Kubernetes, login into your cluster and try again.");
             });
             it("should create a uid associated with the kubeconfig email", async () => {
                 const mockKubeConfig = jest.spyOn(K8s, "KubeConfig");

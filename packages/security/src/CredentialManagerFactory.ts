@@ -140,11 +140,7 @@ export class CredentialManagerFactory {
 
             // Log appropriate error messages
             if (Manager !== DefaultCredentialManager) {
-                const managerObject: any = params.Manager;
-                const logError = managerObject.type ?
-                    `Failed to load the credential manager named "${displayName}" of type "${managerObject.type}"`
-                    :
-                    `Failed to load the credential manager named "${displayName}"`;
+                const logError = `Failed to load the credential manager named "${displayName}"`;
 
                 // Be sure to log the messages both to the console and to a file
                 // so that support can also see these messages.
