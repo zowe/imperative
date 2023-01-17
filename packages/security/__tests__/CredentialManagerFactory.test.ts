@@ -13,6 +13,7 @@ import { UnitTestUtils } from "../../../__tests__/src/UnitTestUtils";
 import { resolve } from "path";
 import { generateRandomAlphaNumericString } from "../../../__tests__/src/TestUtil";
 import { ICredentialManager } from "../../settings/src/doc/ISettingsFile";
+import { K8sCredentialManager } from "../src/K8sCredentialManager";
 
 const ORIG_ERR = process.stderr.write;
 
@@ -154,12 +155,6 @@ describe("CredentialManagerFactory", () => {
             }).toThrowError("Credential Manager not yet initialized!");
         });
 
-        it("should log an error messsage that the manager override supplied is invalid with its type", async () => {
-            await expect(CredentialManagerFactory.initialize({
-                Manager: { "plugin": "@zowe/cli", "type": "unsupportedType" }
-            })).rejects.toThrowError("Invalid CredentialManager of type unsupportedType passed in");
-        });
-
         it("should initialize a credential manager with a display name", async () => {
             const classFile = resolve(__dirname, testClassDir, "GoodCredentialManager.ts");
             const GoodCredentialManager = await import(classFile);
@@ -169,21 +164,31 @@ describe("CredentialManagerFactory", () => {
             expect((CredentialManagerFactory.manager as any).service).toEqual(GoodCredentialManager.hardcodeService);
             expect(CredentialManagerFactory.manager.name).toBe(name);
         });
-
+    });
+    describe("determineCredentialManagerType", () => {
         it("should throw an error if an unsupported credential manager type was passed in as an override", () => {
             const sampleObject: ICredentialManager = {
                 plugin: "@zowe/cli",
                 type: "notSupportedTypeExample"
             };
-            expect(() => CredentialManagerFactory.determineCredentialManagerType(sampleObject)).toThrow();
+            expect(() => CredentialManagerFactory.determineCredentialManagerType(sampleObject))
+                .toThrowError("Invalid CredentialManager of type notSupportedTypeExample passed in");
         });
-
         it("should use the DefaultCredentialManager if keytar is passed as a type in manager override", () => {
             const sampleObject: ICredentialManager = {
                 plugin: "@zowe/cli",
                 type: "keytar"
             };
-            expect(CredentialManagerFactory.determineCredentialManagerType(sampleObject)).toBe(DefaultCredentialManager);
+            expect(CredentialManagerFactory.determineCredentialManagerType(sampleObject).toString())
+                .toStrictEqual(DefaultCredentialManager.toString());
+        });
+        it("should use the K8sCredentialManager if k8s is passed as a type in manager override", () => {
+            const sampleObject: ICredentialManager = {
+                plugin: "@zowe/cli",
+                type: "k8s"
+            };
+            expect(CredentialManagerFactory.determineCredentialManagerType(sampleObject).toString())
+                .toStrictEqual(K8sCredentialManager.toString());
         });
     });
 });

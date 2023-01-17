@@ -189,18 +189,24 @@ export class K8sCredentialManager extends AbstractCredentialManager {
             const kc: any = new k8s.KubeConfig();
             kc.loadFromDefault();
 
-            // Check if login was performed
-            const currentContextNamespace = kc.getContextObject(kc.getCurrentContext())?.namespace;
-            const currentUser = kc.getCurrentUser();
-            if(!currentContextNamespace || !currentUser) {
+            const currentContext = kc.getContextObject(kc.getCurrentContext());
+            if(!currentContext) {
                 throw new Error("Current context was not found");
+            }
+            const currentUser = kc.getCurrentUser();
+            if(!currentUser) {
+                throw new Error("Current user was not found");
+            }
+            const k8sNamespace = currentContext.namespace ? currentContext.namespace : currentContext.name?.split("/")[0];
+            if(!k8sNamespace) {
+                throw new Error("Namespace was not defined");
             }
 
             // set all variables
             const username = currentUser.name.split("/")[0];
             const uid = Buffer.from(username, "binary").toString("base64").toLowerCase().replace(/=/g, "");
             this.kubeConfig = {
-                namespace: currentContextNamespace,
+                namespace: k8sNamespace,
                 uid: uid
             };
 
