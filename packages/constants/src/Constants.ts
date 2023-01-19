@@ -54,7 +54,7 @@ export class Constants {
     public static readonly DEFAULT_LIST_PROFILE_OBJECT_ALIAS = "lbp";
     public static readonly DEFAULT_LIST_GROUP = "list";
 
-    public static GLOBAL_GROUP = "Global options";
+    public static GLOBAL_GROUP = "Global Options";
     public static readonly JSON_OPTION = "response-format-json";
     public static readonly JSON_OPTION_ALIAS = "rfj";
     public static readonly HELP_OPTION = "help";
