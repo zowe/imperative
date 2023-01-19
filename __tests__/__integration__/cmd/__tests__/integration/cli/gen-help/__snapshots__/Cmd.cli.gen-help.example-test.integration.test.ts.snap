@@ -47,10 +47,6 @@ exports[`cmd-cli gen-help example-test should display the help with allowable op
 
       Display help text
 
-   --help-examples (boolean)
-
-      Display examples for all the commands in a group
-
    --help-web | --hw (boolean)
 
       Display HTML help in browser
