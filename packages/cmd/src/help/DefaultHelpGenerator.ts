@@ -360,7 +360,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
 
         // we place the deprecated message in the DESCRIPTION help section
         if (this.mCommandDefinition.deprecatedReplacement) {
-            const noNewlineInText = this.mCommandDefinition.deprecatedReplacement.replace("\n", " ");
+            const noNewlineInText = this.mCommandDefinition.deprecatedReplacement.replace("/\n/g", " ");
             description += this.grey("\n\nWarning: This " + this.mCommandDefinition.type +
                 " has been deprecated.\nRecommended replacement: " + noNewlineInText);
         }

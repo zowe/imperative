@@ -351,8 +351,9 @@ export class IO {
     public static writeObject(configFile: string, object: object) {
         ImperativeExpect.toBeDefinedAndNonBlank(configFile, "configFile");
         ImperativeExpect.toNotBeNullOrUndefined(object, "content");
-        fs.closeSync(fs.openSync(configFile, "w"));
-        fs.appendFileSync(configFile, JSON.stringify(object, null, 2));
+        const configFileHandle = fs.openSync(configFile, "w");
+        fs.appendFileSync(configFileHandle, JSON.stringify(object, null, 2));
+        fs.closeSync(configFileHandle);
     }
 
     /**
