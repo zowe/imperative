@@ -1731,7 +1731,7 @@ describe("Command Processor", () => {
             expect(commandResponse).toBeDefined();
             expect(commandResponse).toMatchSnapshot();
             expect(process.chdir).toHaveBeenCalledTimes(1);
-            expect(process.env.UNIT_TEST_ENV).toBe("new");
+            expect(process.env.Unit_Test_Env).toBe("new");  // Ensure that env vars are case insensitive
             expect(Object.keys(process.env).length).toBe(envVarCount);  // Ensure that env vars were preserved
             expect(mockConfigReload).toHaveBeenCalledTimes(1);
         } finally {
