@@ -393,7 +393,7 @@ export class WebHelpGenerator {
     private writeTreeData() {
         const treeDataPath = path.join(this.mDocsDir, "..", "tree-data.js");
         let footerStr = `${this.mConfig.callerPackageJson.name} ${this.mConfig.callerPackageJson.version}`;
-        if (process.env.NODE_ENV === "development") {
+        if (fs.existsSync(__dirname + "/../../../../.git")) {
             footerStr += " (dev)";
         }
         fs.writeFileSync(treeDataPath,
