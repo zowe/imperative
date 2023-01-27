@@ -265,8 +265,7 @@ function onDocsPageChanged(e: any) {
 function loadTree() {
     // Set header and footer strings
     $("#header-text").text(headerStr);
-    const [footerText, footerTitle] = footerStr.split("\n", 2);
-    $("#footer").text(footerText).attr("title", footerTitle);
+    $("#footer").text(footerStr);
 
     // Change active tab if not loading default view
     if (currentView === 1) {

@@ -434,6 +434,22 @@ export class CommandPreparer {
      * @param definition - The original command definition tree to "prepare"
      */
     private static appendPassOnOptions(definition: ICommandDefinition) {
+        // all groups have --help-examples
+        definition.passOn.push({
+            property: "options",
+            value: {
+                name: Constants.HELP_EXAMPLES,
+                group: Constants.GLOBAL_GROUP,
+                description: "Display examples for all the commands in a group",
+                type: "boolean"
+            },
+            ignoreNodes: [
+                {
+                    type: "command",
+                }
+            ],
+            merge: true
+        });
 
         // add show-inputs-only to all "command" nodes
         definition.passOn.push({
@@ -469,7 +485,7 @@ export class CommandPreparer {
             type: "boolean"
         });
 
-        // all commands have --help
+        // all commands and groups have --help
         definition.options.push({
             name: Constants.HELP_OPTION,
             aliases: [Constants.HELP_OPTION_ALIAS],
@@ -478,16 +494,7 @@ export class CommandPreparer {
             type: "boolean"
         });
 
-        // all commands have --help-examples
-        definition.options.push({
-            name: Constants.HELP_EXAMPLES,
-            group: Constants.GLOBAL_GROUP,
-            description: !(definition.name === "") ?
-                "Display examples for all the commands in a group" : "Not available for top tier Zowe group",
-            type: "boolean"
-        });
-
-        // all commands have --help-web
+        // all commands and groups have --help-web
         definition.options.push({
             name: Constants.HELP_WEB_OPTION,
             aliases: [Constants.HELP_WEB_OPTION_ALIAS],

@@ -2,6 +2,11 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed web help not showing top-level options like `--version` for the "zowe" command. [#927](https://github.com/zowe/imperative/issues/927)
+- BugFix: Removed `--help-examples` option from CLI help for commands since it only applies to groups. [#928](https://github.com/zowe/imperative/issues/928)
+
 ## `5.8.0`
 
 - Enhancement: Add `ProfileInfo.removeKnownProperty`, a convenience method for removing properties in addition to `ProfileInfo.updateKnownProperty`. [#917](https://github.com/zowe/imperative/issues/917)
