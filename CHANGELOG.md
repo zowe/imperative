@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed npm not found on `zowe plugins install` when using daemon mode in Windows. [zowe-cli#1615](https://github.com/zowe/zowe-cli/issues/1615)
+
 ## `5.8.1`
 
 - BugFix: Fixed web help not showing top-level options like `--version` for the "zowe" command. [#927](https://github.com/zowe/imperative/issues/927)

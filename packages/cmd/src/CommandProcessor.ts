@@ -465,7 +465,9 @@ export class CommandProcessor {
                         }
                     }
                     // Load new environment variables
-                    process.env = { ...process.env, ...this.mDaemonContext.response.env };
+                    for (const [k, v] of Object.entries(this.mDaemonContext.response.env)) {
+                        process.env[k] = v;
+                    }
                 }
 
                 // reload config for daemon client directory
