@@ -15,6 +15,7 @@ import { PerfTiming } from "@zowe/perf-timing";
 import { ImperativeConfig } from "../../../utilities";
 import * as path from "path";
 import * as findUp from "find-up";
+import * as lodash from "lodash";
 
 /**
  * This class will allow imperative to intercept calls by plugins so that it can
@@ -106,7 +107,7 @@ export class PluginRequireProvider {
          *
          * @see https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript
          */
-        return module.replace(/\./g, "\\$&");
+        return lodash.escapeRegExp(module);
     }
 
     /**
