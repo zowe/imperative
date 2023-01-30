@@ -335,8 +335,12 @@ export class IO {
     public static writeFile(file: string, content: Buffer) {
         ImperativeExpect.toBeDefinedAndNonBlank(file, "file");
         ImperativeExpect.toNotBeNullOrUndefined(content, "Content to write to the file must not be null or undefined");
-        IO.createFileSync(file);
-        fs.writeFileSync(file, content);
+        const fd = fs.openSync(file, "w");
+        try {
+            fs.writeFileSync(fd, content);
+        } finally {
+            fs.closeSync(fd);
+        }
     }
 
     /**
@@ -351,8 +355,12 @@ export class IO {
     public static writeObject(configFile: string, object: object) {
         ImperativeExpect.toBeDefinedAndNonBlank(configFile, "configFile");
         ImperativeExpect.toNotBeNullOrUndefined(object, "content");
-        fs.closeSync(fs.openSync(configFile, "w"));
-        fs.appendFileSync(configFile, JSON.stringify(object, null, 2));
+        const fd = fs.openSync(configFile, "w");
+        try {
+            fs.writeFileSync(fd, JSON.stringify(object, null, 2));
+        } finally {
+            fs.closeSync(fd);
+        }
     }
 
     /**
