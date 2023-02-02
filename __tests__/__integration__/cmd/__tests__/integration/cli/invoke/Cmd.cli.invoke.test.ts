@@ -32,4 +32,12 @@ describe("cmd-cli invoke", () => {
         expect(response.stderr.toString()).toBe("");
         expect(response.stdout.toString()).toMatchSnapshot();
     });
+
+    it("should display help examples for a group", async () => {
+        const response = runCliScript(__dirname + "/__scripts__/invoke_help_examples.sh",
+            TEST_ENVIRONMENT.workingDir);
+        expect(response.status).toBe(0);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.stdout.toString()).toMatchSnapshot();
+    });
 });

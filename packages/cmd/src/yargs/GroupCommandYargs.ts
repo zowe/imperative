@@ -90,6 +90,7 @@ export class GroupCommandYargs extends AbstractCommandYargs {
                     }
                 }
                 argsForBuilder.strict();
+                CommandYargs.defineOptionsToYargs(argsForBuilder, this.definition.options);
                 return argsForBuilder;
             },
             /**
