@@ -15,7 +15,7 @@ import { CommandYargs } from "./CommandYargs";
 import { Constants } from "../../../constants";
 
 /**
- * Bright define group command to Yargs - defines the group and it's children to Yargs.
+ * Imperative define group command to Yargs - defines the group and it's children to Yargs.
  */
 export class GroupCommandYargs extends AbstractCommandYargs {
 
@@ -85,11 +85,12 @@ export class GroupCommandYargs extends AbstractCommandYargs {
                             }).defineCommandToYargs(commandExecuted);
                             break;
                         default:
-                            throw new Error(`Bright Yargs Define Error: Bright command definition type ` +
+                            throw new Error(`Imperative Yargs Define Error: Command definition type ` +
                                 `${child.type} invalid.`);
                     }
                 }
                 argsForBuilder.strict();
+                CommandYargs.defineOptionsToYargs(argsForBuilder, this.definition.options);
                 return argsForBuilder;
             },
             /**
