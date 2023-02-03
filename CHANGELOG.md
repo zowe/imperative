@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Updated `http-cache-semantics` dependency for technical currency purposes.
+
 ## `5.7.7`
 
 - BugFix: Fixed `IO.writeFileAsync` method throwing uncatchable errors. [#896](https://github.com/zowe/imperative/issues/896)
