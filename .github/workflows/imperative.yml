@@ -68,6 +68,8 @@ jobs:
     - name: Integration Tests
       if: ${{ always() && steps.build.outcome == 'success' }}
       run: npm run test:integration
+      env:
+        npm_config_install_links: false
 
     - name: Archive Results
       if: ${{ always() && steps.build.outcome == 'success' }}

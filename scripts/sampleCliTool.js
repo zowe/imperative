@@ -32,7 +32,7 @@ switch (process.argv[2]) {
         runAll((dir) => ({ command: "npm run build", cwd: dir }), true);
         break;
     case "install":
-        runAll((dir) => ({ command: `npm install -g . --install-links false --prefix ${npmPrefix}`, cwd: dir }));
+        runAll((dir) => ({ command: `npm install -g . --prefix ${npmPrefix}`, cwd: dir }));
         break;
     case "uninstall":
         // Delete install folder since npm uninstall doesn't work as expected: https://github.com/npm/npm/issues/17905
