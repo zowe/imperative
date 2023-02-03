@@ -181,6 +181,7 @@ export function executeTestCLICommand(cliBinModule: string, testContext: any, ar
     }
     const childEnv = JSON.parse(JSON.stringify(env)); // copy current env
     childEnv.FORCE_COLOR = "0";
+    childEnv.npm_config_install_links = "false";
     const child = spawnSync(nodeCommand, args, {
         cwd: execDir,
         encoding: "utf8",
