@@ -11,6 +11,11 @@
 
 import { IImperativeOverrides } from "../../../imperative/src/doc/IImperativeOverrides";
 
+export type ICredentialManager = {
+    plugin?: string,
+    type: string
+};
+
 /**
  * This interface defines the structure of the settings file.
  */
@@ -35,7 +40,12 @@ export interface ISettingsFile {
          *          the plugin. If the plugin doesn't provide the override, a warning
          *          will be logged to the console, the value will be left unchanged
          *          and we will act as if the key was null.
+         *
+         * { plugin?: string; type: string } - An object with two properties. The plugin property defines which
+         *                                     plugin should be used (default is @zowe/cli), and a property type
+         *                                     which defines which credential manager of imperative to use.
          */
-        [K in keyof IImperativeOverrides]-?: false | string; // All keys of IImperativeOverrides now become required
+        [K in keyof IImperativeOverrides]-?: false | string | ICredentialManager;
+        // All keys of IImperativeOverrides now become required
     };
 }

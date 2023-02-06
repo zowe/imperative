@@ -13,6 +13,7 @@ import { AbstractCredentialManager } from "./abstract/AbstractCredentialManager"
 import { ImperativeError } from "../../error";
 import { ICredentialManagerInit } from "./doc/ICredentialManagerInit";
 import { DefaultCredentialManager } from "./DefaultCredentialManager";
+import { ImperativeConfig } from "../../utilities";
 
 /**
  * This is a wrapper class that controls access to the credential manager used within
@@ -85,7 +86,7 @@ export class CredentialManagerFactory {
         const displayName = (params.displayName == null) ? params.service : params.displayName;
 
         // If a manager override was not passed, use the default keytar manager
-        const Manager = (params.Manager == null) ? DefaultCredentialManager : params.Manager;
+        const Manager: any = CredentialManagerFactory.determineCredentialManagerType(params.Manager);
 
         // Default invalid on failure to false if not specified
         params.invalidOnFailure = (params.invalidOnFailure == null) ? false : params.invalidOnFailure;
@@ -178,6 +179,31 @@ export class CredentialManagerFactory {
      * @private
      */
     private static mManager: AbstractCredentialManager;
+
+    /**
+     * Determines the type of CredentialManager to use from passed in type from imperative.json.
+     * If no type is found and manager param is a string, will check if a manager override was
+     * not passed, use the default keytar manager.
+     * @param manager the manager containing the type of CredentialManager to use or string
+     * @returns an Object of AbstractCredentialManager with the CredentialManager to use
+     */
+    private static determineCredentialManagerType(manager: any): any {
+        if(ImperativeConfig.instance.isCredentialManager(manager)) {
+            /* add other cases for future credential manager types
+            *  e.g: case 'myCredentialManager'
+            *           return MyCredentialManager;
+            */
+            switch(manager.type) {
+                case 'keytar':
+                    return DefaultCredentialManager;
+                default:
+                    throw new ImperativeError({ msg: `Invalid CredentialManager of type ${manager.type} passed in` });
+            }
+        }
+        else {
+            return (manager == null) ? DefaultCredentialManager : manager;
+        }
+    }
 
     /**
      * @returns {AbstractCredentialManager} - The credential manager that Imperative should use to

@@ -25,6 +25,7 @@ import { ConfigurationValidator } from "../ConfigurationValidator";
 import { ConfigurationLoader } from "../ConfigurationLoader";
 import { DefinitionTreeResolver } from "../DefinitionTreeResolver";
 import { IImperativeOverrides } from "../doc/IImperativeOverrides";
+import { ICredentialManager } from "../../../settings/src/doc/ISettingsFile";
 import { AppSettings } from "../../../settings";
 import { IO } from "../../../io";
 
@@ -260,7 +261,9 @@ export class PluginManagementFacility {
         // Loop through each overrides setting here. Setting is an override that we are modifying while
         // plugin is the pluginName from which to get the setting. This is probably the ugliest piece
         // of code that I have ever written :/
-        for (const [setting, pluginName] of Object.entries(AppSettings.instance.getNamespace("overrides"))) {
+         for (const [setting, plugin] of Object.entries(AppSettings.instance.getNamespace("overrides"))) {
+
+            const pluginName = this.getPluginName(plugin, setting);
             if (pluginName !== false && pluginName !== ImperativeConfig.instance.hostPackageName) {
                 Logger.getImperativeLogger().debug(
                     `PluginOverride: Attempting to overwrite "${setting}" with value provided by plugin "${pluginName}"`
@@ -1258,6 +1261,19 @@ export class PluginManagementFacility {
                     );
                 }
             }
+        }
+    }
+
+    private getPluginName(plugin: string | false | ICredentialManager, setting: string): string | boolean {
+        if(ImperativeConfig.instance.isCredentialManager(plugin)) {
+            const pluginName = plugin.plugin ? plugin.plugin : "@zowe/cli";
+            (this.mPluginOverrides as any)[setting] = {
+                plugin: pluginName,
+                type: plugin.type
+            };
+            return pluginName;
+        } else {
+            return plugin;
         }
     }
 } // end PluginManagementFacility
