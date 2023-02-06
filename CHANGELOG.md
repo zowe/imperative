@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enchancement: Enabled use of Object type overrides for credential manager override.
+
 ## `5.8.3`
 
 - BugFix: Fixed `--help-examples` option failing on command groups. [zowe-cli#1617](https://github.com/zowe/zowe-cli/issues/1617)
