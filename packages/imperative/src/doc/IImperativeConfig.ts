@@ -225,6 +225,37 @@ export interface IImperativeConfig {
     overrides?: IImperativeOverrides;
 
     /**
+     * A path to a module (javascript file) that enables a plugin to automatically
+     * perform an action immediately after its actual installation. A plugin could
+     * use this opportunity to perform a sanity test or to perform some additional
+     * setup which is specific to that plugin. A plugin which provides a specialized
+     * credential manager would use this opportunity to insert itself as an override
+     * of the standard credential manager that is delivered with Zowe CLI.
+     *
+     * The plugin's postinstall hander should return true if it completes successfully.
+     * It should return false otherwise.
+     */
+    pluginPostInstall?: string;
+
+    /**
+     * A path to a module (javascript file) that enables a plugin to perform an action
+     * before its actual un-installation. This lifecycle hook is intended to replace
+     * the capability that used to be performed by the NPM pre-uninstall action
+     * before NPM removed that capability in NPM version 7.
+     * See https://docs.npmjs.com/cli/v9/using-npm/scripts#a-note-on-a-lack-of-npm-uninstall-scripts
+     *
+     * A plugin would use this opportunity to revert any specialized setup that was
+     * established during the lifetime of the plugin. A plugin which provides a
+     * specialized credential manager would use this opportunity to remove itself as
+     * an override of the standard credential manager that is delivered with Zowe CLI.
+     *
+     * The plugin's preuninstall hander should return true if it completes successfully.
+     * It should return false otherwise. After a false result, the CLI will NOT perform
+     * the un-installation of the plugin.
+     */
+    pluginPreUninstall?: string;
+
+    /**
      * A path to a module (javascript file) that will perform a health check for a plugin.
      * The health check should verify the health of the plugin.
      * The implementor of a plugin determines what actions
