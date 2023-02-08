@@ -152,6 +152,15 @@ describe("Plugin Management Facility", () => {
         }
     };
 
+    const customSettings: ISettingsFile = {
+        overrides: {
+            CredentialManager: {
+                plugin: "@zowe/cli",
+                type: "keytar"
+            }
+        }
+    };
+
     beforeEach(() => {
         jest.resetAllMocks();
         realAddCmdGrpToResolvedCliCmdTree = PMF.addCmdGrpToResolvedCliCmdTree;
@@ -447,6 +456,17 @@ describe("Plugin Management Facility", () => {
 
             // restore the real getInstalledPlugins function
             pluginIssues.getInstalledPlugins = getInstalledPluginsReal;
+        });
+
+        it("should set mPluginOverrides if object of ICredentialManager is passed in override", () => {
+            const expectedResult = {
+                "plugin": "@zowe/cli",
+                "type": "keytar"
+            };
+            AppSettings.initialize("test.json", customSettings);
+            ImperativeConfig.instance.callerPackageJson.name = "@zowe/cli";
+            PluginManagementFacility.instance.loadAllPluginCfgProps();
+            expect(PluginManagementFacility.instance.pluginOverrides.CredentialManager).toEqual(expectedResult);
         });
     }); // end loadAllPluginCfgProps
 

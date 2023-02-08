@@ -12,6 +12,7 @@
 import { UnitTestUtils } from "../../../__tests__/src/UnitTestUtils";
 import { resolve } from "path";
 import { generateRandomAlphaNumericString } from "../../../__tests__/src/TestUtil";
+import { ICredentialManager } from "../../settings/src/doc/ISettingsFile";
 
 const ORIG_ERR = process.stderr.write;
 
@@ -138,23 +139,6 @@ describe("CredentialManagerFactory", () => {
             );
         });
 
-        it("should handle being passed an object that isn't a class or string", async () => {
-            await CredentialManagerFactory.initialize({ Manager: [] as any, service: emulated.cliName, invalidOnFailure: true });
-
-            expect(CredentialManagerFactory.manager).toBeInstanceOf(InvalidCredentialManager);
-
-            // Call a function to see if the error gets thrown up properly
-            const actualError = await UnitTestUtils.catchError(
-                CredentialManagerFactory.manager.save("test", "test")
-            );
-
-            expect(actualError).toBeInstanceOf(BadCredentialManagerError);
-            expect(actualError.message).toEqual("An invalid credential manager was passed in to the factory function!");
-            expect((actualError as typeof BadCredentialManagerError).additionalDetails).toEqual(
-                "Manager is not a constructor"
-            );
-        });
-
         // Note: For some reason using a mock function on logger was not producing the desired results, broke down and mocked stderr
         it("should log an error message indicating that the manager override supplied is invalid", async () => {
             const classFile = resolve(__dirname, testClassDir, "NotAValidFile.ts");
@@ -178,6 +162,25 @@ describe("CredentialManagerFactory", () => {
             expect(CredentialManagerFactory.manager).toBeInstanceOf(GoodCredentialManager);
             expect((CredentialManagerFactory.manager as any).service).toEqual(GoodCredentialManager.hardcodeService);
             expect(CredentialManagerFactory.manager.name).toBe(name);
+        });
+    });
+
+    describe("determineCredentialManagerType", () => {
+        it("should throw an error if an unsupported credential manager type was passed in as an override", () => {
+            const sampleObject: ICredentialManager = {
+                plugin: "@zowe/cli",
+                type: "notSupportedTypeExample"
+            };
+            expect(() => CredentialManagerFactory.determineCredentialManagerType(sampleObject))
+                .toThrowError("Invalid CredentialManager of type notSupportedTypeExample passed in");
+        });
+        it("should use the DefaultCredentialManager if keytar is passed as a type in manager override", () => {
+            const sampleObject: ICredentialManager = {
+                plugin: "@zowe/cli",
+                type: "keytar"
+            };
+            expect(CredentialManagerFactory.determineCredentialManagerType(sampleObject).toString())
+                .toStrictEqual(DefaultCredentialManager.toString());
         });
     });
 });
