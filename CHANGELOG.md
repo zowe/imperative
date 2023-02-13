@@ -4,7 +4,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
-- Enchancement: Enabled use of Object type overrides for credential manager override.
+- Enhancement: Enabled use of Object type overrides for credential manager override.
 
 ## `5.8.3`
 

@@ -174,6 +174,14 @@ describe("CredentialManagerFactory", () => {
             expect(() => CredentialManagerFactory.determineCredentialManagerType(sampleObject))
                 .toThrowError("Invalid CredentialManager of type notSupportedTypeExample passed in");
         });
+        it("should throw an error if an object override with a plugin not of '@zowe/cli' is installed", () => {
+            const sampleObject: ICredentialManager = {
+                plugin: "mySamplePlugin",
+                type: "keytar"
+            };
+            expect(() => CredentialManagerFactory.determineCredentialManagerType(sampleObject))
+                .toThrowError(`Object type credential manager overide is not supported for plugins outside of @zowe/cli`);
+        });
         it("should use the DefaultCredentialManager if keytar is passed as a type in manager override", () => {
             const sampleObject: ICredentialManager = {
                 plugin: "@zowe/cli",

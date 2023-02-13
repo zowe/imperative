@@ -193,6 +193,11 @@ export class CredentialManagerFactory {
             *  e.g: case 'myCredentialManager'
             *           return MyCredentialManager;
             */
+            if(manager.plugin !== "@zowe/cli") {
+                throw new ImperativeError({
+                    msg: `Object type credential manager overide is not supported for plugins outside of @zowe/cli`
+                });
+            }
             switch(manager.type) {
                 case 'keytar':
                     return DefaultCredentialManager;
