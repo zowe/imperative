@@ -17,7 +17,7 @@ import { EnvironmentalVariableSettings } from "../../imperative/src/env/Environm
 import { IDaemonContext } from "../../imperative/src/doc/IDaemonContext";
 import { ICommandProfileSchema } from "../../cmd";
 import { Config } from "../../config";
-import { ICredentialManager } from "../../settings/src/doc/ISettingsFile";
+import { ICredentialManager } from "../../settings";
 
 /**
  * This class is used to contain all configuration being set by Imperative.
@@ -309,7 +309,7 @@ export class ImperativeConfig {
      * @returns boolean representing whether it complies or not with the interface
      */
     public isCredentialManager(obj: any): obj is ICredentialManager {
-        if(typeof obj !== 'object' && obj !== null) {
+        if(!obj || typeof obj !== 'object') {
             return false;
         }
         if(!('type' in obj)) {

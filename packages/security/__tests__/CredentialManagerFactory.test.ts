@@ -12,7 +12,7 @@
 import { UnitTestUtils } from "../../../__tests__/src/UnitTestUtils";
 import { resolve } from "path";
 import { generateRandomAlphaNumericString } from "../../../__tests__/src/TestUtil";
-import { ICredentialManager } from "../../settings/src/doc/ISettingsFile";
+import { ICredentialManager } from "../../settings";
 
 const ORIG_ERR = process.stderr.write;
 

@@ -10,7 +10,7 @@
 */
 
 import { Constants } from "../../constants";
-import { ICredentialManager } from "../../settings/src/doc/ISettingsFile";
+import { ICredentialManager } from "../../settings";
 
 describe("ImperativeConfig", () => {
     const {ImperativeConfig} = require("../../utilities/src/ImperativeConfig");

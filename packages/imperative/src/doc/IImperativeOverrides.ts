@@ -34,6 +34,7 @@
 
 import { ICredentialManagerConstructor } from "../../../security";
 import { IConstructor } from "../../../interfaces";
+import { ICredentialManager } from "../../../settings";
 
 /**
  * Type of the {@link ImperativeOverrides} interface. This ensures that all
@@ -48,7 +49,7 @@ interface IOverridesRestriction {
  * and can be of either constructor or string type.
  */
 type ConstructorOrString<T extends IOverridesRestriction> = {
-    [K in keyof T] ?: T[K] | string | Object;
+    [K in keyof T] ?: T[K] | string | ICredentialManager;
 };
 
 /**

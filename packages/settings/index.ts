@@ -10,3 +10,8 @@
 */
 
 export * from "./src/AppSettings";
+
+export type ICredentialManager = {
+    plugin?: string,
+    type: string
+};

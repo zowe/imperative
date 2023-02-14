@@ -11,12 +11,13 @@
 
 import * as DeepMerge from "deepmerge";
 import { existsSync } from "fs";
-import { ISettingsFile, ICredentialManager } from "./doc/ISettingsFile";
+import { ISettingsFile } from "./doc/ISettingsFile";
 import { Logger } from "../../logger";
 import { ISettingsFilePersistence } from "./persistance/ISettingsFilePersistence";
 import { JSONSettingsFilePersistence } from "./persistance/JSONSettingsFilePersistence";
 import { IO } from "../../io";
 import { ImperativeError } from "../../error";
+import { ICredentialManager } from "..";
 
 type SettingValue = false | string | ICredentialManager;
 

@@ -10,22 +10,8 @@
 */
 
 /* eslint-disable jest/expect-expect */
-import Mock = jest.Mock;
-
 let expectedVal;
 let returnedVal;
-
-jest.mock("child_process");
-jest.mock("jsonfile");
-jest.mock("../../../../src/plugins/utilities/npm-interface/install");
-jest.mock("../../../../src/plugins/utilities/runValidatePlugin");
-jest.mock("../../../../src/plugins/utilities/PMFConstants");
-jest.mock("../../../../../cmd/src/response/CommandResponse");
-jest.mock("../../../../../cmd/src/response/HandlerResponse");
-jest.mock("../../../../../cmd/src/doc/handler/IHandlerParameters");
-jest.mock("../../../../../logger");
-jest.mock("../../../../src/Imperative");
-jest.mock("../../../../src/plugins/utilities/NpmFunctions");
 jest.doMock("path", () => {
     const originalPath = jest.requireActual("path");
     return {
@@ -40,6 +26,7 @@ jest.doMock("path", () => {
     };
 });
 
+import Mock = jest.Mock;
 import { CommandResponse, IHandlerParameters } from "../../../../../cmd";
 import { Console } from "../../../../../console";
 import { ImperativeError } from "../../../../../error";
@@ -52,6 +39,18 @@ import { readFileSync, writeFileSync } from "jsonfile";
 import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
 import { TextUtils } from "../../../../../utilities";
 import { getRegistry, npmLogin } from "../../../../src/plugins/utilities/NpmFunctions";
+
+jest.mock("child_process");
+jest.mock("jsonfile");
+jest.mock("../../../../src/plugins/utilities/npm-interface/install");
+jest.mock("../../../../src/plugins/utilities/runValidatePlugin");
+jest.mock("../../../../src/plugins/utilities/PMFConstants");
+jest.mock("../../../../../cmd/src/response/CommandResponse");
+jest.mock("../../../../../cmd/src/response/HandlerResponse");
+jest.mock("../../../../../cmd/src/doc/handler/IHandlerParameters");
+jest.mock("../../../../../logger");
+jest.mock("../../../../src/Imperative");
+jest.mock("../../../../src/plugins/utilities/NpmFunctions");
 
 describe("Plugin Management Facility install handler", () => {
 

@@ -14,6 +14,7 @@ import { ImperativeError } from "../../error";
 import { ICredentialManagerInit } from "./doc/ICredentialManagerInit";
 import { DefaultCredentialManager } from "./DefaultCredentialManager";
 import { ImperativeConfig } from "../../utilities";
+import { IImperativeOverrides } from "../../imperative/src/doc/IImperativeOverrides";
 
 /**
  * This is a wrapper class that controls access to the credential manager used within
@@ -187,7 +188,7 @@ export class CredentialManagerFactory {
      * @param manager the manager containing the type of CredentialManager to use or string
      * @returns an Object of AbstractCredentialManager with the CredentialManager to use
      */
-    private static determineCredentialManagerType(manager: any): any {
+    private static determineCredentialManagerType(manager: IImperativeOverrides["CredentialManager"]): any {
         if(ImperativeConfig.instance.isCredentialManager(manager)) {
             /* add other cases for future credential manager types
             *  e.g: case 'myCredentialManager'
@@ -206,7 +207,7 @@ export class CredentialManagerFactory {
             }
         }
         else {
-            return (manager == null) ? DefaultCredentialManager : manager;
+            return manager ?? DefaultCredentialManager;
         }
     }
 

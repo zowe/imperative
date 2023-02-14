@@ -10,11 +10,7 @@
 */
 
 import { IImperativeOverrides } from "../../../imperative/src/doc/IImperativeOverrides";
-
-export type ICredentialManager = {
-    plugin?: string,
-    type: string
-};
+import { ICredentialManager } from "../..";
 
 /**
  * This interface defines the structure of the settings file.

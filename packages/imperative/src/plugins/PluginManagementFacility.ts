@@ -25,7 +25,7 @@ import { ConfigurationValidator } from "../ConfigurationValidator";
 import { ConfigurationLoader } from "../ConfigurationLoader";
 import { DefinitionTreeResolver } from "../DefinitionTreeResolver";
 import { IImperativeOverrides } from "../doc/IImperativeOverrides";
-import { ICredentialManager } from "../../../settings/src/doc/ISettingsFile";
+import { ICredentialManager } from "../../../settings";
 import { AppSettings } from "../../../settings";
 import { IO } from "../../../io";
 
@@ -1266,7 +1266,7 @@ export class PluginManagementFacility {
 
     private getPluginName(plugin: string | false | ICredentialManager, setting: string): string | boolean {
         if(ImperativeConfig.instance.isCredentialManager(plugin)) {
-            const pluginName = plugin.plugin ? plugin.plugin : "@zowe/cli";
+            const pluginName = plugin.plugin ?? "@zowe/cli";
             (this.mPluginOverrides as any)[setting] = {
                 plugin: pluginName,
                 type: plugin.type
