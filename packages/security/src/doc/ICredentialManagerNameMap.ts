@@ -24,7 +24,7 @@ export interface ICredentialManagerNameMap {
      * Name of the credential manager. This is the name that will be stored in
      * $ZOWE_CLI_HOME/settings/imperative.json.
      */
-    credMgDisplayName: string;
+    credMgrDisplayName: string;
 
     /**
      * Name of the plugin that supplies the credential manager override software.

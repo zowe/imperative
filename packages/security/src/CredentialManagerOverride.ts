@@ -27,14 +27,14 @@ import { ISettingsFile } from "../../settings/src/doc/ISettingsFile";
  * manager wins.
  */
 export class CredentialManagerOverride {
-    private static readonly DEFAULT_CRED_MGR_NAME: string = "@zowe/cli";
+    public static readonly DEFAULT_CRED_MGR_NAME: string = "@zowe/cli";
 
     private static readonly KNOWN_CRED_MGRS: ICredentialManagerNameMap[] = [
         {
-            "credMgDisplayName": this.DEFAULT_CRED_MGR_NAME
+            "credMgrDisplayName": this.DEFAULT_CRED_MGR_NAME
         },
         {
-            "credMgDisplayName": "Kubernetes Secrets",
+            "credMgrDisplayName": "Kubernetes Secrets",
             "credMgrPluginName": "@zowe/secrets-for-kubernetes-for-zowe-cli",
             "credMgrZEName": "Zowe.secrets-for-kubernetes"
         }

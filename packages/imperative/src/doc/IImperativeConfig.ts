@@ -232,7 +232,7 @@ export interface IImperativeConfig {
      * credential manager would use this opportunity to insert itself as an override
      * of the standard credential manager that is delivered with Zowe CLI.
      *
-     * The plugin's postinstall hander should return true if it completes successfully.
+     * The plugin's postinstall handler should return true if it completes successfully.
      * It should return false otherwise.
      */
     pluginPostInstall?: string;
@@ -249,7 +249,7 @@ export interface IImperativeConfig {
      * specialized credential manager would use this opportunity to remove itself as
      * an override of the standard credential manager that is delivered with Zowe CLI.
      *
-     * The plugin's preuninstall hander should return true if it completes successfully.
+     * The plugin's preuninstall handler should return true if it completes successfully.
      * It should return false otherwise. After a false result, the CLI will NOT perform
      * the un-installation of the plugin.
      */
