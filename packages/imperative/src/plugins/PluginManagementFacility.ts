@@ -27,6 +27,7 @@ import { DefinitionTreeResolver } from "../DefinitionTreeResolver";
 import { IImperativeOverrides } from "../doc/IImperativeOverrides";
 import { AppSettings } from "../../../settings";
 import { IO } from "../../../io";
+import { CredentialManagerOverride, ICredentialManagerNameMap } from "../../../security";
 
 /**
  * This class is the main engine for the Plugin Management Facility. The
@@ -257,19 +258,46 @@ export class PluginManagementFacility {
             }
         }
 
-        // Loop through each overrides setting here. Setting is an override that we are modifying while
-        // plugin is the pluginName from which to get the setting. This is probably the ugliest piece
-        // of code that I have ever written :/
-        for (const [setting, pluginName] of Object.entries(AppSettings.instance.getNamespace("overrides"))) {
-            if (pluginName !== false && pluginName !== ImperativeConfig.instance.hostPackageName) {
+        // Loop through each overrides setting here. Setting is an override that we are modifying.
+        // The overrideName is the display name of the override
+        // This was designed to handle different types of overrides.
+        // We only currently only process CredentialManager overrides.
+        for (const [setting, overrideName] of Object.entries(AppSettings.instance.getNamespace("overrides"))) {
+            if (overrideName !== false && overrideName !== ImperativeConfig.instance.hostPackageName) {
                 Logger.getImperativeLogger().debug(
-                    `PluginOverride: Attempting to overwrite "${setting}" with value provided by plugin "${pluginName}"`
+                    `Attempting to replace "${setting}" with an override named "${overrideName}"`
                 );
-                if (!Object.prototype.hasOwnProperty.call(loadedOverrides, pluginName)) {
-                    // the plugin name specified in our settings is not available
-                    const overrideErrMsg = `You attempted to override the "${setting}" setting ` +
-                        `with a plugin named "${pluginName}" that is not installed and loadable.` +
-                        `\nWe will use a "${setting}" that purposely fails until you reconfigure.`;
+                if (!Object.prototype.hasOwnProperty.call(loadedOverrides, overrideName)) {
+                    // The overrideName specified in our settings is not available.
+                    // Form a message containing all known override display names.
+                    // This code assumes that the default @zowe/cli name is first in our knownCredMgrs.
+                    const knownCredMgrs: ICredentialManagerNameMap[] = CredentialManagerOverride.getKnownCredMgrs();
+                    let credMgrChoices: string = `\n"${setting}": "${CredentialManagerOverride.DEFAULT_CRED_MGR_NAME}" (default)`;
+                    for ( let credMgrInx = 1; credMgrInx < knownCredMgrs.length; credMgrInx++) {
+                        credMgrChoices += `\n"${setting}": "${knownCredMgrs[credMgrInx].credMgrDisplayName}" `;
+                        if ( typeof(knownCredMgrs[credMgrInx].credMgrPluginName) !== "undefined") {
+                            credMgrChoices += `(supplied in CLI plugin ${knownCredMgrs[credMgrInx].credMgrPluginName}`;
+                        }
+                        if ( typeof(knownCredMgrs[credMgrInx].credMgrZEName) !== "undefined") {
+                            credMgrChoices += "\n";
+                            for (let indent: number = 1;
+                                indent < setting.length + knownCredMgrs[credMgrInx].credMgrZEName.length;
+                                indent++ )
+                            {
+                                credMgrChoices += " ";
+                            }
+                            credMgrChoices += `and in ZE extension ${knownCredMgrs[credMgrInx].credMgrZEName}`;
+                        }
+                        credMgrChoices += `)`;
+                    }
+                    const overrideErrMsg =
+                        `The "${setting}" setting named "${overrideName}" is not installed and loadable. ` +
+                        `We will fallback to the default ${setting} named ` +
+                        `"${CredentialManagerOverride.DEFAULT_CRED_MGR_NAME}" until you reconfigure. ` +
+                        `You can edit the file $ZOWE_CLI_HOME/settings/imperative.json ` +
+                        `and specify the value "${CredentialManagerOverride.DEFAULT_CRED_MGR_NAME}" for ` +
+                        `the "${setting}" property, or you can install a plugin from the list below:\n` +
+                        `${credMgrChoices}`;
                     Logger.getImperativeLogger().error(overrideErrMsg);
 
                     /* We need to assign a class (which always shows an error when
@@ -295,7 +323,7 @@ export class PluginManagementFacility {
                 }
 
                 // Like the cli the overrides can be the actual class or the string path
-                let loadedSetting: string | object = (loadedOverrides[pluginName as any] as any)[setting];
+                let loadedSetting: string | object = (loadedOverrides[overrideName as any] as any)[setting];
 
                 // If the overrides loaded is a string path, just resolve it here since it would be much
                 // to do so in the overrides loader.
@@ -303,7 +331,7 @@ export class PluginManagementFacility {
                     let pathToPluginOverride = loadedSetting;
                     try {
                         if (!isAbsolute(pathToPluginOverride)) {
-                            Logger.getImperativeLogger().trace(`PluginOverride: Resolving ${pathToPluginOverride} in ${pluginName}`);
+                            Logger.getImperativeLogger().trace(`PluginOverride: Resolving ${pathToPluginOverride} in ${overrideName}`);
 
                             // This is actually kind of disgusting. What is happening is that we are getting the
                             // entry file of the plugin using require.resolve since the modules loaded are different
@@ -311,19 +339,19 @@ export class PluginManagementFacility {
                             // the plugin defines. So we then cd up a directory and resolve the path relative
                             // to the plugin entry file.
                             pathToPluginOverride = join(
-                                require.resolve(this.formPluginRuntimePath(pluginName as any)),
+                                require.resolve(this.formPluginRuntimePath(overrideName as any)),
                                 "../",
                                 pathToPluginOverride
                             );
                         }
                         loadedSetting = require(pathToPluginOverride);
                         Logger.getImperativeLogger().info(`PluginOverride: Overrode "${setting}" ` +
-                            `with "${pathToPluginOverride}" from plugin "${pluginName}"`);
+                            `with "${pathToPluginOverride}" from plugin "${overrideName}"`);
                     } catch (requireError) {
                         const overrideErrMsg = `Unable to override "${setting}" with "${pathToPluginOverride}" ` +
-                            `from plugin "${pluginName}"\n` + "Reason = " + requireError.message +
+                            `from plugin "${overrideName}"\n` + "Reason = " + requireError.message +
                             `\nWe will use a "${setting}" that purposely fails until you reconfigure.`;
-                        PluginIssues.instance.recordIssue(pluginName as any, IssueSeverity.OVER_ERROR, overrideErrMsg);
+                        PluginIssues.instance.recordIssue(overrideName as any, IssueSeverity.OVER_ERROR, overrideErrMsg);
 
                         // See the big block comment above about using an anonymous class.
                         (this.mPluginOverrides as any)[setting] = class {
