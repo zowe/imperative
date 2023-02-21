@@ -9,7 +9,7 @@
 *
 */
 
-import { closeSync, existsSync, openSync, readFileSync } from "fs";
+import { readFileSync } from "fs";
 import { homedir } from "os";
 import { join } from "path";
 import { ImperativeError } from "../../error";
@@ -31,16 +31,15 @@ export class EnvFileUtils {
      */
     public static setEnvironmentForApp(appName: string) {
         const expectedFileLocation = this.getEnvironmentFilePath(appName);
-        if (existsSync(expectedFileLocation)) {
-            try {
-                const fileHandle = openSync(expectedFileLocation, "r"); // Open file for reading
-                const fileContents = readFileSync(fileHandle).toString(); // Read the file
-                closeSync(fileHandle); // Close the file before anything goes wrong
-                const fileContentsJSON = JSON.parse(fileContents);
-                Object.keys(fileContentsJSON).forEach( key => {
-                    process.env[key] = fileContentsJSON[key];
-                });
-            } catch (err) {
+        try {
+            const fileContents = readFileSync(expectedFileLocation).toString(); // Read the file in
+            const fileContentsJSON = JSON.parse(fileContents);
+            Object.keys(fileContentsJSON).forEach( key => {
+                process.env[key] = fileContentsJSON[key];
+            });
+        } catch (err) {
+            if (err.code !== "ENOENT") {
+                // Something unexpected went wrong, so return an error
                 throw new ImperativeError({msg: "Failed to set up environment variables from the environment file.\n" +
                     "Environment variables will not be available.", causeErrors: err});
             }
