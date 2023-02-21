@@ -19,6 +19,7 @@ import { EnvFileUtils } from "../../../../../../../../packages";
 
 // Test Environment populated in the beforeAll();
 let TEST_ENVIRONMENT: ITestEnvironment;
+const envFile = EnvFileUtils.getEnvironmentFilePath("imperative-test-cli");
 
 describe("imperative-test-cli config report-env", () => {
     // Create the test environment
@@ -29,6 +30,14 @@ describe("imperative-test-cli config report-env", () => {
             cliHomeEnvVar: "IMPERATIVE_TEST_CLI_CLI_HOME",
             testName: "imperative_test_cli_test_config_report-env_command"
         });
+    });
+
+    afterEach(() => {
+        try {
+            fs.unlinkSync(envFile);
+        } catch (err) {
+            // do nothing
+        }
     });
 
     describe("success scenarios", () => {
@@ -113,14 +122,11 @@ describe("imperative-test-cli config report-env", () => {
                 path.join(TEST_ENVIRONMENT.workingDir, "test.schema.good.json")
             );
 
-            const envFile = EnvFileUtils.getEnvironmentFilePath("imperative-test-cli");
             fs.writeFileSync(envFile, '{"ZOWE_OPT_TEST": "TEST_VARIABLE"}');
 
             const response = runCliScript(path.join(__dirname, "/__scripts__/report-env.sh"),
                 TEST_ENVIRONMENT.workingDir
             );
-
-            fs.unlinkSync(envFile);
 
             expect(response.error).not.toBeDefined();
             expect(response.stdout.toString()).toContain("Zowe CLI version =");
@@ -176,14 +182,11 @@ describe("imperative-test-cli config report-env", () => {
                 path.join(TEST_ENVIRONMENT.workingDir, "test.schema.good.json")
             );
 
-            const envFile = EnvFileUtils.getEnvironmentFilePath("imperative-test-cli");
             fs.writeFileSync(envFile, '{"ZOWE_OPT_TEST": "TEST_VARIABLE" "ZOWE_OPT_TEST2": "TEST_VARIABLE"}');
 
             const response = runCliScript(path.join(__dirname, "/__scripts__/report-env.sh"),
                 TEST_ENVIRONMENT.workingDir
             );
-
-            fs.unlinkSync(envFile);
 
             expect(response.error).not.toBeDefined();
             expect(response.stdout.toString()).toContain("Zowe CLI version =");
