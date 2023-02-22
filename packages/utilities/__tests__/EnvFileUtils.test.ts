@@ -42,10 +42,16 @@ describe("EnvFileUtils tests", () => {
             throw new testError("Test");
         });
         const setEnvironmentForAppSpy = jest.spyOn(EnvFileUtils, "setEnvironmentForApp");
-        EnvFileUtils.setEnvironmentForApp("zowe");
+        let error;
+        try {
+            EnvFileUtils.setEnvironmentForApp("zowe");
+        } catch (err) {
+            error = err;
+        }
         expect(setEnvironmentForAppSpy).toHaveBeenCalledTimes(1);
         expect(setEnvironmentForAppSpy).toHaveBeenCalledWith("zowe");
         expect(readFileSyncSpy).toHaveBeenCalledTimes(1);
+        expect(error).not.toBeDefined();
     });
 
     it("should read the environment file and set an environment variables", () => {
@@ -55,12 +61,18 @@ describe("EnvFileUtils tests", () => {
         };
         const readFileSyncSpy = jest.spyOn(fs, "readFileSync").mockReturnValueOnce(JSON.stringify(data));
         const setEnvironmentForAppSpy = jest.spyOn(EnvFileUtils, "setEnvironmentForApp");
-        EnvFileUtils.setEnvironmentForApp("zowe");
+        let error;
+        try {
+            EnvFileUtils.setEnvironmentForApp("zowe");
+        } catch (err) {
+            error = err;
+        }
         expect(setEnvironmentForAppSpy).toHaveBeenCalledTimes(1);
         expect(setEnvironmentForAppSpy).toHaveBeenCalledWith("zowe");
         expect(process.env.TEST_VARIABLE).toEqual("TEST_VALUE_1");
         expect(process.env.ANOTHER_TEST_VARIABLE).toEqual("TEST_VALUE_1");
         expect(readFileSyncSpy).toHaveBeenCalledTimes(1);
+        expect(error).not.toBeDefined();
     });
 
     it("should fail to read the environment file and throw errors but close file cleanly", () => {
