@@ -13,6 +13,7 @@ import { readFileSync } from "fs";
 import { homedir } from "os";
 import { join } from "path";
 import { ImperativeError } from "../../error";
+import * as JSONC from "comment-json";
 
 /**
  * Utility to load environment JSON files and set variables
@@ -33,15 +34,20 @@ export class EnvFileUtils {
         const expectedFileLocation = this.getEnvironmentFilePath(appName);
         try {
             const fileContents = readFileSync(expectedFileLocation).toString(); // Read the file in
-            const fileContentsJSON = JSON.parse(fileContents);
+            const fileContentsJSON = JSONC.parse(fileContents);
             Object.keys(fileContentsJSON).forEach( key => {
                 process.env[key] = fileContentsJSON[key];
             });
         } catch (err) {
             if (err.code !== "ENOENT") {
-                // Something unexpected went wrong, so return an error
-                throw new ImperativeError({msg: "Failed to set up environment variables from the environment file.\n" +
-                    "Environment variables will not be available.", causeErrors: err});
+                let errorMessage = "Failed to set up environment variables from the environment file.\n" +
+                    "Environment variables will not be available.\nFile: " + expectedFileLocation;
+
+                if (err.line != null && err.column != null) {
+                    errorMessage += "\nLine: " + err.line.toString() + "\nColumn: " + err.column.toString();
+                }
+
+                throw new ImperativeError({msg: errorMessage, causeErrors: err});
             }
         }
     }

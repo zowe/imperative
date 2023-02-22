@@ -15,11 +15,15 @@ import { join } from "path";
 import { EnvFileUtils } from "../../utilities";
 
 class testError extends Error {
-    constructor (message: string) {
+    private intCode = "ENOENT";
+    constructor (message: string, code?: string) {
         super (message);
+        if (code) {
+            this.intCode = code;
+        }
     }
     get code() {
-        return "ENOENT";
+        return this.intCode;
     }
 }
 
@@ -75,7 +79,7 @@ describe("EnvFileUtils tests", () => {
         expect(error).not.toBeDefined();
     });
 
-    it("should fail to read the environment file and throw errors but close file cleanly", () => {
+    it("should fail to read the environment file and throw errors 1", () => {
         const readFileSyncSpy = jest.spyOn(fs, "readFileSync").mockReturnValueOnce(`
         {
             "TEST_VARIABLE": "TEST_VALUE_1"
@@ -96,5 +100,31 @@ describe("EnvFileUtils tests", () => {
         expect(readFileSyncSpy).toHaveBeenCalledTimes(1);
         expect(error).toBeDefined();
         expect(error.message).toContain("Failed to set up environment variables from the environment file.");
+        expect(error.message).toContain("File: ");
+        expect(error.message).toContain("Line: 4");
+        expect(error.message).toContain("Column: 12");
+    });
+
+    it("should fail to read the environment file and throw errors 2", () => {
+        const readFileSyncSpy = jest.spyOn(fs, "readFileSync").mockImplementationOnce(() => {
+            throw new testError("Test", "EPERM");
+        });
+        const setEnvironmentForAppSpy = jest.spyOn(EnvFileUtils, "setEnvironmentForApp");
+        let error;
+        try {
+            EnvFileUtils.setEnvironmentForApp("zowe");
+        } catch (err) {
+            error = err;
+        }
+        expect(setEnvironmentForAppSpy).toHaveBeenCalledTimes(1);
+        expect(setEnvironmentForAppSpy).toHaveBeenCalledWith("zowe");
+        expect(process.env.TEST_VARIABLE).not.toEqual("TEST_VALUE_1");
+        expect(process.env.ANOTHER_TEST_VARIABLE).not.toEqual("TEST_VALUE_1");
+        expect(readFileSyncSpy).toHaveBeenCalledTimes(1);
+        expect(error).toBeDefined();
+        expect(error.message).toContain("Failed to set up environment variables from the environment file.");
+        expect(error.message).toContain("File: ");
+        expect(error.message).not.toContain("Line:");
+        expect(error.message).not.toContain("Column:");
     });
 });
