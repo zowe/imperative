@@ -12,14 +12,22 @@
 import * as T from "../../../../../src/TestUtil";
 import { cliBin } from "../PluginManagementFacility.spec";
 import { join } from "path";
+import { SetupTestEnvironment } from "../../../../../__src__/environment/SetupTestEnvironment";
+import { existsSync } from "fs";
+import { execSync } from "child_process";
 
 describe("Update plugin", () => {
     const testPluginDir = join(__dirname, "../test_plugins");
+    let envNpmRegistry;
 
     const removeNewline = (str: string): string => {
         str = str.replace(/\r?\n|\r/g, " ");
         return str;
     };
+
+    beforeAll(() => {
+        envNpmRegistry = execSync("npm config get registry").toString().trim();
+    });
 
     it("should update plugin properly", () => {
         const pluginName = "normal-plugin";
@@ -33,6 +41,20 @@ describe("Update plugin", () => {
         result.stdout = removeNewline(result.stdout);
         expect(result.stdout).toContain("Update of the npm package");
         expect(result.stdout).toContain("was successful.");
+    });
+
+    it("should fail to update a plugin from a file location with a command in it", async function(){
+        const TEST_ENVIRONMENT = await SetupTestEnvironment.createTestEnv({
+            cliHomeEnvVar: "PLUGINS_TEST_CLI_HOME",
+            testName: "test_plugin_update"
+        });
+        const result = T.runCliScript(join(__dirname, "__scripts__", "injectionTestUpdate1.sh"), TEST_ENVIRONMENT.workingDir, [cliBin]);
+        delete process.env.PLUGINS_TEST_CLI_HOME;
+        expect(result.stderr.toString()).toContain("invalid config Must be full url");
+
+        const strippedOutput = T.stripNewLines(result.stdout.toString());
+        expect(strippedOutput).toContain("Username:");
+        expect(existsSync(join(TEST_ENVIRONMENT.workingDir, "test.txt"))).not.toEqual(true);
     });
 
     it("should display proper message when no plugin package is provided", () => {

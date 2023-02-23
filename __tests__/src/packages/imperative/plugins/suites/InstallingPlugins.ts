@@ -21,6 +21,8 @@ import { execSync, SpawnSyncReturns } from "child_process";
 import { config, cliBin, pluginGroup } from "../PluginManagementFacility.spec";
 import { readFileSync, writeFileSync } from "jsonfile";
 import { IPluginJson } from "../../../../../../packages/imperative/src/plugins/doc/IPluginJson";
+import { existsSync } from "fs";
+import { SetupTestEnvironment } from "../../../../../__src__/environment/SetupTestEnvironment";
 
 describe("Installing Plugins", () => {
     /**
@@ -275,6 +277,35 @@ describe("Installing Plugins", () => {
 
         expect(result.stderr).toEqual("");
         expect(result.stdout).toContain(plugins.space_in_path.usage);
+    });
+
+    it("should fail to install a plugin from a file location with a command in it 1", async function(){
+        const TEST_ENVIRONMENT = await SetupTestEnvironment.createTestEnv({
+            cliHomeEnvVar: "PLUGINS_TEST_CLI_HOME",
+            testName: "test_plugin_install"
+        });
+        const result = T.runCliScript(join(__dirname, "__scripts__", "injectionTestInstall1.sh"), TEST_ENVIRONMENT.workingDir, [cliBin]);
+        delete process.env.PLUGINS_TEST_CLI_HOME;
+        expect(result.stderr.toString()).toContain("invalid config Must be full url");
+
+        const strippedOutput = T.stripNewLines(result.stdout.toString());
+        expect(strippedOutput).toContain("Username:");
+        expect(existsSync(join(TEST_ENVIRONMENT.workingDir, "test.txt"))).not.toEqual(true);
+    });
+
+    it("should fail to install a plugin from a file location with a command in it 2", async function(){
+        const TEST_ENVIRONMENT = await SetupTestEnvironment.createTestEnv({
+            cliHomeEnvVar: "PLUGINS_TEST_CLI_HOME",
+            testName: "test_plugin_install"
+        });
+        const result = T.runCliScript(join(__dirname, "__scripts__", "injectionTestInstall2.sh"), TEST_ENVIRONMENT.workingDir, [cliBin], {
+            PLUGINS_TEST_CLI_HOME: join(TEST_ENVIRONMENT.workingDir, '";touch test.txt;"')
+        });
+        delete process.env.PLUGINS_TEST_CLI_HOME;
+        const strippedOutput = T.stripNewLines(result.stdout.toString());
+
+        expect(strippedOutput).toContain("Registry = " + envNpmRegistry);
+        expect(existsSync(join(TEST_ENVIRONMENT.workingDir, '";touch test.txt;"', "plugins", "test.txt"))).not.toEqual(true);
     });
 
     /**
