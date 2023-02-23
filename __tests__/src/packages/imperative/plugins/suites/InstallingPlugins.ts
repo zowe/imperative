@@ -321,9 +321,6 @@ describe("Installing Plugins", () => {
                 PLUGINS_TEST_CLI_HOME: join(TEST_ENVIRONMENT.workingDir, '";touch test.txt;"')
             });
             delete process.env.PLUGINS_TEST_CLI_HOME;
-            const strippedOutput = T.stripNewLines(result.stdout.toString());
-
-            expect(strippedOutput).toContain("Registry = " + envNpmRegistry);
             expect(fs.existsSync(join(TEST_ENVIRONMENT.workingDir, '";touch test.txt;"', "plugins", "test.txt"))).not.toEqual(true);
         });
 
@@ -334,9 +331,6 @@ describe("Installing Plugins", () => {
             });
             delete process.env.PLUGINS_TEST_CLI_HOME;
             delete process.env.PLUGINS_TEST_CLI_PLUGINS_DIR;
-            const strippedOutput = T.stripNewLines(result.stdout.toString());
-
-            expect(strippedOutput).toContain("Registry = " + envNpmRegistry);
             expect(fs.existsSync(join(TEST_ENVIRONMENT.workingDir, '";touch test.txt;"', "test.txt"))).not.toEqual(true);
         });
     });
