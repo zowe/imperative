@@ -300,7 +300,8 @@ describe("Installing Plugins", () => {
             });
             const result = T.runCliScript(join(__dirname, "__scripts__", "injectionTestInstall1.sh"), TEST_ENVIRONMENT.workingDir, [cliBin]);
             delete process.env.PLUGINS_TEST_CLI_HOME;
-            expect(result.stderr.toString()).toContain("invalid config Must be full url");
+            expect(result.stderr.toString()).toContain("invalid config Must be");
+            expect(result.stderr.toString()).toContain("full url");
 
             const strippedOutput = T.stripNewLines(result.stdout.toString());
             expect(strippedOutput).toContain("Username:");
