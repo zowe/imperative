@@ -304,7 +304,7 @@ describe("Installing Plugins", () => {
         afterEach(() => {
             T.rimraf(join(TEST_ENVIRONMENT.workingDir, '";touch test.txt;"'));
         });
-        
+
         it("should fail to install a plugin from a file location with a command in it 1", async function(){
             const result = T.runCliScript(join(__dirname, "__scripts__", "injectionTestInstall1.sh"), TEST_ENVIRONMENT.workingDir, [cliBin]);
             delete process.env.PLUGINS_TEST_CLI_HOME;
