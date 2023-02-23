@@ -68,8 +68,8 @@ export class CredentialManagerOverride {
         } catch (error) {
             throw new ImperativeError({
                 msg: "Due to error in settings file, unable to override the credential manager with '" +
-                newCredMgrName + "'",
-                causeErrors: error
+                newCredMgrName + "'" +
+                "\nReason: " + error.message
             });
         }
 
@@ -78,8 +78,8 @@ export class CredentialManagerOverride {
             writeJsonSync(settings.fileName, settings.json, {spaces: 2});
         } catch (error) {
             throw new ImperativeError({
-                msg: "Unable to write settings file = " + settings.fileName,
-                causeErrors: error
+                msg: "Unable to write settings file = " + settings.fileName +
+                "\nReason: " + error.message
             });
         }
     }
@@ -105,8 +105,8 @@ export class CredentialManagerOverride {
         } catch (error) {
             throw new ImperativeError({
                 msg: "Due to error in settings file, unable to replace the credential manager named '" +
-                credMgrToReplace + "'",
-                causeErrors: error
+                credMgrToReplace + "'" +
+                "\nReason: " + error.message
             });
         }
 
@@ -124,8 +124,8 @@ export class CredentialManagerOverride {
             writeJsonSync(settings.fileName, settings.json, {spaces: 2});
         } catch (error) {
             throw new ImperativeError({
-                msg: "Unable to write settings file = " + settings.fileName,
-                causeErrors: error
+                msg: "Unable to write settings file = " + settings.fileName +
+                "\nReason: " + error.message
             });
         }
     }
@@ -151,8 +151,8 @@ export class CredentialManagerOverride {
             settings.json = readJsonSync(settings.fileName);
         } catch (error) {
             throw new ImperativeError({
-                msg: "Unable to read settings file = " + settings.fileName,
-                causeErrors: error
+                msg: "Unable to read settings file = " + settings.fileName +
+                "\nReason: " + error.message
             });
         }
         if ( typeof(settings.json?.overrides?.CredentialManager) === "undefined") {
