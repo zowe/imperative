@@ -281,6 +281,7 @@ describe("Installing Plugins", () => {
     });
 
     describe("Injection Tests", () => {
+
         let TEST_ENVIRONMENT;
         beforeEach(async () => {
             TEST_ENVIRONMENT = await SetupTestEnvironment.createTestEnv({
@@ -294,10 +295,6 @@ describe("Installing Plugins", () => {
         });
 
         it("should fail to install a plugin from a file location with a command in it 1", async function(){
-            const TEST_ENVIRONMENT = await SetupTestEnvironment.createTestEnv({
-                cliHomeEnvVar: "PLUGINS_TEST_CLI_HOME",
-                testName: "test_plugin_install"
-            });
             const result = T.runCliScript(join(__dirname, "__scripts__", "injectionTestInstall1.sh"), TEST_ENVIRONMENT.workingDir, [cliBin]);
             delete process.env.PLUGINS_TEST_CLI_HOME;
             expect(result.stderr.toString()).toContain("invalid config Must be");
@@ -309,10 +306,6 @@ describe("Installing Plugins", () => {
         });
 
         it("should fail to install a plugin from a file location with a command in it 2", async function(){
-            const TEST_ENVIRONMENT = await SetupTestEnvironment.createTestEnv({
-                cliHomeEnvVar: "PLUGINS_TEST_CLI_HOME",
-                testName: "test_plugin_install"
-            });
             const result = T.runCliScript(join(__dirname, "__scripts__", "injectionTestInstall2.sh"), TEST_ENVIRONMENT.workingDir, [cliBin], {
                 PLUGINS_TEST_CLI_HOME: join(TEST_ENVIRONMENT.workingDir, '";touch test.txt;"')
             });
