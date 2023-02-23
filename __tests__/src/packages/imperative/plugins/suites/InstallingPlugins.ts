@@ -23,6 +23,7 @@ import { readFileSync, writeFileSync } from "jsonfile";
 import { IPluginJson } from "../../../../../../packages/imperative/src/plugins/doc/IPluginJson";
 import { existsSync } from "fs";
 import { SetupTestEnvironment } from "../../../../../__src__/environment/SetupTestEnvironment";
+import * as rimraf from "rimraf";
 
 describe("Installing Plugins", () => {
     /**
@@ -289,7 +290,7 @@ describe("Installing Plugins", () => {
         });
 
         afterEach(() => {
-            T.rimraf(join(TEST_ENVIRONMENT.workingDir, '";touch test.txt;"'));
+            rimraf.sync(join(TEST_ENVIRONMENT.workingDir, '";touch test.txt;"'));
         });
 
         it("should fail to install a plugin from a file location with a command in it 1", async function(){
