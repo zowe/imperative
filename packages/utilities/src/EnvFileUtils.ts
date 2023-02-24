@@ -33,7 +33,7 @@ export class EnvFileUtils {
      * @returns {void}
      * @throws {ImperativeError}
      */
-    public static setEnvironmentForApp(appName: string, checkCliHomeVariableFirst: boolean = false, envPrefix?: string) {
+    public static setEnvironmentForApp(appName: string, checkCliHomeVariableFirst = false, envPrefix?: string): void {
         const expectedFileLocation = this.getEnvironmentFilePath(appName, checkCliHomeVariableFirst, envPrefix);
         if (expectedFileLocation) {
             try {
@@ -60,9 +60,9 @@ export class EnvFileUtils {
      * @param {string} appName - The application name
      * @param {boolean} checkCliHomeVariableFirst - Check inside of *_CLI_HOME first if it is defined
      * @param {string} envPrefix - environment variable prefix
-     * @returns {string|undefined} - Returns the path if it exists, or undefined if it does not
+     * @returns {string} - Returns the path string if it exists, or null if it does not
      */
-    public static getEnvironmentFilePath(appName: string, checkCliHomeVariableFirst: boolean = false, envPrefix?: string): string | undefined {
+    public static getEnvironmentFilePath(appName: string, checkCliHomeVariableFirst = false, envPrefix?: string): string {
         if (checkCliHomeVariableFirst) {
             const cliHome = this.getCliHomeEnvironmentFilePath(appName, envPrefix);
             if (cliHome) {
@@ -75,24 +75,24 @@ export class EnvFileUtils {
     /**
      * Get the expected path for the user's environment variable file
      * @param {string} appName - The application name
-     * @returns {string|undefined} - Returns the path if it exists, or undefined if it does not
+     * @returns {string} - Returns the path string if it exists, or null if it does not
      */
-    public static getUserHomeEnvironmentFilePath(appName: string): string | undefined {
+    public static getUserHomeEnvironmentFilePath(appName: string): string {
         const expectedBasename = "." + appName + ".env.json";
         const path = join(homedir(), expectedBasename);
         if (existsSync(path)) {
             return path;
         }
-        return undefined;
+        return null;
     }
 
     /**
      * Get the expected path for the user's environment variable file
      * @param {string} appName - The application name
      * @param {string} envPrefix - The environment variable prefix
-     * @returns {string|undefined} - Returns the path if it exists, or undefined if it does not
+     * @returns {string} - Returns the path string if it exists, or null if it does not
      */
-    public static getCliHomeEnvironmentFilePath(appName: string, envPrefix?: string): string | undefined {
+    public static getCliHomeEnvironmentFilePath(appName: string, envPrefix?: string): string {
         const environmentVariable = (envPrefix ? envPrefix : appName.toUpperCase()) + EnvironmentalVariableSettings.CLI_HOME_SUFFIX;
         const expectedBasename = "." + appName + ".env.json";
         const expectedDirectory = process.env[environmentVariable];
@@ -102,6 +102,6 @@ export class EnvFileUtils {
                 return path;
             }
         }
-        return undefined;
+        return null;
     }
 }
