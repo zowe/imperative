@@ -279,9 +279,10 @@ export class PluginManagementFacility {
                             credMgrChoices += `(supplied in CLI plugin ${knownCredMgrs[credMgrInx].credMgrPluginName}`;
                         }
                         if ( typeof(knownCredMgrs[credMgrInx].credMgrZEName) !== "undefined") {
+                            const punctuation = 8;
                             credMgrChoices += "\n";
-                            for (let indent: number = 1;
-                                indent < setting.length + knownCredMgrs[credMgrInx].credMgrZEName.length;
+                            for (let indent: number = 0; indent <
+                                setting.length + knownCredMgrs[credMgrInx].credMgrDisplayName.length + punctuation;
                                 indent++ )
                             {
                                 credMgrChoices += " ";
