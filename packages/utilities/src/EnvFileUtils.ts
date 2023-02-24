@@ -9,10 +9,11 @@
 *
 */
 
-import { readFileSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import { homedir } from "os";
 import { join } from "path";
-import { ImperativeError } from "../../error";
+import { ImperativeError } from "../../error/src/ImperativeError";
+import { EnvironmentalVariableSettings } from "../../imperative/src/env/EnvironmentalVariableSettings";
 import * as JSONC from "comment-json";
 
 /**
@@ -27,19 +28,21 @@ export class EnvFileUtils {
      * If the file is valid, set the environment variables
      * If the file is not valid, display an error and continue
      * @param {string} appName - The application name
+     * @param {boolean} checkCliHomeVariableFirst - Check inside of *_CLI_HOME first if it is defined
+     * @param {string} envPrefix - The environment variable prefix
      * @returns {void}
      * @throws {ImperativeError}
      */
-    public static setEnvironmentForApp(appName: string) {
-        const expectedFileLocation = this.getEnvironmentFilePath(appName);
-        try {
-            const fileContents = readFileSync(expectedFileLocation).toString(); // Read the file in
-            const fileContentsJSON = JSONC.parse(fileContents);
-            Object.keys(fileContentsJSON).forEach( key => {
-                process.env[key] = fileContentsJSON[key];
-            });
-        } catch (err) {
-            if (err.code !== "ENOENT") {
+    public static setEnvironmentForApp(appName: string, checkCliHomeVariableFirst: boolean = false, envPrefix?: string) {
+        const expectedFileLocation = this.getEnvironmentFilePath(appName, checkCliHomeVariableFirst, envPrefix);
+        if (expectedFileLocation) {
+            try {
+                const fileContents = readFileSync(expectedFileLocation).toString(); // Read the file in
+                const fileContentsJSON = JSONC.parse(fileContents);
+                Object.keys(fileContentsJSON).forEach( key => {
+                    process.env[key] = fileContentsJSON[key];
+                });
+            } catch (err) {
                 let errorMessage = "Failed to set up environment variables from the environment file.\n" +
                     "Environment variables will not be available.\nFile: " + expectedFileLocation;
 
@@ -55,10 +58,50 @@ export class EnvFileUtils {
     /**
      * Get the expected path for the user's environment variable file
      * @param {string} appName - The application name
-     * @returns {string}
+     * @param {boolean} checkCliHomeVariableFirst - Check inside of *_CLI_HOME first if it is defined
+     * @param {string} envPrefix - environment variable prefix
+     * @returns {string|undefined} - Returns the path if it exists, or undefined if it does not
      */
-    public static getEnvironmentFilePath(appName: string) {
+    public static getEnvironmentFilePath(appName: string, checkCliHomeVariableFirst: boolean = false, envPrefix?: string): string | undefined {
+        if (checkCliHomeVariableFirst) {
+            const cliHome = this.getCliHomeEnvironmentFilePath(appName, envPrefix);
+            if (cliHome) {
+                return cliHome;
+            }
+        }
+        return this.getUserHomeEnvironmentFilePath(appName);
+    }
+
+    /**
+     * Get the expected path for the user's environment variable file
+     * @param {string} appName - The application name
+     * @returns {string|undefined} - Returns the path if it exists, or undefined if it does not
+     */
+    public static getUserHomeEnvironmentFilePath(appName: string): string | undefined {
         const expectedBasename = "." + appName + ".env.json";
-        return join(homedir(), expectedBasename);
+        const path = join(homedir(), expectedBasename);
+        if (existsSync(path)) {
+            return path;
+        }
+        return undefined;
+    }
+
+    /**
+     * Get the expected path for the user's environment variable file
+     * @param {string} appName - The application name
+     * @param {string} envPrefix - The environment variable prefix
+     * @returns {string|undefined} - Returns the path if it exists, or undefined if it does not
+     */
+    public static getCliHomeEnvironmentFilePath(appName: string, envPrefix?: string): string | undefined {
+        const environmentVariable = (envPrefix ? envPrefix : appName.toUpperCase()) + EnvironmentalVariableSettings.CLI_HOME_SUFFIX;
+        const expectedBasename = "." + appName + ".env.json";
+        const expectedDirectory = process.env[environmentVariable];
+        if (expectedDirectory) {
+            const path = join(expectedDirectory, expectedBasename);
+            if (existsSync(path)) {
+                return path;
+            }
+        }
+        return undefined;
     }
 }

@@ -188,7 +188,7 @@ export class Imperative {
 
                 let delayedEnvFileSetupError = undefined;
                 try {
-                    EnvFileUtils.setEnvironmentForApp(ImperativeConfig.instance.rootCommandName);
+                    EnvFileUtils.setEnvironmentForApp(ImperativeConfig.instance.rootCommandName, true, ImperativeConfig.instance.envVariablePrefix);
                 } catch (err) {
                     delayedEnvFileSetupError = err;
                 }
