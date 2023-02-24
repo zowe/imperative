@@ -18,16 +18,11 @@ import { execSync } from "child_process";
 
 describe("Update plugin", () => {
     const testPluginDir = join(__dirname, "../test_plugins");
-    let envNpmRegistry;
 
     const removeNewline = (str: string): string => {
         str = str.replace(/\r?\n|\r/g, " ");
         return str;
     };
-
-    beforeAll(() => {
-        envNpmRegistry = execSync("npm config get registry").toString().trim();
-    });
 
     it("should update plugin properly", () => {
         const pluginName = "normal-plugin";
