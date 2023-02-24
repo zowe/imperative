@@ -14,7 +14,6 @@ import { cliBin } from "../PluginManagementFacility.spec";
 import { join } from "path";
 import { SetupTestEnvironment } from "../../../../../__src__/environment/SetupTestEnvironment";
 import { existsSync } from "fs";
-import { execSync } from "child_process";
 
 describe("Update plugin", () => {
     const testPluginDir = join(__dirname, "../test_plugins");
