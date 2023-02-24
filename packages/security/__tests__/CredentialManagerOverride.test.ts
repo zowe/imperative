@@ -50,7 +50,7 @@ describe("CredentialManagerOverride", () => {
                     "credMgrDisplayName": CredentialManagerOverride.DEFAULT_CRED_MGR_NAME
                 },
                 {
-                    "credMgrDisplayName": "Kubernetes Secrets",
+                    "credMgrDisplayName": "Secrets for Kubernetes",
                     "credMgrPluginName": "@zowe/secrets-for-kubernetes-for-zowe-cli",
                     "credMgrZEName": "Zowe.secrets-for-kubernetes"
                 }
