@@ -107,10 +107,66 @@ describe("CredentialManagerOverride", () => {
             expect(thrownErr.message).toContain(readJsonErrText);
         });
 
-        it("should throw an error when no overrides.CredentialManager property exists", () => {
+        it("should throw an error when no settings.json.overrides.CredentialManager property exists", () => {
             // replace good CredentialManager property with a bogus property
             delete expectedSettings.json.overrides.CredentialManager;
             expectedSettings.json.overrides.bogusProp = "Bogus value";
+
+            // make readJsonSync return what we want
+            const readJsonSync = jest.spyOn(fsExtra, "readJsonSync").mockImplementation(() => {
+                return expectedSettings.json;
+            });
+
+            /* Use CredentialManagerOverride["getCmdOutput"]() instead of
+             * CredentialManagerOverride.getCmdOutput() so that we can call a private function.
+             */
+            let thrownErr: any;
+            let receivedSettings: any;
+            try {
+                receivedSettings = CredentialManagerOverride["getSettingsFileJson"]();
+            } catch (err) {
+                thrownErr = err;
+            }
+            expect(readJsonSync).toHaveBeenCalledWith(expectedSettings.fileName);
+            expect(receivedSettings).toBeUndefined();
+            expect(thrownErr).toBeDefined();
+            expect(thrownErr.message).toContain(
+                "The property key 'overrides.CredentialManager' does not exist in settings file = " +
+                expectedSettings.fileName
+            );
+        });
+
+        it("should throw an error when no settings.json.overrides property exists", () => {
+            // replace good CredentialManager property with a bogus property
+            delete expectedSettings.json.overrides;
+
+            // make readJsonSync return what we want
+            const readJsonSync = jest.spyOn(fsExtra, "readJsonSync").mockImplementation(() => {
+                return expectedSettings.json;
+            });
+
+            /* Use CredentialManagerOverride["getCmdOutput"]() instead of
+             * CredentialManagerOverride.getCmdOutput() so that we can call a private function.
+             */
+            let thrownErr: any;
+            let receivedSettings: any;
+            try {
+                receivedSettings = CredentialManagerOverride["getSettingsFileJson"]();
+            } catch (err) {
+                thrownErr = err;
+            }
+            expect(readJsonSync).toHaveBeenCalledWith(expectedSettings.fileName);
+            expect(receivedSettings).toBeUndefined();
+            expect(thrownErr).toBeDefined();
+            expect(thrownErr.message).toContain(
+                "The property key 'overrides.CredentialManager' does not exist in settings file = " +
+                expectedSettings.fileName
+            );
+        });
+
+        it("should throw an error when no settings.json property exists", () => {
+            // replace good CredentialManager property with a bogus property
+            delete expectedSettings.json;
 
             // make readJsonSync return what we want
             const readJsonSync = jest.spyOn(fsExtra, "readJsonSync").mockImplementation(() => {
