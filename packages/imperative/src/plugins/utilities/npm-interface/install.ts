@@ -130,20 +130,23 @@ export async function install(packageLocation: string, registry: string, install
             spaces: 2
         });
 
+        // get the plugin's Imperative config definition
+        const requirerFunction = PluginManagementFacility.instance.requirePluginModuleCallback(packageName);
+        const pluginImpConfig = ConfigurationLoader.load(null, packageInfo, requirerFunction);
+
         iConsole.debug(`Checking for global team configuration files to update.`);
-        let pluginImpConfig;
         if (PMFConstants.instance.PLUGIN_USING_CONFIG &&
-            PMFConstants.instance.PLUGIN_CONFIG.layers.filter((layer) => layer.global && layer.exists).length > 0) {
+            PMFConstants.instance.PLUGIN_CONFIG.layers.filter((layer) => layer.global && layer.exists).length > 0)
+        {
             // Update the Imperative Configuration to add the profiles introduced by the recently installed plugin
             // This might be needed outside of PLUGIN_USING_CONFIG scenarios, but we haven't had issues with other APIs before
-            const requirerFunction = PluginManagementFacility.instance.requirePluginModuleCallback(packageInfo.name);
-            pluginImpConfig = ConfigurationLoader.load(null, packageInfo, requirerFunction);
             if (Array.isArray(pluginImpConfig.profiles)) {
                 UpdateImpConfig.addProfiles(pluginImpConfig.profiles);
                 ConfigSchema.updateSchema({ layer: "global" });
             }
         }
 
+        // call the plugin's postInstall function
         callPluginPostInstall(packageName, pluginImpConfig);
 
         iConsole.info("Plugin '" + packageName + "' successfully installed.");
@@ -162,7 +165,6 @@ export async function install(packageLocation: string, registry: string, install
  *
  * @param pluginPackageNm The package name of the plugin being installed.
  * @param pluginImpConfig The imperative configuration for this plugin.
- *
  */
 function callPluginPostInstall(
     pluginPackageNm: string, pluginImpConfig: IImperativeConfig
@@ -190,8 +192,10 @@ function callPluginPostInstall(
         }
     } else {
         // call the plugin's postInstall operation
-        const pluginLifeCycle: IPluginLifeCycle = require(pluginImpConfig.pluginLifeCycle);
         try {
+            impLogger.debug(`Calling the postInstall function for plugin '${pluginPackageNm}'`);
+            const requirerFun = PluginManagementFacility.instance.requirePluginModuleCallback(pluginPackageNm);
+            const pluginLifeCycle: IPluginLifeCycle = requirerFun(pluginImpConfig.pluginLifeCycle);
             pluginLifeCycle.postInstall();
         } catch (impErr) {
             impLogger.error(
