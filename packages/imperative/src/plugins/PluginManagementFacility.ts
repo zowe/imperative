@@ -292,8 +292,7 @@ export class PluginManagementFacility {
                     }
                     const overrideErrMsg =
                         `The "${setting}" setting named "${overrideName}" is not installed and loadable. ` +
-                        `We will fallback to the default ${setting} named ` +
-                        `"${CredentialManagerOverride.DEFAULT_CRED_MGR_NAME}" until you reconfigure. ` +
+                        `We will use a "${setting}" that purposely fails until you reconfigure. ` +
                         `You can edit the file $ZOWE_CLI_HOME/settings/imperative.json ` +
                         `and specify the value "${CredentialManagerOverride.DEFAULT_CRED_MGR_NAME}" for ` +
                         `the "${setting}" property, or you can install a plugin from the list below:\n` +
