@@ -15,6 +15,7 @@ import * as fs from "fs";
 import { readFileSync, writeFileSync } from "jsonfile";
 import { IPluginJson } from "../../doc/IPluginJson";
 import { Logger } from "../../../../../logger";
+import { IImperativeConfig } from "../../../doc/IImperativeConfig";
 import { ImperativeError } from "../../../../../error";
 import { IPluginJsonObject } from "../../doc/IPluginJsonObject";
 import { getPackageInfo, installPackages } from "../NpmFunctions";
@@ -22,7 +23,8 @@ import { ConfigSchema } from "../../../../../config/src/ConfigSchema";
 import { PluginManagementFacility } from "../../PluginManagementFacility";
 import { ConfigurationLoader } from "../../../ConfigurationLoader";
 import { UpdateImpConfig } from "../../../UpdateImpConfig";
-
+import { CredentialManagerOverride, ICredentialManagerNameMap } from "../../../../../security";
+import { IPluginLifeCycle } from "../../doc/IPluginLifeCycle";
 
 /**
  * Common function that abstracts the install process. This function should be called for each
@@ -129,17 +131,20 @@ export async function install(packageLocation: string, registry: string, install
         });
 
         iConsole.debug(`Checking for global team configuration files to update.`);
+        let pluginImpConfig;
         if (PMFConstants.instance.PLUGIN_USING_CONFIG &&
             PMFConstants.instance.PLUGIN_CONFIG.layers.filter((layer) => layer.global && layer.exists).length > 0) {
             // Update the Imperative Configuration to add the profiles introduced by the recently installed plugin
             // This might be needed outside of PLUGIN_USING_CONFIG scenarios, but we haven't had issues with other APIs before
             const requirerFunction = PluginManagementFacility.instance.requirePluginModuleCallback(packageInfo.name);
-            const pluginImpConfig = ConfigurationLoader.load(null, packageInfo, requirerFunction);
+            pluginImpConfig = ConfigurationLoader.load(null, packageInfo, requirerFunction);
             if (Array.isArray(pluginImpConfig.profiles)) {
                 UpdateImpConfig.addProfiles(pluginImpConfig.profiles);
                 ConfigSchema.updateSchema({ layer: "global" });
             }
         }
+
+        callPluginPostInstall(packageName, pluginImpConfig);
 
         iConsole.info("Plugin '" + packageName + "' successfully installed.");
         return packageName;
@@ -148,5 +153,51 @@ export async function install(packageLocation: string, registry: string, install
             msg: e.message,
             causeErrors: e
         });
+    }
+}
+
+/**
+ * Call a plugin's lifecycle hook to enable a plugin to take some action
+ * after the plugin has been installed.
+ *
+ * @param pluginPackageNm The package name of the plugin being installed.
+ * @param pluginImpConfig The imperative configuration for this plugin.
+ *
+ */
+function callPluginPostInstall(
+    pluginPackageNm: string, pluginImpConfig: IImperativeConfig
+): void {
+    const impLogger = Logger.getImperativeLogger();
+
+    // determine if the plugin is a known credential manager override
+    let isCredMgrOverride: boolean = false;
+    const knownCredMgrs: ICredentialManagerNameMap[] = CredentialManagerOverride.getKnownCredMgrs();
+    for (const nextCredMgr of knownCredMgrs) {
+        if (nextCredMgr?.credMgrPluginName && nextCredMgr.credMgrPluginName === pluginPackageNm) {
+            isCredMgrOverride = true;
+            break;
+        }
+    }
+
+    // is pluginPostInstall defined by the plugin?
+    if ( typeof(pluginImpConfig?.pluginLifeCycle) === "undefined") {
+        if (isCredMgrOverride) {
+            impLogger.error(
+                `The plugin '${pluginPackageNm}'attempted to override the CLI ` +
+                `Credential Manager without providing a 'pluginLifeCycle' property. ` +
+                `The default Credential Manager remains in place.`
+            );
+        }
+    } else {
+        // call the plugin's postInstall operation
+        const pluginLifeCycle: IPluginLifeCycle = require(pluginImpConfig.pluginLifeCycle);
+        try {
+            pluginLifeCycle.postInstall();
+        } catch (impErr) {
+            impLogger.error(
+                `The 'postInstall' function of plugin '${pluginPackageNm}' failed.\nReason: ` +
+                impErr.msg + "\nCause: " + impErr.causeErrors + "\nDetails: " + impErr.additionalDetails
+            );
+        }
     }
 }
