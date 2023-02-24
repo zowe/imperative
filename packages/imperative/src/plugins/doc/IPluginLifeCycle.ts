@@ -9,8 +9,6 @@
 *
 */
 
-import { IHandlerResponseApi } from "../../../../cmd/src/doc/response/api/handler/IHandlerResponseApi";
-
 /**
  * An optional module of a plugin adheres to this interface to
  * perform actions during the installation lifecycle of a plugin.
