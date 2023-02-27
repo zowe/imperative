@@ -20,6 +20,6 @@ describe("IPluginLifeCycle", () => {
         );
         expect(nameMap).toContain("export interface IPluginLifeCycle");
         expect(nameMap).toContain("postInstall(): void;");
-        expect(nameMap).toContain("preUnstall(): void;");
+        expect(nameMap).toContain("preUninstall(): void;");
     });
 });
