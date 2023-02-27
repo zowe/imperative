@@ -2,6 +2,13 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Adds `~/.<cli_name>.env.json` file to provide environment variables to the Imperative framework during Imperative initialization
+  - Allows sites without environment variable access to specify process specific environment variables
+  - Changes require daemon reload to take effect
+  - SDK method is available as part of `EnvFileUtils` export
+
 ## `5.8.3`
 
 - BugFix: Fixed `--help-examples` option failing on command groups. [zowe-cli#1617](https://github.com/zowe/zowe-cli/issues/1617)
