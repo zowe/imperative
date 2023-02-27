@@ -18,6 +18,7 @@ const config: IImperativeConfig = {
     definitions: [],
     rootCommandDescription: "Sample command line interface",
     defaultHome: join(__dirname, "../../../../../__results__/.pluginstest"),
+    envVariablePrefix: "PLUGINS_TEST",
     // defaultHome: createUniqueTestDataDir(),
     productDisplayName: "Test CLI for Plugins",
     name: "plugins_test",

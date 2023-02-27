@@ -13,7 +13,6 @@
  * @file Integration tests for installing plugins through the Plugin Management Facility.
  */
 
-import * as fs from "fs";
 import * as T from "../../../../../src/TestUtil";
 import { join, resolve } from "path";
 import { TEST_REGISTRY } from "../../../../../__src__/TestConstants";
@@ -22,6 +21,8 @@ import { execSync, SpawnSyncReturns } from "child_process";
 import { config, cliBin, pluginGroup } from "../PluginTestConstants";
 import { readFileSync, writeFileSync } from "jsonfile";
 import { IPluginJson } from "../../../../../../packages/imperative/src/plugins/doc/IPluginJson";
+import { SetupTestEnvironment } from "../../../../../__src__/environment/SetupTestEnvironment";
+import * as fs from "fs";
 
 describe("Installing Plugins", () => {
     /**
@@ -291,7 +292,51 @@ describe("Installing Plugins", () => {
         expect(result.stdout).toContain(plugins.space_in_path.usage);
     });
 
-    /* Again we purposely commented out this test because versioning uses a registry,
+    describe("Injection Tests", () => {
+        let TEST_ENVIRONMENT;
+        beforeEach(async () => {
+            TEST_ENVIRONMENT = await SetupTestEnvironment.createTestEnv({
+                cliHomeEnvVar: "PLUGINS_TEST_CLI_HOME",
+                testName: "test_plugin_install"
+            });
+        });
+
+        afterEach(() => {
+            T.rimraf(join(TEST_ENVIRONMENT.workingDir, '";touch test.txt;"'));
+        });
+
+        it("should fail to install a plugin from a file location with a command in it 1", async function(){
+            const result = T.runCliScript(join(__dirname, "__scripts__", "injectionTestInstall1.sh"), TEST_ENVIRONMENT.workingDir, [cliBin]);
+            delete process.env.PLUGINS_TEST_CLI_HOME;
+            expect(result.stderr.toString()).toContain("invalid config Must be");
+            expect(result.stderr.toString()).toContain("full url");
+
+            const strippedOutput = T.stripNewLines(result.stdout.toString());
+            expect(strippedOutput).toContain("Username:");
+            expect(fs.existsSync(join(TEST_ENVIRONMENT.workingDir, "test.txt"))).not.toEqual(true);
+        });
+
+        it("should fail to install a plugin from a file location with a command in it 2", async function(){
+            const result = T.runCliScript(join(__dirname, "__scripts__", "injectionTestInstall2.sh"), TEST_ENVIRONMENT.workingDir, [cliBin], {
+                PLUGINS_TEST_CLI_HOME: join(TEST_ENVIRONMENT.workingDir, '";touch test.txt;"')
+            });
+            delete process.env.PLUGINS_TEST_CLI_HOME;
+            expect(fs.existsSync(join(TEST_ENVIRONMENT.workingDir, '";touch test.txt;"', "plugins", "test.txt"))).not.toEqual(true);
+        });
+
+        it("should fail to install a plugin from a file location with a command in it 3", async function(){
+            const result = T.runCliScript(join(__dirname, "__scripts__", "injectionTestInstall2.sh"), TEST_ENVIRONMENT.workingDir, [cliBin], {
+                PLUGINS_TEST_CLI_HOME: TEST_ENVIRONMENT.workingDir,
+                PLUGINS_TEST_CLI_PLUGINS_DIR: join(TEST_ENVIRONMENT.workingDir, '";touch test.txt;"')
+            });
+            delete process.env.PLUGINS_TEST_CLI_HOME;
+            delete process.env.PLUGINS_TEST_CLI_PLUGINS_DIR;
+            expect(fs.existsSync(join(TEST_ENVIRONMENT.workingDir, '";touch test.txt;"', "test.txt"))).not.toEqual(true);
+        });
+    });
+
+    /**
+     * Again we purposely commented out this test because versioning uses a registry,
      * which is problematic for a CICD pipeline.
      *
      * If you want to do a quick manual test using an npm registry, you can uncomment
