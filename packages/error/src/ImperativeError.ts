@@ -50,6 +50,16 @@ export class ImperativeError extends Error {
         }
     }
 
+     /**
+      * Return cause
+     * @readonly
+     * @type {string}
+     * @memberof ImperativeError
+     */
+    public  get cause(): string {
+    return `${this.details}\n${this.additionalDetails}`;
+    }
+    
     /**
      * Return causeErrors
      * @readonly
