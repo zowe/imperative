@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.9.0`
 
 - Enhancement: Adds `~/.<cli_name>.env.json` file to provide environment variables to the Imperative framework during Imperative initialization
   - Allows sites without environment variable access to specify process specific environment variables
