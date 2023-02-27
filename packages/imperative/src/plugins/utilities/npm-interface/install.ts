@@ -165,43 +165,39 @@ export async function install(packageLocation: string, registry: string, install
  *
  * @param pluginPackageNm The package name of the plugin being installed.
  * @param pluginImpConfig The imperative configuration for this plugin.
+ *
+ * @throws ImperativeError.
  */
 function callPluginPostInstall(
     pluginPackageNm: string, pluginImpConfig: IImperativeConfig
 ): void {
     const impLogger = Logger.getImperativeLogger();
 
-    // determine if the plugin is a known credential manager override
-    let isCredMgrOverride: boolean = false;
-    const knownCredMgrs: ICredentialManagerNameMap[] = CredentialManagerOverride.getKnownCredMgrs();
-    for (const nextCredMgr of knownCredMgrs) {
-        if (nextCredMgr?.credMgrPluginName && nextCredMgr.credMgrPluginName === pluginPackageNm) {
-            isCredMgrOverride = true;
-            break;
+    if ( typeof(pluginImpConfig?.pluginLifeCycle) === "undefined") {
+        // pluginPostInstall was not defined by the plugin
+        const credMgrInfo: ICredentialManagerNameMap =
+            CredentialManagerOverride.getCredMgrInfoByPlugin(pluginPackageNm);
+        if (credMgrInfo !== null) {
+            // this plugin is a known cred mgr override
+            throw new ImperativeError({
+                msg: `The plugin '${pluginPackageNm}' attempted to override the CLI ` +
+                `Credential Manager without providing a 'pluginLifeCycle' class. ` +
+                `The default Credential Manager remains in place.`
+            });
         }
+        return;
     }
 
-    // is pluginPostInstall defined by the plugin?
-    if ( typeof(pluginImpConfig?.pluginLifeCycle) === "undefined") {
-        if (isCredMgrOverride) {
-            impLogger.error(
-                `The plugin '${pluginPackageNm}'attempted to override the CLI ` +
-                `Credential Manager without providing a 'pluginLifeCycle' property. ` +
-                `The default Credential Manager remains in place.`
-            );
-        }
-    } else {
-        // call the plugin's postInstall operation
-        try {
-            impLogger.debug(`Calling the postInstall function for plugin '${pluginPackageNm}'`);
-            const requirerFun = PluginManagementFacility.instance.requirePluginModuleCallback(pluginPackageNm);
-            const pluginLifeCycle: IPluginLifeCycle = requirerFun(pluginImpConfig.pluginLifeCycle);
-            pluginLifeCycle.postInstall();
-        } catch (impErr) {
-            impLogger.error(
-                `The 'postInstall' function of plugin '${pluginPackageNm}' failed.\nReason: ` +
-                impErr.msg + "\nCause: " + impErr.causeErrors + "\nDetails: " + impErr.additionalDetails
-            );
-        }
+    // call the plugin's postInstall operation
+    try {
+        impLogger.debug(`Calling the postInstall function for plugin '${pluginPackageNm}'`);
+        const requirerFun = PluginManagementFacility.instance.requirePluginModuleCallback(pluginPackageNm);
+        const pluginLifeCycle: IPluginLifeCycle = requirerFun(pluginImpConfig.pluginLifeCycle);
+        pluginLifeCycle.postInstall();
+    } catch (err) {
+        throw new ImperativeError({
+            msg: `The 'postInstall' function of plugin '${pluginPackageNm}' failed.`,
+            causeErrors: err.msg
+        });
     }
 }

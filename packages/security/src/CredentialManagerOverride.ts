@@ -42,6 +42,64 @@ export class CredentialManagerOverride {
 
     //________________________________________________________________________
     /**
+     * Get the credential manager information for the specified credential manager
+     * display name.
+     *
+     * @param credMgrDisplayName - display name of the credential manager
+     *
+     * @returns An ICredentialManagerNameMap or
+     *          null if the specified plugin is not a known credential manager.
+     */
+    public static getCredMgrInfoByDisplayName(credMgrDisplayName: string) : ICredentialManagerNameMap | null {
+        let credMgrInfo: ICredentialManagerNameMap = null;
+        for (const nextNameMap of this.KNOWN_CRED_MGRS) {
+            if (nextNameMap?.credMgrDisplayName === credMgrDisplayName) {
+                credMgrInfo = nextNameMap;
+            }
+        }
+        return credMgrInfo;
+    }
+
+    //________________________________________________________________________
+    /**
+     * Get the credential manager information for the specified plugin.
+     *
+     * @param pluginName - Name of the plugin package
+     *
+     * @returns An ICredentialManagerNameMap or
+     *          null if the specified plugin is not a known credential manager.
+     */
+    public static getCredMgrInfoByPlugin(pluginName: string) : ICredentialManagerNameMap | null {
+        let credMgrInfo: ICredentialManagerNameMap = null;
+        for (const nextNameMap of this.KNOWN_CRED_MGRS) {
+            if (nextNameMap?.credMgrPluginName === pluginName) {
+                credMgrInfo = nextNameMap;
+            }
+        }
+        return credMgrInfo;
+    }
+
+    //________________________________________________________________________
+    /**
+     * Get the credential manager information for the specified plugin.
+     *
+     * @param ZEExtName - Name of the Zowe Explorer extension
+     *
+     * @returns An ICredentialManagerNameMap or
+     *          null if the specified extension is not a known credential manager.
+     */
+    public static getCredMgrInfoByZEExt(ZEExtName: string) : ICredentialManagerNameMap | null {
+        let credMgrInfo: ICredentialManagerNameMap = null;
+        for (const nextNameMap of this.KNOWN_CRED_MGRS) {
+            if (nextNameMap?.credMgrZEName === ZEExtName) {
+                credMgrInfo = nextNameMap;
+            }
+        }
+        return credMgrInfo;
+    }
+
+    //________________________________________________________________________
+    /**
      * Get the known credential managers.
      *
      * @returns An array of credential managers.
