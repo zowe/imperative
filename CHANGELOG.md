@@ -2,6 +2,16 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Added Interface IPluginLifeCycle to enable plugins to write their own postInstall and preUninstall functions, which will be automatically called by the 'zowe plugins" install and uninstall commands.
+
+- Enhancement: Added pluginLifeCycle property to IImperativeConfig to enable a plugin to specify the path name to its own module which implements the IPluginLifeCycle interface.
+
+- Enhancement: Added a list of known credential manager overrides to imperative. When a credential manager cannot be loaded, a list of valid credential managers will be displayed in an error message.
+
+- Enhancement: Added a CredentialManagerOverride class containing utility functions to replace the default CLI credential manager or restore the default CLI credential manager. Plugins which implement a credential manager override can call these utilities from their IPluginLifeCycle functions.
+
 ## `5.9.0`
 
 - Enhancement: Adds `~/.<cli_name>.env.json` file to provide environment variables to the Imperative framework during Imperative initialization
