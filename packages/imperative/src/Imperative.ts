@@ -66,6 +66,7 @@ import { CompleteAuthGroupBuilder } from "./auth/builders/CompleteAuthGroupBuild
 import { Config } from "../../config/src/Config";
 import { CompleteAutoInitCommandBuilder } from "./config/cmd/auto-init/builders/CompleteAutoInitCommandBuilder";
 import { ICommandProfileAutoInitConfig } from "../../cmd/src/doc/profiles/definition/ICommandProfileAutoInitConfig";
+import { EnvFileUtils } from "../../utilities/src/EnvFileUtils";
 
 // Bootstrap the performance tools
 if (PerfTiming.isEnabled) {
@@ -170,9 +171,6 @@ export class Imperative {
                 ConfigurationValidator.validate(config);
                 ImperativeConfig.instance.loadedConfig = config;
 
-                // Initialize our settings file
-                this.initAppSettings();
-
                 /**
                  * Get the command name from the package bin.
                  * If no command name exists, we will instead use the file name invoked
@@ -187,6 +185,16 @@ export class Imperative {
                         "Defaulting command name to filepath instead.");
                 }
                 ImperativeConfig.instance.rootCommandName = this.mRootCommandName;
+
+                let delayedEnvFileSetupError = undefined;
+                try {
+                    EnvFileUtils.setEnvironmentForApp(ImperativeConfig.instance.rootCommandName, true, ImperativeConfig.instance.envVariablePrefix);
+                } catch (err) {
+                    delayedEnvFileSetupError = err;
+                }
+
+                // Initialize our settings file
+                this.initAppSettings();
 
                 // If config group is enabled add config commands
                 if (config.allowConfigGroup) {
@@ -232,6 +240,16 @@ export class Imperative {
                 this.initLogging();
 
                 /**
+                 * If there was an error trying to load the user's environment variable configuration, tell them about it now.
+                 * Do not stop the process from running.
+                 */
+                if (delayedEnvFileSetupError) {
+                    const appLogger = Logger.getAppLogger();
+                    appLogger.logError(delayedEnvFileSetupError);
+                    new Console().error(delayedEnvFileSetupError);
+                }
+
+                /**
                  * If there was an error trying to load the user's configuration, tell them about it now.
                  */
                 if (delayedConfigLoadError) {
@@ -243,7 +261,7 @@ export class Imperative {
                             }
                         );
                         const imperativeLogger = Logger.getImperativeLogger();
-                        imperativeLogger.error(delayedConfigLoadError);
+                        imperativeLogger.logError(delayedConfigLoadError);
                     } else {
                         throw delayedConfigLoadError;
                     }

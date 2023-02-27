@@ -45,6 +45,7 @@ describe("Imperative", () => {
             jest.doMock("../src/config/cmd/auto-init/builders/CompleteAutoInitCommandBuilder");
             jest.doMock("../../config/src/Config");
             jest.doMock("../../security/src/CredentialManagerFactory");
+            jest.doMock("../../utilities/src/EnvFileUtils");
 
             const { OverridesLoader } = require("../src/OverridesLoader");
             const { LoggingConfigurer } = require("../src/LoggingConfigurer");
@@ -61,6 +62,7 @@ describe("Imperative", () => {
             const { CompleteAutoInitCommandBuilder } = require("../src/config/cmd/auto-init/builders/CompleteAutoInitCommandBuilder");
             const { Config } = require("../../config/src/Config");
             const { CredentialManagerFactory } = require("../../security/src/CredentialManagerFactory");
+            const { EnvFileUtils } = require("../../utilities/src/EnvFileUtils");
             return {
                 OverridesLoader: {
                     load: OverridesLoader.load as Mock<typeof OverridesLoader.load>
@@ -96,7 +98,8 @@ describe("Imperative", () => {
                     // Actual Config.load still gets loaded because of localized mock introduced
                     // load: Config.load as Mock<typeof Config.load>
                 },
-                CredentialManagerFactory
+                CredentialManagerFactory,
+                EnvFileUtils
             };
         } catch (error) {
             // If we error here, jest silently fails and says the test is empty. So let's make sure
@@ -423,6 +426,27 @@ describe("Imperative", () => {
                 });
             });
         }); // End Logging
+
+        describe("Environment Config", () => {
+            it("should not surface failures if there is an error in environment variable file", async () => {
+                mocks.EnvFileUtils.setEnvironmentForApp.mockImplementation((appName: string) => {
+                    throw new ImperativeError({msg: "Environment Setup Error"});
+                });
+                mocks.Logger.prototype.warn.mockClear();
+
+                let error;
+                try {
+                    await Imperative.init();
+                } catch (err) {
+                    error = err;
+                }
+
+                expect(error).not.toBeDefined();
+                expect(mocks.EnvFileUtils.setEnvironmentForApp).toHaveBeenCalledTimes(1);
+                expect(mocks.Logger.getAppLogger).toHaveBeenCalledTimes(1);
+                expect(mocks.Logger.prototype.logError).toHaveBeenCalledTimes(1);
+            });
+        });
     }); // end describe init
 
     describe("error handling", () => {
