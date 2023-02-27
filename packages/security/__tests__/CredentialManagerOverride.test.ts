@@ -60,6 +60,50 @@ describe("CredentialManagerOverride", () => {
         });
     });
 
+    describe("getCredMgrInfoByDisplayName", () => {
+        it("should return null when name is not found", () => {
+            const credMgrInfo = CredentialManagerOverride.getCredMgrInfoByDisplayName("NotACredMgrName");
+            expect(credMgrInfo).toBe(null);
+        });
+
+        it("should return a plugin and extension for a valid name", () => {
+            const credMgrInfo = CredentialManagerOverride.getCredMgrInfoByDisplayName("Secrets for Kubernetes");
+            expect(credMgrInfo).not.toBe(null);
+            expect(credMgrInfo?.credMgrPluginName).toEqual("@zowe/secrets-for-kubernetes-for-zowe-cli");
+            expect(credMgrInfo?.credMgrZEName).toEqual("Zowe.secrets-for-kubernetes");
+        });
+    });
+
+    describe("getCredMgrInfoByPlugin", () => {
+        it("should return null when plugin is not found", () => {
+            const credMgrInfo = CredentialManagerOverride.getCredMgrInfoByDisplayName("NotAPlugin");
+            expect(credMgrInfo).toBe(null);
+        });
+
+        it("should return a displayName and extension for a valid plugin", () => {
+            const credMgrInfo = CredentialManagerOverride.
+                getCredMgrInfoByPlugin("@zowe/secrets-for-kubernetes-for-zowe-cli");
+            expect(credMgrInfo).not.toBe(null);
+            expect(credMgrInfo?.credMgrDisplayName).toEqual("Secrets for Kubernetes");
+            expect(credMgrInfo?.credMgrZEName).toEqual("Zowe.secrets-for-kubernetes");
+        });
+    });
+
+    describe("getCredMgrInfoByZEExt", () => {
+        it("should return null when extension is not found", () => {
+            const credMgrInfo = CredentialManagerOverride.getCredMgrInfoByDisplayName("NotAnExtension");
+            expect(credMgrInfo).toBe(null);
+        });
+
+        it("should return a displayName and plugin for a valid extension", () => {
+            const credMgrInfo = CredentialManagerOverride.
+                getCredMgrInfoByZEExt("Zowe.secrets-for-kubernetes");
+            expect(credMgrInfo).not.toBe(null);
+            expect(credMgrInfo?.credMgrDisplayName).toEqual("Secrets for Kubernetes");
+            expect(credMgrInfo?.credMgrPluginName).toEqual("@zowe/secrets-for-kubernetes-for-zowe-cli");
+        });
+    });
+
     describe("getSettingsFileJson", () => {
         it("should return valid imperative.json file content", () => {
             const expectedSettings: any = {
