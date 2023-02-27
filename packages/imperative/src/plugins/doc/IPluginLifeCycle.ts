@@ -23,7 +23,7 @@ export interface IPluginLifeCycle {
      * credential manager that is delivered with Zowe CLI.
      *
      * @throws
-     *      A ImperativeError containing a message describing any error
+     *      An ImperativeError containing a message describing any error
      *      that occurred while performing post-install actions.
      */
     postInstall(): void;
@@ -41,10 +41,8 @@ export interface IPluginLifeCycle {
      * an override of the standard credential manager that is delivered with Zowe CLI.
      *
      * @throws
-     *      A ImperativeError containing a message describing any error
+     *      An ImperativeError containing a message describing any error
      *      that occurred while performing post-install actions.
-     *
-     * After an error occurs, the CLI will NOT perform the un-installation of the plugin.
      */
-    preUnstall(): void;
+    preUninstall(): void;
 }
