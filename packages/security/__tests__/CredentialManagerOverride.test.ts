@@ -120,8 +120,8 @@ describe("CredentialManagerOverride", () => {
                 return expectedSettings.json;
             });
 
-            /* Use CredentialManagerOverride["getCmdOutput"]() instead of
-             * CredentialManagerOverride.getCmdOutput() so that we can call a private function.
+            /* Use CredentialManagerOverride["getSettingsFileJson"]() instead of
+             * CredentialManagerOverride.getSettingsFileJson() so that we can call a private function.
              */
             const receivedSettings: any = CredentialManagerOverride["getSettingsFileJson"]();
             expect(readJsonSync).toHaveBeenCalledWith(expectedSettings.fileName);
@@ -135,8 +135,8 @@ describe("CredentialManagerOverride", () => {
                 throw new Error(readJsonErrText);
             });
 
-            /* Use CredentialManagerOverride["getCmdOutput"]() instead of
-             * CredentialManagerOverride.getCmdOutput() so that we can call a private function.
+            /* Use CredentialManagerOverride["getSettingsFileJson"]() instead of
+             * CredentialManagerOverride.getSettingsFileJson() so that we can call a private function.
              */
             let thrownErr: any;
             let receivedSettings: any;
@@ -161,8 +161,8 @@ describe("CredentialManagerOverride", () => {
                 return expectedSettings.json;
             });
 
-            /* Use CredentialManagerOverride["getCmdOutput"]() instead of
-             * CredentialManagerOverride.getCmdOutput() so that we can call a private function.
+            /* Use CredentialManagerOverride["getSettingsFileJson"]() instead of
+             * CredentialManagerOverride.getSettingsFileJson() so that we can call a private function.
              */
             let thrownErr: any;
             let receivedSettings: any;
@@ -189,8 +189,8 @@ describe("CredentialManagerOverride", () => {
                 return expectedSettings.json;
             });
 
-            /* Use CredentialManagerOverride["getCmdOutput"]() instead of
-             * CredentialManagerOverride.getCmdOutput() so that we can call a private function.
+            /* Use CredentialManagerOverride["getSettingsFileJson"]() instead of
+             * CredentialManagerOverride.getSettingsFileJson() so that we can call a private function.
              */
             let thrownErr: any;
             let receivedSettings: any;
@@ -217,8 +217,8 @@ describe("CredentialManagerOverride", () => {
                 return expectedSettings.json;
             });
 
-            /* Use CredentialManagerOverride["getCmdOutput"]() instead of
-             * CredentialManagerOverride.getCmdOutput() so that we can call a private function.
+            /* Use CredentialManagerOverride["getSettingsFileJson"]() instead of
+             * CredentialManagerOverride.getSettingsFileJson() so that we can call a private function.
              */
             let thrownErr: any;
             let receivedSettings: any;
