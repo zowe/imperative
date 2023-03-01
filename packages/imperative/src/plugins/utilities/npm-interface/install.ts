@@ -173,7 +173,7 @@ function callPluginPostInstall(
 ): void {
     const impLogger = Logger.getImperativeLogger();
 
-    if ( typeof(pluginImpConfig?.pluginLifeCycle) === "undefined") {
+    if ( typeof(pluginImpConfig.pluginLifeCycle) === "undefined") {
         // pluginPostInstall was not defined by the plugin
         const credMgrInfo: ICredentialManagerNameMap =
             CredentialManagerOverride.getCredMgrInfoByPlugin(pluginPackageNm);
@@ -182,7 +182,7 @@ function callPluginPostInstall(
             throw new ImperativeError({
                 msg: `The plugin '${pluginPackageNm}' attempted to override the CLI ` +
                 `Credential Manager without providing a 'pluginLifeCycle' class. ` +
-                `The default Credential Manager remains in place.`
+                `The previous Credential Manager remains in place.`
             });
         }
         return;
@@ -192,12 +192,22 @@ function callPluginPostInstall(
     try {
         impLogger.debug(`Calling the postInstall function for plugin '${pluginPackageNm}'`);
         const requirerFun = PluginManagementFacility.instance.requirePluginModuleCallback(pluginPackageNm);
-        const pluginLifeCycle: IPluginLifeCycle = requirerFun(pluginImpConfig.pluginLifeCycle);
-        pluginLifeCycle.postInstall();
+        const lifeCycleInstance = requirerFun(pluginImpConfig.pluginLifeCycle);
+        lifeCycleInstance.postInstall();
     } catch (err) {
         throw new ImperativeError({
-            msg: `The 'postInstall' function of plugin '${pluginPackageNm}' failed.`,
-            causeErrors: err.msg
+            msg: `The 'postInstall' function of plugin '${pluginPackageNm}' failed.` +
+            `\nReason: ${err.message}`
         });
     }
 }
+
+/* The following functions are private to this module. Breaking changes
+ * might be made at any time to any of the following functions.
+ * Make no attempt to to call them externally.
+ * They are only exported here to enable automated testing.
+ * Only test programs should access 'onlyForTesting'.
+ */
+export const onlyForTesting = {
+    callPluginPostInstall: callPluginPostInstall
+};
