@@ -24,7 +24,7 @@ export const editDefinition: ICommandDefinition = {
     summary: "edit config files",
     description: `Edit an existing config file in your system's default text editor.\n\n` +
         `In a graphical environment, the application associated with JSON files will be launched. ` +
-        `In a command-line environment, vi will be launched. To override the command-line editor used, specify it in ` +
+        `In a command-line environment, vi will be launched. To override your default editor, specify the chosen program's executable location by using ` +
         `the ${ImperativeConfig.instance.loadedConfig.envVariablePrefix}_EDITOR environment variable.`,
     options: [
         {
