@@ -51,7 +51,7 @@ export class ImperativeError extends Error {
     }
 
     /**
-      * Return causeDetails
+     * Return causeDetails
      * @readonly
      * @type {string}
      * @memberof ImperativeError
