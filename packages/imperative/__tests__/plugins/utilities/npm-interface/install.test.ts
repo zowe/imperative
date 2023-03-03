@@ -365,14 +365,83 @@ describe("PMF: Install Interface", () => {
 
     describe("callPluginPostInstall", () => {
         const knownCredMgr = "@zowe/secrets-for-kubernetes-for-zowe-cli";
-
+        const postInstallErrText = "Pretend that the plugin's postInstall function threw an error";
         let callPluginPostInstall : any;
+        let fakePluginConfig: IImperativeConfig;
+        let installModule;
+        let LifeCycleClass;
+        let lifeCycleInstance;
+        let postInstallWorked = false;
+        let requirePluginModuleCallbackSpy;
+
+        /**
+         *  Set config to reflect if a plugin has a lifecycle class.
+         */
+        const pluginShouldHaveLifeCycle = (shouldHaveIt: boolean): void => {
+            if (shouldHaveIt) {
+                fakePluginConfig = {
+                    pluginLifeCycle: "fake/path/to/file/with/LC/class"
+                };
+            } else {
+                fakePluginConfig = {
+                    // no LifeCycle
+                };
+            }
+        };
+
+        /**
+         *  Create a lifecycle class to reflect if postInstall should work or not
+         */
+        const postInstallShouldWork = (shouldWork: boolean): void => {
+            if (shouldWork) {
+                LifeCycleClass = class implements IPluginLifeCycle {
+                    postInstall() {
+                        postInstallWorked = true;
+                    }
+                    preUninstall() {
+                        return;
+                    }
+                };
+            } else {
+                LifeCycleClass = class implements IPluginLifeCycle {
+                    postInstall() {
+                        throw new ImperativeError({
+                            msg: postInstallErrText
+                        });
+                    }
+                    preUninstall() {
+                        return;
+                    }
+                };
+            }
+
+            // create an instance of our newly created class
+            lifeCycleInstance = new LifeCycleClass();
+        };
+
         beforeAll(() => {
-            const installModule = require("../../../../src/plugins/utilities/npm-interface/install");
+            // make requirePluginModuleCallback return our fake lifeCycleInstance
+            requirePluginModuleCallbackSpy = jest.spyOn(
+                PluginManagementFacility.instance, "requirePluginModuleCallback").
+                mockImplementation((_pluginName: string) => {
+                    return () => {
+                        return lifeCycleInstance as any;
+                    };
+                });
+
+            // gain access to the non-exported callPluginPostInstall function
+            installModule = require("../../../../src/plugins/utilities/npm-interface/install");
             callPluginPostInstall = installModule.onlyForTesting.callPluginPostInstall;
         });
 
-        it("should throw an error if a known credMgr does not implement postInstall", async () => {
+        beforeEach(() => {
+            postInstallWorked = false;
+        });
+
+        it("should throw an error if a known credMgr does not implement postInstall", () => {
+            // force our plugin to have NO LifeCycle class
+            pluginShouldHaveLifeCycle(false);
+
             let thrownErr: any;
             try {
                 callPluginPostInstall(knownCredMgr, {});
@@ -387,7 +456,10 @@ describe("PMF: Install Interface", () => {
             expect(thrownErr.message).toContain("The previous Credential Manager remains in place.");
         });
 
-        it("should do nothing if a non-credMgr does not implement postInstall", async () => {
+        it("should do nothing if a non-credMgr does not implement postInstall", () => {
+            // force our plugin to have NO LifeCycle class
+            pluginShouldHaveLifeCycle(false);
+
             let thrownErr: any;
             try {
                 callPluginPostInstall("plugin_does_not_override_cred_mgr", {});
@@ -397,32 +469,12 @@ describe("PMF: Install Interface", () => {
             expect(thrownErr).not.toBeDefined();
         });
 
-        it("should call the postInstall function of a plugin", async () => {
-            // create a fake plugin configuration
-            const fakePluginConfig: IImperativeConfig = {
-                pluginLifeCycle: "fake_path_to_file_with_LC_class"
-            };
+        it("should call the postInstall function of a plugin", () => {
+            // force our plugin to have a LifeCycle class
+            pluginShouldHaveLifeCycle(true);
 
-            // create a fake LifeCycleClass
-            let postInstallWorked: boolean = false;
-            const LifeCycleClass = class implements IPluginLifeCycle {
-                postInstall() {
-                    postInstallWorked = true;
-                }
-                preUninstall() {
-                    return;
-                }
-            };
-            const lifeCycleInstance = new LifeCycleClass();
-
-            // make requirePluginModuleCallback return our fake lifeCycleInstance
-            const requirePluginModuleCallbackSpy = jest.spyOn(
-                PluginManagementFacility.instance, "requirePluginModuleCallback").
-                mockImplementation((_pluginName: string) => {
-                    return () => {
-                        return lifeCycleInstance as any;
-                    };
-                });
+            // force our plugin's preUninstall function to succeed
+            postInstallShouldWork(true);
 
             const postInstallSpy = jest.spyOn(lifeCycleInstance, "postInstall");
 
@@ -438,36 +490,12 @@ describe("PMF: Install Interface", () => {
             expect(postInstallWorked).toBe(true);
         });
 
-        it("should catch an error from a plugin's postInstall function", async () => {
-            // create a fake plugin configuration
-            const fakePluginConfig: IImperativeConfig = {
-                pluginLifeCycle: "fake_path_to_file_with_LC_class"
-            };
+        it("should catch an error from a plugin's postInstall function", () => {
+            // force our plugin to have a LifeCycle class
+            pluginShouldHaveLifeCycle(true);
 
-            // create a fake LifeCycleClass whose postInstall throws an error
-            const postInstallErrText = "Pretend that the plugin's postInstall function threw an error";
-            // eslint-disable-next-line prefer-const
-            let postInstallWorked: boolean = false;
-            const LifeCycleClass = class implements IPluginLifeCycle {
-                postInstall() {
-                    throw new ImperativeError({
-                        msg: postInstallErrText
-                    });
-                }
-                preUninstall() {
-                    return;
-                }
-            };
-            const lifeCycleInstance = new LifeCycleClass();
-
-            // make requirePluginModuleCallback return our fake lifeCycleInstance
-            const requirePluginModuleCallbackSpy = jest.spyOn(
-                PluginManagementFacility.instance, "requirePluginModuleCallback").
-                mockImplementation((_pluginName: string) => {
-                    return () => {
-                        return lifeCycleInstance as any;
-                    };
-                });
+            // force our plugin's preUninstall function to fail
+            postInstallShouldWork(false);
 
             const postInstallSpy = jest.spyOn(lifeCycleInstance, "postInstall");
 

@@ -24,7 +24,6 @@ import { PluginManagementFacility } from "../../PluginManagementFacility";
 import { ConfigurationLoader } from "../../../ConfigurationLoader";
 import { UpdateImpConfig } from "../../../UpdateImpConfig";
 import { CredentialManagerOverride, ICredentialManagerNameMap } from "../../../../../security";
-import { IPluginLifeCycle } from "../../doc/IPluginLifeCycle";
 
 /**
  * Common function that abstracts the install process. This function should be called for each
