@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.9.1`
 - BugFix: Fix environment file not applying to daemon client environment variables
 
 ## `5.9.0`
