@@ -123,8 +123,9 @@ export default class UninstallHandler implements ICommandHandler {
 
         } catch (err) {
             throw new ImperativeError({
-                msg: `Unable to run the 'preUninstall' function of plugin '${pluginPackageNm}'`,
-                causeErrors: err.msg
+                msg: `Unable to run the 'preUninstall' function of plugin '${pluginPackageNm}'` +
+                `\nReason: ${err.message}`,
+                causeErrors: (err.causeErrors) ? err.causeErrors : ""
             });
         }
     }
