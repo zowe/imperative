@@ -24,6 +24,8 @@ import { CliUtils } from "../../utilities/src/CliUtils";
 import { WebHelpManager } from "../src/help/WebHelpManager";
 import { ImperativeConfig } from "../../utilities/src/ImperativeConfig";
 import { setupConfigToLoad } from "../../../__tests__/src/TestUtil";
+import { EnvFileUtils } from "../../utilities";
+import { join } from "path";
 
 jest.mock("../src/syntax/SyntaxValidator");
 jest.mock("../src/utils/SharedOptions");
@@ -1736,6 +1738,75 @@ describe("Command Processor", () => {
                 expect(process.env.Unit_Test_Env).toBe("new");
             } else {
                 expect(process.env.UNIT_TEST_ENV).toBe("new");
+            }
+            expect(Object.keys(process.env).length).toBe(envVarCount);  // Ensure that env vars were preserved
+            expect(mockConfigReload).toHaveBeenCalledTimes(1);
+        } finally {
+            delete process.env.UNIT_TEST_ENV;
+        }
+    });
+
+    it("should invoke the handler and process daemon response and use the environment file", async () => {
+        // Allocate the command processor
+        const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
+            fullDefinition: SAMPLE_COMPLEX_COMMAND,
+            definition: SAMPLE_COMMAND_REAL_HANDLER,
+            helpGenerator: FAKE_HELP_GENERATOR,
+            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: "",
+            promptPhrase: "dummydummy",
+            daemonContext: {
+                response: {
+                    cwd: process.cwd(),
+                    env: { UNIT_TEST_ENV: "new" }
+                }
+            }
+        });
+
+        // Mock read stdin
+        (SharedOptions.readStdinIfRequested as any) = jest.fn((args, response, type) => {
+            // Nothing to do
+        });
+
+        // Mock the profile loader
+        (CommandProfileLoader.loader as any) = jest.fn((args) => {
+            return {
+                loadProfiles: (profArgs: any) => {
+                    // Nothing to do
+                }
+            };
+        });
+
+        jest.spyOn(process, "chdir");
+        const mockConfigReload = jest.fn();
+        jest.spyOn(ImperativeConfig, "instance", "get").mockReturnValue({
+            config: { reload: mockConfigReload }
+        } as any);
+        jest.spyOn(EnvFileUtils, "getEnvironmentFilePath").mockReturnValueOnce(join(__dirname, "__resources__", ".zowe.env.json"));
+
+        const parms: any = {
+            arguments: {
+                _: ["check", "for", "banana"],
+                $0: "",
+                valid: true
+            },
+            silent: true
+        };
+        EnvFileUtils.setEnvironmentForApp("zowe", false);
+        process.env.UNIT_TEST_ENV = "old";
+        try {
+            const envVarCount = Object.keys(process.env).length;
+            const commandResponse: ICommandResponse = await processor.invoke(parms);
+            expect(commandResponse).toBeDefined();
+            expect(commandResponse).toMatchSnapshot();
+            expect(process.chdir).toHaveBeenCalledTimes(1);
+            if (process.platform === "win32") {
+                // Test that env vars are case insensitive (Path vs PATH)
+                expect(process.env.Unit_Test_Env).toBe("newer");
+            } else {
+                expect(process.env.UNIT_TEST_ENV).toBe("newer");
             }
             expect(Object.keys(process.env).length).toBe(envVarCount);  // Ensure that env vars were preserved
             expect(mockConfigReload).toHaveBeenCalledTimes(1);

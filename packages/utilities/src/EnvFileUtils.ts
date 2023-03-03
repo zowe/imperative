@@ -24,6 +24,11 @@ import * as JSONC from "comment-json";
 export class EnvFileUtils {
 
     /**
+     * This variable holds a cached version of the EnvFileJson.
+     */
+    private static environmentJSON: any = {};
+
+    /**
      * Check and read in an environment file from the user home directory using the app name
      * If the file is valid, set the environment variables
      * If the file is not valid, display an error and continue
@@ -39,9 +44,8 @@ export class EnvFileUtils {
             try {
                 const fileContents = readFileSync(expectedFileLocation).toString(); // Read the file in
                 const fileContentsJSON = JSONC.parse(fileContents);
-                Object.keys(fileContentsJSON).forEach( key => {
-                    process.env[key] = fileContentsJSON[key];
-                });
+                this.environmentJSON = fileContentsJSON;
+                this.resetEnvironmentForApp();
             } catch (err) {
                 let errorMessage = "Failed to set up environment variables from the environment file.\n" +
                     "Environment variables will not be available.\nFile: " + expectedFileLocation;
@@ -53,6 +57,17 @@ export class EnvFileUtils {
                 throw new ImperativeError({msg: errorMessage, causeErrors: err});
             }
         }
+    }
+
+    /**
+     * Reapply environment variables that were applied before
+     * @returns {void}
+     * @throws {ImperativeError}
+     */
+    public static resetEnvironmentForApp(): void {
+        Object.keys(this.environmentJSON).forEach( key => {
+            process.env[key] = this.environmentJSON[key];
+        });
     }
 
     /**
