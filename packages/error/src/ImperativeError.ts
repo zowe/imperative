@@ -72,9 +72,6 @@ export class ImperativeError extends Error {
 
     /**
      * Return additionalDetails
-     * @readonly
-     * @type {string}
-     * @memberof ImperativeError
      */
     public get additionalDetails(): string {
         return this.mDetails.additionalDetails;
