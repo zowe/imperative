@@ -961,6 +961,24 @@ Object {
 }
 `;
 
+exports[`Command Processor should invoke the handler and process daemon response and use the environment file 1`] = `
+Object {
+  "data": Object {},
+  "error": undefined,
+  "exitCode": 0,
+  "message": "",
+  "stderr": Object {
+    "data": Array [],
+    "type": "Buffer",
+  },
+  "stdout": Object {
+    "data": Array [],
+    "type": "Buffer",
+  },
+  "success": true,
+}
+`;
+
 exports[`Command Processor should invoke the handler and return success=true if the handler was successful 1`] = `
 Object {
   "data": Object {},

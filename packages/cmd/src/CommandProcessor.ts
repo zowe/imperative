@@ -31,7 +31,7 @@ import { IInvokeCommandParms } from "./doc/parms/IInvokeCommandParms";
 import { ICommandProcessorParms } from "./doc/processor/ICommandProcessorParms";
 import { ImperativeExpect } from "../../expect";
 import { inspect } from "util";
-import { ImperativeConfig, TextUtils } from "../../utilities";
+import { EnvFileUtils, ImperativeConfig, TextUtils } from "../../utilities";
 import * as nodePath from "path";
 import * as os from "os";
 import * as stream from "stream";
@@ -468,6 +468,8 @@ export class CommandProcessor {
                     for (const [k, v] of Object.entries(this.mDaemonContext.response.env)) {
                         process.env[k] = v;
                     }
+                    // Load environment variables from env file
+                    EnvFileUtils.resetEnvironmentForApp();
                 }
 
                 // reload config for daemon client directory

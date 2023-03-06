@@ -12,6 +12,9 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Enhancement: Added a CredentialManagerOverride class containing utility functions to replace the default CLI credential manager or restore the default CLI credential manager. Plugins which implement a credential manager override can call these utilities from their IPluginLifeCycle functions.
 
+## `5.9.1`
+- BugFix: Fix environment file not applying to daemon client environment variables
+
 ## `5.9.0`
 
 - Enhancement: Adds `~/.<cli_name>.env.json` file to provide environment variables to the Imperative framework during Imperative initialization
