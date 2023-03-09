@@ -13,7 +13,6 @@ import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { ConfigurationLoader } from "../../../ConfigurationLoader";
 import { CredentialManagerOverride, ICredentialManagerNameMap } from "../../../../../security";
 import { Logger } from "../../../../../logger/";
-import { IPluginLifeCycle } from "../../doc/IPluginLifeCycle";
 import { PluginManagementFacility } from "../../PluginManagementFacility";
 import { PMFConstants } from "../../utilities/PMFConstants";
 import { uninstall } from "../../utilities/npm-interface";
@@ -98,7 +97,7 @@ export default class UninstallHandler implements ICommandHandler {
             const requirerFunction = PluginManagementFacility.instance.requirePluginModuleCallback(pluginPackageNm);
             const pluginImpConfig = ConfigurationLoader.load(null, packageInfo, requirerFunction);
 
-            if ( typeof(pluginImpConfig?.pluginLifeCycle) === "undefined") {
+            if ( pluginImpConfig?.pluginLifeCycle === undefined) {
                 // the pluginLifeCycle was not defined by the plugin
                 const credMgrInfo: ICredentialManagerNameMap =
                     CredentialManagerOverride.getCredMgrInfoByPlugin(pluginPackageNm);
@@ -118,12 +117,12 @@ export default class UninstallHandler implements ICommandHandler {
             // call the plugin's preUninstall operation
             impLogger.debug(`Calling the preUninstall function for plugin '${pluginPackageNm}'`);
             const requirerFun = PluginManagementFacility.instance.requirePluginModuleCallback(pluginPackageNm);
-            const pluginLifeCycle: IPluginLifeCycle = requirerFun(pluginImpConfig.pluginLifeCycle);
-            pluginLifeCycle.preUninstall();
-
+            const lifeCycleClass = requirerFun(pluginImpConfig.pluginLifeCycle);
+            const lifeCycleInstance = new lifeCycleClass();
+            lifeCycleInstance.postInstall();
         } catch (err) {
             throw new ImperativeError({
-                msg: `Unable to run the 'preUninstall' function of plugin '${pluginPackageNm}'` +
+                msg: `Unable to perform the 'preUninstall' action of plugin '${pluginPackageNm}'` +
                 `\nReason: ${err.message}`,
                 causeErrors: (err.causeErrors) ? err.causeErrors : ""
             });

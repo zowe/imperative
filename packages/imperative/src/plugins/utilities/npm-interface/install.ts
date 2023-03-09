@@ -171,8 +171,7 @@ function callPluginPostInstall(
     pluginPackageNm: string, pluginImpConfig: IImperativeConfig
 ): void {
     const impLogger = Logger.getImperativeLogger();
-
-    if ( typeof(pluginImpConfig.pluginLifeCycle) === "undefined") {
+    if ( pluginImpConfig.pluginLifeCycle === undefined) {
         // pluginPostInstall was not defined by the plugin
         const credMgrInfo: ICredentialManagerNameMap =
             CredentialManagerOverride.getCredMgrInfoByPlugin(pluginPackageNm);
@@ -191,11 +190,12 @@ function callPluginPostInstall(
     try {
         impLogger.debug(`Calling the postInstall function for plugin '${pluginPackageNm}'`);
         const requirerFun = PluginManagementFacility.instance.requirePluginModuleCallback(pluginPackageNm);
-        const lifeCycleInstance = requirerFun(pluginImpConfig.pluginLifeCycle);
+        const lifeCycleClass = requirerFun(pluginImpConfig.pluginLifeCycle);
+        const lifeCycleInstance = new lifeCycleClass();
         lifeCycleInstance.postInstall();
     } catch (err) {
         throw new ImperativeError({
-            msg: `The 'postInstall' function of plugin '${pluginPackageNm}' failed.` +
+            msg: `Unable to perform the post-install action for plugin '${pluginPackageNm}'.` +
             `\nReason: ${err.message}`
         });
     }

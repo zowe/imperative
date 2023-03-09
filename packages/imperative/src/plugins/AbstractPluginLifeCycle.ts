@@ -10,10 +10,12 @@
 */
 
 /**
- * An optional module of a plugin adheres to this interface to
+ * An optional module of a plugin extends this class to
  * perform actions during the installation lifecycle of a plugin.
+ * A plugin identifies that it supplies a life cycle class
+ * by specifying the 'pluginLifeCycle' imperative configuration property.
  */
-export interface IPluginLifeCycle {
+export abstract class AbstractPluginLifeCycle {
     /**
      * This function will be called after a plugin is installed.
      * A plugin can use this opportunity to perform a sanity test or to
@@ -26,7 +28,7 @@ export interface IPluginLifeCycle {
      *      An ImperativeError containing a message describing any error
      *      that occurred while performing post-install actions.
      */
-    postInstall(): void;
+    public abstract postInstall(): void;
 
     /**
      * This function will be called before a plugin is uninstalled.
@@ -44,5 +46,6 @@ export interface IPluginLifeCycle {
      *      An ImperativeError containing a message describing any error
      *      that occurred while performing post-install actions.
      */
-    preUninstall(): void;
+    public abstract preUninstall(): void;
 }
+

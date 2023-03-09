@@ -225,11 +225,11 @@ export interface IImperativeConfig {
     overrides?: IImperativeOverrides;
 
     /**
-     * A path to a plugin's module (javascript file) that implements the IPluginLifeCycle
-     * interface. That interface enables a plugin to perform an action immediately after
+     * A path to a plugin's module (javascript file) that extends the AbstractPluginLifeCycle
+     * class. The functions of that enable a plugin to perform an action immediately after
      * its installation and to perform an action before its un-installation.
      *
-     * See IPluginLifeCycle for the detailed functions.
+     * See AbstractPluginLifeCycle for the detailed functions.
      */
     pluginLifeCycle?: string;
 

@@ -55,6 +55,7 @@ export class CredentialManagerOverride {
         for (const nextNameMap of this.KNOWN_CRED_MGRS) {
             if (nextNameMap.credMgrDisplayName === credMgrDisplayName) {
                 credMgrInfo = nextNameMap;
+                break;
             }
         }
         return credMgrInfo;
@@ -74,6 +75,7 @@ export class CredentialManagerOverride {
         for (const nextNameMap of this.KNOWN_CRED_MGRS) {
             if (nextNameMap.credMgrPluginName === pluginName) {
                 credMgrInfo = nextNameMap;
+                break;
             }
         }
         return credMgrInfo;
@@ -93,6 +95,7 @@ export class CredentialManagerOverride {
         for (const nextNameMap of this.KNOWN_CRED_MGRS) {
             if (nextNameMap.credMgrZEName === ZEExtName) {
                 credMgrInfo = nextNameMap;
+                break;
             }
         }
         return credMgrInfo;
@@ -120,6 +123,25 @@ export class CredentialManagerOverride {
      * @throws An ImperativeError upon error.
      */
     public static overrideCredMgr(newCredMgrName: string) : void {
+        const credMgrInfo: ICredentialManagerNameMap =
+            CredentialManagerOverride.getCredMgrInfoByDisplayName(newCredMgrName);
+        if (credMgrInfo === null) {
+            // We do not have a known credMgr. Form a list of known credential managers.
+            const knownCredMgrs: ICredentialManagerNameMap[] = CredentialManagerOverride.getKnownCredMgrs();
+            let knownMgrsMsg: string = "";
+            for ( let credMgrInx = 0; credMgrInx < knownCredMgrs.length; credMgrInx++) {
+                knownMgrsMsg += `\n${knownCredMgrs[credMgrInx].credMgrDisplayName}`;
+            }
+
+            // we do not permit overriding by an unknown credMgr
+            throw new ImperativeError({
+                msg: `The credential manager name '${newCredMgrName}' is an unknown ` +
+                `credential manager. The previous credential manager will NOT be overridden. ` +
+                `Valid credential managers are:` + knownMgrsMsg
+            });
+        }
+
+        // read in the existing settings file
         let settings: any;
         try {
             settings = this.getSettingsFileJson();
@@ -131,6 +153,7 @@ export class CredentialManagerOverride {
             });
         }
 
+        // set to the new credMgr and write the settings file
         settings.json.overrides.CredentialManager = newCredMgrName;
         try {
             writeJsonSync(settings.fileName, settings.json, {spaces: 2});
@@ -157,6 +180,7 @@ export class CredentialManagerOverride {
      * @throws An ImperativeError upon error.
      */
     public static replaceCredMgrWithDefault(credMgrToReplace: string) : void {
+        // read in the existing settings file
         let settings: any;
         try {
             settings = this.getSettingsFileJson();
@@ -168,6 +192,7 @@ export class CredentialManagerOverride {
             });
         }
 
+        // we only permit a credential manager to restore from itself back to our default
         if ( settings.json.overrides.CredentialManager != credMgrToReplace ) {
             throw new ImperativeError({
                 msg: "The current Credential Manager = '" +
@@ -177,6 +202,8 @@ export class CredentialManagerOverride {
                 "'. The current Credential Manager has not been replaced."
             });
         }
+
+        // reset to our default credMgr and write the settings file
         settings.json.overrides.CredentialManager = this.DEFAULT_CRED_MGR_NAME;
         try {
             writeJsonSync(settings.fileName, settings.json, {spaces: 2});

@@ -8,6 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 *
 */
+
 /**
  * This interface represents the association of plugin name, VS Code extension name,
  * and credential manager override name for components that override the default
