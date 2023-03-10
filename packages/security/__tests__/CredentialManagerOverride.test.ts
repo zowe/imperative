@@ -238,7 +238,28 @@ describe("CredentialManagerOverride", () => {
     });
 
     describe("overrideCredMgr", () => {
-        it("should throw an override error due to error in getSettingsFileJson", () => {
+        const knownCredMgr = CredentialManagerOverride.getKnownCredMgrs()[1];
+        const knownCredMgrDisplayNm = knownCredMgr.credMgrDisplayName as string;
+        const knownCredMgrPluginNm = knownCredMgr.credMgrPluginName as string;
+
+        it("should throw an error when trying to override with an unknown credMgr", () => {
+            const unknownCredMgrName = "A credential manager name that is not known";
+
+            let thrownErr: any;
+            try {
+                CredentialManagerOverride.overrideCredMgr(unknownCredMgrName);
+            } catch (err) {
+                thrownErr = err;
+            }
+
+            expect(thrownErr).toBeDefined();
+            expect(thrownErr.message).toContain(
+                `The credential manager name '${unknownCredMgrName}' is an unknown credential manager. ` +
+                "The previous credential manager will NOT be overridden. Valid credential managers are:"
+            );
+        });
+
+        it("should throw an error when getSettingsFileJson fails", () => {
             // Force an error when reading our settings
             const readJsonErrText = "Pretend that readJsonSync threw an error";
             const readJsonSync = jest.spyOn(fsExtra, "readJsonSync").mockImplementation(() => {
@@ -248,10 +269,9 @@ describe("CredentialManagerOverride", () => {
             // spy with 'any' to confirm that a private function has been called
             const getSettingsFileJsonSpy = jest.spyOn(CredentialManagerOverride as any, "getSettingsFileJson");
 
-            const newCredMgrOverride = "NewPluginCredMgr";
             let thrownErr: any;
             try {
-                CredentialManagerOverride.overrideCredMgr(newCredMgrOverride);
+                CredentialManagerOverride.overrideCredMgr(knownCredMgrDisplayNm);
             } catch (err) {
                 thrownErr = err;
             }
@@ -259,7 +279,7 @@ describe("CredentialManagerOverride", () => {
             expect(getSettingsFileJsonSpy).toHaveBeenCalledTimes(1);
             expect(thrownErr).toBeDefined();
             expect(thrownErr.message).toContain(
-                `Due to error in settings file, unable to override the credential manager with '${newCredMgrOverride}'`
+                `Due to error in settings file, unable to override the credential manager with '${knownCredMgrDisplayNm}'`
             );
             expect(thrownErr.message).toContain(
                 "Reason: Unable to read settings file = " + expectedSettings.fileName
@@ -279,10 +299,9 @@ describe("CredentialManagerOverride", () => {
                 throw new Error(writeJsonErrText);
             });
 
-            const newCredMgrOverride = "NewPluginCredMgr";
             let thrownErr: ImperativeError = null as any;
             try {
-                CredentialManagerOverride.overrideCredMgr(newCredMgrOverride);
+                CredentialManagerOverride.overrideCredMgr(knownCredMgrDisplayNm);
             } catch (err) {
                 thrownErr = err;
             }
@@ -304,12 +323,11 @@ describe("CredentialManagerOverride", () => {
                     writtenJsonSettings = jsonSettings;
                 });
 
-            const newCredMgrOverride = "NewPluginCredMgr";
-            CredentialManagerOverride.overrideCredMgr(newCredMgrOverride);
+            CredentialManagerOverride.overrideCredMgr(knownCredMgrDisplayNm);
 
             expect(readJsonSync).toHaveBeenCalledWith(expectedSettings.fileName);
             expect(writeJsonSync).toHaveBeenCalledTimes(1);
-            expect(writtenJsonSettings.overrides.CredentialManager).toEqual(newCredMgrOverride);
+            expect(writtenJsonSettings.overrides.CredentialManager).toEqual(knownCredMgrDisplayNm);
         });
     });
 
