@@ -46,7 +46,6 @@ import { IImperativeConfig } from "../../../../src/doc/IImperativeConfig";
 import { install } from "../../../../src/plugins/utilities/npm-interface";
 import { IPluginJson } from "../../../../src/plugins/doc/IPluginJson";
 import { IPluginJsonObject } from "../../../../src/plugins/doc/IPluginJsonObject";
-import { IPluginLifeCycle } from "../../../../src/plugins/doc/IPluginLifeCycle";
 import { Logger } from "../../../../../logger";
 import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
 import { readFileSync, writeFileSync } from "jsonfile";
@@ -54,6 +53,7 @@ import { sync } from "find-up";
 import { getPackageInfo, installPackages } from "../../../../src/plugins/utilities/NpmFunctions";
 import { ConfigSchema } from "../../../../../config/src/ConfigSchema";
 import { PluginManagementFacility } from "../../../../src/plugins/PluginManagementFacility";
+import { AbstractPluginLifeCycle } from "../../../../src/plugins/AbstractPluginLifeCycle";
 import { ConfigurationLoader } from "../../../../src/ConfigurationLoader";
 import { UpdateImpConfig } from "../../../../src/UpdateImpConfig";
 import * as fs from "fs";
@@ -370,7 +370,6 @@ describe("PMF: Install Interface", () => {
         let fakePluginConfig: IImperativeConfig;
         let installModule;
         let LifeCycleClass;
-        let lifeCycleInstance;
         let postInstallWorked = false;
         let requirePluginModuleCallbackSpy;
 
@@ -394,7 +393,7 @@ describe("PMF: Install Interface", () => {
          */
         const postInstallShouldWork = (shouldWork: boolean): void => {
             if (shouldWork) {
-                LifeCycleClass = class implements IPluginLifeCycle {
+                LifeCycleClass = class extends AbstractPluginLifeCycle {
                     postInstall() {
                         postInstallWorked = true;
                     }
@@ -403,7 +402,7 @@ describe("PMF: Install Interface", () => {
                     }
                 };
             } else {
-                LifeCycleClass = class implements IPluginLifeCycle {
+                LifeCycleClass = class extends AbstractPluginLifeCycle {
                     postInstall() {
                         throw new ImperativeError({
                             msg: postInstallErrText
@@ -414,18 +413,15 @@ describe("PMF: Install Interface", () => {
                     }
                 };
             }
-
-            // create an instance of our newly created class
-            lifeCycleInstance = new LifeCycleClass();
         };
 
         beforeAll(() => {
-            // make requirePluginModuleCallback return our fake lifeCycleInstance
+            // make requirePluginModuleCallback return our fake LifeCycleClass
             requirePluginModuleCallbackSpy = jest.spyOn(
                 PluginManagementFacility.instance, "requirePluginModuleCallback").
                 mockImplementation((_pluginName: string) => {
                     return () => {
-                        return lifeCycleInstance as any;
+                        return LifeCycleClass as any;
                     };
                 });
 
@@ -473,10 +469,8 @@ describe("PMF: Install Interface", () => {
             // force our plugin to have a LifeCycle class
             pluginShouldHaveLifeCycle(true);
 
-            // force our plugin's preUninstall function to succeed
+            // force our plugin's postInstall function to succeed
             postInstallShouldWork(true);
-
-            const postInstallSpy = jest.spyOn(lifeCycleInstance, "postInstall");
 
             let thrownErr: any;
             try {
@@ -486,7 +480,6 @@ describe("PMF: Install Interface", () => {
             }
             expect(requirePluginModuleCallbackSpy).toHaveBeenCalledTimes(1);
             expect(thrownErr).not.toBeDefined();
-            expect(postInstallSpy).toHaveBeenCalledTimes(1);
             expect(postInstallWorked).toBe(true);
         });
 
@@ -494,10 +487,8 @@ describe("PMF: Install Interface", () => {
             // force our plugin to have a LifeCycle class
             pluginShouldHaveLifeCycle(true);
 
-            // force our plugin's preUninstall function to fail
+            // force our plugin's postInstall function to fail
             postInstallShouldWork(false);
-
-            const postInstallSpy = jest.spyOn(lifeCycleInstance, "postInstall");
 
             let thrownErr: any;
             try {
@@ -506,11 +497,10 @@ describe("PMF: Install Interface", () => {
                 thrownErr = err;
             }
             expect(requirePluginModuleCallbackSpy).toHaveBeenCalledTimes(1);
-            expect(postInstallSpy).toHaveBeenCalledTimes(1);
             expect(postInstallWorked).toBe(false);
             expect(thrownErr).toBeDefined();
             expect(thrownErr.message).toContain(
-                "The 'postInstall' function of plugin 'FakePluginPackageName' failed."
+                "Unable to perform the post-install action for plugin 'FakePluginPackageName'."
             );
             expect(thrownErr.message).toContain(postInstallErrText);
         });
