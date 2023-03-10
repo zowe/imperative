@@ -27,8 +27,8 @@ import { CredentialManagerOverride } from "../../../../../security";
 import { execSync } from "child_process";
 import { IImperativeConfig } from "../../../../src/doc/IImperativeConfig";
 import { IPluginJson } from "../../../../src/plugins/doc/IPluginJson";
-import { IPluginLifeCycle } from "../../../../src/plugins/doc/IPluginLifeCycle";
 import { PluginManagementFacility } from "../../../../src/plugins/PluginManagementFacility";
+import { AbstractPluginLifeCycle } from "../../../../src/plugins/AbstractPluginLifeCycle";
 import { ImperativeError } from "../../../../../error";
 import { Logger } from "../../../../../logger";
 import { readFileSync, writeFileSync } from "jsonfile";
@@ -181,7 +181,6 @@ describe("callPluginPreUninstall", () => {
     let fakePluginConfig: IImperativeConfig;
     let getPackageInfoSpy;
     let LifeCycleClass;
-    let lifeCycleInstance;
     let preUninstallWorked = false;
     let replaceCredMgrWithDefaultSpy;
     let requirePluginModuleCallbackSpy;
@@ -212,7 +211,7 @@ describe("callPluginPreUninstall", () => {
      */
     const preUninstallShouldWork = (shouldWork: boolean): void => {
         if (shouldWork) {
-            LifeCycleClass = class implements IPluginLifeCycle {
+            LifeCycleClass = class extends AbstractPluginLifeCycle {
                 postInstall() {
                     return;
                 }
@@ -221,7 +220,7 @@ describe("callPluginPreUninstall", () => {
                 }
             };
         } else {
-            LifeCycleClass = class implements IPluginLifeCycle {
+            LifeCycleClass = class extends AbstractPluginLifeCycle {
                 postInstall() {
                     return;
                 }
@@ -232,9 +231,6 @@ describe("callPluginPreUninstall", () => {
                 }
             };
         }
-
-        // create an instance of our newly created class
-        lifeCycleInstance = new LifeCycleClass();
     };
 
     beforeAll(() => {
@@ -257,12 +253,12 @@ describe("callPluginPreUninstall", () => {
             };
         });
 
-        // make requirePluginModuleCallback return our fake lifeCycleInstance
+        // make requirePluginModuleCallback return our fake LifeCycleClass
         requirePluginModuleCallbackSpy = jest.spyOn(
             PluginManagementFacility.instance, "requirePluginModuleCallback").
             mockImplementation((_pluginName: string) => {
                 return () => {
-                    return lifeCycleInstance as any;
+                    return LifeCycleClass as any;
                 };
             });
 
@@ -318,9 +314,6 @@ describe("callPluginPreUninstall", () => {
         // force our plugin's preUninstall function to succeed
         preUninstallShouldWork(true);
 
-        // we want to know if we called the plugin's preUninstall function
-        const preUninstallSpy = jest.spyOn(lifeCycleInstance, "preUninstall");
-
         let thrownErr: any = null;
         try {
             await callPluginPreUninstallPrivate(knownCredMgrPlugin);
@@ -328,9 +321,7 @@ describe("callPluginPreUninstall", () => {
             thrownErr = err;
         }
 
-        expect(replaceCredMgrWithDefaultSpy).toHaveBeenCalledWith(knownCredMgrPlugin);
         expect(thrownErr).toBeNull();
-        expect(preUninstallSpy).toHaveBeenCalledTimes(1);
         expect(preUninstallWorked).toBe(true);
     });
 
@@ -341,9 +332,6 @@ describe("callPluginPreUninstall", () => {
         // force our plugin's preUninstall function to fail
         preUninstallShouldWork(false);
 
-        // we want to know if we called the plugin's preUninstall function
-        const preUninstallSpy = jest.spyOn(lifeCycleInstance, "preUninstall");
-
         let thrownErr: any = null;
         try {
             await callPluginPreUninstallPrivate(knownCredMgrPlugin);
@@ -351,12 +339,10 @@ describe("callPluginPreUninstall", () => {
             thrownErr = err;
         }
 
-        expect(replaceCredMgrWithDefaultSpy).toHaveBeenCalledWith(knownCredMgrPlugin);
-        expect(preUninstallSpy).toHaveBeenCalledTimes(1);
         expect(preUninstallWorked).toBe(false);
         expect(thrownErr).not.toBeNull();
         expect(thrownErr.message).toContain(
-            `Unable to run the 'preUninstall' function of plugin '${knownCredMgrPlugin}'`
+            `Unable to perform the 'preUninstall' action of plugin '${knownCredMgrPlugin}'`
         );
         expect(thrownErr.message).toContain(preUninstallErrText);
     });
