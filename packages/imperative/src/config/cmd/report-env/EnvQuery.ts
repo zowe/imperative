@@ -190,7 +190,7 @@ export class EnvQuery {
                 }
             }
         } catch (err) {
-            cmdOutput = "Failed to run commmand = " + cmdToRun + " " + args.join(" ");
+            cmdOutput = "Failed to run command = " + cmdToRun + " " + args.join(" ");
             if (err.message) {
                 cmdOutput += `${os.EOL}Details = ` + err.message;
             }
