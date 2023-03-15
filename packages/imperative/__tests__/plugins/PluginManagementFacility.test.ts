@@ -36,6 +36,7 @@ import { IPluginCfgProps } from "../../src/plugins/doc/IPluginCfgProps";
 import { Logger } from "../../../logger";
 import { IO } from "../../../io";
 import { ISettingsFile } from "../../../settings/src/doc/ISettingsFile";
+import { CredentialManagerOverride } from "../../../security/src/CredentialManagerOverride";
 
 // NOTE: Several tests for CredentialManager override are currently disabled
 describe("Plugin Management Facility", () => {
@@ -154,6 +155,7 @@ describe("Plugin Management Facility", () => {
 
     beforeEach(() => {
         jest.resetAllMocks();
+
         realAddCmdGrpToResolvedCliCmdTree = PMF.addCmdGrpToResolvedCliCmdTree;
         PMF.addCmdGrpToResolvedCliCmdTree = mockAddCmdGrpToResolvedCliCmdTree;
 
@@ -232,6 +234,7 @@ describe("Plugin Management Facility", () => {
         };
         const loadPluginCfgPropsReal: any = PMF.loadPluginCfgProps;
         const loadPluginCfgPropsMock = jest.fn();
+        let loggedErrText: string = "";
 
         beforeAll(() => {
             // loadPluginCfgProps is a sub-function that we do not want to run
@@ -245,6 +248,14 @@ describe("Plugin Management Facility", () => {
         beforeEach(() => {
             // supply data for PluginIssues.getInstalledPlugins()
             mocks.readFileSync.mockReturnValue(mockInstalledPlugins);
+
+            // start with new error text for each test
+            loggedErrText = "";
+
+            // force logged errors into loggedErrText so that errors can be easily tested
+            const loggerErrorSpy = jest.spyOn(Logger.prototype, "error").mockImplementation((newText) => {
+                return loggedErrText += newText;
+            });
         });
 
         it("should create the plugins.json file and directory", () => {
@@ -311,115 +322,29 @@ describe("Plugin Management Facility", () => {
             expect(caughtError).toBeUndefined();
         });
 
-        it("should store the CredentialManager override", () => {
+        it("should store a CredentialManager override", () => {
             mocks.existsSync.mockReturnValue(true);  // both directory and file exists
 
             /* An override string will be required, so set the string to our own file.
              * Then mock the results that a 'require' of our filename will return.
              */
-            const mockCredMgrValue = "AFakeCredMgrOverride";
+            const overrideClass = class SomeClassName {
+                private someVariable: string;
+                constructor() {
+                    this.someVariable = "someValue";
+                }
+            };
+            jest.mock(__filename, () => {
+                return overrideClass;
+            });
             const credMgrOverride = {
                 CredentialManager: __filename
             };
-            jest.mock(__filename, () => {
-                return mockCredMgrValue;
-            });
 
-            // Set a plugin's config properties to contain the override from above.
-            const pluginNmWithOverride = "ThisPluginHasOverride";
-            const pluginCfgPropsWithOverride = JSON.parse(JSON.stringify(basePluginCfgProps));
-            pluginCfgPropsWithOverride.pluginName = pluginNmWithOverride;
-            pluginCfgPropsWithOverride.impConfig.overrides = credMgrOverride;
-            loadPluginCfgPropsMock.mockReturnValue(pluginCfgPropsWithOverride);
-
-            AppSettings.initialize("test.json",defaultSettings);
-            AppSettings.instance.set("overrides","CredentialManager",pluginNmWithOverride);
-
-            // Place the plugin with override into a set of installed plugins
-            const installedPluginsWithOverride = JSON.parse(JSON.stringify(mockInstalledPlugins));
-            installedPluginsWithOverride[pluginNmWithOverride] = {
-                package: "override", registry: "override", version: "1"};
-
-            // make getInstalledPlugins return the set of installed plugins from above
-            const getInstalledPluginsReal = pluginIssues.getInstalledPlugins;
-            pluginIssues.getInstalledPlugins = jest.fn(() => {
-                return installedPluginsWithOverride;
-            });
-
-            // call the function that we want to test
-            PluginManagementFacility.instance.loadAllPluginCfgProps();
-
-            // confirm that we stored the override
-            expect(PMF.pluginOverrides).toEqual({
-                CredentialManager: mockCredMgrValue
-            });
-
-            // restore the real getInstalledPlugins function
-            pluginIssues.getInstalledPlugins = getInstalledPluginsReal;
-        });
-
-        it("should use an invalid CredMgr when the settings point to an uninstalled plugin", () => {
-            mocks.existsSync.mockReturnValue(true);  // both directory and file exists
-
-            /* An override string will be 'required', so set the string to our own file.
-             * Then mock the results that a 'require' of our filename will return.
+            /* Set a plugin's config properties to contain the override from above.
+             * To override our credMgr, the plugin must have a known name.
              */
-            const credMgrOverride = {
-                CredentialManager: __filename
-            };
-            jest.mock(__filename, () => {
-                return {
-                    CredentialManager: class {
-                        constructor() {
-                            throw new Error("Simulate override failure with InvalidCredMgr");
-                        }
-                    }
-                };
-            });
-
-            // Set a plugin's config properties to contain the override from above.
-            const pluginNmWithOverride = "ThisPluginHasOverride";
-            const pluginCfgPropsWithOverride = JSON.parse(JSON.stringify(basePluginCfgProps));
-            pluginCfgPropsWithOverride.pluginName = pluginNmWithOverride;
-            pluginCfgPropsWithOverride.impConfig.overrides = credMgrOverride;
-            loadPluginCfgPropsMock.mockReturnValue(pluginCfgPropsWithOverride);
-
-            AppSettings.initialize("test.json",defaultSettings);
-            AppSettings.instance.set("overrides","CredentialManager", "PluginNameThatWasNotInstalled");
-
-            // Place the plugin with override into a set of installed plugins
-            const installedPluginsWithOverride = JSON.parse(JSON.stringify(mockInstalledPlugins));
-            installedPluginsWithOverride[pluginNmWithOverride] = {
-                package: "override", registry: "override", version: "1"};
-
-            // make getInstalledPlugins return the set of installed plugins from above
-            const getInstalledPluginsReal = pluginIssues.getInstalledPlugins;
-            pluginIssues.getInstalledPlugins = jest.fn(() => {
-                return installedPluginsWithOverride;
-            });
-
-            // call the function that we want to test
-            PluginManagementFacility.instance.loadAllPluginCfgProps();
-
-            // When the InvalidCredentialManager is being used, we get an empty object string
-            expect(JSON.stringify(PMF.pluginOverrides)).toEqual("{}");
-
-            // restore the real getInstalledPlugins function
-            pluginIssues.getInstalledPlugins = getInstalledPluginsReal;
-        });
-
-        it("should use an invalid CredMgr when the CredentialManager string cannot be 'required'", () => {
-            mocks.existsSync.mockReturnValue(true);  // both directory and file exists
-
-            /* An override string will be 'required', so set the string to our own file.
-             * Then mock the results that a 'require' of our filename will return.
-             */
-            const credMgrOverride = {
-                CredentialManager: "../badDirName/badFileName"
-            };
-
-            // Set a plugin's config properties to contain the override from above.
-            const pluginNmWithOverride = "ThisPluginHasOverride";
+            const pluginNmWithOverride = CredentialManagerOverride.getKnownCredMgrs()[1].credMgrDisplayName;
             const pluginCfgPropsWithOverride = JSON.parse(JSON.stringify(basePluginCfgProps));
             pluginCfgPropsWithOverride.pluginName = pluginNmWithOverride;
             pluginCfgPropsWithOverride.impConfig.overrides = credMgrOverride;
@@ -442,12 +367,169 @@ describe("Plugin Management Facility", () => {
             // call the function that we want to test
             PluginManagementFacility.instance.loadAllPluginCfgProps();
 
+            // confirm that we stored the override
+            expect(loggedErrText).toEqual("");
+            expect(PMF.pluginOverrides).toEqual({CredentialManager: overrideClass});
+
+            // restore the real getInstalledPlugins function
+            pluginIssues.getInstalledPlugins = getInstalledPluginsReal;
+        }); // end good credMgr
+
+        it("should use an invalid CredMgr when the settings point to an unknown credMgr", () => {
+            mocks.existsSync.mockReturnValue(true);  // both directory and file exists
+
+            /* An override string will be 'required', so set the string to our own file.
+             * Then mock the results that a 'require' of our filename will return.
+             */
+            const credMgrOverride = {
+                CredentialManager: __filename
+            };
+            jest.mock(__filename, () => {
+                return {
+                    CredentialManager: class {
+                        constructor() {
+                            throw new Error("Simulate override failure with InvalidCredMgr");
+                        }
+                    }
+                };
+            });
+
+            // Set a plugin's config properties to contain the override from above.
+            const pluginNmWithOverride = "ThisPluginIsUnknown";
+            const pluginCfgPropsWithOverride = JSON.parse(JSON.stringify(basePluginCfgProps));
+            pluginCfgPropsWithOverride.pluginName = pluginNmWithOverride;
+            pluginCfgPropsWithOverride.impConfig.overrides = credMgrOverride;
+            loadPluginCfgPropsMock.mockReturnValue(pluginCfgPropsWithOverride);
+
+            AppSettings.initialize("test.json",defaultSettings);
+            AppSettings.instance.set("overrides","CredentialManager", "PluginNameThatWasNotInstalled");
+
+            // make getInstalledPlugins return a set of installed plugins without this one
+            const getInstalledPluginsReal = pluginIssues.getInstalledPlugins;
+            pluginIssues.getInstalledPlugins = jest.fn(() => {
+                return mockInstalledPlugins;
+            });
+
+            // call the function that we want to test
+            PluginManagementFacility.instance.loadAllPluginCfgProps();
+
+            expect(loggedErrText).toContain(
+                `Reason = The "${CredentialManagerOverride.CRED_MGR_SETTING_NAME}" named ` +
+                `"PluginNameThatWasNotInstalled" is not a known credential manager override.`
+            );
+
             // When the InvalidCredentialManager is being used, we get an empty object string
             expect(JSON.stringify(PMF.pluginOverrides)).toEqual("{}");
 
             // restore the real getInstalledPlugins function
             pluginIssues.getInstalledPlugins = getInstalledPluginsReal;
-        });
+        }); // end unknown credMgr
+
+        it("should use an invalid CredMgr when the settings point to an uninstalled plugin", () => {
+            mocks.existsSync.mockReturnValue(true);  // both directory and file exists
+
+            /* An override string will be 'required', so set the string to our own file.
+             * Then mock the results that a 'require' of our filename will return.
+             */
+            const credMgrOverride = {
+                CredentialManager: __filename
+            };
+            jest.mock(__filename, () => {
+                return {
+                    CredentialManager: class {
+                        constructor() {
+                            throw new Error("Simulate override failure with InvalidCredMgr");
+                        }
+                    }
+                };
+            });
+
+            /* Set a plugin's config properties to contain the override from above.
+             * To override our credMgr, the plugin must have a known name.
+             */
+            const pluginNmWithOverride = CredentialManagerOverride.getKnownCredMgrs()[1].credMgrDisplayName;
+            const pluginCfgPropsWithOverride = JSON.parse(JSON.stringify(basePluginCfgProps));
+            pluginCfgPropsWithOverride.pluginName = pluginNmWithOverride;
+            pluginCfgPropsWithOverride.impConfig.overrides = credMgrOverride;
+            loadPluginCfgPropsMock.mockReturnValue(pluginCfgPropsWithOverride);
+
+            AppSettings.initialize("test.json",defaultSettings);
+            AppSettings.instance.set("overrides","CredentialManager", pluginNmWithOverride);
+
+            // make getInstalledPlugins return a set of installed plugins without this one
+            const getInstalledPluginsReal = pluginIssues.getInstalledPlugins;
+            pluginIssues.getInstalledPlugins = jest.fn(() => {
+                return mockInstalledPlugins;
+            });
+
+            // call the function that we want to test
+            PluginManagementFacility.instance.loadAllPluginCfgProps();
+
+            expect(loggedErrText).toContain(
+                `Reason = No plugin has been installed that provides a loadable ` +
+                `'${CredentialManagerOverride.CRED_MGR_SETTING_NAME}' named ` +
+                `'${pluginNmWithOverride}'.`
+            );
+
+            // When the InvalidCredentialManager is being used, we get an empty object string
+            expect(JSON.stringify(PMF.pluginOverrides)).toEqual("{}");
+
+            // restore the real getInstalledPlugins function
+            pluginIssues.getInstalledPlugins = getInstalledPluginsReal;
+        }); // end uninstalled plugin
+
+        it("should use an invalid CredMgr when the CredentialManager string cannot be 'required'", () => {
+            mocks.existsSync.mockReturnValue(true);  // both directory and file exists
+
+            /* An override string will be 'required', so set the string to our own file.
+             * Then mock the results that a 'require' of our filename will return.
+             */
+            const credMgrOverride = {
+                CredentialManager: "../badDirName/badFileName"
+            };
+
+            /* Set a plugin's config properties to contain the override from above.
+             * To attempt to override our credMgr, the plugin must have a known name.
+             */
+            const pluginNmWithOverride = CredentialManagerOverride.getKnownCredMgrs()[1].credMgrDisplayName;
+            const pluginCfgPropsWithOverride = JSON.parse(JSON.stringify(basePluginCfgProps));
+            pluginCfgPropsWithOverride.pluginName = pluginNmWithOverride;
+            pluginCfgPropsWithOverride.impConfig.overrides = credMgrOverride;
+            loadPluginCfgPropsMock.mockReturnValue(pluginCfgPropsWithOverride);
+
+            AppSettings.initialize("test.json",defaultSettings);
+            AppSettings.instance.set("overrides","CredentialManager", pluginNmWithOverride);
+
+            // Place the plugin with override into a set of installed plugins
+            const installedPluginsWithOverride = JSON.parse(JSON.stringify(mockInstalledPlugins));
+            installedPluginsWithOverride[pluginNmWithOverride] = {
+                package: "override", registry: "override", version: "1"};
+
+            // make getInstalledPlugins return the set of installed plugins from above
+            const getInstalledPluginsReal = pluginIssues.getInstalledPlugins;
+            pluginIssues.getInstalledPlugins = jest.fn(() => {
+                return installedPluginsWithOverride;
+            });
+
+            // call the function that we want to test
+            PluginManagementFacility.instance.loadAllPluginCfgProps();
+
+            expect(loggedErrText).toContain(
+                `Unable to override "${CredentialManagerOverride.CRED_MGR_SETTING_NAME}" ` +
+                `with "${CredentialManagerOverride.getKnownCredMgrs()[1].credMgrDisplayName}" `+
+                `from plugin "${CredentialManagerOverride.getKnownCredMgrs()[1].credMgrPluginName}"`
+            );
+            expect(loggedErrText).toContain(
+                `Reason = Unable to load class from '${credMgrOverride.CredentialManager}'. ` +
+                `Cannot find module`
+            );
+
+            // When the InvalidCredentialManager is being used, we get an empty object string
+            expect(JSON.stringify(PMF.pluginOverrides)).toEqual("{}");
+
+            // restore the real getInstalledPlugins function
+            pluginIssues.getInstalledPlugins = getInstalledPluginsReal;
+        }); // end can't load class
     }); // end loadAllPluginCfgProps
 
     describe("Plugin validation", () => {

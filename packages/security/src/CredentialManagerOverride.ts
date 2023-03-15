@@ -27,6 +27,7 @@ import { ISettingsFile } from "../../settings/src/doc/ISettingsFile";
  * manager wins.
  */
 export class CredentialManagerOverride {
+    public static readonly CRED_MGR_SETTING_NAME: string = "CredentialManager";
     public static readonly DEFAULT_CRED_MGR_NAME: string = "@zowe/cli";
 
     private static readonly KNOWN_CRED_MGRS: ICredentialManagerNameMap[] = [
