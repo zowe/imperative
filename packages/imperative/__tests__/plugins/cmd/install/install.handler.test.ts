@@ -73,7 +73,7 @@ describe("Plugin Management Facility install handler", () => {
 
     const packageName2 = "b";
     const packageVersion2 = "13.1.2";
-    const packageRegistry2 = "http://isl-dsdc.ca.com/artifactory/api/npm/npm-repo/";
+    const packageRegistry2 = "https://zowe.jfrog.io/zowe/api/npm/npm-release/";
 
     const finalValidationMsg = "The final message from runPluginValidation";
 
@@ -277,7 +277,7 @@ describe("Plugin Management Facility install handler", () => {
 
         const params = getIHandlerParametersObject();
         params.arguments.plugin = ["sample1"];
-        params.arguments.registry = "http://isl-dsdc.ca.com";
+        params.arguments.registry = "http://localhost:4873/";
 
         await handler.process(params as IHandlerParameters);
 
