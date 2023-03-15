@@ -13,6 +13,7 @@ import { spawnSync, SpawnSyncOptions } from "child_process";
 import { Logger } from "../../logger";
 import { ImperativeConfig } from "./ImperativeConfig";
 import { ISystemInfo } from "./doc/ISystemInfo";
+import { DaemonRequest } from "./DaemonRequest";
 
 /**
  * This enum represents the possible results from isGuiAvailable.
@@ -155,8 +156,13 @@ export class ProcessUtils {
         // Implementation based on the child_process module
         // https://github.com/nodejs/node/blob/main/lib/child_process.js
         const result = spawnSync(command, args, options);
-        if (options?.stdio == null && result.stderr != null) {
-            process.stderr.write(result.stderr);
+        if (options?.stdio == null && result.stderr?.length > 0) {
+            const daemonStream = ImperativeConfig.instance.daemonContext?.stream;
+            if (daemonStream != null) {
+                daemonStream.write(DaemonRequest.create({ stderr: result.stderr.toString() }));
+            } else {
+                process.stderr.write(result.stderr);
+            }
         }
         if (result.error != null) {
             throw result.error;

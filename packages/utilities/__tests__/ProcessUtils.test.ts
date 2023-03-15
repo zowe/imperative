@@ -10,7 +10,7 @@
 */
 
 import * as childProcess from "child_process";
-import { GuiResult, ImperativeConfig, ProcessUtils } from "../../utilities";
+import { DaemonRequest, GuiResult, ImperativeConfig, ProcessUtils } from "../../utilities";
 
 jest.mock("child_process");
 jest.mock("opener");
@@ -290,6 +290,77 @@ describe("ProcessUtils tests", () => {
             } as any);
             await ProcessUtils.openInEditor("filePath");
             expect(childProcess.spawn).toHaveBeenCalledWith("vi", ["filePath"], { stdio: "inherit" });
+        });
+    });
+
+    describe("execAndCheckOutput", () => {
+        afterEach(() => {
+            jest.clearAllMocks();
+        });
+
+        it("returns stdout if command succeeds", () => {
+            const message = "Hello world!";
+            const options: any = { cwd: __dirname };
+            const stdoutBuffer = Buffer.from(message + "\n");
+            jest.spyOn(childProcess, "spawnSync").mockReturnValueOnce({
+                status: 0,
+                stdout: stdoutBuffer
+            } as any);
+            const execOutput = ProcessUtils.execAndCheckOutput("echo", [message], options);
+            expect(childProcess.spawnSync).toHaveBeenCalledWith("echo", [message], options);
+            expect(execOutput).toBe(stdoutBuffer);
+        });
+
+        it("throws error if command fails and returns error object", () => {
+            const filename = "invalid.txt";
+            const errMsg = `cat: ${filename}: No such file or directory`;
+            jest.spyOn(childProcess, "spawnSync").mockReturnValueOnce({
+                error: new Error(errMsg)
+            } as any);
+            let caughtError: any;
+            try {
+                ProcessUtils.execAndCheckOutput("cat", [filename]);
+            } catch (error) {
+                caughtError = error;
+            }
+            expect(childProcess.spawnSync).toHaveBeenCalledWith("cat", [filename], undefined);
+            expect(caughtError.message).toBe(errMsg);
+        });
+
+        it("throws error if command fails with non-zero status", () => {
+            const filename = "invalid.txt";
+            const stderrBuffer = Buffer.from(`cat: ${filename}: No such file or directory\n`);
+            jest.spyOn(childProcess, "spawnSync").mockReturnValueOnce({
+                status: 1,
+                stderr: stderrBuffer
+            } as any);
+            let caughtError: any;
+            try {
+                ProcessUtils.execAndCheckOutput("cat", [filename]);
+            } catch (error) {
+                caughtError = error;
+            }
+            expect(childProcess.spawnSync).toHaveBeenCalledWith("cat", [filename], undefined);
+            expect(caughtError.message).toBe(`Command failed: cat ${filename}\n${stderrBuffer.toString()}`);
+        });
+
+        it("logs stderr output to daemon stream", () => {
+            const stderrBuffer = Buffer.from("Task failed successfully\n");
+            const streamWriteMock = jest.fn();
+            jest.spyOn(childProcess, "spawnSync").mockReturnValueOnce({
+                status: 0,
+                stderr: stderrBuffer
+            } as any);
+            jest.spyOn(ImperativeConfig, "instance", "get").mockReturnValueOnce({
+                daemonContext: {
+                    stream: { write: streamWriteMock }
+                }
+            } as any);
+            ProcessUtils.execAndCheckOutput("fail");
+            expect(childProcess.spawnSync).toHaveBeenCalledWith("fail", undefined, undefined);
+            expect(streamWriteMock).toHaveBeenCalledWith(JSON.stringify({
+                stderr: stderrBuffer.toString()
+            }) + DaemonRequest.EOW_DELIMITER);
         });
     });
 });
