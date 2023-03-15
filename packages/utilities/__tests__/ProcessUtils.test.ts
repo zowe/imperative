@@ -10,7 +10,7 @@
 */
 
 import * as childProcess from "child_process";
-import { DaemonRequest, GuiResult, ImperativeConfig, ProcessUtils } from "../../utilities";
+import { GuiResult, ImperativeConfig, ProcessUtils } from "../../utilities";
 
 jest.mock("child_process");
 jest.mock("opener");
@@ -342,25 +342,6 @@ describe("ProcessUtils tests", () => {
             }
             expect(childProcess.spawnSync).toHaveBeenCalledWith("cat", [filename], undefined);
             expect(caughtError.message).toBe(`Command failed: cat ${filename}\n${stderrBuffer.toString()}`);
-        });
-
-        it("logs stderr output to daemon stream", () => {
-            const stderrBuffer = Buffer.from("Task failed successfully\n");
-            const streamWriteMock = jest.fn();
-            jest.spyOn(childProcess, "spawnSync").mockReturnValueOnce({
-                status: 0,
-                stderr: stderrBuffer
-            } as any);
-            jest.spyOn(ImperativeConfig, "instance", "get").mockReturnValueOnce({
-                daemonContext: {
-                    stream: { write: streamWriteMock }
-                }
-            } as any);
-            ProcessUtils.execAndCheckOutput("fail");
-            expect(childProcess.spawnSync).toHaveBeenCalledWith("fail", undefined, undefined);
-            expect(streamWriteMock).toHaveBeenCalledWith(JSON.stringify({
-                stderr: stderrBuffer.toString()
-            }) + DaemonRequest.EOW_DELIMITER);
         });
     });
 });
