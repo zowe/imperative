@@ -49,6 +49,7 @@ import { readFileSync, writeFileSync } from "jsonfile";
 import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
 import { TextUtils } from "../../../../../utilities";
 import { getRegistry, npmLogin } from "../../../../src/plugins/utilities/NpmFunctions";
+import * as childProcess from "child_process";
 
 let expectedVal;
 let returnedVal;
@@ -347,7 +348,30 @@ describe("Plugin Management Facility install handler", () => {
             expectedError = e;
         }
 
+        expect(expectedError).toBeInstanceOf(ImperativeError);
         expect(expectedError.message).toBe("Install Failed");
+    });
+
+    it("should handle an error in spawned process", async () => {
+        const handler = new InstallHandler();
+
+        const params = getIHandlerParametersObject();
+        params.arguments.plugin = ["sample1"];
+
+        let expectedError: ImperativeError;
+
+        jest.spyOn(childProcess, "spawnSync").mockReturnValueOnce({ status: 1 } as any);
+        mocks.getRegistry.mockImplementationOnce(jest.requireActual("../../../../src/plugins/utilities/NpmFunctions").getRegistry);
+
+        try {
+            await handler.process(params);
+        } catch (e) {
+            expectedError = e;
+        }
+
+        expect(expectedError).toBeInstanceOf(ImperativeError);
+        expect(expectedError.additionalDetails).toContain("Command failed");
+        expect(expectedError.additionalDetails).toContain("npm");
     });
 });
 

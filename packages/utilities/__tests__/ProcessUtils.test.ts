@@ -9,7 +9,11 @@
 *
 */
 
-import { GuiResult, ProcessUtils } from "../../utilities";
+import * as childProcess from "child_process";
+import { GuiResult, ImperativeConfig, ProcessUtils } from "../../utilities";
+
+jest.mock("child_process");
+jest.mock("opener");
 
 describe("ProcessUtils tests", () => {
     describe("nextTick", () => {
@@ -103,4 +107,242 @@ describe("ProcessUtils tests", () => {
         });
     });
 
+    describe("getBasicSystemInfo", () => {
+        let realPlatform: string;
+        let realArch: string;
+
+        beforeAll(() => {
+            realPlatform = process.platform;
+            realArch = process.arch;
+        });
+
+        afterEach(() => {
+            Object.defineProperty(process, "platform", { value: realPlatform });
+            Object.defineProperty(process, "arch", { value: realArch });
+        });
+
+        it("should report that the CPU architecture is arm", () => {
+            Object.defineProperty(process, "platform", { value: "linux" });
+            Object.defineProperty(process, "arch", { value: "arm" });
+            expect(ProcessUtils.getBasicSystemInfo()).toEqual({arch: "arm", platform: "linux"});
+        });
+
+        it("should report that the CPU architecture is arm64", () => {
+            Object.defineProperty(process, "platform", { value: "linux" });
+            Object.defineProperty(process, "arch", { value: "arm64" });
+            expect(ProcessUtils.getBasicSystemInfo()).toEqual({arch: "arm64", platform: "linux"});
+        });
+
+        it("should report that the CPU architecture is x86-32", () => {
+            Object.defineProperty(process, "platform", { value: "linux" });
+            Object.defineProperty(process, "arch", { value: "ia32" });
+            expect(ProcessUtils.getBasicSystemInfo()).toEqual({arch: "ia32", platform: "linux"});
+        });
+
+        it("should report that the CPU architecture is mips", () => {
+            Object.defineProperty(process, "platform", { value: "linux" });
+            Object.defineProperty(process, "arch", { value: "mips" });
+            expect(ProcessUtils.getBasicSystemInfo()).toEqual({arch: "mips", platform: "linux"});
+        });
+
+        it("should report that the CPU architecture is mips little endian", () => {
+            Object.defineProperty(process, "platform", { value: "linux" });
+            Object.defineProperty(process, "arch", { value: "mipsel" });
+            expect(ProcessUtils.getBasicSystemInfo()).toEqual({arch: "mipsel", platform: "linux"});
+        });
+
+        it("should report that the CPU architecture is power pc", () => {
+            Object.defineProperty(process, "platform", { value: "linux" });
+            Object.defineProperty(process, "arch", { value: "ppc" });
+            expect(ProcessUtils.getBasicSystemInfo()).toEqual({arch: "ppc", platform: "linux"});
+        });
+
+        it("should report that the CPU architecture is power pc 64", () => {
+            Object.defineProperty(process, "platform", { value: "linux" });
+            Object.defineProperty(process, "arch", { value: "ppc64" });
+            expect(ProcessUtils.getBasicSystemInfo()).toEqual({arch: "ppc64", platform: "linux"});
+        });
+
+        it("should report that the CPU architecture is s390", () => {
+            Object.defineProperty(process, "platform", { value: "linux" });
+            Object.defineProperty(process, "arch", { value: "s390" });
+            expect(ProcessUtils.getBasicSystemInfo()).toEqual({arch: "s390", platform: "linux"});
+        });
+
+        it("should report that the CPU architecture is s390x", () => {
+            Object.defineProperty(process, "platform", { value: "linux" });
+            Object.defineProperty(process, "arch", { value: "s390x" });
+            expect(ProcessUtils.getBasicSystemInfo()).toEqual({arch: "s390x", platform: "linux"});
+        });
+
+        it("should report that the CPU architecture is x32", () => {
+            Object.defineProperty(process, "platform", { value: "linux" });
+            Object.defineProperty(process, "arch", { value: "x32" });
+            expect(ProcessUtils.getBasicSystemInfo()).toEqual({arch: "x32", platform: "linux"});
+        });
+
+        it("should report that the CPU architecture is x64", () => {
+            Object.defineProperty(process, "platform", { value: "linux" });
+            Object.defineProperty(process, "arch", { value: "x64" });
+            expect(ProcessUtils.getBasicSystemInfo()).toEqual({arch: "x64", platform: "linux"});
+        });
+
+        it("should report that the platform is AIX", () => {
+            Object.defineProperty(process, "platform", { value: "aix" });
+            Object.defineProperty(process, "arch", { value: "x64" });
+            expect(ProcessUtils.getBasicSystemInfo()).toEqual({arch: "x64", platform: "aix"});
+        });
+
+        it("should report that the platform is Darwin", () => {
+            Object.defineProperty(process, "platform", { value: "darwin" });
+            Object.defineProperty(process, "arch", { value: "x64" });
+            expect(ProcessUtils.getBasicSystemInfo()).toEqual({arch: "x64", platform: "darwin"});
+        });
+
+        it("should report that the platform is FreeBSD", () => {
+            Object.defineProperty(process, "platform", { value: "freebsd" });
+            Object.defineProperty(process, "arch", { value: "x64" });
+            expect(ProcessUtils.getBasicSystemInfo()).toEqual({arch: "x64", platform: "freebsd"});
+        });
+
+        it("should report that the platform is OpenBSD", () => {
+            Object.defineProperty(process, "platform", { value: "openbsd" });
+            Object.defineProperty(process, "arch", { value: "x64" });
+            expect(ProcessUtils.getBasicSystemInfo()).toEqual({arch: "x64", platform: "openbsd"});
+        });
+
+        it("should report that the platform is SunOS/Solaris", () => {
+            Object.defineProperty(process, "platform", { value: "sunos" });
+            Object.defineProperty(process, "arch", { value: "x64" });
+            expect(ProcessUtils.getBasicSystemInfo()).toEqual({arch: "x64", platform: "sunos"});
+        });
+
+        it("should report that the platform is Windows", () => {
+            Object.defineProperty(process, "platform", { value: "win32" });
+            Object.defineProperty(process, "arch", { value: "x64" });
+            expect(ProcessUtils.getBasicSystemInfo()).toEqual({arch: "x64", platform: "win32"});
+        });
+    });
+
+    describe("openInDefaultApp", () => {
+        it("should open file path in default app", () => {
+            const mockOpener = require("opener");
+            ProcessUtils.openInDefaultApp(__filename);
+            expect(mockOpener).toHaveBeenCalledWith(__filename);
+        });
+
+        it("should open Internet URL in default app", () => {
+            const mockOpener = require("opener");
+            ProcessUtils.openInDefaultApp("https://example.com");
+            expect(mockOpener).toHaveBeenCalledWith("https://example.com");
+        });
+    });
+
+    describe("openInEditor", () => {
+        it("should open file in graphical editor", async () => {
+            jest.spyOn(ProcessUtils, "isGuiAvailable").mockReturnValueOnce(GuiResult.GUI_AVAILABLE);
+            jest.spyOn(ImperativeConfig, "instance", "get").mockReturnValue({
+                loadedConfig: {
+                    envVariablePrefix: "TEST_CLI"
+                }
+            } as any);
+            const mockOpener = require("opener");
+            await ProcessUtils.openInEditor("filePath");
+            expect(mockOpener).toHaveBeenCalledWith("filePath");
+        });
+
+        it("should open file in custom graphical editor", async () => {
+            jest.spyOn(ProcessUtils, "isGuiAvailable").mockReturnValueOnce(GuiResult.GUI_AVAILABLE);
+            jest.spyOn(ImperativeConfig, "instance", "get").mockReturnValue({
+                loadedConfig: {
+                    envVariablePrefix: "TEST_CLI"
+                }
+            } as any);
+            const mockOpener = require("opener");
+            try {
+                process.env.TEST_CLI_EDITOR = "fakeEdit";
+                await ProcessUtils.openInEditor("filePath");
+            } finally {
+                delete process.env.TEST_CLI_EDITOR;
+            }
+            expect(childProcess.spawn).toHaveBeenCalledWith("fakeEdit", ["filePath"], { stdio: "inherit" });
+        });
+
+        it("should open file in custom command-line editor", async () => {
+            jest.spyOn(ProcessUtils, "isGuiAvailable").mockReturnValueOnce(GuiResult.NO_GUI_NO_DISPLAY);
+            jest.spyOn(ImperativeConfig, "instance", "get").mockReturnValue({
+                loadedConfig: {
+                    envVariablePrefix: "TEST_CLI"
+                }
+            } as any);
+            try {
+                process.env.TEST_CLI_EDITOR = "fakeEdit";
+                await ProcessUtils.openInEditor("filePath");
+            } finally {
+                delete process.env.TEST_CLI_EDITOR;
+            }
+            expect(childProcess.spawn).toHaveBeenCalledWith("fakeEdit", ["filePath"], { stdio: "inherit" });
+        });
+
+        it("should open file in default command-line editor", async () => {
+            jest.spyOn(ProcessUtils, "isGuiAvailable").mockReturnValueOnce(GuiResult.NO_GUI_NO_DISPLAY);
+            jest.spyOn(ImperativeConfig, "instance", "get").mockReturnValue({
+                loadedConfig: {}
+            } as any);
+            await ProcessUtils.openInEditor("filePath");
+            expect(childProcess.spawn).toHaveBeenCalledWith("vi", ["filePath"], { stdio: "inherit" });
+        });
+    });
+
+    describe("execAndCheckOutput", () => {
+        afterEach(() => {
+            jest.clearAllMocks();
+        });
+
+        it("returns stdout if command succeeds", () => {
+            const message = "Hello world!";
+            const options: any = { cwd: __dirname };
+            const stdoutBuffer = Buffer.from(message + "\n");
+            jest.spyOn(childProcess, "spawnSync").mockReturnValueOnce({
+                status: 0,
+                stdout: stdoutBuffer
+            } as any);
+            const execOutput = ProcessUtils.execAndCheckOutput("echo", [message], options);
+            expect(childProcess.spawnSync).toHaveBeenCalledWith("echo", [message], options);
+            expect(execOutput).toBe(stdoutBuffer);
+        });
+
+        it("throws error if command fails and returns error object", () => {
+            const filename = "invalid.txt";
+            const errMsg = `cat: ${filename}: No such file or directory`;
+            jest.spyOn(childProcess, "spawnSync").mockReturnValueOnce({
+                error: new Error(errMsg)
+            } as any);
+            let caughtError: any;
+            try {
+                ProcessUtils.execAndCheckOutput("cat", [filename]);
+            } catch (error) {
+                caughtError = error;
+            }
+            expect(childProcess.spawnSync).toHaveBeenCalledWith("cat", [filename], undefined);
+            expect(caughtError.message).toBe(errMsg);
+        });
+
+        it("throws error if command fails with non-zero status", () => {
+            const filename = "invalid.txt";
+            const stderrBuffer = Buffer.from(`cat: ${filename}: No such file or directory\n`);
+            jest.spyOn(childProcess, "spawnSync").mockReturnValueOnce({
+                status: 1,
+                stderr: stderrBuffer
+            } as any);
+            let caughtError: any;
+            try {
+                ProcessUtils.execAndCheckOutput("cat", [filename]);
+            } catch (error) {
+                caughtError = error;
+            }
+            expect(childProcess.spawnSync).toHaveBeenCalledWith("cat", [filename], undefined);
+            expect(caughtError.message).toBe(`Command failed: cat ${filename}\n${stderrBuffer.toString()}`);
+        });
+    });
 });

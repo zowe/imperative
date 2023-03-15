@@ -41,23 +41,19 @@ export function findNpmOnPath(): string {
  */
 export function installPackages(prefix: string, registry: string, npmPackage: string): string {
     const pipe: StdioOptions = ["pipe", "pipe", process.stderr];
-    try {
-        const execOutput = ProcessUtils.execAndCheckOutput(npmCmd,
-            [
-                "install", npmPackage,
-                "--prefix", prefix,
-                "-g",
-                "--registry", registry,
-                "--legacy-peer-deps"
-            ], {
-                cwd: PMFConstants.instance.PMF_ROOT,
-                stdio: pipe
-            }
-        );
-        return execOutput.toString();
-    } catch (err) {
-        throw (err.message);
-    }
+    const execOutput = ProcessUtils.execAndCheckOutput(npmCmd,
+        [
+            "install", npmPackage,
+            "--prefix", prefix,
+            "-g",
+            "--registry", registry,
+            "--legacy-peer-deps"
+        ], {
+            cwd: PMFConstants.instance.PMF_ROOT,
+            stdio: pipe
+        }
+    );
+    return execOutput.toString();
 }
 
 /**
@@ -66,12 +62,8 @@ export function installPackages(prefix: string, registry: string, npmPackage: st
  * @return {string}
  */
 export function getRegistry(): string {
-    try {
-        const execOutput = ProcessUtils.execAndCheckOutput(npmCmd, [ "config", "get", "registry" ]);
-        return execOutput.toString();
-    } catch (err) {
-        throw(err.message);
-    }
+    const execOutput = ProcessUtils.execAndCheckOutput(npmCmd, [ "config", "get", "registry" ]);
+    return execOutput.toString();
 }
 
 /**
@@ -79,20 +71,16 @@ export function getRegistry(): string {
  * @param {string} registry The npm registry to install from.
  */
 export function npmLogin(registry: string) {
-    try {
-        ProcessUtils.execAndCheckOutput(npmCmd,
-            [
-                "login",
-                "--registry", registry,
-                "--always-auth",
-                "--auth-type=legacy"
-            ], {
-                stdio: [0,1,2]
-            }
-        );
-    } catch (err) {
-        throw(err.message);
-    }
+    ProcessUtils.execAndCheckOutput(npmCmd,
+        [
+            "login",
+            "--registry", registry,
+            "--always-auth",
+            "--auth-type=legacy"
+        ], {
+            stdio: [0,1,2]
+        }
+    );
 }
 
 /**
