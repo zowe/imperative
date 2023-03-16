@@ -263,12 +263,10 @@ export class PluginManagementFacility {
         // but we currently only process CredentialManager overrides.
         let overrideDispNm: string = "No override display name";
         let overridePluginNm: string = "No override plugin name";
-        let loadedOverridePropNm: string = "No loadedOverride lookup name";
 
         for (const [settingNm, settingVal] of Object.entries(AppSettings.instance.getNamespace("overrides"))) {
             overrideDispNm = settingVal as string;
             overridePluginNm = settingVal as string;
-            loadedOverridePropNm = settingVal as string;
 
             if (settingVal !== false && settingVal !== ImperativeConfig.instance.hostPackageName) {
                 Logger.getImperativeLogger().debug(
@@ -289,21 +287,21 @@ export class PluginManagementFacility {
                         continue;
                     }
 
-                    // record the real plugin name and the property name we use to find it in our loadedOverrides
+                    // record the known plugin name that we found for this display name
                     overridePluginNm = credMgrInfo.credMgrPluginName;
-                    loadedOverridePropNm = credMgrInfo.credMgrDisplayName;
                 }
 
-                if (!Object.prototype.hasOwnProperty.call(loadedOverrides, loadedOverridePropNm)) {
+                if (!Object.prototype.hasOwnProperty.call(loadedOverrides, overridePluginNm)) {
                     // The overrideName specified in our settings is not available from any plugin.
                     this.useOverrideThatFails(settingNm, overrideDispNm, overridePluginNm,
-                        `No plugin has been installed that provides a loadable '${settingNm}' named '${overrideDispNm}'.`
+                        `No plugin has been installed that overrides '${settingNm}' with '${overrideDispNm}'.` +
+                        "\nPlugins that provide overrides are:\n" + JSON.stringify(loadedOverrides, null, 2)
                     );
                     continue;
                 }
 
                 // Like the cli the overrides can be the actual class or the string path
-                let loadedSetting: string | object = (loadedOverrides[loadedOverridePropNm] as any)[settingNm];
+                let loadedSetting: string | object = (loadedOverrides[overridePluginNm] as any)[settingNm];
 
                 // If the overrides loaded is a string path, just resolve it here since it would be much
                 // to do so in the overrides loader.
