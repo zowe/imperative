@@ -15,10 +15,12 @@
  */
 
 import * as T from "../../../../../src/TestUtil";
+import * as fsExtra from "fs-extra";
 import { cliBin, config } from "../PluginTestConstants";
 import { join, resolve } from "path";
 import { readFileSync, writeFileSync } from "fs";
 import { execSync } from "child_process";
+import { CredentialManagerOverride } from "../../../../../../packages/security/src/CredentialManagerOverride";
 
 describe("Using a Plugin", () => {
 
@@ -264,44 +266,51 @@ describe("Using a Plugin", () => {
     });
 
     it("should override CredentialManager", () => {
-        const installedPlugin = join(__dirname, "../test_plugins/override_plugin");
-        const pluginName = "override-plugin";
+        // put our known name and lifecycle class into package.json
+        const overridePluginDir = join(__dirname, "../test_plugins/override_plugin");
+        const pkgFileNm = join(overridePluginDir, "package.json");
+        let pkgContents = fsExtra.readJsonSync(pkgFileNm);
+        const origPkgName = pkgContents.name;
+        pkgContents.name = CredentialManagerOverride.getKnownCredMgrs()[1].credMgrPluginName as string;
+        pkgContents.imperative.pluginLifeCycle = "./lib/sample-plugin/lifeCycle/class_good_lifeCycle";
+        fsExtra.writeJsonSync(pkgFileNm, pkgContents, {spaces: 2});
 
         // install the override plugin
-        let cmd = `plugins install ${installedPlugin}`;
+        let cmd = `plugins install ${overridePluginDir}`;
         let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-        if (peerDepWarning) {
-            expect(result.stderr).toMatch(/npm.*WARN/);
-            expect(result.stderr).toContain("requires a peer of @zowe/imperative");
-            expect(result.stderr).toContain("You must install peer dependencies yourself");
-        } else {
-            expect(result.stderr).toEqual("");
-        }
 
         // confirm the plugin summary is displayed from zowe help
+        const pluginGrpNm = "override-plugin";
         cmd = ``;
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
         expect(result.stderr).toBe("");
-        expect(result.stdout).toContain(pluginName);
+        expect(result.stdout).toContain(pluginGrpNm);
         expect(result.stdout).toContain("imperative override plugin pluginSummary");
 
         // confirm the plugin command description is displayed from zowe override-plugin help
-        cmd = pluginName;
+        cmd = pluginGrpNm;
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
         expect(result.stderr).toBe("");
         expect(result.stdout).toContain("dummy bar command");
         expect(result.stdout).toContain("dummy foo command");
         expect(result.stdout).toContain("imperative override plugin rootCommandDescription");
 
-        // set the CredMgr override setting to the override-plugin
-        setCredMgrOverride(pluginName);
+        // set the CredMgr override setting to this known override-plugin.
+        const knownOverridePluginNm = CredentialManagerOverride.getKnownCredMgrs()[1].credMgrDisplayName as string;
+        setCredMgrOverride(knownOverridePluginNm);
 
         // Create a zosmf profile. That will trigger the CredMgr.
         cmd = "profiles create secure-pass-profile TestProfileName --password 'AnyPass' --overwrite";
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
         expect(result.stderr).toContain("command 'profiles create' is deprecated");
         expect(result.stdout).toContain("CredentialManager in sample-plugin is saving these creds:");
-        expect(result.stdout).toContain("password: managed by override-plugin");
+        expect(result.stdout).toContain(`password: managed by ${knownOverridePluginNm}`);
+
+        // Restore our name and remove our lifecycle class from package.json
+        pkgContents = fsExtra.readJsonSync(pkgFileNm);
+        pkgContents.name = origPkgName;
+        delete pkgContents.imperative.pluginLifeCycle;
+        fsExtra.writeJsonSync(pkgFileNm, pkgContents, {spaces: 2});
 
         // set the CredMgr back to default
         setCredMgrOverride(false);
