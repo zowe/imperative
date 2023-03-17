@@ -175,6 +175,7 @@ describe("Plugin Management Facility uninstall handler", () => {
 
 describe("callPluginPreUninstall", () => {
     const knownCredMgrPlugin = "@zowe/secrets-for-kubernetes-for-zowe-cli";
+    const knownCredMgrDispNm = "Secrets for Kubernetes";
     const preUninstallErrText = "Pretend that the plugin's preUninstall function threw an error";
     let callPluginPreUninstallPrivate : any;
     let cfgLoaderLoadSpy;
@@ -282,7 +283,7 @@ describe("callPluginPreUninstall", () => {
             thrownErr = err;
         }
 
-        expect(replaceCredMgrWithDefaultSpy).toHaveBeenCalledWith(knownCredMgrPlugin);
+        expect(replaceCredMgrWithDefaultSpy).toHaveBeenCalledWith(knownCredMgrDispNm);
         expect(requirePluginModuleCallbackSpy).toHaveBeenCalledTimes(1);
         expect(cfgLoaderLoadSpy).toHaveBeenCalledTimes(1);
         expect(thrownErr).not.toBeNull();
