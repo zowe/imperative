@@ -13,14 +13,33 @@ import * as fs from "fs";
 import * as path from "path";
 
 import { ImperativeError } from "../../error";
-import { CredentialManagerFactory, DefaultCredentialManager } from "../../security";
+import { CredentialManagerFactory, DefaultCredentialManager, ICredentialManagerConstructor } from "../../security";
 import { ImperativeConfig } from "../../utilities";
+import { IProfOpts } from "./doc/IProfOpts";
 import { ProfileInfo } from "./ProfileInfo";
 
 export class ProfileCredentials {
     private mSecured: boolean;
+    private mCredMgrOverride?: ICredentialManagerConstructor;
 
-    constructor(private mProfileInfo: ProfileInfo, private mRequireKeytar?: () => NodeModule) {}
+    constructor(private mProfileInfo: ProfileInfo, opts?: IProfOpts | (() => NodeModule)) {
+        this.mCredMgrOverride = (typeof opts === "function") ? ProfileCredentials.defaultCredMgrWithKeytar(opts) : opts?.credMgrOverride;
+    }
+
+    public static defaultCredMgrWithKeytar(requireKeytar: () => NodeModule): ICredentialManagerConstructor {
+        return class extends DefaultCredentialManager {
+            public async initialize(): Promise<void> {
+                try {
+                    (this as any).keytar = requireKeytar();
+                } catch (error) {
+                    throw new ImperativeError({
+                        msg: `Failed to load Keytar module: ${error.message}`,
+                        causeErrors: error
+                    });
+                }
+            }
+        };
+    }
 
     /**
      * Check if secure credentials will be encrypted or stored in plain text.
@@ -45,24 +64,10 @@ export class ProfileCredentials {
         }
 
         if (!CredentialManagerFactory.initialized) {
-            if (this.mRequireKeytar != null) {
-                // TODO Should we implement this in a less hacky way?
-                DefaultCredentialManager.prototype.initialize = async () => {
-                    try {
-                        (DefaultCredentialManager.prototype as any).keytar = this.mRequireKeytar.bind(this)();
-                    } catch (error) {
-                        throw new ImperativeError({
-                            msg: `Failed to load Keytar module: ${error.message}`,
-                            causeErrors: error
-                        });
-                    }
-                };
-            }
-
             try {
                 // TODO? Make CredentialManagerFactory.initialize params optional
                 // see https://github.com/zowe/imperative/issues/545
-                await CredentialManagerFactory.initialize({ service: null });
+                await CredentialManagerFactory.initialize({ service: null, Manager: this.mCredMgrOverride });
             } catch (error) {
                 throw (error instanceof ImperativeError) ? error : new ImperativeError({
                     msg: `Failed to load CredentialManager class: ${error.message}`,
