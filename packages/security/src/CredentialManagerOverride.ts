@@ -196,11 +196,12 @@ export class CredentialManagerOverride {
         // we only permit a credential manager to restore from itself back to our default
         if ( settings.json.overrides.CredentialManager != credMgrToReplace ) {
             throw new ImperativeError({
-                msg: "The current Credential Manager = '" +
-                settings.json.overrides.CredentialManager +
-                "' does not equal the Credential Manager name to be replaced = '" +
-                credMgrToReplace + "' in settings file = '" + settings.fileName +
-                "'. The current Credential Manager has not been replaced."
+                msg: `An attempt to revert Credential Manager = '${credMgrToReplace}' ` +
+                    `to the default Credential Manager = '${this.DEFAULT_CRED_MGR_NAME}' ` +
+                    `failed. The value '${credMgrToReplace}' must be the current value ` +
+                    `in settings file = '${settings.fileName}'. Instead, ` +
+                    `the current value is '${settings.json.overrides.CredentialManager}'. ` +
+                    "The current Credential Manager has not been replaced."
             });
         }
 
