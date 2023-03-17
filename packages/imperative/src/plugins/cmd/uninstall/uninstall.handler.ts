@@ -61,10 +61,7 @@ export default class UninstallHandler implements ICommandHandler {
                         await this.callPluginPreUninstall(packageName);
                     } catch(err) {
                         // We do not stop on preUninstall error. We just show a message.
-                        params.response.console.log(
-                            err.message +
-                            (err.causeErrors) ? "\nReason: " + err.causeErrors : ""
-                        );
+                        params.response.console.log(err.message);
                     }
 
                     uninstall(packageName);
@@ -103,7 +100,7 @@ export default class UninstallHandler implements ICommandHandler {
                     CredentialManagerOverride.getCredMgrInfoByPlugin(pluginPackageNm);
                 if (credMgrInfo !== null) {
                     // this plugin is a known cred mgr override
-                    CredentialManagerOverride.replaceCredMgrWithDefault(pluginPackageNm);
+                    CredentialManagerOverride.replaceCredMgrWithDefault(credMgrInfo.credMgrDisplayName);
                     throw new ImperativeError({
                         msg: `The plugin '${pluginPackageNm}', which overrides the CLI ` +
                         `Credential Manager, does not implement the 'pluginLifeCycle' class. ` +
@@ -123,8 +120,7 @@ export default class UninstallHandler implements ICommandHandler {
         } catch (err) {
             throw new ImperativeError({
                 msg: `Unable to perform the 'preUninstall' action of plugin '${pluginPackageNm}'` +
-                `\nReason: ${err.message}`,
-                causeErrors: (err.causeErrors) ? err.causeErrors : ""
+                    `\nReason: ${err.message}`
             });
         }
     }
