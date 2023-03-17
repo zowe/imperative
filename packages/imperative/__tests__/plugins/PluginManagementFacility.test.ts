@@ -228,6 +228,9 @@ describe("Plugin Management Facility", () => {
     });
 
     describe("loadAllPluginCfgProps function", () => {
+        const knownOverrideDispNm = CredentialManagerOverride.getKnownCredMgrs()[1].credMgrDisplayName as string;
+        const knownOverridePluginNm = CredentialManagerOverride.getKnownCredMgrs()[1].credMgrPluginName as string;
+
         const mockInstalledPlugins: IPluginJson = {
             firstPlugin: {package: "1", registry: "1", version: "1"},
             secondPlugin: {package: "2", registry: "2", version: "2"}
@@ -344,18 +347,17 @@ describe("Plugin Management Facility", () => {
             /* Set a plugin's config properties to contain the override from above.
              * To override our credMgr, the plugin must have a known name.
              */
-            const pluginNmWithOverride = CredentialManagerOverride.getKnownCredMgrs()[1].credMgrDisplayName;
             const pluginCfgPropsWithOverride = JSON.parse(JSON.stringify(basePluginCfgProps));
-            pluginCfgPropsWithOverride.pluginName = pluginNmWithOverride;
+            pluginCfgPropsWithOverride.pluginName = knownOverridePluginNm;
             pluginCfgPropsWithOverride.impConfig.overrides = credMgrOverride;
             loadPluginCfgPropsMock.mockReturnValue(pluginCfgPropsWithOverride);
 
             AppSettings.initialize("test.json",defaultSettings);
-            AppSettings.instance.set("overrides","CredentialManager", pluginNmWithOverride);
+            AppSettings.instance.set("overrides","CredentialManager", knownOverrideDispNm);
 
             // Place the plugin with override into a set of installed plugins
             const installedPluginsWithOverride = JSON.parse(JSON.stringify(mockInstalledPlugins));
-            installedPluginsWithOverride[pluginNmWithOverride] = {
+            installedPluginsWithOverride[knownOverridePluginNm] = {
                 package: "override", registry: "override", version: "1"};
 
             // make getInstalledPlugins return the set of installed plugins from above
@@ -447,14 +449,13 @@ describe("Plugin Management Facility", () => {
             /* Set a plugin's config properties to contain the override from above.
              * To override our credMgr, the plugin must have a known name.
              */
-            const pluginNmWithOverride = CredentialManagerOverride.getKnownCredMgrs()[1].credMgrDisplayName;
             const pluginCfgPropsWithOverride = JSON.parse(JSON.stringify(basePluginCfgProps));
-            pluginCfgPropsWithOverride.pluginName = pluginNmWithOverride;
+            pluginCfgPropsWithOverride.pluginName = knownOverridePluginNm;
             pluginCfgPropsWithOverride.impConfig.overrides = credMgrOverride;
             loadPluginCfgPropsMock.mockReturnValue(pluginCfgPropsWithOverride);
 
             AppSettings.initialize("test.json",defaultSettings);
-            AppSettings.instance.set("overrides","CredentialManager", pluginNmWithOverride);
+            AppSettings.instance.set("overrides","CredentialManager", knownOverrideDispNm);
 
             // make getInstalledPlugins return a set of installed plugins without this one
             const getInstalledPluginsReal = pluginIssues.getInstalledPlugins;
@@ -466,9 +467,9 @@ describe("Plugin Management Facility", () => {
             PluginManagementFacility.instance.loadAllPluginCfgProps();
 
             expect(loggedErrText).toContain(
-                `Reason = No plugin has been installed that provides a loadable ` +
-                `'${CredentialManagerOverride.CRED_MGR_SETTING_NAME}' named ` +
-                `'${pluginNmWithOverride}'.`
+                `Reason = No plugin has been installed that overrides ` +
+                `'${CredentialManagerOverride.CRED_MGR_SETTING_NAME}' with ` +
+                `'${knownOverrideDispNm}'.`
             );
 
             // When the InvalidCredentialManager is being used, we get an empty object string
@@ -491,18 +492,17 @@ describe("Plugin Management Facility", () => {
             /* Set a plugin's config properties to contain the override from above.
              * To attempt to override our credMgr, the plugin must have a known name.
              */
-            const pluginNmWithOverride = CredentialManagerOverride.getKnownCredMgrs()[1].credMgrDisplayName;
             const pluginCfgPropsWithOverride = JSON.parse(JSON.stringify(basePluginCfgProps));
-            pluginCfgPropsWithOverride.pluginName = pluginNmWithOverride;
+            pluginCfgPropsWithOverride.pluginName = knownOverridePluginNm;
             pluginCfgPropsWithOverride.impConfig.overrides = credMgrOverride;
             loadPluginCfgPropsMock.mockReturnValue(pluginCfgPropsWithOverride);
 
             AppSettings.initialize("test.json",defaultSettings);
-            AppSettings.instance.set("overrides","CredentialManager", pluginNmWithOverride);
+            AppSettings.instance.set("overrides","CredentialManager", knownOverrideDispNm);
 
             // Place the plugin with override into a set of installed plugins
             const installedPluginsWithOverride = JSON.parse(JSON.stringify(mockInstalledPlugins));
-            installedPluginsWithOverride[pluginNmWithOverride] = {
+            installedPluginsWithOverride[knownOverridePluginNm] = {
                 package: "override", registry: "override", version: "1"};
 
             // make getInstalledPlugins return the set of installed plugins from above
@@ -516,8 +516,7 @@ describe("Plugin Management Facility", () => {
 
             expect(loggedErrText).toContain(
                 `Unable to override "${CredentialManagerOverride.CRED_MGR_SETTING_NAME}" ` +
-                `with "${CredentialManagerOverride.getKnownCredMgrs()[1].credMgrDisplayName}" `+
-                `from plugin "${CredentialManagerOverride.getKnownCredMgrs()[1].credMgrPluginName}"`
+                `with "${knownOverrideDispNm}" from plugin "${knownOverridePluginNm}"`
             );
             expect(loggedErrText).toContain(
                 `Reason = Unable to load class from '${credMgrOverride.CredentialManager}'. ` +
