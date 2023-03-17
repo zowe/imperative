@@ -381,12 +381,13 @@ describe("CredentialManagerOverride", () => {
             expect(getSettingsFileJsonSpy).toHaveBeenCalledTimes(1);
             expect(thrownErr).toBeDefined();
             expect(thrownErr.message).toContain(
-                "The current Credential Manager = '" +
-                expectedSettings.json.overrides.CredentialManager  +
-                "' does not equal the Credential Manager name to be replaced = '" +
-                credMgrToReplace + "' in settings file = '" +
-                expectedSettings.fileName +
-                "'. The current Credential Manager has not been replaced."
+                `An attempt to revert Credential Manager = '${credMgrToReplace}' to the default Credential Manager`
+            );
+            expect(thrownErr.message).toContain(
+                `failed. The value '${credMgrToReplace}' must be the current value in settings file = ` +
+                `'${expectedSettings.fileName}'. Instead, the current value is '` +
+                `${expectedSettings.json.overrides.CredentialManager}'. ` +
+                `The current Credential Manager has not been replaced.`
             );
         });
 
