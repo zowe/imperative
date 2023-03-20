@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.9.2`
 
 - BugFix: Fixed plugin install error not displayed correctly. [#954](https://github.com/zowe/imperative/issues/954)
 
