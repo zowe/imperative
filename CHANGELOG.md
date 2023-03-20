@@ -2,8 +2,13 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed plugin install error not displayed correctly. [#954](https://github.com/zowe/imperative/issues/954)
+
 ## `5.9.1`
-- BugFix: Fix environment file not applying to daemon client environment variables
+
+- BugFix: Fixed environment file not applying to daemon client environment variables
 
 ## `5.9.0`
 

@@ -9,6 +9,7 @@
 *
 */
 
+import { spawnSync, SpawnSyncOptions } from "child_process";
 import { Logger } from "../../logger";
 import { ImperativeConfig } from "./ImperativeConfig";
 import { ISystemInfo } from "./doc/ISystemInfo";
@@ -141,5 +142,28 @@ export class ProcessUtils {
             Logger.getImperativeLogger().info(`Opening ${filePath} in command-line editor ${editor}`);
             await require("child_process").spawn(editor, [filePath], { stdio: "inherit" });
         }
+    }
+
+    /**
+     * Spawn a process with arguments and throw an error if the process fails.
+     * Parameters are same as `child_process.spawnSync` (see Node.js docs).
+     * Use this method if you want the safe argument parsing of `spawnSync`
+     * combined with the smart output handling of `execSync`.
+     * @returns Contents of stdout as buffer or string
+     */
+    public static execAndCheckOutput(command: string, args?: string[], options?: SpawnSyncOptions): Buffer | string {
+        // Implementation based on the child_process module
+        // https://github.com/nodejs/node/blob/main/lib/child_process.js
+        const result = spawnSync(command, args, options);
+        if (result.error != null) {
+            throw result.error;
+        } else if (result.status !== 0) {
+            let msg = `Command failed: ${command} ${args.join(" ")}`;
+            if (result.stderr?.length > 0) {
+                msg += `\n${result.stderr.toString()}`;
+            }
+            throw new Error(msg);
+        }
+        return result.stdout;
     }
 }

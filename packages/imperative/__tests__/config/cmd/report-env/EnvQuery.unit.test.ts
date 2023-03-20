@@ -391,7 +391,7 @@ describe("Tests for EnvQuery module", () => {
             });
 
             const cmdOutput = await EnvQuery["getCmdOutput"]("bogusCmd", ["bogusArg"]);
-            expect(cmdOutput).toContain("Failed to run commmand = bogusCmd");
+            expect(cmdOutput).toContain("Failed to run command = bogusCmd");
             expect(cmdOutput).toContain("Pretend this was thrown by spawnSync");
         });
     }); // end getCmdOutput function
