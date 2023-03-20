@@ -68,8 +68,7 @@ describe("Uninstall plugin", () => {
             /* Because logging is redirected to stdout by these tests, parsing of the JSON output
              * of the validation command fails and the install does not complete its tasks. Thus,
              * the plugin's postInstall function is not run and the CredentialManager override
-             * is not recorded in settings/imperative.json. We now make this test record the
-             * correct value.
+             * is not recorded in settings/imperative.json. We now record the correct value.
              */
             setCredMgrOverride(knownCredMgrDisplayNm);
 
@@ -88,6 +87,35 @@ describe("Uninstall plugin", () => {
             // confirm that the plugin was uninstalled even after lycycle failure
             expect(result.stdout).toContain("Removal of the npm package(s) was successful.");
             expect(getCredMgrOverride()).toEqual(CredentialManagerOverride.DEFAULT_CRED_MGR_NAME);
+        });
+
+        it("should successfully uninstall a credMgr override plugin", function () {
+            // set to a working lifecycle class so that we can first install successfully
+            changeNameInPkgJson(overridePluginLoc, knownCredMgrPluginNm);
+            changeLifeCycleInPkgJson(overridePluginLoc, "goodLifeCycle");
+
+            let cmd = `plugins install ${overridePluginLoc}`;
+            let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+            expect(result.stdout).toContain(`Installed plugin name = '${knownCredMgrPluginNm}'`);
+
+            /* Because logging is redirected to stdout by these tests, parsing of the JSON output
+             * of the validation command fails and the install does not complete its tasks. Thus,
+             * the plugin's postInstall function is not run and the CredentialManager override
+             * is not recorded in settings/imperative.json. We now record the correct value.
+             */
+            setCredMgrOverride(knownCredMgrDisplayNm);
+
+            cmd = `plugins uninstall ${knownCredMgrPluginNm}`;
+            result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+
+            // confirm that the plugin was uninstalled
+            expect(result.stdout).toContain("Removal of the npm package(s) was successful.");
+            expect(result.stdout).not.toContain(`Unable to perform the 'preUninstall' action of plugin '${knownCredMgrPluginNm}'`);
+            expect(getCredMgrOverride()).toEqual(CredentialManagerOverride.DEFAULT_CRED_MGR_NAME);
+
+            // set plugin's values back to its original values
+            changeNameInPkgJson(overridePluginLoc, "override-plugin");
+            changeLifeCycleInPkgJson(overridePluginLoc, "remove");
         });
 
         /*____________________________________________________________________
