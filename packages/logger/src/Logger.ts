@@ -14,7 +14,7 @@ import { format, inspect, isNullOrUndefined } from "util";
 import { ImperativeError } from "../../error";
 import * as StackTrace from "stack-trace";
 import * as path from "path";
-import { TextUtils } from "../../utilities";
+import { TextUtils } from "../../utilities/src/TextUtils";
 import { IO } from "../../io";
 import { IConfigLogging } from "./doc/IConfigLogging";
 import { LoggerManager } from "./LoggerManager";
