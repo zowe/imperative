@@ -291,7 +291,7 @@ export class PluginManagementFacility {
                     overridePluginNm = credMgrInfo.credMgrPluginName;
                 }
 
-                if (!Object.prototype.hasOwnProperty.call(loadedOverrides, overridePluginNm)) {
+                if (!Object.hasOwn(loadedOverrides, overridePluginNm)) {
                     // The overrideName specified in our settings is not available from any plugin.
                     this.useOverrideThatFails(settingNm, overrideDispNm, overridePluginNm,
                         `No plugin has been installed that overrides '${settingNm}' with '${overrideDispNm}'.` +
@@ -574,7 +574,7 @@ export class PluginManagementFacility {
      */
     private getCliPkgName(): string {
         const cliPackageJson: any = ImperativeConfig.instance.callerPackageJson;
-        if (!Object.prototype.hasOwnProperty.call(cliPackageJson, this.npmPkgNmProp)) {
+        if (!Object.hasOwn(cliPackageJson, this.npmPkgNmProp)) {
             return "NoNameInCliPkgJson";
         }
         return cliPackageJson[this.npmPkgNmProp];
@@ -653,7 +653,7 @@ export class PluginManagementFacility {
         /* Confirm that pluginGroupNm is not an existing top-level
          * alias in the command tree definition.
          */
-        if (Object.prototype.hasOwnProperty.call(cmdTreeDef, "aliases")) {
+        if (Object.hasOwn(cmdTreeDef, "aliases")) {
             for (const nextAliasToTest of cmdTreeDef.aliases) {
                 // if the plugin name matches an alias of the definition tree
                 if (pluginGroupNm.toLowerCase() === nextAliasToTest.toLowerCase()) {
@@ -784,7 +784,7 @@ export class PluginManagementFacility {
         }
 
         // extract the plugin npm package name property for later use in class
-        if (Object.prototype.hasOwnProperty.call(pkgJsonData, this.npmPkgNmProp)) {
+        if (Object.hasOwn(pkgJsonData, this.npmPkgNmProp)) {
             pluginCfgProps.npmPackageName = pkgJsonData[this.npmPkgNmProp];
         }
 
@@ -804,15 +804,15 @@ export class PluginManagementFacility {
 
         // confirm that the peerDependencies property exists in plugin's package.json
         const peerDepPropNm = "peerDependencies";
-        if (Object.prototype.hasOwnProperty.call(pkgJsonData, peerDepPropNm)) {
+        if (Object.hasOwn(pkgJsonData, peerDepPropNm)) {
             // get the version of the host CLI dependency for this plugin
-            if (Object.prototype.hasOwnProperty.call(pkgJsonData[peerDepPropNm], pluginCfgProps.cliDependency.peerDepName)) {
+            if (Object.hasOwn(pkgJsonData[peerDepPropNm], pluginCfgProps.cliDependency.peerDepName)) {
                 pluginCfgProps.cliDependency.peerDepVer =
                     pkgJsonData[peerDepPropNm][pluginCfgProps.cliDependency.peerDepName];
             }
 
             // get the version of the imperative dependency for this plugin
-            if (Object.prototype.hasOwnProperty.call(pkgJsonData[peerDepPropNm], pluginCfgProps.impDependency.peerDepName)) {
+            if (Object.hasOwn(pkgJsonData[peerDepPropNm], pluginCfgProps.impDependency.peerDepName)) {
                 pluginCfgProps.impDependency.peerDepVer =
                     pkgJsonData[peerDepPropNm][pluginCfgProps.impDependency.peerDepName];
             } else {
@@ -832,7 +832,7 @@ export class PluginManagementFacility {
         }
 
         // extract the imperative property
-        if (!Object.prototype.hasOwnProperty.call(pkgJsonData, this.impConfigPropNm)) {
+        if (!Object.hasOwn(pkgJsonData, this.impConfigPropNm)) {
             this.pluginIssues.recordIssue(pluginName, IssueSeverity.CFG_ERROR,
                 "The required property '" + this.impConfigPropNm +
                 "' does not exist in file '" + pluginPkgJsonPathNm + "'.");
@@ -968,7 +968,7 @@ export class PluginManagementFacility {
 
         // compare the plugin's requested CLI version with the CLI's actual version
         if (pluginCfgProps.cliDependency.peerDepVer !== this.noPeerDependency) {
-            if (Object.prototype.hasOwnProperty.call(cliPackageJson, cliVerPropName)) {
+            if (Object.hasOwn(cliPackageJson, cliVerPropName)) {
                 this.comparePluginVersionToCli(
                     pluginCfgProps.pluginName,
                     pluginCfgProps.cliDependency.peerDepName,
@@ -992,8 +992,8 @@ export class PluginManagementFacility {
              */
             const cliDepPropName = "dependencies";
             cliVerPropName = pluginCfgProps.impDependency.peerDepName;
-            if (Object.prototype.hasOwnProperty.call(cliPackageJson, cliDepPropName)) {
-                if (Object.prototype.hasOwnProperty.call(cliPackageJson[cliDepPropName], cliVerPropName)) {
+            if (Object.hasOwn(cliPackageJson, cliDepPropName)) {
+                if (Object.hasOwn(cliPackageJson[cliDepPropName], cliVerPropName)) {
                     this.comparePluginVersionToCli(
                         pluginCfgProps.pluginName,
                         pluginCfgProps.impDependency.peerDepName,
@@ -1051,7 +1051,7 @@ export class PluginManagementFacility {
         );
 
         // is there an imperative.name property?
-        if (!Object.prototype.hasOwnProperty.call(pluginCfgProps.impConfig, "name")) {
+        if (!Object.hasOwn(pluginCfgProps.impConfig, "name")) {
             // can we default to the npm package name?
             if (pluginCfgProps.npmPackageName === "PluginHasNoNpmPkgName" ||
                 pluginCfgProps.npmPackageName.length === 0) {
@@ -1066,7 +1066,7 @@ export class PluginManagementFacility {
         /* Confirm that the plugin group name does not conflict with another
          * top-level item in the imperative command tree.
          */
-        if (Object.prototype.hasOwnProperty.call(pluginCfgProps.impConfig, "name")) {
+        if (Object.hasOwn(pluginCfgProps.impConfig, "name")) {
             for (const nextImpCmdDef of this.resolvedCliCmdTree.children) {
                 const conflictAndMessage = this.conflictingNameOrAlias(pluginCfgProps.pluginName,
                     pluginCmdGroup, nextImpCmdDef);
@@ -1078,7 +1078,7 @@ export class PluginManagementFacility {
             }
         }
 
-        if (!Object.prototype.hasOwnProperty.call(pluginCfgProps.impConfig, "rootCommandDescription")) {
+        if (!Object.hasOwn(pluginCfgProps.impConfig, "rootCommandDescription")) {
             this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.CMD_ERROR,
                 "The plugin's configuration does not contain an '" +
                 this.impConfigPropNm + ".rootCommandDescription' property.");
@@ -1090,7 +1090,7 @@ export class PluginManagementFacility {
         this.validatePeerDepVersions(pluginCfgProps);
 
         // check if the plugin has a healthCheck() function
-        if (!Object.prototype.hasOwnProperty.call(pluginCfgProps.impConfig, "pluginHealthCheck")) {
+        if (!Object.hasOwn(pluginCfgProps.impConfig, "pluginHealthCheck")) {
             this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.WARNING,
                 "The plugin's configuration does not contain an '" +
                 this.impConfigPropNm + ".pluginHealthCheck' property.");
@@ -1139,10 +1139,10 @@ export class PluginManagementFacility {
          * We place this check last, since it finds one error and throws an exception.
          */
         const pluginConfigToValidate: IImperativeConfig = { ...pluginCfgProps.impConfig };
-        if (!Object.prototype.hasOwnProperty.call(pluginConfigToValidate, "defaultHome")) {
+        if (!Object.hasOwn(pluginConfigToValidate, "defaultHome")) {
             pluginConfigToValidate.defaultHome = "defaultHome-ForValidation";
         }
-        if (!Object.prototype.hasOwnProperty.call(pluginConfigToValidate, "productDisplayName")) {
+        if (!Object.hasOwn(pluginConfigToValidate, "productDisplayName")) {
             pluginConfigToValidate.productDisplayName = "productDisplayName-ForValidation";
         }
 
@@ -1182,7 +1182,7 @@ export class PluginManagementFacility {
         for (const pluginCmdDef of pluginCmdDefs) {
             // check for name property
             let pluginCmdName: string = "NotYetAssigned";
-            if (Object.prototype.hasOwnProperty.call(pluginCmdDef, "name")) {
+            if (Object.hasOwn(pluginCmdDef, "name")) {
                 pluginCmdName = pluginCmdDef.name + " (at depth = " + cmdTreeDepth + ")";
             } else {
                 this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
@@ -1191,26 +1191,26 @@ export class PluginManagementFacility {
             }
 
             // check for description property
-            if (!Object.prototype.hasOwnProperty.call(pluginCmdDef, "description")) {
+            if (!Object.hasOwn(pluginCmdDef, "description")) {
                 this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
                     "Name = '" + pluginCmdName + "' has no 'description' property");
             }
 
             // check for type property
-            if (!Object.prototype.hasOwnProperty.call(pluginCmdDef, "type")) {
+            if (!Object.hasOwn(pluginCmdDef, "type")) {
                 this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
                     "Name = '" + pluginCmdName + "' has no 'type' property");
             } else {
                 // is this entry a command?
                 if (pluginCmdDef.type.toLowerCase() === "command") {
                     // a command must have a handler or a chained handler
-                    if (!Object.prototype.hasOwnProperty.call(pluginCmdDef, "handler")) {
+                    if (!Object.hasOwn(pluginCmdDef, "handler")) {
                         // if it doesn't have a handler, does it have a chained handler
-                        if (Object.prototype.hasOwnProperty.call(pluginCmdDef, "chainedHandlers")) {
+                        if (Object.hasOwn(pluginCmdDef, "chainedHandlers")) {
                             // if the command has chained handlers, verify they exist
                             if (pluginCmdDef.chainedHandlers.length > 0) {
                                 for (const cmdHandler of pluginCmdDef.chainedHandlers) {
-                                    if (!Object.prototype.hasOwnProperty.call(cmdHandler, "handler")) {
+                                    if (!Object.hasOwn(cmdHandler, "handler")) {
                                         // the chained handler doesn't contain a handler
                                         this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
                                             "Command name = '" + pluginCmdName + "' has no 'handler' property in one of its chained handlers.");
@@ -1254,7 +1254,7 @@ export class PluginManagementFacility {
                         }
                     }
                 } else if (pluginCmdDef.type.toLowerCase() === "group") {
-                    if (Object.prototype.hasOwnProperty.call(pluginCmdDef, "children")) {
+                    if (Object.hasOwn(pluginCmdDef, "children")) {
                         if (pluginCmdDef.children.length > 0) {
                             // validate children at the next level down in the plugin command tree
                             this.validatePluginCmdDefs(pluginName, pluginCmdDef.children, cmdTreeDepth + 1);
