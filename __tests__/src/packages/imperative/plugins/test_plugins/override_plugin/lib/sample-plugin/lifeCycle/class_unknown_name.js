@@ -7,10 +7,10 @@ const unknownCredMgrDisplayName = "A CredMgr name that is not known";
 
 class PluginLifeCycle extends imperative_1.AbstractPluginLifeCycle {
     postInstall() {
-        imperative_1.CredentialManagerOverride.overrideCredMgr(unknownCredMgrDisplayName);
+        imperative_1.CredentialManagerOverride.recordCredMgrInConfig(unknownCredMgrDisplayName);
     }
     preUninstall() {
-        imperative_1.CredentialManagerOverride.replaceCredMgrWithDefault(unknownCredMgrDisplayName);
+        imperative_1.CredentialManagerOverride.recordDefaultCredMgrInConfig(unknownCredMgrDisplayName);
     }
 }
 

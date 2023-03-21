@@ -237,7 +237,7 @@ describe("CredentialManagerOverride", () => {
         });
     });
 
-    describe("overrideCredMgr", () => {
+    describe("recordCredMgrInConfig", () => {
         const knownCredMgr = CredentialManagerOverride.getKnownCredMgrs()[1];
         const knownCredMgrDisplayNm = knownCredMgr.credMgrDisplayName as string;
         const knownCredMgrPluginNm = knownCredMgr.credMgrPluginName as string;
@@ -247,7 +247,7 @@ describe("CredentialManagerOverride", () => {
 
             let thrownErr: any;
             try {
-                CredentialManagerOverride.overrideCredMgr(unknownCredMgrName);
+                CredentialManagerOverride.recordCredMgrInConfig(unknownCredMgrName);
             } catch (err) {
                 thrownErr = err;
             }
@@ -271,7 +271,7 @@ describe("CredentialManagerOverride", () => {
 
             let thrownErr: any;
             try {
-                CredentialManagerOverride.overrideCredMgr(knownCredMgrDisplayNm);
+                CredentialManagerOverride.recordCredMgrInConfig(knownCredMgrDisplayNm);
             } catch (err) {
                 thrownErr = err;
             }
@@ -301,7 +301,7 @@ describe("CredentialManagerOverride", () => {
 
             let thrownErr: ImperativeError = null as any;
             try {
-                CredentialManagerOverride.overrideCredMgr(knownCredMgrDisplayNm);
+                CredentialManagerOverride.recordCredMgrInConfig(knownCredMgrDisplayNm);
             } catch (err) {
                 thrownErr = err;
             }
@@ -323,7 +323,7 @@ describe("CredentialManagerOverride", () => {
                     writtenJsonSettings = jsonSettings;
                 });
 
-            CredentialManagerOverride.overrideCredMgr(knownCredMgrDisplayNm);
+            CredentialManagerOverride.recordCredMgrInConfig(knownCredMgrDisplayNm);
 
             expect(readJsonSync).toHaveBeenCalledWith(expectedSettings.fileName);
             expect(writeJsonSync).toHaveBeenCalledTimes(1);
@@ -331,7 +331,7 @@ describe("CredentialManagerOverride", () => {
         });
     });
 
-    describe("replaceCredMgrWithDefault", () => {
+    describe("recordDefaultCredMgrInConfig", () => {
         it("should throw a replacement error due to error in getSettingsFileJson", () => {
             // Force an error when reading our settings
             const readJsonErrText = "Pretend that readJsonSync threw an error";
@@ -345,7 +345,7 @@ describe("CredentialManagerOverride", () => {
             const credMgrToReplace = "CurrentPluginCredMgr";
             let thrownErr: any;
             try {
-                CredentialManagerOverride.replaceCredMgrWithDefault(credMgrToReplace);
+                CredentialManagerOverride.recordDefaultCredMgrInConfig(credMgrToReplace);
             } catch (err) {
                 thrownErr = err;
             }
@@ -373,7 +373,7 @@ describe("CredentialManagerOverride", () => {
             const credMgrToReplace = "CurrentPluginCredMgr";
             let thrownErr: any;
             try {
-                CredentialManagerOverride.replaceCredMgrWithDefault(credMgrToReplace);
+                CredentialManagerOverride.recordDefaultCredMgrInConfig(credMgrToReplace);
             } catch (err) {
                 thrownErr = err;
             }
@@ -412,7 +412,7 @@ describe("CredentialManagerOverride", () => {
 
             let thrownErr: any;
             try {
-                CredentialManagerOverride.replaceCredMgrWithDefault(credMgrToReplace);
+                CredentialManagerOverride.recordDefaultCredMgrInConfig(credMgrToReplace);
             } catch (err) {
                 thrownErr = err;
             }

@@ -92,17 +92,16 @@ export class CredentialManagerOverride {
     }
 
     /**
-     * Override the current credential manager with the specified
-     * credential manager. A plugin or ZE extension that provides a
-     * credential manager would override the default credential manager
-     * upon installation.
+     * Record the specified credential manager in the configuration of overrides.
+     * A plugin or ZE extension that provides a credential manager would record
+     * its credential manager name upon installation.
      *
      * @param newCredMgrName
      *        The display name of your credential manager.
      *
      * @throws An ImperativeError upon error.
      */
-    public static overrideCredMgr(newCredMgrName: string) : void {
+    public static recordCredMgrInConfig(newCredMgrName: string) : void {
         const credMgrInfo: ICredentialManagerNameMap =
             CredentialManagerOverride.getCredMgrInfoByDisplayName(newCredMgrName);
         if (credMgrInfo === null) {
@@ -143,19 +142,22 @@ export class CredentialManagerOverride {
 
     //________________________________________________________________________
     /**
-     * Replace the specified credential manager with the default Zowe CLI
-     * credential manager. A plugin or ZE extension that provides a
-     * credential manager would replace itself with the default credential
+     * Record the default Zowe CLI credential manager in the configuration of
+     * overrides. The specified credential manager will be replaced with the
+     * default Zowe CLI credential manager. A plugin or ZE extension that provides
+     * a credential manager would replace itself with the default credential
      * manager when it is being uninstalled.
      *
      * @param credMgrToReplace
-     *        The display name of your credential manager. This name
-     *        must be the current credential manager in effect.
-     *        Otherwise, no replacement will be performed.
+     *        The display name of your credential manager. This name must also
+     *        be the credential manager currently recorded in the configuration
+     *        of overrides. Otherwise, no replacement will be performed.
+     *        Specifying your own name is intended to prevent a plugin from
+     *        inadvertently replacing another plugin's credential manager.
      *
      * @throws An ImperativeError upon error.
      */
-    public static replaceCredMgrWithDefault(credMgrToReplace: string) : void {
+    public static recordDefaultCredMgrInConfig(credMgrToReplace: string) : void {
         // read in the existing settings file
         let settings: any;
         try {

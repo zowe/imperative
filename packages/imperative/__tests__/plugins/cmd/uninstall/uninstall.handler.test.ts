@@ -183,7 +183,7 @@ describe("callPluginPreUninstall", () => {
     let getPackageInfoSpy;
     let LifeCycleClass;
     let preUninstallWorked = false;
-    let replaceCredMgrWithDefaultSpy;
+    let recordDefaultCredMgrInConfigSpy;
     let requirePluginModuleCallbackSpy;
     let uninstallHndlr;
 
@@ -240,9 +240,9 @@ describe("callPluginPreUninstall", () => {
             return  new Logger(new Console());
         });
 
-        // prevent the real replaceCredMgrWithDefault from running
-        replaceCredMgrWithDefaultSpy =
-            jest.spyOn(CredentialManagerOverride, "replaceCredMgrWithDefault").mockImplementation(() => {
+        // prevent the real recordDefaultCredMgrInConfig from running
+        recordDefaultCredMgrInConfigSpy =
+            jest.spyOn(CredentialManagerOverride, "recordDefaultCredMgrInConfig").mockImplementation(() => {
                 return;
             });
 
@@ -283,7 +283,7 @@ describe("callPluginPreUninstall", () => {
             thrownErr = err;
         }
 
-        expect(replaceCredMgrWithDefaultSpy).toHaveBeenCalledWith(knownCredMgrDispNm);
+        expect(recordDefaultCredMgrInConfigSpy).toHaveBeenCalledWith(knownCredMgrDispNm);
         expect(requirePluginModuleCallbackSpy).toHaveBeenCalledTimes(1);
         expect(cfgLoaderLoadSpy).toHaveBeenCalledTimes(1);
         expect(thrownErr).not.toBeNull();

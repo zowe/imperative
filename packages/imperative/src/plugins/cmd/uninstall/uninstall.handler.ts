@@ -100,7 +100,7 @@ export default class UninstallHandler implements ICommandHandler {
                     CredentialManagerOverride.getCredMgrInfoByPlugin(pluginPackageNm);
                 if (credMgrInfo !== null) {
                     // this plugin is a known cred mgr override
-                    CredentialManagerOverride.replaceCredMgrWithDefault(credMgrInfo.credMgrDisplayName);
+                    CredentialManagerOverride.recordDefaultCredMgrInConfig(credMgrInfo.credMgrDisplayName);
                     throw new ImperativeError({
                         msg: `The plugin '${pluginPackageNm}', which overrides the CLI ` +
                         `Credential Manager, does not implement the 'pluginLifeCycle' class. ` +
