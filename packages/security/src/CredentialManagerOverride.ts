@@ -52,14 +52,7 @@ export class CredentialManagerOverride {
      *          null if the specified plugin is not a known credential manager.
      */
     public static getCredMgrInfoByDisplayName(credMgrDisplayName: string) : ICredentialManagerNameMap | null {
-        let credMgrInfo: ICredentialManagerNameMap = null;
-        for (const nextNameMap of this.KNOWN_CRED_MGRS) {
-            if (nextNameMap.credMgrDisplayName === credMgrDisplayName) {
-                credMgrInfo = nextNameMap;
-                break;
-            }
-        }
-        return credMgrInfo;
+        return this.KNOWN_CRED_MGRS.find((credMgr) => credMgr.credMgrDisplayName === credMgrDisplayName) ?? null;
     }
 
     //________________________________________________________________________
@@ -72,14 +65,7 @@ export class CredentialManagerOverride {
      *          null if the specified plugin is not a known credential manager.
      */
     public static getCredMgrInfoByPlugin(pluginName: string) : ICredentialManagerNameMap | null {
-        let credMgrInfo: ICredentialManagerNameMap = null;
-        for (const nextNameMap of this.KNOWN_CRED_MGRS) {
-            if (nextNameMap.credMgrPluginName === pluginName) {
-                credMgrInfo = nextNameMap;
-                break;
-            }
-        }
-        return credMgrInfo;
+        return this.KNOWN_CRED_MGRS.find((credMgr) => credMgr.credMgrPluginName === pluginName) ?? null;
     }
 
     //________________________________________________________________________
@@ -92,14 +78,7 @@ export class CredentialManagerOverride {
      *          null if the specified extension is not a known credential manager.
      */
     public static getCredMgrInfoByZEExt(ZEExtName: string) : ICredentialManagerNameMap | null {
-        let credMgrInfo: ICredentialManagerNameMap = null;
-        for (const nextNameMap of this.KNOWN_CRED_MGRS) {
-            if (nextNameMap.credMgrZEName === ZEExtName) {
-                credMgrInfo = nextNameMap;
-                break;
-            }
-        }
-        return credMgrInfo;
+        return this.KNOWN_CRED_MGRS.find((credMgr) => credMgr.credMgrZEName === ZEExtName) ?? null;
     }
 
     //________________________________________________________________________
@@ -127,18 +106,14 @@ export class CredentialManagerOverride {
         const credMgrInfo: ICredentialManagerNameMap =
             CredentialManagerOverride.getCredMgrInfoByDisplayName(newCredMgrName);
         if (credMgrInfo === null) {
-            // We do not have a known credMgr. Form a list of known credential managers.
-            const knownCredMgrs: ICredentialManagerNameMap[] = CredentialManagerOverride.getKnownCredMgrs();
-            let knownMgrsMsg: string = "";
-            for ( let credMgrInx = 0; credMgrInx < knownCredMgrs.length; credMgrInx++) {
-                knownMgrsMsg += `\n${knownCredMgrs[credMgrInx].credMgrDisplayName}`;
-            }
-
-            // we do not permit overriding by an unknown credMgr
+            /* We do not have a known credMgr. We do not permit overriding by an
+             * unknown credMgr. Form a message of known credential managers.
+             */
             throw new ImperativeError({
                 msg: `The credential manager name '${newCredMgrName}' is an unknown ` +
                 `credential manager. The previous credential manager will NOT be overridden. ` +
-                `Valid credential managers are:` + knownMgrsMsg
+                `Valid credential managers are:` +
+                this.KNOWN_CRED_MGRS.map(knownCredMgr => `\n${knownCredMgr.credMgrDisplayName}`).join('')
             });
         }
 
