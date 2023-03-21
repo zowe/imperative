@@ -49,6 +49,7 @@ import { readFileSync, writeFileSync } from "jsonfile";
 import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
 import { TextUtils } from "../../../../../utilities";
 import { getRegistry, npmLogin } from "../../../../src/plugins/utilities/NpmFunctions";
+import * as childProcess from "child_process";
 
 let expectedVal;
 let returnedVal;
@@ -72,7 +73,7 @@ describe("Plugin Management Facility install handler", () => {
 
     const packageName2 = "b";
     const packageVersion2 = "13.1.2";
-    const packageRegistry2 = "http://isl-dsdc.ca.com/artifactory/api/npm/npm-repo/";
+    const packageRegistry2 = "https://zowe.jfrog.io/zowe/api/npm/npm-release/";
 
     const finalValidationMsg = "The final message from runPluginValidation";
 
@@ -276,7 +277,7 @@ describe("Plugin Management Facility install handler", () => {
 
         const params = getIHandlerParametersObject();
         params.arguments.plugin = ["sample1"];
-        params.arguments.registry = "http://isl-dsdc.ca.com";
+        params.arguments.registry = "http://localhost:4873/";
 
         await handler.process(params as IHandlerParameters);
 
@@ -347,7 +348,30 @@ describe("Plugin Management Facility install handler", () => {
             expectedError = e;
         }
 
+        expect(expectedError).toBeInstanceOf(ImperativeError);
         expect(expectedError.message).toBe("Install Failed");
+    });
+
+    it("should handle an error in spawned process", async () => {
+        const handler = new InstallHandler();
+
+        const params = getIHandlerParametersObject();
+        params.arguments.plugin = ["sample1"];
+
+        let expectedError: ImperativeError;
+
+        jest.spyOn(childProcess, "spawnSync").mockReturnValueOnce({ status: 1 } as any);
+        mocks.getRegistry.mockImplementationOnce(jest.requireActual("../../../../src/plugins/utilities/NpmFunctions").getRegistry);
+
+        try {
+            await handler.process(params);
+        } catch (e) {
+            expectedError = e;
+        }
+
+        expect(expectedError).toBeInstanceOf(ImperativeError);
+        expect(expectedError.additionalDetails).toContain("Command failed");
+        expect(expectedError.additionalDetails).toContain("npm");
     });
 });
 
