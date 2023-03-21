@@ -44,7 +44,7 @@ export abstract class AbstractPluginLifeCycle {
      *
      * @throws
      *      An ImperativeError containing a message describing any error
-     *      that occurred while performing post-install actions.
+     *      that occurred while performing pre-uninstall actions.
      */
     public abstract preUninstall(): void;
 }
