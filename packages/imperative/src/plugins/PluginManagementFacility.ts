@@ -261,8 +261,8 @@ export class PluginManagementFacility {
         // Loop through each overrides settings specified by all plugins.
         // This was designed to handle different types of overrides,
         // but we currently only process CredentialManager overrides.
-        let overrideDispNm: string = "No override display name";
-        let overridePluginNm: string = "No override plugin name";
+        let overrideDispNm: string;
+        let overridePluginNm: string;
 
         for (const [settingNm, settingVal] of Object.entries(AppSettings.instance.getNamespace("overrides"))) {
             overrideDispNm = settingVal as string;
