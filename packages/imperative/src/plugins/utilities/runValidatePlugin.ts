@@ -9,7 +9,7 @@
 *
 */
 
-import { spawnSync } from "child_process";
+import * as spawn from "cross-spawn";
 import { Logger } from "../../../../logger";
 import { PMFConstants } from "./PMFConstants";
 
@@ -38,7 +38,7 @@ export function runValidatePlugin(pluginName: string): string {
 
     const impLogger = Logger.getImperativeLogger();
     impLogger.debug(`Running plugin validation command = ${cmdToRun} plugins validate "${pluginName}" --response-format-json --no-fail-on-error`);
-    const valOutputJsonTxt = spawnSync(cmdToRun,
+    const valOutputJsonTxt = spawn.sync(cmdToRun,
         [
             ...cmdToRunArgs,
             "plugins", "validate", pluginName,

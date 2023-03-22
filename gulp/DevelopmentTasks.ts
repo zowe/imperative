@@ -10,7 +10,8 @@
 */
 
 import { IGulpError, ITaskFunction } from "./GulpHelpers";
-import { execSync, spawnSync, SpawnSyncReturns } from "child_process";
+import { execSync, SpawnSyncReturns } from "child_process";
+import * as spawn from "cross-spawn";
 import { buildAndPublishToTestRegistry } from "./SampleCliAndPlugin";
 
 let ansiColors: any;
@@ -48,9 +49,9 @@ function isLowerCase(str: string) {
 
 const lint: ITaskFunction = (done) => {
     loadDependencies();
-    let lintProcess: SpawnSyncReturns<string>;
+    let lintProcess: SpawnSyncReturns<string | Buffer>;
     try {
-        lintProcess = childProcess.spawnSync("npm", ["run", "lint"], {stdio: "inherit", shell: true});
+        lintProcess = spawn.sync("npm", ["run", "lint"], {stdio: "inherit", shell: true});
 
     } catch (e) {
         fancylog(ansiColors.red("Error encountered trying to run eslint"));
@@ -80,7 +81,7 @@ lint.description = "Runs eslint on the project to check for style";
 const prepForDirectInstall: ITaskFunction = (done) => {
     loadDependencies();
     fancylog("Prep response: " + execSync("git pull").toString());
-    fancylog(spawnSync("node", [tscExecutable]).stdout.toString());
+    fancylog(spawn.sync("node", [tscExecutable]).stdout.toString());
 };
 
 prepForDirectInstall.description = "Pulls from the repo on current branch and compiles source to be installed" +
@@ -89,7 +90,7 @@ prepForDirectInstall.description = "Pulls from the repo on current branch and co
 const checkCircularDependencies: ITaskFunction = (done) => {
     loadDependencies();
     fancylog(ansiColors.blue("Checking for circular dependencies in the compiled source..."));
-    const madgeResults = spawnSync("node", [madgeExecutable, "-c", "lib"]);
+    const madgeResults = spawn.sync("node", [madgeExecutable, "-c", "lib"]);
     fancylog(madgeResults.stdout.toString());
     if (madgeResults.status === 0) {
         fancylog(ansiColors.blue("No circular dependencies"));
@@ -178,7 +179,7 @@ const build: ITaskFunction = (done) => {
             rimraf(compileDir);
             fancylog("Deleted old compiled source in '%s' folder", compileDir);
         }
-        const compileProcess = childProcess.spawnSync("node", [tscExecutable]);
+        const compileProcess = spawn.sync("node", [tscExecutable]);
         const typescriptOutput = compileProcess.output.join("");
         if (typescriptOutput.trim().length > 0) {
             fancylog("Typescript output:\n%s", typescriptOutput);
@@ -217,7 +218,7 @@ const installAllCliDependencies: ITaskFunction = async () => {
     cliDirs.forEach((dir) => {
         // Perform an NPM install
         fancylog(`Executing "npm install" for "${dir}" cli to obtain dependencies...`);
-        const installResponse = spawnSync((process.platform === "win32") ? "npm.cmd" : "npm", ["install"],
+        const installResponse = spawn.sync((process.platform === "win32") ? "npm.cmd" : "npm", ["install"],
             {cwd: __dirname + `/../__tests__/__integration__/${dir}/`});
         if (installResponse.stdout && installResponse.stdout.toString().length > 0) {
             fancylog(`***INSTALL "${dir}" stdout:\n${installResponse.stdout.toString()}`);
@@ -239,7 +240,7 @@ const buildAllClis: ITaskFunction = async () => {
     cliDirs.forEach((dir) => {
         // Build them all
         fancylog(`Build "${dir}" cli...`);
-        const buildResponse = spawnSync((process.platform === "win32") ? "npm.cmd" : "npm", ["run", "build"],
+        const buildResponse = spawn.sync((process.platform === "win32") ? "npm.cmd" : "npm", ["run", "build"],
             {cwd: __dirname + `/../__tests__/__integration__/${dir}/`});
         if (buildResponse.stdout && buildResponse.stdout.toString().length > 0) {
             fancylog(`***BUILD "${dir}" stdout:\n${buildResponse.stdout.toString()}`);

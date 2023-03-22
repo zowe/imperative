@@ -12,7 +12,7 @@
 /* eslint-disable jest/expect-expect */
 import Mock = jest.Mock;
 
-jest.mock("child_process");
+jest.mock("cross-spawn");
 jest.mock("jsonfile");
 jest.mock("../../../../src/plugins/utilities/PMFConstants");
 jest.mock("../../../../../logger");
@@ -21,7 +21,7 @@ jest.mock("../../../../../cmd/src/response/HandlerResponse");
 
 import * as fs from "fs";
 import { Console } from "../../../../../console";
-import { spawnSync } from "child_process";
+import { sync } from "cross-spawn";
 import { ImperativeError } from "../../../../../error";
 import { IPluginJson } from "../../../../src/plugins/doc/IPluginJson";
 import { Logger } from "../../../../../logger";
@@ -34,7 +34,7 @@ import { uninstall } from "../../../../src/plugins/utilities/npm-interface";
 describe("PMF: Uninstall Interface", () => {
     // Objects created so types are correct.
     const mocks = {
-        spawnSync: spawnSync as Mock<typeof spawnSync>,
+        spawnSync: sync as Mock<typeof sync>,
         readFileSync: readFileSync as Mock<typeof readFileSync>,
         writeFileSync: writeFileSync as Mock<typeof writeFileSync>
     };

@@ -10,11 +10,11 @@
 */
 
 import { runValidatePlugin } from "../../../src/plugins/utilities/runValidatePlugin";
-import { spawnSync } from "child_process";
+import { sync } from "cross-spawn";
 import { Imperative } from "../../..";
 import Mock = jest.Mock;
 
-jest.mock("child_process");
+jest.mock("cross-spawn");
 jest.mock("../../../src/plugins/utilities/PMFConstants");
 
 const pluginName = "fakePluginName";
@@ -42,7 +42,7 @@ describe("runValidatePlugin", () => {
     });
 
     const mocks = {
-        spawnSync: spawnSync as Mock<typeof spawnSync>
+        spawnSync: sync as Mock<typeof sync>
     };
 
     it("should display both the stdout and stderr of the validate command", () => {

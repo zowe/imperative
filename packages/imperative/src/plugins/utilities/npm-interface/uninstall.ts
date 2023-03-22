@@ -11,13 +11,14 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import * as spawn from "cross-spawn";
 import { PMFConstants } from "../PMFConstants";
 import { readFileSync, writeFileSync } from "jsonfile";
 import { IPluginJson } from "../../doc/IPluginJson";
 import { Logger } from "../../../../../logger";
 import { ImperativeError } from "../../../../../error";
 import { TextUtils } from "../../../../../utilities";
-import { spawnSync, StdioOptions } from "child_process";
+import { StdioOptions } from "child_process";
 import { cmdToRun } from "../NpmFunctions";
 const npmCmd = cmdToRun();
 
@@ -64,7 +65,7 @@ export function uninstall(packageName: string): void {
         // formatting or colors but at least I can get the output of stdout right. (comment from install handler)
         iConsole.info("Uninstalling package...this may take some time.");
 
-        spawnSync(npmCmd,
+        spawn.sync(npmCmd,
             [
                 "uninstall",
                 npmPackage,

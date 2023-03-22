@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+# Recent Changes
+
+- BugFix: Fix broken plugin install command for Windows when file has a space in the name
+
 ## `4.18.13`
 
 - BugFix: Fixed `IO.writeFileAsync` method throwing uncatchable errors. [#896](https://github.com/zowe/imperative/issues/896)

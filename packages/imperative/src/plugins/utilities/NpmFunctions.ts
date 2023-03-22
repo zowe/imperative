@@ -12,7 +12,8 @@
 import { PMFConstants } from "./PMFConstants";
 import * as path from "path";
 import * as which from "which";
-import { spawnSync, StdioOptions } from "child_process";
+import * as spawn from "cross-spawn";
+import { StdioOptions } from "child_process";
 import { readFileSync } from "jsonfile";
 import * as npmPackageArg from "npm-package-arg";
 import * as pacote from "pacote";
@@ -44,7 +45,7 @@ export function cmdToRun() {
 export function installPackages(prefix: string, registry: string, npmPackage: string): string {
     const pipe: StdioOptions = ["pipe", "pipe", process.stderr];
     try {
-        const execOutput = spawnSync(npmCmd,
+        const execOutput = spawn.sync(npmCmd,
             [
                 "install", npmPackage,
                 "--prefix", prefix,
@@ -69,7 +70,7 @@ export function installPackages(prefix: string, registry: string, npmPackage: st
  */
 export function getRegistry(): string {
     try {
-        const execOutput = spawnSync(npmCmd, [ "config", "get", "registry" ]);
+        const execOutput = spawn.sync(npmCmd, [ "config", "get", "registry" ]);
         return execOutput.stdout.toString();
     } catch (err) {
         throw(err.message);
@@ -82,7 +83,7 @@ export function getRegistry(): string {
  */
 export function npmLogin(registry: string) {
     try {
-        spawnSync(npmCmd,
+        spawn.sync(npmCmd,
             [
                 "login",
                 "--registry", registry,
