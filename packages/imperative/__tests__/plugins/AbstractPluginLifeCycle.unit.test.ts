@@ -19,7 +19,7 @@ describe("AbstractPluginLifeCycle", () => {
             "utf8"
         );
         expect(absLifeCycleClass).toContain("export abstract class AbstractPluginLifeCycle");
-        expect(absLifeCycleClass).toContain("public abstract postInstall(): void;");
-        expect(absLifeCycleClass).toContain("public abstract preUninstall(): void");
+        expect(absLifeCycleClass).toContain("public abstract postInstall(): Promise<void> | void;");
+        expect(absLifeCycleClass).toContain("public abstract preUninstall(): Promise<void> | void;");
     });
 });
