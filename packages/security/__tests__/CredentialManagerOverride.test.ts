@@ -33,7 +33,7 @@ describe("CredentialManagerOverride", () => {
             fileName: path.join(mockImpConfig.cliHome, "settings", "imperative.json"),
             json: {
                 "overrides": {
-                    "CredentialManager": "@zowe/cli"
+                    "CredentialManager": CredentialManagerOverride.DEFAULT_CRED_MGR_NAME
                 }
             } as ISettingsFile
         };
@@ -110,7 +110,7 @@ describe("CredentialManagerOverride", () => {
                 fileName: path.join(mockImpConfig.cliHome, "settings", "imperative.json"),
                 json: {
                     "overrides": {
-                        "CredentialManager": "@zowe/cli"
+                        "CredentialManager": CredentialManagerOverride.DEFAULT_CRED_MGR_NAME
                     }
                 } as ISettingsFile
             };

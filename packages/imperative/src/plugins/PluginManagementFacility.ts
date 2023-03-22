@@ -900,7 +900,7 @@ export class PluginManagementFacility {
                 `or you can install a plugin from the list below:\n\n`;
 
             /* Add all known credMgr override display names to the error message.
-             * This code assumes that the default @zowe/cli name is first in our knownCredMgrs.
+             * This code assumes that the default Zowe credMgr name is first in our knownCredMgrs.
              */
             const knownCredMgrs: ICredentialManagerNameMap[] = CredentialManagerOverride.getKnownCredMgrs();
             overrideErrMsg += `"${settingNm}": "${CredentialManagerOverride.DEFAULT_CRED_MGR_NAME}" (default)`;
