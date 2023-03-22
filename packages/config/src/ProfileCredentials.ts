@@ -13,29 +13,32 @@ import * as fs from "fs";
 import * as path from "path";
 
 import { ImperativeError } from "../../error";
-import { CredentialManagerFactory, DefaultCredentialManager, ICredentialManagerConstructor } from "../../security";
+import { CredentialManagerFactory, DefaultCredentialManager, ICredentialManagerInit } from "../../security";
 import { ImperativeConfig } from "../../utilities";
 import { IProfOpts } from "./doc/IProfOpts";
 import { ProfileInfo } from "./ProfileInfo";
 
 export class ProfileCredentials {
     private mSecured: boolean;
-    private mCredMgrOverride?: ICredentialManagerConstructor;
+    private mCredMgrOverride?: ICredentialManagerInit;
 
     constructor(private mProfileInfo: ProfileInfo, opts?: IProfOpts | (() => NodeModule)) {
         this.mCredMgrOverride = (typeof opts === "function") ? ProfileCredentials.defaultCredMgrWithKeytar(opts) : opts?.credMgrOverride;
     }
 
-    public static defaultCredMgrWithKeytar(requireKeytar: () => NodeModule): ICredentialManagerConstructor {
-        return class extends DefaultCredentialManager {
-            public async initialize(): Promise<void> {
-                try {
-                    (this as any).keytar = requireKeytar();
-                } catch (error) {
-                    throw new ImperativeError({
-                        msg: `Failed to load Keytar module: ${error.message}`,
-                        causeErrors: error
-                    });
+    public static defaultCredMgrWithKeytar(requireKeytar: () => NodeModule): ICredentialManagerInit {
+        return {
+            service: null,
+            Manager: class extends DefaultCredentialManager {
+                public async initialize(): Promise<void> {
+                    try {
+                        (this as any).keytar = requireKeytar();
+                    } catch (error) {
+                        throw new ImperativeError({
+                            msg: `Failed to load Keytar module: ${error.message}`,
+                            causeErrors: error
+                        });
+                    }
                 }
             }
         };
@@ -67,7 +70,7 @@ export class ProfileCredentials {
             try {
                 // TODO? Make CredentialManagerFactory.initialize params optional
                 // see https://github.com/zowe/imperative/issues/545
-                await CredentialManagerFactory.initialize({ service: null, Manager: this.mCredMgrOverride });
+                await CredentialManagerFactory.initialize({ service: null, ...(this.mCredMgrOverride || {}) });
             } catch (error) {
                 throw (error instanceof ImperativeError) ? error : new ImperativeError({
                     msg: `Failed to load CredentialManager class: ${error.message}`,

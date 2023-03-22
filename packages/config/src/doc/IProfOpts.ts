@@ -9,7 +9,7 @@
 *
 */
 
-import { ICredentialManagerConstructor } from "../../../security";
+import { ICredentialManagerInit } from "../../../security";
 
 /**
  * Options that will affect the behavior of the ProfileInfo class.
@@ -42,5 +42,5 @@ export interface IProfOpts {
      * Imperative {@link KeytarCredentialManager} which will `require("keytar")`
      * from the caller app's node_modules folder.
      */
-    credMgrOverride?: ICredentialManagerConstructor;
+    credMgrOverride?: ICredentialManagerInit;
 }
