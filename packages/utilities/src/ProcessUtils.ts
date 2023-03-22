@@ -10,9 +10,6 @@
 */
 
 import { spawnSync, SpawnSyncOptions } from "child_process";
-import { Logger } from "../../logger";
-import { ImperativeConfig } from "./ImperativeConfig";
-import { ISystemInfo } from "./doc/ISystemInfo";
 
 /**
  * This enum represents the possible results from isGuiAvailable.
@@ -84,64 +81,6 @@ export class ProcessUtils {
 
         // otherwise we assume we have a GUI
         return GuiResult.GUI_AVAILABLE;
-    }
-
-    /**
-     * Get some basic information about the system
-     */
-    public static getBasicSystemInfo(): ISystemInfo {
-        const sysInfo: ISystemInfo = {arch: undefined, platform: undefined};
-        sysInfo.arch = process.arch;
-        sysInfo.platform = process.platform;
-        return sysInfo;
-    }
-
-    /**
-     * Open a file or URL in the default application associated with its file
-     * extension or URL protocol. This method is only supported in graphical
-     * environments.
-     * @param pathOrUrl File path or Internet URL to open
-     */
-    public static openInDefaultApp(pathOrUrl: string) {
-        const openerProc = require("opener")(pathOrUrl);
-
-        if (process.platform !== "win32") {
-            /* On linux, without the following statements, the zowe
-            * command does not return until the browser is closed.
-            * Mac is untested, but for now we treat it like linux.
-            */
-            openerProc.unref();
-            openerProc.stdin.unref();
-            openerProc.stdout.unref();
-            openerProc.stderr.unref();
-        }
-    }
-
-    /**
-     * Open a file in the best editor that can be found in the current
-     * environment. In a graphical environment, the default application
-     * associated with its file extension will be launched. In a command-line
-     * environment, the file will be opened in vi, or the editor in the
-     * the `{envVariablePrefix}_EDITOR` environment variable if specified.
-     * @param filePath File path to edit
-     */
-    public static async openInEditor(filePath: string) {
-        let editor;
-        if (ImperativeConfig.instance.loadedConfig.envVariablePrefix != null) {
-            const editorEnvVar = `${ImperativeConfig.instance.loadedConfig.envVariablePrefix}_EDITOR`;
-            if (process.env[editorEnvVar] != null) { editor = process.env[editorEnvVar]; }
-        }
-
-        if (ProcessUtils.isGuiAvailable() === GuiResult.GUI_AVAILABLE) {
-            Logger.getImperativeLogger().info(`Opening ${filePath} in graphical editor`);
-            if (editor != null) { await require("child_process").spawn(editor, [filePath], { stdio: "inherit" }); }
-            else { this.openInDefaultApp(filePath); }
-
-        } else {
-            if (editor == null) { editor = "vi"; }
-            Logger.getImperativeLogger().info(`Opening ${filePath} in command-line editor ${editor}`);
-            await require("child_process").spawn(editor, [filePath], { stdio: "inherit" });
-        }
     }
 
     /**
