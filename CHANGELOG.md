@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-# Recent Changes
+## Recent Changes
 
 - BugFix: Fix broken plugin install command for Windows when file has a space in the name
 
