@@ -10,7 +10,7 @@
 */
 
 import * as fs from "fs";
-import { CredentialManagerFactory, DefaultCredentialManager } from "../../security";
+import { CredentialManagerFactory, DefaultCredentialManager, ICredentialManagerInit } from "../../security";
 import { ProfileCredentials } from "../src/ProfileCredentials";
 
 jest.mock("../../security/src/CredentialManagerFactory");
@@ -142,14 +142,45 @@ describe("ProfileCredentials tests", () => {
             expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
         });
 
+        it("should load custom credential manager if override is specified", async () => {
+            const mockCredMgrInitialize = jest.fn();
+            const credMgrOverride: ICredentialManagerInit = {
+                service: "@zowe/cli",
+                displayName: "Zowe CLI",
+                Manager: class extends DefaultCredentialManager {
+                    public initialize = mockCredMgrInitialize;
+                }
+            };
+            const profCreds = new ProfileCredentials({
+                usingTeamConfig: false
+            } as any, { credMgrOverride });
+            jest.spyOn(profCreds, "isSecured", "get").mockReturnValue(true);
+            jest.spyOn(CredentialManagerFactory, "initialize").mockImplementation(async (params: ICredentialManagerInit) => {
+                await new (params.Manager as any)(null).initialize();
+            });
+            let caughtError;
+
+            try {
+                await profCreds.loadManager();
+            } catch (error) {
+                caughtError = error;
+            }
+
+            expect(caughtError).toBeUndefined();
+            expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
+            expect(mockCredMgrInitialize).toHaveBeenCalledTimes(1);
+        });
+
         it("should load Keytar using custom require method", async () => {
             const requireKeytar = jest.fn(() => "fakeModule");
             const profCreds = new ProfileCredentials({
                 usingTeamConfig: false
-            } as any, requireKeytar as any);
+            } as any, {
+                credMgrOverride: ProfileCredentials.defaultCredMgrWithKeytar(requireKeytar as any)
+            });
             jest.spyOn(profCreds, "isSecured", "get").mockReturnValue(true);
-            jest.spyOn(CredentialManagerFactory, "initialize").mockImplementation(async () => {
-                await new DefaultCredentialManager(null).initialize();
+            jest.spyOn(CredentialManagerFactory, "initialize").mockImplementation(async (params: ICredentialManagerInit) => {
+                await new (params.Manager as any)(null).initialize();
             });
             let caughtError;
 
@@ -170,10 +201,59 @@ describe("ProfileCredentials tests", () => {
             });
             const profCreds = new ProfileCredentials({
                 usingTeamConfig: false
+            } as any, {
+                credMgrOverride: ProfileCredentials.defaultCredMgrWithKeytar(requireKeytar as any)
+            });
+            jest.spyOn(profCreds, "isSecured", "get").mockReturnValue(true);
+            jest.spyOn(CredentialManagerFactory, "initialize").mockImplementation(async (params: ICredentialManagerInit) => {
+                await new (params.Manager as any)(null).initialize();
+            });
+            let caughtError;
+
+            try {
+                await profCreds.loadManager();
+            } catch (error) {
+                caughtError = error;
+            }
+
+            expect(caughtError).toBeDefined();
+            expect(caughtError.message).toMatch(/^Failed to load Keytar module:/);
+            expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
+            expect(requireKeytar).toHaveBeenCalledTimes(1);
+        });
+
+        it("should load Keytar using custom require method - deprecated", async () => {
+            const requireKeytar = jest.fn(() => "fakeModule");
+            const profCreds = new ProfileCredentials({
+                usingTeamConfig: false
             } as any, requireKeytar as any);
             jest.spyOn(profCreds, "isSecured", "get").mockReturnValue(true);
-            jest.spyOn(CredentialManagerFactory, "initialize").mockImplementation(async () => {
-                await new DefaultCredentialManager(null).initialize();
+            jest.spyOn(CredentialManagerFactory, "initialize").mockImplementation(async (params: ICredentialManagerInit) => {
+                await new (params.Manager as any)(null).initialize();
+            });
+            let caughtError;
+
+            try {
+                await profCreds.loadManager();
+            } catch (error) {
+                caughtError = error;
+            }
+
+            expect(caughtError).toBeUndefined();
+            expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
+            expect(requireKeytar).toHaveBeenCalledTimes(1);
+        });
+
+        it("should fail to load Keytar if custom require method throws - deprecated", async () => {
+            const requireKeytar = jest.fn(() => {
+                throw new Error("keytar not found");
+            });
+            const profCreds = new ProfileCredentials({
+                usingTeamConfig: false
+            } as any, requireKeytar as any);
+            jest.spyOn(profCreds, "isSecured", "get").mockReturnValue(true);
+            jest.spyOn(CredentialManagerFactory, "initialize").mockImplementation(async (params: ICredentialManagerInit) => {
+                await new (params.Manager as any)(null).initialize();
             });
             let caughtError;
 
