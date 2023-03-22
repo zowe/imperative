@@ -9,10 +9,11 @@
 *
 */
 
-import { spawnSync, SpawnSyncOptions } from "child_process";
+import { SpawnSyncOptions } from "child_process";
 import { Logger } from "../../logger";
 import { ImperativeConfig } from "./ImperativeConfig";
 import { ISystemInfo } from "./doc/ISystemInfo";
+import * as spawn from "cross-spawn";
 
 /**
  * This enum represents the possible results from isGuiAvailable.
@@ -154,7 +155,7 @@ export class ProcessUtils {
     public static execAndCheckOutput(command: string, args?: string[], options?: SpawnSyncOptions): Buffer | string {
         // Implementation based on the child_process module
         // https://github.com/nodejs/node/blob/main/lib/child_process.js
-        const result = spawnSync(command, args, options);
+        const result = spawn.sync(command, args, options);
         if (result.error != null) {
             throw result.error;
         } else if (result.status !== 0) {

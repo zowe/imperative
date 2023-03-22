@@ -59,7 +59,7 @@ describe("imperative-test-cli config report-env", () => {
             expect(response.output.toString()).toContain("report-env");
             expect(response.output.toString()).toContain("Reports key items from your environment and identifies problem conditions");
             expect(response.output.toString()).toContain("Report information and issues about");
-            expect(response.error).not.toBeDefined();
+            expect(response.error).toBeFalsy();
             expect(response.stderr.toString()).toEqual("");
         });
 
@@ -83,7 +83,7 @@ describe("imperative-test-cli config report-env", () => {
                 TEST_ENVIRONMENT.workingDir
             );
 
-            expect(response.error).not.toBeDefined();
+            expect(response.error).toBeFalsy();
             expect(response.output.toString()).toContain("Zowe CLI version =");
             expect(response.output.toString()).toContain("Node.js version =");
             expect(response.output.toString()).toContain("Node Version Manager version =");
@@ -140,7 +140,7 @@ describe("imperative-test-cli config report-env", () => {
                 TEST_ENVIRONMENT.workingDir
             );
 
-            expect(response.error).not.toBeDefined();
+            expect(response.error).toBeFalsy();
             expect(response.stdout.toString()).toContain("Zowe CLI version =");
             expect(response.stdout.toString()).toContain("Node.js version =");
             expect(response.stdout.toString()).toContain("Node Version Manager version =");
@@ -200,7 +200,7 @@ describe("imperative-test-cli config report-env", () => {
                 TEST_ENVIRONMENT.workingDir
             );
 
-            expect(response.error).not.toBeDefined();
+            expect(response.error).toBeFalsy();
             expect(response.stdout.toString()).toContain("Zowe CLI version =");
             expect(response.stdout.toString()).toContain("Node.js version =");
             expect(response.stdout.toString()).toContain("Node Version Manager version =");
@@ -261,7 +261,7 @@ describe("imperative-test-cli config report-env", () => {
                 TEST_ENVIRONMENT.workingDir
             );
 
-            expect(response.error).not.toBeDefined();
+            expect(response.error).toBeFalsy();
             expect(response.stdout.toString()).toContain("Zowe CLI version =");
             expect(response.stdout.toString()).toContain("Node.js version =");
             expect(response.stdout.toString()).toContain("Node Version Manager version =");
@@ -321,7 +321,7 @@ describe("imperative-test-cli config report-env", () => {
                 TEST_ENVIRONMENT.workingDir
             );
 
-            expect(response.error).not.toBeDefined();
+            expect(response.error).toBeFalsy();
             expect(response.stdout.toString()).toContain("Zowe CLI version =");
             expect(response.stdout.toString()).toContain("Node.js version =");
             expect(response.stdout.toString()).toContain("Node Version Manager version =");

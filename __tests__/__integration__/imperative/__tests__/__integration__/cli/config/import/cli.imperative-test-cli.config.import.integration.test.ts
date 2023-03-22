@@ -87,7 +87,7 @@ describe("imperative-test-cli config import", () => {
                 "Overwrite config file if one already exists."
             ];
             expectedLines.forEach((line: string) => expect(response.output.toString()).toContain(line));
-            expect(response.error).not.toBeDefined();
+            expect(response.error).toBeFalsy();
             expect(response.stderr.toString()).toEqual("");
         });
 

@@ -9,7 +9,7 @@
 *
 */
 
-import * as childProcess from "child_process";
+import * as spawn from "cross-spawn";
 import * as jsonfile from "jsonfile";
 import * as npmPackageArg from "npm-package-arg";
 import * as pacote from "pacote";
@@ -35,7 +35,7 @@ describe("NpmFunctions", () => {
     it("installPackages should run npm install command", () => {
         const stdoutBuffer = Buffer.from("Install Succeeded");
         jest.spyOn(PMFConstants, "instance", "get").mockReturnValueOnce({ PMF_ROOT: __dirname } as any);
-        const spawnSyncSpy = jest.spyOn(childProcess, "spawnSync").mockReturnValueOnce({
+        const spawnSyncSpy = jest.spyOn(spawn, "sync").mockReturnValueOnce({
             status: 0,
             stdout: stdoutBuffer
         } as any);
@@ -49,7 +49,7 @@ describe("NpmFunctions", () => {
 
     it("getRegistry should run npm config command", () => {
         const stdoutBuffer = Buffer.from(fakeRegistry);
-        const spawnSyncSpy = jest.spyOn(childProcess, "spawnSync").mockReturnValueOnce({
+        const spawnSyncSpy = jest.spyOn(spawn, "sync").mockReturnValueOnce({
             status: 0,
             stdout: stdoutBuffer
         } as any);
@@ -60,7 +60,7 @@ describe("NpmFunctions", () => {
     });
 
     it("npmLogin should run npm login command", () => {
-        const spawnSyncSpy = jest.spyOn(childProcess, "spawnSync").mockReturnValueOnce({ status: 0 } as any);
+        const spawnSyncSpy = jest.spyOn(spawn, "sync").mockReturnValueOnce({ status: 0 } as any);
         npmFunctions.npmLogin(fakeRegistry);
         expect(spawnSyncSpy.mock.calls[0][0]).toBe(npmCmd);
         expect(spawnSyncSpy.mock.calls[0][1]).toContain("login");
