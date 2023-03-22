@@ -198,6 +198,22 @@ describe("PMF: Install Interface", () => {
             });
         });
 
+        it("should install an absolute file path with spaces", async () => {
+            const rootFile = "/root/a dir/another dir/a";
+
+            jest.spyOn(path, "isAbsolute").mockReturnValueOnce(true);
+            setResolve(rootFile);
+            await install(rootFile, packageRegistry);
+
+            // Validate the install
+            wasNpmInstallCallValid(rootFile, packageRegistry);
+            wasWriteFileSyncCallValid({}, packageName, {
+                package: rootFile,
+                registry: packageRegistry,
+                version: packageVersion
+            });
+        });
+
         describe("relative file path", () => {
             const relativePath = "../../install/a";
             const absolutePath = "/root/node/cli/install/a";
