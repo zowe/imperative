@@ -434,13 +434,13 @@ describe("PMF: Install Interface", () => {
             postInstallWorked = false;
         });
 
-        it("should throw an error if a known credMgr does not implement postInstall", () => {
+        it("should throw an error if a known credMgr does not implement postInstall", async () => {
             // force our plugin to have NO LifeCycle class
             pluginShouldHaveLifeCycle(false);
 
             let thrownErr: any;
             try {
-                callPluginPostInstall(knownCredMgr, {});
+                await callPluginPostInstall(knownCredMgr, {});
             } catch (err) {
                 thrownErr = err;
             }
@@ -452,20 +452,20 @@ describe("PMF: Install Interface", () => {
             expect(thrownErr.message).toContain("The previous Credential Manager remains in place.");
         });
 
-        it("should do nothing if a non-credMgr does not implement postInstall", () => {
+        it("should do nothing if a non-credMgr does not implement postInstall", async () => {
             // force our plugin to have NO LifeCycle class
             pluginShouldHaveLifeCycle(false);
 
             let thrownErr: any;
             try {
-                callPluginPostInstall("plugin_does_not_override_cred_mgr", {});
+                await callPluginPostInstall("plugin_does_not_override_cred_mgr", {});
             } catch (err) {
                 thrownErr = err;
             }
             expect(thrownErr).not.toBeDefined();
         });
 
-        it("should call the postInstall function of a plugin", () => {
+        it("should call the postInstall function of a plugin", async () => {
             // force our plugin to have a LifeCycle class
             pluginShouldHaveLifeCycle(true);
 
@@ -474,7 +474,7 @@ describe("PMF: Install Interface", () => {
 
             let thrownErr: any;
             try {
-                callPluginPostInstall("FakePluginPackageName", fakePluginConfig);
+                await callPluginPostInstall("FakePluginPackageName", fakePluginConfig);
             } catch (err) {
                 thrownErr = err;
             }
@@ -483,7 +483,7 @@ describe("PMF: Install Interface", () => {
             expect(postInstallWorked).toBe(true);
         });
 
-        it("should catch an error from a plugin's postInstall function", () => {
+        it("should catch an error from a plugin's postInstall function", async () => {
             // force our plugin to have a LifeCycle class
             pluginShouldHaveLifeCycle(true);
 
@@ -492,7 +492,7 @@ describe("PMF: Install Interface", () => {
 
             let thrownErr: any;
             try {
-                callPluginPostInstall("FakePluginPackageName", fakePluginConfig);
+                await callPluginPostInstall("FakePluginPackageName", fakePluginConfig);
             } catch (err) {
                 thrownErr = err;
             }

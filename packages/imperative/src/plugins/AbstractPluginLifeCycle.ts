@@ -24,11 +24,16 @@ export abstract class AbstractPluginLifeCycle {
      * this opportunity to insert itself as an override of the standard
      * credential manager that is delivered with Zowe CLI.
      *
+     * If the plugin's postInstall function performs an asynchronous operation,
+     * its postInstall function should return a promise, allowing the CLI
+     * framework to await the postInstall function. If it has no asynchronous
+     * operation, the postInstall function can be written as a sychronous function.
+     *
      * @throws
      *      An ImperativeError containing a message describing any error
      *      that occurred while performing post-install actions.
      */
-    public abstract postInstall(): void;
+    public abstract postInstall(): Promise<void> | void;
 
     /**
      * This function will be called before a plugin is uninstalled.
@@ -42,10 +47,15 @@ export abstract class AbstractPluginLifeCycle {
      * specialized credential manager should use this opportunity to remove itself as
      * an override of the standard credential manager that is delivered with Zowe CLI.
      *
+     * If the plugin's preUninstall function performs an asynchronous operation,
+     * its preUninstall function should return a promise, allowing the CLI
+     * framework to await the preUninstall function. If it has no asynchronous
+     * operation, the preUninstall function can be written as a sychronous function.
+     *
      * @throws
      *      An ImperativeError containing a message describing any error
      *      that occurred while performing pre-uninstall actions.
      */
-    public abstract preUninstall(): void;
+    public abstract preUninstall(): Promise<void> | void;
 }
 

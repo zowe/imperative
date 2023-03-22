@@ -146,7 +146,7 @@ export async function install(packageLocation: string, registry: string, install
         }
 
         // call the plugin's postInstall function
-        callPluginPostInstall(packageName, pluginImpConfig);
+        await callPluginPostInstall(packageName, pluginImpConfig);
 
         iConsole.info("Plugin '" + packageName + "' successfully installed.");
         return packageName;
@@ -167,9 +167,9 @@ export async function install(packageLocation: string, registry: string, install
  *
  * @throws ImperativeError.
  */
-function callPluginPostInstall(
+async function callPluginPostInstall(
     pluginPackageNm: string, pluginImpConfig: IImperativeConfig
-): void {
+): Promise<void> {
     const impLogger = Logger.getImperativeLogger();
     if ( pluginImpConfig.pluginLifeCycle === undefined) {
         // pluginPostInstall was not defined by the plugin
@@ -192,7 +192,7 @@ function callPluginPostInstall(
         const requirerFun = PluginManagementFacility.instance.requirePluginModuleCallback(pluginPackageNm);
         const lifeCycleClass = requirerFun(pluginImpConfig.pluginLifeCycle);
         const lifeCycleInstance = new lifeCycleClass();
-        lifeCycleInstance.postInstall();
+        await lifeCycleInstance.postInstall();
     } catch (err) {
         throw new ImperativeError({
             msg: `Unable to perform the post-install action for plugin '${pluginPackageNm}'.` +

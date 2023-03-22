@@ -116,7 +116,7 @@ export default class UninstallHandler implements ICommandHandler {
             const requirerFun = PluginManagementFacility.instance.requirePluginModuleCallback(pluginPackageNm);
             const lifeCycleClass = requirerFun(pluginImpConfig.pluginLifeCycle);
             const lifeCycleInstance = new lifeCycleClass();
-            lifeCycleInstance.preUninstall();
+            await lifeCycleInstance.preUninstall();
         } catch (err) {
             throw new ImperativeError({
                 msg: `Unable to perform the 'preUninstall' action of plugin '${pluginPackageNm}'` +
