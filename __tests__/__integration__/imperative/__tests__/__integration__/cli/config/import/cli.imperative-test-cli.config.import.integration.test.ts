@@ -9,10 +9,10 @@
 *
 */
 
-import * as childProcess from "child_process";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
+import { spawn } from "cross-spawn";
 import { ITestEnvironment } from "../../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import { SetupTestEnvironment } from "../../../../../../../__src__/environment/SetupTestEnvironment";
 import { runCliScript } from "../../../../../../../src/TestUtil";
@@ -43,7 +43,7 @@ describe("imperative-test-cli config import", () => {
         });
 
         // Spawn a localhost HTTP file server with "npx serve" command
-        pServer = childProcess.spawn(process.platform === "win32" ? "npx.cmd" : "npx",
+        pServer = spawn(process.platform === "win32" ? "npx.cmd" : "npx",
             ["serve", __dirname + "/__resources__"]);
 
         // Retrieve server URL from the end of first line printed to stdout
@@ -87,7 +87,7 @@ describe("imperative-test-cli config import", () => {
                 "Overwrite config file if one already exists."
             ];
             expectedLines.forEach((line: string) => expect(response.output.toString()).toContain(line));
-            expect(response.error).not.toBeDefined();
+            expect(response.error).toBeFalsy();
             expect(response.stderr.toString()).toEqual("");
         });
 

@@ -14,7 +14,7 @@ import Mock = jest.Mock;
 let expectedVal;
 let returnedVal;
 
-jest.mock("child_process");
+jest.mock("cross-spawn");
 jest.mock("jsonfile");
 jest.mock("find-up");
 jest.mock("../../../../src/plugins/utilities/PMFConstants");
@@ -184,6 +184,22 @@ describe("PMF: Install Interface", () => {
 
         it("should install an absolute file path", async () => {
             const rootFile = "/root/a";
+
+            jest.spyOn(path, "isAbsolute").mockReturnValueOnce(true);
+            setResolve(rootFile);
+            await install(rootFile, packageRegistry);
+
+            // Validate the install
+            wasNpmInstallCallValid(rootFile, packageRegistry);
+            wasWriteFileSyncCallValid({}, packageName, {
+                package: rootFile,
+                registry: packageRegistry,
+                version: packageVersion
+            });
+        });
+
+        it("should install an absolute file path with spaces", async () => {
+            const rootFile = "/root/a dir/another dir/a";
 
             jest.spyOn(path, "isAbsolute").mockReturnValueOnce(true);
             setResolve(rootFile);

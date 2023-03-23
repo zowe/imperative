@@ -35,13 +35,13 @@ describe("imperative-test-cli config profiles", () => {
             TEST_ENVIRONMENT.workingDir, ["profiles"]);
         expect(response.stdout.toString()).toContain(`Displays profile paths.`);
         expect(response.stderr.toString()).toEqual("");
-        expect(response.error).not.toBeDefined();
+        expect(response.error).toBeFalsy();
     });
     it("should list profiles", () => {
         const response = runCliScript(__dirname + "/__scripts__/list_profiles.sh", TEST_ENVIRONMENT.workingDir, [""]);
         expect(response.stdout.toString()).toMatchSnapshot();
         expect(response.stdout.toString()).toContain("secured");
         expect(response.stderr.toString()).toEqual("");
-        expect(response.error).not.toBeDefined();
+        expect(response.error).toBeFalsy();
     });
 });
