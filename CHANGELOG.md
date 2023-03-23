@@ -12,6 +12,8 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Enhancement: Added a CredentialManagerOverride class containing utility functions to replace the default CLI credential manager or restore the default CLI credential manager. Plugins which implement a credential manager override can call these utilities from their AbstractPluginLifeCycle functions.
 
+- Enhancement: Added documentation [Overriding_the_default_credential_manager](https://github.com/zowe/imperative/blob/master/doc/Plugin%20Architecture/Overriding_the_default_credential_manager.md) describing the techniques for overriding the default CLI credential manager with a plugin.
+
 ## `5.9.3`
 
 - BugFix: Fix broken plugin install command for Windows when file has a space in the name
