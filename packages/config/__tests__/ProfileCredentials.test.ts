@@ -11,11 +11,18 @@
 
 import * as fs from "fs";
 import { CredentialManagerFactory, DefaultCredentialManager, ICredentialManagerInit } from "../../security";
+import { ConfigSecure } from "../src/api/ConfigSecure";
 import { ProfileCredentials } from "../src/ProfileCredentials";
 
 jest.mock("../../security/src/CredentialManagerFactory");
 jest.mock("../../security/src/DefaultCredentialManager");
 jest.mock("../../utilities/src/ImperativeConfig");
+
+function mockConfigApi(secureApi: Partial<ConfigSecure>): any {
+    return {
+        api: { secure: secureApi }
+    };
+}
 
 describe("ProfileCredentials tests", () => {
     afterAll(() => {
@@ -26,7 +33,7 @@ describe("ProfileCredentials tests", () => {
         it("should be true if team config is not secure but CredentialManager is set", () => {
             const profCreds = new ProfileCredentials({
                 usingTeamConfig: true,
-                getTeamConfig: () => ({ api: { secure: { secureFields: () => [] } } })
+                getTeamConfig: () => mockConfigApi({ secureFields: () => [] })
             } as any);
             jest.spyOn(profCreds as any, "isCredentialManagerInAppSettings").mockReturnValueOnce(true);
             expect(profCreds.isSecured).toBe(true);
@@ -35,7 +42,7 @@ describe("ProfileCredentials tests", () => {
         it("should be true if team config is secure but CredentialManager is not set", () => {
             const profCreds = new ProfileCredentials({
                 usingTeamConfig: true,
-                getTeamConfig: () => ({ api: { secure: { secureFields: () => ["myAwesomeProperty"] } } })
+                getTeamConfig: () => mockConfigApi({ secureFields: () => ["myAwesomeProperty"] })
             } as any);
             jest.spyOn(profCreds as any, "isCredentialManagerInAppSettings").mockReturnValueOnce(false);
             expect(profCreds.isSecured).toBe(true);
@@ -44,7 +51,7 @@ describe("ProfileCredentials tests", () => {
         it("should be false if team config is not secure and CredentialManager is not set", () => {
             const profCreds = new ProfileCredentials({
                 usingTeamConfig: true,
-                getTeamConfig: () => ({ api: { secure: { secureFields: () => [] } } })
+                getTeamConfig: () => mockConfigApi({ secureFields: () => [] })
             } as any);
             jest.spyOn(profCreds as any, "isCredentialManagerInAppSettings").mockReturnValueOnce(false);
             expect(profCreds.isSecured).toBe(false);
@@ -277,13 +284,7 @@ describe("ProfileCredentials tests", () => {
         it("should call Config secure load API when team config enabled", async () => {
             const mockSecureLoad = jest.fn();
             const profCreds = new ProfileCredentials({
-                getTeamConfig: () => ({
-                    api: {
-                        secure: {
-                            load: mockSecureLoad
-                        }
-                    }
-                }),
+                getTeamConfig: () => mockConfigApi({ load: mockSecureLoad }),
                 usingTeamConfig: true
             } as any);
             jest.spyOn(profCreds, "isSecured", "get").mockReturnValue(true);
