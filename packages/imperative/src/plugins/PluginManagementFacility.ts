@@ -268,7 +268,7 @@ export class PluginManagementFacility {
             overrideDispNm = settingVal as string;
             overridePluginNm = settingVal as string;
 
-            if (settingVal !== false && settingVal !== CredentialManagerOverride.DEFAULT_CRED_MGR_NAME) {
+            if (settingVal !== false && settingVal !== ImperativeConfig.instance.hostPackageName) {
                 Logger.getImperativeLogger().debug(
                     `Attempting to replace "${settingNm}" with an override named "${overridePluginNm}"`
                 );
