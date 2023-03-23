@@ -16,10 +16,10 @@ import { readFileSync, writeFileSync } from "jsonfile";
 import { IPluginJson } from "../../doc/IPluginJson";
 import { Logger } from "../../../../../logger";
 import { ImperativeError } from "../../../../../error";
-import { TextUtils } from "../../../../../utilities";
-import { spawnSync, StdioOptions } from "child_process";
-import { cmdToRun } from "../NpmFunctions";
-const npmCmd = cmdToRun();
+import { ProcessUtils, TextUtils } from "../../../../../utilities";
+import { StdioOptions } from "child_process";
+import { findNpmOnPath } from "../NpmFunctions";
+const npmCmd = findNpmOnPath();
 
 /**
  * @TODO - allow multiple packages to be uninstalled?
@@ -64,7 +64,7 @@ export function uninstall(packageName: string): void {
         // formatting or colors but at least I can get the output of stdout right. (comment from install handler)
         iConsole.info("Uninstalling package...this may take some time.");
 
-        spawnSync(npmCmd,
+        ProcessUtils.execAndCheckOutput(npmCmd,
             [
                 "uninstall",
                 npmPackage,
