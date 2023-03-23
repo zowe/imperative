@@ -257,7 +257,7 @@ describe("Plugin Management Facility", () => {
 
             // force logged errors into loggedErrText so that errors can be easily tested
             const loggerErrorSpy = jest.spyOn(Logger.prototype, "error").mockImplementation((newText) => {
-                return loggedErrText += newText;
+                return loggedErrText += newText + "\n";
             });
         });
 
@@ -324,6 +324,25 @@ describe("Plugin Management Facility", () => {
             }
             expect(caughtError).toBeUndefined();
         });
+
+        it("should succeed with our default credMgr specified", () => {
+            mocks.existsSync.mockReturnValue(true);  // both directory and file exists
+
+            // configure our default credMgr
+            AppSettings.initialize("test.json", defaultSettings);
+            AppSettings.instance.set("overrides", "CredentialManager",
+                CredentialManagerOverride.DEFAULT_CRED_MGR_NAME
+            );
+
+            // make getInstalledPlugins return the set of installed plugins with no credMgr
+            loadPluginCfgPropsMock.mockReturnValue(basePluginCfgProps);
+
+            // call the function that we want to test
+            PluginManagementFacility.instance.loadAllPluginCfgProps();
+
+            // confirm that no error was logged
+            expect(loggedErrText).toEqual("");
+        }); // end default credMgr
 
         it("should store a CredentialManager override", () => {
             mocks.existsSync.mockReturnValue(true);  // both directory and file exists
