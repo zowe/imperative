@@ -331,7 +331,7 @@ describe("Plugin Management Facility", () => {
             // configure our default credMgr
             AppSettings.initialize("test.json", defaultSettings);
             AppSettings.instance.set("overrides", "CredentialManager",
-                CredentialManagerOverride.DEFAULT_CRED_MGR_NAME
+                ImperativeConfig.instance.hostPackageName
             );
 
             // make getInstalledPlugins return the set of installed plugins with no credMgr
