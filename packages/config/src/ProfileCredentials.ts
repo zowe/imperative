@@ -26,6 +26,14 @@ export class ProfileCredentials {
         this.mCredMgrOverride = (typeof opts === "function") ? ProfileCredentials.defaultCredMgrWithKeytar(opts) : opts?.credMgrOverride;
     }
 
+    /**
+     * Given a custom method to require Keytar, return an object that defines
+     * credential manager settings to replace the default credential manager.
+     * If the credential manager is not overridden, the default implementation
+     * is to `require("keytar")` from the caller app's node_modules folder.
+     * @param requireKeytar Callback to require Keytar module for managing secure credentials
+     * @returns Credential manager settings with Keytar module overridden
+     */
     public static defaultCredMgrWithKeytar(requireKeytar: () => NodeModule): ICredentialManagerInit {
         return {
             service: null,

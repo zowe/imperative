@@ -2,9 +2,14 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Added `credMgrOverride` property to `IProfOpts` interface that can be used to override credential manager in the ProfileInfo API. [zowe-cli#1632](https://github.com/zowe/zowe-cli/issues/1632)
+- Deprecated: The `requireKeytar` property on the `IProfOpts` interface. Use the `credMgrOverride` property instead and pass the callback that requires Keytar to `ProfileCredentials.defaultCredMgrWithKeytar`.
+
 ## `5.9.3`
 
-- BugFix: Fix broken plugin install command for Windows when file has a space in the name
+- BugFix: Fixed broken plugin install command for Windows when file has a space in the name
 
 ## `5.9.2`
 

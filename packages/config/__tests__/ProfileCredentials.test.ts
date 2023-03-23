@@ -26,7 +26,7 @@ describe("ProfileCredentials tests", () => {
         it("should be true if team config is not secure but CredentialManager is set", () => {
             const profCreds = new ProfileCredentials({
                 usingTeamConfig: true,
-                getTeamConfig: () => ({ api: { secure: { secureFields: () => [] as any } } })
+                getTeamConfig: () => ({ api: { secure: { secureFields: () => [] } } })
             } as any);
             jest.spyOn(profCreds as any, "isCredentialManagerInAppSettings").mockReturnValueOnce(true);
             expect(profCreds.isSecured).toBe(true);
@@ -35,7 +35,7 @@ describe("ProfileCredentials tests", () => {
         it("should be true if team config is secure but CredentialManager is not set", () => {
             const profCreds = new ProfileCredentials({
                 usingTeamConfig: true,
-                getTeamConfig: () => ({ api: { secure: { secureFields: () => ["myAwesomeProperty"] as any } } })
+                getTeamConfig: () => ({ api: { secure: { secureFields: () => ["myAwesomeProperty"] } } })
             } as any);
             jest.spyOn(profCreds as any, "isCredentialManagerInAppSettings").mockReturnValueOnce(false);
             expect(profCreds.isSecured).toBe(true);
@@ -44,7 +44,7 @@ describe("ProfileCredentials tests", () => {
         it("should be false if team config is not secure and CredentialManager is not set", () => {
             const profCreds = new ProfileCredentials({
                 usingTeamConfig: true,
-                getTeamConfig: () => ({ api: { secure: { secureFields: () => [] as any } } })
+                getTeamConfig: () => ({ api: { secure: { secureFields: () => [] } } })
             } as any);
             jest.spyOn(profCreds as any, "isCredentialManagerInAppSettings").mockReturnValueOnce(false);
             expect(profCreds.isSecured).toBe(false);
@@ -148,6 +148,11 @@ describe("ProfileCredentials tests", () => {
                 service: "@zowe/cli",
                 displayName: "Zowe CLI",
                 Manager: class extends DefaultCredentialManager {
+                    constructor(service: string, displayName?: string) {
+                        super(service, displayName);
+                        expect(service).toBe(credMgrOverride.service);
+                        expect(displayName).toBe(credMgrOverride.displayName);
+                    }
                     public initialize = mockCredMgrInitialize;
                 }
             };
@@ -156,7 +161,7 @@ describe("ProfileCredentials tests", () => {
             } as any, { credMgrOverride });
             jest.spyOn(profCreds, "isSecured", "get").mockReturnValue(true);
             jest.spyOn(CredentialManagerFactory, "initialize").mockImplementation(async (params: ICredentialManagerInit) => {
-                await new (params.Manager as any)(null).initialize();
+                await new (params.Manager as typeof DefaultCredentialManager)(params.service, params.displayName).initialize();
             });
             let caughtError;
 
@@ -180,7 +185,7 @@ describe("ProfileCredentials tests", () => {
             });
             jest.spyOn(profCreds, "isSecured", "get").mockReturnValue(true);
             jest.spyOn(CredentialManagerFactory, "initialize").mockImplementation(async (params: ICredentialManagerInit) => {
-                await new (params.Manager as any)(null).initialize();
+                await new (params.Manager as typeof DefaultCredentialManager)(params.service, params.displayName).initialize();
             });
             let caughtError;
 
@@ -206,7 +211,7 @@ describe("ProfileCredentials tests", () => {
             });
             jest.spyOn(profCreds, "isSecured", "get").mockReturnValue(true);
             jest.spyOn(CredentialManagerFactory, "initialize").mockImplementation(async (params: ICredentialManagerInit) => {
-                await new (params.Manager as any)(null).initialize();
+                await new (params.Manager as typeof DefaultCredentialManager)(params.service, params.displayName).initialize();
             });
             let caughtError;
 
