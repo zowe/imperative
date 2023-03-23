@@ -46,7 +46,7 @@ describe("imperative-test-cli config init", () => {
         ];
         expectedLines.forEach((line: string) => expect(response.output.toString()).toContain(line));
         expect(response.stderr.toString()).toEqual("");
-        expect(response.error).not.toBeDefined();
+        expect(response.error).toBeFalsy();
     });
     it("should initialize a project config", () => {
         const response = runCliScript(__dirname + "/__scripts__/init_config.sh",

@@ -49,7 +49,7 @@ describe("imperative-test-cli config list", () => {
             TEST_ENVIRONMENT.workingDir, ["list"]);
         expect(response.stdout.toString()).toContain(`List config properties`);
         expect(response.stderr.toString()).toEqual("");
-        expect(response.error).not.toBeDefined();
+        expect(response.error).toBeFalsy();
     });
     it("should list the configuration", () => {
         const response = runCliScript(__dirname + "/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, [""]);
@@ -61,7 +61,7 @@ describe("imperative-test-cli config list", () => {
         expect(response.stdout.toString()).toContain("secure:");
         expect(response.stdout.toString()).toContain("(empty array)");
         expect(response.stderr.toString()).toEqual("");
-        expect(response.error).not.toBeDefined();
+        expect(response.error).toBeFalsy();
     });
     it("should list the configuration in RFJ", () => {
         const response = runCliScript(__dirname + "/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--rfj"]);
@@ -108,7 +108,7 @@ describe("imperative-test-cli config list", () => {
         expect(response.stdout.toString()).toContain("secured: secured");
         expect(response.stdout.toString()).toContain("$schema:   ./imperative-test-cli.schema.json");
         expect(response.stderr.toString()).toEqual("");
-        expect(response.error).not.toBeDefined();
+        expect(response.error).toBeFalsy();
     });
     it("should list the configurations based on location in RFJ", () => {
         const response = runCliScript(__dirname + "/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--locations --rfj"]);
@@ -149,7 +149,7 @@ describe("imperative-test-cli config list", () => {
         expect(response.stdout.toString()).toContain("defaults");
         expect(response.stdout.toString()).toContain("profiles");
         expect(response.stderr.toString()).toEqual("");
-        expect(response.error).not.toBeDefined();
+        expect(response.error).toBeFalsy();
     });
     it("should get a list of config file paths", () => {
         const response = runCliScript(__dirname + "/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--locations --root"]);
@@ -158,7 +158,7 @@ describe("imperative-test-cli config list", () => {
         expect(response.stdout.toString()).toContain(expectedGlobalProjectConfigLocation);
         expect(response.stdout.toString()).toContain(expectedGlobalUserConfigLocation);
         expect(response.stderr.toString()).toEqual("");
-        expect(response.error).not.toBeDefined();
+        expect(response.error).toBeFalsy();
     });
     it("should list the profiles configuration property", () => {
         const response = runCliScript(__dirname + "/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["profiles"]);
@@ -170,7 +170,7 @@ describe("imperative-test-cli config list", () => {
         expect(response.stdout.toString()).toContain("properties:");
         expect(response.stdout.toString()).toContain("secure:");
         expect(response.stderr.toString()).toEqual("");
-        expect(response.error).not.toBeDefined();
+        expect(response.error).toBeFalsy();
     });
     it("should list the defaults configuration property", () => {
         const response = runCliScript(__dirname + "/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["defaults"]);
@@ -178,7 +178,7 @@ describe("imperative-test-cli config list", () => {
         expect(response.stdout.toString()).toContain("secured: secured");
         expect(response.stdout.toString()).toContain("base:    base");
         expect(response.stderr.toString()).toEqual("");
-        expect(response.error).not.toBeDefined();
+        expect(response.error).toBeFalsy();
     });
     it("should list the configuration without showing secure values", () => {
         runCliScript(__dirname + "/../set/__scripts__/set_secure.sh", TEST_ENVIRONMENT.workingDir, ["profiles.base.properties.secret", "area51"]);
@@ -192,6 +192,6 @@ describe("imperative-test-cli config list", () => {
         expect(response.stdout.toString()).toContain("(empty array)");
         expect(response.stdout.toString()).toContain("secret: (secure value)");
         expect(response.stderr.toString()).toEqual("");
-        expect(response.error).not.toBeDefined();
+        expect(response.error).toBeFalsy();
     });
 });
