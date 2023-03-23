@@ -34,7 +34,7 @@ describe("imperative-test-cli config update-schemas", () => {
     it("should display the help", () => {
         const response = runCliScript(__dirname + "/../__scripts__/get_help.sh",
             TEST_ENVIRONMENT.workingDir, ["update-schemas"]);
-        expect(response.error).not.toBeDefined();
+        expect(response.error).toBeFalsy();
         expect(response.stderr.toString()).toEqual("");
         expect(response.output.toString()).toContain("Update schema files by looking up the directory structure.");
         expect(response.output.toString()).toContain("Schema files up in higher level directories will always be updated.");
@@ -44,7 +44,7 @@ describe("imperative-test-cli config update-schemas", () => {
 
     it("should not update schemas if we could not find any", () => {
         const response = runCliScript(__dirname + "/__scripts__/update-schemas.sh", TEST_ENVIRONMENT.workingDir, [""]);
-        expect(response.error).not.toBeDefined();
+        expect(response.error).toBeFalsy();
         expect(response.stderr.toString()).toEqual("");
         expect(response.stdout.toString()).toContain("Configuration files found: 0");
     });
@@ -52,7 +52,7 @@ describe("imperative-test-cli config update-schemas", () => {
     it("should update project config schema", () => {
         runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, ["--prompt false"]);
         const response = runCliScript(__dirname + "/__scripts__/update-schemas.sh", TEST_ENVIRONMENT.workingDir, [""]);
-        expect(response.error).not.toBeDefined();
+        expect(response.error).toBeFalsy();
         expect(response.stderr.toString()).toEqual("");
         expect(response.stdout.toString()).toContain("Configuration files found: 1");
         expect(response.stdout.toString()).toContain(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json"));
@@ -63,7 +63,7 @@ describe("imperative-test-cli config update-schemas", () => {
     it("should update user config schema", () => {
         runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, [" --uc --prompt false"]);
         const response = runCliScript(__dirname + "/__scripts__/update-schemas.sh", TEST_ENVIRONMENT.workingDir, [""]);
-        expect(response.error).not.toBeDefined();
+        expect(response.error).toBeFalsy();
         expect(response.stderr.toString()).toEqual("");
         expect(response.stdout.toString()).toContain("Configuration files found: 1");
         expect(response.stdout.toString()).toContain(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.user.json"));
@@ -74,7 +74,7 @@ describe("imperative-test-cli config update-schemas", () => {
     it("should update global config schemas", () => {
         runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, ["--gc --prompt false"]);
         const response = runCliScript(__dirname + "/__scripts__/update-schemas.sh", TEST_ENVIRONMENT.workingDir, [""]);
-        expect(response.error).not.toBeDefined();
+        expect(response.error).toBeFalsy();
         expect(response.stderr.toString()).toEqual("");
         expect(response.stdout.toString()).toContain("Configuration files found: 1");
         expect(response.stdout.toString()).toContain("imperative-test-cli.config.json");
@@ -86,7 +86,7 @@ describe("imperative-test-cli config update-schemas", () => {
     it("should update global user config schema", () => {
         runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, ["--gc --uc --prompt false"]);
         const response = runCliScript(__dirname + "/__scripts__/update-schemas.sh", TEST_ENVIRONMENT.workingDir, [""]);
-        expect(response.error).not.toBeDefined();
+        expect(response.error).toBeFalsy();
         expect(response.stderr.toString()).toEqual("");
         expect(response.stdout.toString()).toContain("Configuration files found: 1");
         expect(response.stdout.toString()).toContain("imperative-test-cli.config.user.json");
@@ -103,7 +103,7 @@ describe("imperative-test-cli config update-schemas", () => {
 
         const response = runCliScript(__dirname + "/__scripts__/update-schemas.sh", TEST_ENVIRONMENT.workingDir, [""]);
 
-        expect(response.error).not.toBeDefined();
+        expect(response.error).toBeFalsy();
         expect(response.stderr.toString()).toEqual("");
         expect(response.stdout.toString()).toContain("Configuration files found: 4");
         expect(response.stdout.toString()).toContain("updated: ./imperative-test-cli.schema.json");
@@ -125,7 +125,7 @@ describe("imperative-test-cli config update-schemas", () => {
 
         const response = runCliScript(__dirname + "/__scripts__/update-schemas.sh", TEST_ENVIRONMENT.workingDir, [""]);
 
-        expect(response.error).not.toBeDefined();
+        expect(response.error).toBeFalsy();
         expect(response.stderr.toString()).toEqual("");
         expect(response.stdout.toString()).toContain("Configuration files found: 2");
         expect(response.stdout.toString()).toContain(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.user.json"));

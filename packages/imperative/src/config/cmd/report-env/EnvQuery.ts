@@ -13,7 +13,8 @@ import * as fs from "fs";
 import * as os from "os";
 import * as lodash from "lodash";
 import * as path from "path";
-import { spawnSync, StdioOptions } from "child_process";
+import * as spawn from "cross-spawn";
+import { StdioOptions } from "child_process";
 
 import { ConfigConstants, IConfigProfile } from "../../../../../config";
 import { IHandlerProgressApi } from "../../../../../cmd";
@@ -176,7 +177,7 @@ export class EnvQuery {
         let cmdOutput: string = "";
         const ioOpts: StdioOptions = ["pipe", "pipe", "pipe"];
         try {
-            const spawnResult = spawnSync(cmdToRun, args, {
+            const spawnResult = spawn.sync(cmdToRun, args, {
                 stdio: ioOpts,
                 shell: true
             });

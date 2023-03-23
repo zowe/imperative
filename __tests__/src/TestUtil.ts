@@ -17,7 +17,7 @@
 /**
  * Module imports for TestUtils and testing infrastructure
  */
-import { spawnSync, SpawnSyncReturns } from "child_process";
+import { SpawnSyncReturns } from "child_process";
 import { inspect, isArray, isNullOrUndefined, isString } from "util";
 import { Constants } from "../../packages/constants";
 import { ICommandResponse } from "../../packages/cmd";
@@ -30,6 +30,7 @@ import { randomBytes } from "crypto";
 import * as os from "os";
 import { Config, IConfig, IConfigOpts } from "../../packages/config";
 import { ImperativeConfig } from "../../packages/utilities";
+import { sync } from "cross-spawn";
 
 /**
  * Requires for non-typed.
@@ -48,7 +49,7 @@ export { resolve, basename, dirname } from "path";
 export const rimraf = (dir: string) => {
 
     const rimrafExecutable = __dirname + "/../../node_modules/rimraf/bin.js";
-    const rimrafProcess = spawnSync("node", [rimrafExecutable, dir]);
+    const rimrafProcess = sync("node", [rimrafExecutable, dir]);
     if (rimrafProcess.status !== 0) {
         throw new Error("Error deleting directory with rimraf CLI: \n" + rimrafProcess.output.join(" "));
     }
@@ -58,7 +59,8 @@ export * from "fs";
 
 export { inspect } from "util";
 
-export { spawnSync, SpawnSyncReturns } from "child_process";
+export { SpawnSyncReturns } from "child_process";
+export { sync } from "cross-spawn";
 export const DataObjectParser = require("dataobject-parser");
 
 export const TEST_HOME: string = process.cwd() + "/__tests__/__results__/data/.testHomeDir";
@@ -182,7 +184,7 @@ export function executeTestCLICommand(cliBinModule: string, testContext: any, ar
     const childEnv = JSON.parse(JSON.stringify(env)); // copy current env
     childEnv.FORCE_COLOR = "0";
     childEnv.npm_config_install_links = "false";
-    const child = spawnSync(nodeCommand, args, {
+    const child = sync(nodeCommand, args, {
         cwd: execDir,
         encoding: "utf8",
         input: pipeContent,
@@ -436,7 +438,7 @@ export function runCliScript(scriptPath: string, cwd: string, args: any = [], en
         }
 
         // Execute the command synchronously
-        return spawnSync("sh", [`${scriptPath}`].concat(args), {cwd, env: childEnv});
+        return sync("sh", [`${scriptPath}`].concat(args), {cwd, env: childEnv});
     } else {
         throw new Error("The script directory doesn't exist");
     }
