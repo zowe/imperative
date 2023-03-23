@@ -9,8 +9,8 @@
 *
 */
 
-import * as spawn from "cross-spawn";
 import { Logger } from "../../../../logger";
+import { ProcessUtils } from "../../../../utilities";
 import { PMFConstants } from "./PMFConstants";
 
 /**
@@ -38,7 +38,7 @@ export function runValidatePlugin(pluginName: string): string {
 
     const impLogger = Logger.getImperativeLogger();
     impLogger.debug(`Running plugin validation command = ${cmdToRun} plugins validate "${pluginName}" --response-format-json --no-fail-on-error`);
-    const valOutputJsonTxt = spawn.sync(cmdToRun,
+    const valOutputJsonTxt = ProcessUtils.execAndCheckOutput(cmdToRun,
         [
             ...cmdToRunArgs,
             "plugins", "validate", pluginName,
@@ -47,7 +47,7 @@ export function runValidatePlugin(pluginName: string): string {
         ], {
             cwd: PMFConstants.instance.PMF_ROOT
         }
-    ).stdout.toString();
+    ).toString();
 
     // Debug trace information
     impLogger.trace(`Command Output: ${valOutputJsonTxt}`);

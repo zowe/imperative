@@ -25,7 +25,10 @@ const cmdOutputJson = {
     stderr: "The validate commands's standard error",
     data: {}
 };
-const spawnSyncOutput = { stdout: JSON.stringify(cmdOutputJson) };
+const spawnSyncOutput = {
+    status: 0,
+    stdout: JSON.stringify(cmdOutputJson)
+};
 
 describe("runValidatePlugin", () => {
     const mainModule = process.mainModule;
