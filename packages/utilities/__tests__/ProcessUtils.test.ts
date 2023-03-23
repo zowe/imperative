@@ -9,11 +9,10 @@
 *
 */
 
-import * as childProcess from "child_process";
 import * as spawn from "cross-spawn";
 import { GuiResult, ImperativeConfig, ProcessUtils } from "../../utilities";
 
-jest.mock("child_process");
+jest.mock("cross-spawn");
 jest.mock("opener");
 
 describe("ProcessUtils tests", () => {
@@ -265,7 +264,7 @@ describe("ProcessUtils tests", () => {
             } finally {
                 delete process.env.TEST_CLI_EDITOR;
             }
-            expect(childProcess.spawn).toHaveBeenCalledWith("fakeEdit", ["filePath"], { stdio: "inherit" });
+            expect(spawn.spawn).toHaveBeenCalledWith("fakeEdit", ["filePath"], { stdio: "inherit" });
         });
 
         it("should open file in custom command-line editor", async () => {
@@ -281,7 +280,7 @@ describe("ProcessUtils tests", () => {
             } finally {
                 delete process.env.TEST_CLI_EDITOR;
             }
-            expect(childProcess.spawn).toHaveBeenCalledWith("fakeEdit", ["filePath"], { stdio: "inherit" });
+            expect(spawn.spawn).toHaveBeenCalledWith("fakeEdit", ["filePath"], { stdio: "inherit" });
         });
 
         it("should open file in default command-line editor", async () => {
@@ -290,7 +289,7 @@ describe("ProcessUtils tests", () => {
                 loadedConfig: {}
             } as any);
             await ProcessUtils.openInEditor("filePath");
-            expect(childProcess.spawn).toHaveBeenCalledWith("vi", ["filePath"], { stdio: "inherit" });
+            expect(spawn.spawn).toHaveBeenCalledWith("vi", ["filePath"], { stdio: "inherit" });
         });
     });
 

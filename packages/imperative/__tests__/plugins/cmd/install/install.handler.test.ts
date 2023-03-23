@@ -12,7 +12,6 @@
 /* eslint-disable jest/expect-expect */
 import Mock = jest.Mock;
 
-jest.mock("child_process");
 jest.mock("cross-spawn");
 jest.mock("jsonfile");
 jest.mock("../../../../src/plugins/utilities/npm-interface/install");

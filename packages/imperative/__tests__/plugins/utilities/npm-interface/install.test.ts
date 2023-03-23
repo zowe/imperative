@@ -14,7 +14,7 @@ import Mock = jest.Mock;
 let expectedVal;
 let returnedVal;
 
-jest.mock("child_process");
+jest.mock("cross-spawn");
 jest.mock("jsonfile");
 jest.mock("find-up");
 jest.mock("../../../../src/plugins/utilities/PMFConstants");
