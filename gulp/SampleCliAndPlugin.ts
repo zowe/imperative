@@ -11,7 +11,8 @@
 
 import * as T from "../__tests__/src/TestUtil";
 import {existsSync} from "fs";
-import {execSync, spawnSync, SpawnSyncReturns} from "child_process";
+import {execSync, SpawnSyncReturns} from "child_process";
+import * as spawn from "cross-spawn";
 import {join} from "path";
 import * as jsonfile from "jsonfile";
 import chalk from "chalk";
@@ -249,7 +250,7 @@ export function sampleCliCommand(args: string[]): SpawnSyncReturns<string> {
         FORCE_COLOR: "0"
     };
 
-    const child = spawnSync(sampleCli, args, {
+    const child = spawn.sync(sampleCli, args, {
         encoding: "utf8",
         env: childEnv,
         shell: true

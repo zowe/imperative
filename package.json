@@ -53,6 +53,7 @@
     "@zowe/perf-timing": "1.0.7",
     "chalk": "2.4.2",
     "cli-table3": "0.6.2",
+    "cross-spawn": "7.0.3",
     "dataobject-parser": "1.2.1",
     "deepmerge": "3.0.0",
     "fastest-levenshtein": "1.0.12",
@@ -80,6 +81,7 @@
     "yargs": "15.3.1"
   },
   "devDependencies": {
+    "@types/cross-spawn": "^6.0.2",
     "@types/find-up": "^2.1.1",
     "@types/fs-extra": "^8.0.1",
     "@types/glob": "^7.1.1",

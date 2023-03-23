@@ -17,7 +17,8 @@
 /**
  * Module imports for TestUtils and testing infrastructure
  */
-import { spawnSync, SpawnSyncReturns } from "child_process";
+import * as spawn from "cross-spawn";
+import { SpawnSyncReturns } from "child_process";
 import { inspect, isArray, isNullOrUndefined, isString } from "util";
 import { Constants } from "../../packages/constants";
 import { ICommandResponse } from "../../packages/cmd";
@@ -45,7 +46,7 @@ export { resolve, basename, dirname } from "path";
 export const rimraf = (dir: string) => {
 
     const rimrafExecutable = __dirname + "/../../node_modules/rimraf/bin.js";
-    const rimrafProcess = spawnSync("node", [rimrafExecutable, dir]);
+    const rimrafProcess = spawn.sync("node", [rimrafExecutable, dir]);
     if (rimrafProcess.status !== 0) {
         throw new Error("Error deleting directory with rimraf CLI: \n" + rimrafProcess.output.join(" "));
     }
@@ -56,7 +57,8 @@ export * from "fs";
 export { inspect } from "util";
 
 export * from "path";
-export { spawnSync, SpawnSyncReturns } from "child_process";
+export { sync } from "cross-spawn";
+export { SpawnSyncReturns } from "child_process";
 export const DataObjectParser = require("dataobject-parser");
 export * from "fs";
 
@@ -183,7 +185,7 @@ export function executeTestCLICommand(cliBinModule: string, testContext: any, ar
     }
     const childEnv = JSON.parse(JSON.stringify(env)); // copy current env
     childEnv.FORCE_COLOR = "0";
-    const child = spawnSync(nodeCommand, args, {
+    const child = spawn.sync(nodeCommand, args, {
         cwd: execDir,
         encoding: "utf8",
         input: pipeContent,
@@ -430,7 +432,7 @@ export function runCliScript(scriptPath: string, cwd: string, args: any = [], en
         }
 
         // Execute the command synchronously
-        return spawnSync("sh", [`${scriptPath}`].concat(args), {cwd, env: childEnv});
+        return spawn.sync("sh", [`${scriptPath}`].concat(args), {cwd, env: childEnv});
     } else {
         throw new Error("The script directory doesn't exist");
     }

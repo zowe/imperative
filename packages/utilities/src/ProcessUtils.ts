@@ -9,7 +9,8 @@
 *
 */
 
-import { spawnSync, SpawnSyncOptions } from "child_process";
+import { SpawnSyncOptions } from "child_process";
+import { sync as spawnSync } from "cross-spawn";
 
 /**
  * This enum represents the possible results from isGuiAvailable.

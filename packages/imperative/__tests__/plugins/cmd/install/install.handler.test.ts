@@ -12,7 +12,7 @@
 /* eslint-disable jest/expect-expect */
 import Mock = jest.Mock;
 
-jest.mock("child_process");
+jest.mock("cross-spawn");
 jest.mock("jsonfile");
 jest.mock("../../../../src/plugins/utilities/npm-interface/install");
 jest.mock("../../../../src/plugins/utilities/runValidatePlugin");
@@ -49,7 +49,7 @@ import { readFileSync, writeFileSync } from "jsonfile";
 import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
 import { TextUtils } from "../../../../../utilities";
 import { getRegistry, npmLogin } from "../../../../src/plugins/utilities/NpmFunctions";
-import * as childProcess from "child_process";
+import * as spawn from "cross-spawn";
 
 let expectedVal;
 let returnedVal;
@@ -360,7 +360,7 @@ describe("Plugin Management Facility install handler", () => {
 
         let expectedError: ImperativeError;
 
-        jest.spyOn(childProcess, "spawnSync").mockReturnValueOnce({ status: 1 } as any);
+        jest.spyOn(spawn, "sync").mockReturnValueOnce({ status: 1 } as any);
         mocks.getRegistry.mockImplementation(jest.requireActual("../../../../src/plugins/utilities/NpmFunctions").getRegistry);
 
         try {

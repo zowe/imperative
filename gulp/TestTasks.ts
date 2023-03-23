@@ -11,7 +11,7 @@
 
 import { IGulpError, ITaskFunction } from "./GulpHelpers";
 import { isNullOrUndefined } from "util";
-import { spawnSync } from "child_process";
+import { sync } from "cross-spawn";
 
 /**
  * Tasks related to running automated tests
@@ -34,7 +34,7 @@ const integrationTestReport = require("path").resolve(testResultsDir + "/integra
 function loadDependencies() {
     ansiColors = require("ansi-colors");
     fancylog = require("fancy-log");
-    childProcess = require("child_process");
+    childProcess = require("cross-spawn");
     fs = require("fs");
     chalk = require("chalk");
     gulp = require("gulp");
@@ -112,7 +112,7 @@ function jestTest(overrideOptions: any, done: any, filePattern = "packages.*__te
 
     const childEnv = JSON.parse(JSON.stringify(process.env)); // copy current env
     childEnv.FORCE_COLOR = "1";
-    const jestProcess = childProcess.spawnSync("node", fullArgs, {
+    const jestProcess = childProcess.sync("node", fullArgs, {
         stdio: "inherit",
         env: childEnv,
         windowsVerbatimArguments: true
@@ -259,7 +259,7 @@ const installSampleClis: ITaskFunction = (done: any) => {
     cliDirs.forEach((dir) => {
         // Globally install them all them all
         fancylog(`Globally installing "${dir}" cli...`);
-        const globalInstallResponse = spawnSync((process.platform === "win32") ? "npm.cmd" : "npm", ["install", "-g"],
+        const globalInstallResponse = sync((process.platform === "win32") ? "npm.cmd" : "npm", ["install", "-g"],
             {cwd: __dirname + `/../__tests__/__integration__/${dir}/`});
         if (globalInstallResponse.stdout && globalInstallResponse.stdout.toString().length > 0) {
             fancylog(`***GLOBAL INSTALL for "${dir}" stdout:\n${globalInstallResponse.stdout.toString()}`);
@@ -292,7 +292,7 @@ const uninstallSampleClis: ITaskFunction = (done: any) => {
     cliDirs.forEach((dir) => {
         // Globally uninstall them all them all
         fancylog(`Globally uninstalling "${dir}" cli...`);
-        const globalInstallResponse = spawnSync((process.platform === "win32") ? "npm.cmd" : "npm", ["uninstall", "-g"],
+        const globalInstallResponse = sync((process.platform === "win32") ? "npm.cmd" : "npm", ["uninstall", "-g"],
             {cwd: __dirname + `/../__tests__/__integration__/${dir}/`});
         if (globalInstallResponse.stdout && globalInstallResponse.stdout.toString().length > 0) {
             fancylog(`***GLOBAL UNINSTALL for "${dir}" stdout:\n${globalInstallResponse.stdout.toString()}`);
