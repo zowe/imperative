@@ -11,6 +11,8 @@
 
 export * from "./src/CredentialManagerFactory";
 export * from "./src/DefaultCredentialManager";
+export * from "./src/CredentialManagerOverride";
 export * from "./src/abstract/AbstractCredentialManager";
 export * from "./src/doc/ICredentialManagerConstructor";
+export * from "./src/doc/ICredentialManagerNameMap";
 export * from "./src/errors/BadCredentialManagerError";

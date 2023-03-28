@@ -21,6 +21,7 @@ export * from "./src/ConfigurationValidator";
 export * from "./src/DefinitionTreeResolver";
 export * from "./src/Imperative";
 export * from "./src/LoggingConfigurer";
+export * from "./src/plugins/AbstractPluginLifeCycle";
 export * from "./src/plugins/PluginManagementFacility";
 export * from "./src/auth/doc/IAuthHandlerApi";
 export * from "./src/auth/handlers/AbstractAuthHandler";

@@ -2,6 +2,18 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Added AbstractPluginLifeCycle to enable plugins to write their own postInstall and preUninstall functions, which will be automatically called by the 'zowe plugins" install and uninstall commands.
+
+- Enhancement: Added pluginLifeCycle property to IImperativeConfig to enable a plugin to specify the path name to its own module which implements the AbstractPluginLifeCycle class.
+
+- Enhancement: Added a list of known credential manager overrides to imperative. When a credential manager cannot be loaded, a list of valid credential managers will be displayed in an error message.
+
+- Enhancement: Added a CredentialManagerOverride class containing utility functions to replace the default CLI credential manager or restore the default CLI credential manager. Plugins which implement a credential manager override can call these utilities from their AbstractPluginLifeCycle functions.
+
+- Enhancement: Added documentation [Overriding_the_default_credential_manager](https://github.com/zowe/imperative/blob/master/doc/Plugin%20Architecture/Overriding_the_default_credential_manager.md) describing the techniques for overriding the default CLI credential manager with a plugin.
+
 ## `5.9.3`
 
 - BugFix: Fix broken plugin install command for Windows when file has a space in the name

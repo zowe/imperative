@@ -48,7 +48,9 @@
               }
             }
           },
-          "required": ["password"]
+          "required": [
+            "password"
+          ]
         }
       }
     ]
