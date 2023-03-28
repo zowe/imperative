@@ -42,6 +42,7 @@ jest.doMock("path", () => {
 
 import { Console } from "../../../../../console";
 import { ImperativeError } from "../../../../../error";
+import { IImperativeConfig } from "../../../../src/doc/IImperativeConfig";
 import { install } from "../../../../src/plugins/utilities/npm-interface";
 import { IPluginJson } from "../../../../src/plugins/doc/IPluginJson";
 import { IPluginJsonObject } from "../../../../src/plugins/doc/IPluginJsonObject";
@@ -52,10 +53,12 @@ import { sync } from "find-up";
 import { getPackageInfo, installPackages } from "../../../../src/plugins/utilities/NpmFunctions";
 import { ConfigSchema } from "../../../../../config/src/ConfigSchema";
 import { PluginManagementFacility } from "../../../../src/plugins/PluginManagementFacility";
+import { AbstractPluginLifeCycle } from "../../../../src/plugins/AbstractPluginLifeCycle";
 import { ConfigurationLoader } from "../../../../src/ConfigurationLoader";
 import { UpdateImpConfig } from "../../../../src/UpdateImpConfig";
 import * as fs from "fs";
 import * as path from "path";
+
 
 function setResolve(toResolve: string, resolveTo?: string) {
     expectedVal = toResolve;
@@ -271,7 +274,7 @@ describe("PMF: Install Interface", () => {
                 version: packageVersion
             });
         });
-    });
+    }); // end Basic install
 
     describe("Advanced install", () => {
         it("should write even when install from file is true", async () => {
@@ -374,5 +377,148 @@ describe("PMF: Install Interface", () => {
                 causeErrors: error
             }));
         });
-    });
-});
+    }); // end Advanced install
+
+    describe("callPluginPostInstall", () => {
+        const knownCredMgr = "@zowe/secrets-for-kubernetes-for-zowe-cli";
+        const postInstallErrText = "Pretend that the plugin's postInstall function threw an error";
+        let callPluginPostInstall : any;
+        let fakePluginConfig: IImperativeConfig;
+        let installModule;
+        let LifeCycleClass;
+        let postInstallWorked = false;
+        let requirePluginModuleCallbackSpy;
+
+        /**
+         *  Set config to reflect if a plugin has a lifecycle class.
+         */
+        const pluginShouldHaveLifeCycle = (shouldHaveIt: boolean): void => {
+            if (shouldHaveIt) {
+                fakePluginConfig = {
+                    pluginLifeCycle: "fake/path/to/file/with/LC/class"
+                };
+            } else {
+                fakePluginConfig = {
+                    // no LifeCycle
+                };
+            }
+        };
+
+        /**
+         *  Create a lifecycle class to reflect if postInstall should work or not
+         */
+        const postInstallShouldWork = (shouldWork: boolean): void => {
+            if (shouldWork) {
+                LifeCycleClass = class extends AbstractPluginLifeCycle {
+                    postInstall() {
+                        postInstallWorked = true;
+                    }
+                    preUninstall() {
+                        return;
+                    }
+                };
+            } else {
+                LifeCycleClass = class extends AbstractPluginLifeCycle {
+                    postInstall() {
+                        throw new ImperativeError({
+                            msg: postInstallErrText
+                        });
+                    }
+                    preUninstall() {
+                        return;
+                    }
+                };
+            }
+        };
+
+        beforeAll(() => {
+            // make requirePluginModuleCallback return our fake LifeCycleClass
+            requirePluginModuleCallbackSpy = jest.spyOn(
+                PluginManagementFacility.instance, "requirePluginModuleCallback").
+                mockImplementation((_pluginName: string) => {
+                    return () => {
+                        return LifeCycleClass as any;
+                    };
+                });
+
+            // gain access to the non-exported callPluginPostInstall function
+            installModule = require("../../../../src/plugins/utilities/npm-interface/install");
+            callPluginPostInstall = installModule.onlyForTesting.callPluginPostInstall;
+        });
+
+        beforeEach(() => {
+            postInstallWorked = false;
+        });
+
+        it("should throw an error if a known credMgr does not implement postInstall", async () => {
+            // force our plugin to have NO LifeCycle class
+            pluginShouldHaveLifeCycle(false);
+
+            let thrownErr: any;
+            try {
+                await callPluginPostInstall(knownCredMgr, {});
+            } catch (err) {
+                thrownErr = err;
+            }
+            expect(thrownErr).toBeDefined();
+            expect(thrownErr.message).toContain("The plugin");
+            expect(thrownErr.message).toContain(
+                "attempted to override the CLI Credential Manager without providing a 'pluginLifeCycle' class"
+            );
+            expect(thrownErr.message).toContain("The previous Credential Manager remains in place.");
+        });
+
+        it("should do nothing if a non-credMgr does not implement postInstall", async () => {
+            // force our plugin to have NO LifeCycle class
+            pluginShouldHaveLifeCycle(false);
+
+            let thrownErr: any;
+            try {
+                await callPluginPostInstall("plugin_does_not_override_cred_mgr", {});
+            } catch (err) {
+                thrownErr = err;
+            }
+            expect(thrownErr).not.toBeDefined();
+        });
+
+        it("should call the postInstall function of a plugin", async () => {
+            // force our plugin to have a LifeCycle class
+            pluginShouldHaveLifeCycle(true);
+
+            // force our plugin's postInstall function to succeed
+            postInstallShouldWork(true);
+
+            let thrownErr: any;
+            try {
+                await callPluginPostInstall("FakePluginPackageName", fakePluginConfig);
+            } catch (err) {
+                thrownErr = err;
+            }
+            expect(requirePluginModuleCallbackSpy).toHaveBeenCalledTimes(1);
+            expect(thrownErr).not.toBeDefined();
+            expect(postInstallWorked).toBe(true);
+        });
+
+        it("should catch an error from a plugin's postInstall function", async () => {
+            // force our plugin to have a LifeCycle class
+            pluginShouldHaveLifeCycle(true);
+
+            // force our plugin's postInstall function to fail
+            postInstallShouldWork(false);
+
+            let thrownErr: any;
+            try {
+                await callPluginPostInstall("FakePluginPackageName", fakePluginConfig);
+            } catch (err) {
+                thrownErr = err;
+            }
+            expect(requirePluginModuleCallbackSpy).toHaveBeenCalledTimes(1);
+            expect(postInstallWorked).toBe(false);
+            expect(thrownErr).toBeDefined();
+            expect(thrownErr.message).toContain(
+                "Unable to perform the post-install action for plugin 'FakePluginPackageName'."
+            );
+            expect(thrownErr.message).toContain(postInstallErrText);
+        });
+    }); // end callPluginPostInstall
+}); // PMF: Install Interface

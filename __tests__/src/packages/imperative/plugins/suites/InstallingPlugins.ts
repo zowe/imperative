@@ -19,10 +19,12 @@ import { TEST_REGISTRY } from "../../../../../__src__/TestConstants";
 import { execSync, SpawnSyncReturns } from "child_process";
 
 import { config, cliBin, pluginGroup } from "../PluginTestConstants";
+import { CredentialManagerOverride } from "../../../../../../packages/security/src/CredentialManagerOverride";
 import { readFileSync, writeFileSync } from "jsonfile";
 import { IPluginJson } from "../../../../../../packages/imperative/src/plugins/doc/IPluginJson";
 import { SetupTestEnvironment } from "../../../../../__src__/environment/SetupTestEnvironment";
 import * as fs from "fs";
+import { readJsonSync, writeJsonSync } from "fs-extra";
 
 describe("Installing Plugins", () => {
     /**
@@ -76,6 +78,11 @@ describe("Installing Plugins", () => {
             name: "space-in-path-plugin",
             usage: "space-in-path-plugin"
         },
+        override: {
+            location: join(__dirname, "../", "test_plugins", "override_plugin"),
+            name: "override-plugin",
+            usage: "override-plugin"
+        },
         registry: {
             location: "imperative-sample-plugin",
             name: "imperative-sample-plugin",
@@ -113,6 +120,81 @@ describe("Installing Plugins", () => {
      */
     let peerDepWarning: boolean = true;
 
+    const defaultCredMgrDisplayNm = "TestCLI";
+    const knownCredMgr = CredentialManagerOverride.getKnownCredMgrs()[1];
+    const knownCredMgrDisplayNm = knownCredMgr.credMgrDisplayName as string;
+    const knownCredMgrPluginNm = knownCredMgr.credMgrPluginName as string;
+
+    /**
+     * Change the pluginLifeCycle property in a plugin's Imperative configuration
+     * that is located in the plugin's package.json file.
+     *
+     * @param {string} pluginLoc    The location of the desired plugin
+     * @param {string} desiredChange One of the follwoing strings:
+     *      "goodLifeCycle", "unknownName",  "noPostInstall", "noPreUnininstall", or "remove"
+     */
+    const changeLifeCycleInPkgJson = (pluginLoc: string, desiredChange: string): void => {
+        const pkgFileNm = join(pluginLoc, "package.json");
+
+        const pkgContents = readJsonSync(pkgFileNm);
+        if (desiredChange === "goodLifeCycle") {
+            pkgContents.imperative.pluginLifeCycle = "./lib/sample-plugin/lifeCycle/class_good_lifeCycle";
+
+        } else if (desiredChange === "unknownName") {
+            pkgContents.imperative.pluginLifeCycle = "./lib/sample-plugin/lifeCycle/class_unknown_name";
+
+        } else if (desiredChange === "noPostInstall") {
+            pkgContents.imperative.pluginLifeCycle = "./lib/sample-plugin/lifeCycle/class_no_post_install";
+
+        } else if (desiredChange === "noPreUnininstall") {
+            pkgContents.imperative.pluginLifeCycle = "./lib/sample-plugin/lifeCycle/class_no_pre_uninstall";
+
+        } else if (desiredChange === "remove") {
+            delete pkgContents.imperative.pluginLifeCycle;
+
+        } else {
+            throw new Error(`An invalid parm '${desiredChange}' was passed to changeLifeCycleInPkgJson.`);
+        }
+
+        writeJsonSync(pkgFileNm, pkgContents, {spaces: 2});
+    };
+
+    /**
+     * Change the name property in a plugin's package.json file.
+     *
+     * @param {string} pluginLoc
+     *      The location of the desired plugin.
+     * @param {string} desiredName
+     *      The name to set inside package.json for a desired test.
+     */
+    const changeNameInPkgJson = (pluginLoc: string, desiredName: string): void => {
+        const pkgFileNm = join(pluginLoc, "package.json");
+        const pkgContents = readJsonSync(pkgFileNm);
+        pkgContents.name = desiredName;
+        writeJsonSync(pkgFileNm, pkgContents, {spaces: 2});
+    };
+
+    /**
+     * Get the currently configured credential manager display name.
+     *
+     * @returns {string} The display name of the currrent credential manager.
+     */
+    const getCurrCredMgr = (): string => {
+        const settingsFileNm = join(config.defaultHome, "settings", "imperative.json");
+        const settingsContents = readJsonSync(settingsFileNm);
+        return settingsContents.overrides.CredentialManager;
+    };
+
+    /**
+     * Set the credential manager to the specified display name.
+     */
+    const setCurrCredMgr = (newCredMgrName: string): void => {
+        const settingsFileNm = join(config.defaultHome, "settings", "imperative.json");
+        const settingsContents = readJsonSync(settingsFileNm);
+        settingsContents.overrides.CredentialManager = newCredMgrName;
+        writeJsonSync(settingsFileNm, settingsContents, {spaces: 2});
+    };
+
     beforeAll(() => {
         envNpmRegistry = execSync("npm config get registry").toString().trim();
         peerDepWarning = parseInt(execSync("npm --version").toString().trim().split(".")[0], 10) < 7;
@@ -143,7 +225,7 @@ describe("Installing Plugins", () => {
     //     expect(strippedOutput).toContain("Installation of the npm package(s) was successful.");
     // });
 
-    it("should install a plugin from a file location", function () {
+    it("should install a plugin from a file location - no space in path", function () {
         const originalEnvHome = process.env.ZOWE_CLI_HOME;
         // Not sure if this needs done for all integration tests to simulate that
         // --global-config will point to the __results__ directory created for the test
@@ -184,6 +266,134 @@ describe("Installing Plugins", () => {
         expect(result.stdout).toContain(plugins.normal.usage);
 
         process.env.ZOWE_CLI_HOME = originalEnvHome;
+    });
+
+    it("should fail when a credMgr override plugin has no pluginLifeCycle property", function () {
+        /* The override test plugin has no pluginLifeCycle property specified in package.json.
+         * Change our plugin name to be a known credMgr.
+         */
+        changeNameInPkgJson(plugins.override.location, knownCredMgrPluginNm);
+
+        // Verify that the sample plugin isn't there
+        let result = executeCommandString(this, "--help");
+        expect(result.stderr).toEqual("");
+        expect(result.stdout).not.toContain(plugins.override.usage);
+
+        // install the plugin
+        result = executeCommandString(this, `${pluginGroup} install ${plugins.override.location}`);
+
+        expect(result.stderr).toContain(
+            `The plugin '${knownCredMgrPluginNm}' attempted to override ` +
+            `the CLI Credential Manager without providing a 'pluginLifeCycle' class.`
+        );
+
+        // revert back to our original plugin name for future tests
+        changeNameInPkgJson(plugins.override.location, plugins.override.name);
+
+        // settings/imperative.json should still contain the default credMgr
+        expect(getCurrCredMgr()).toEqual(defaultCredMgrDisplayNm);
+
+        // confirm it was installed even though it did not override during postInstall
+        result = executeCommandString(this, "--help");
+        expect(result.stderr).toEqual("");
+        expect(result.stdout).toContain(plugins.override.usage);
+    });
+
+    it("should fail to override credential manager with unknown credMgr", function () {
+        // Set the path to a lifecycle class with an unknown credMgr name
+        changeLifeCycleInPkgJson(plugins.override.location, "unknownName");
+
+        // Verify that the sample plugin isn't there
+        let result = executeCommandString(this, "--help");
+        expect(result.stderr).toEqual("");
+        expect(result.stdout).not.toContain(plugins.override.usage);
+
+        // install the plugin
+        result = executeCommandString(this, `${pluginGroup} install ${plugins.override.location}`);
+
+        // Now that we have installed, remove lifecycle option for future tests
+        changeLifeCycleInPkgJson(plugins.override.location, "remove");
+
+        expect(result.stderr).toContain(
+            `Unable to perform the post-install action for plugin '${plugins.override.name}'.`
+        );
+        expect(result.stderr).toContain("Reason: The credential manager name");
+        expect(result.stderr).toContain("is an unknown credential manager.");
+
+        // settings/imperative.json should still contain the default credMgr
+        expect(getCurrCredMgr()).toEqual(defaultCredMgrDisplayNm);
+
+        // confirm it was installed even though it did not override during postInstall
+        result = executeCommandString(this, "--help");
+        expect(result.stderr).toEqual("");
+        expect(result.stdout).toContain(plugins.override.usage);
+    });
+
+    it("should fail when a credMgr override plugin has no postInstall function", function () {
+        // Set the path to a lifecycle class that has no postInstall
+        changeLifeCycleInPkgJson(plugins.override.location, "noPostInstall");
+
+        // Verify that the sample plugin isn't there
+        let result = executeCommandString(this, "--help");
+        expect(result.stderr).toEqual("");
+        expect(result.stdout).not.toContain(plugins.override.usage);
+
+        // install the plugin
+        result = executeCommandString(this, `${pluginGroup} install ${plugins.override.location}`);
+
+        // Now that we have installed, remove lifecycle option for future tests
+        changeLifeCycleInPkgJson(plugins.override.location, "remove");
+
+        expect(result.stderr).toContain("Install Failed");
+        expect(result.stderr).toContain(`Unable to perform the post-install action for plugin '${plugins.override.name}'.`);
+        expect(result.stderr).toContain("Reason: lifeCycleInstance.postInstall is not a function");
+
+        // settings/imperative.json should still contain the default credMgr
+        expect(getCurrCredMgr()).toEqual(defaultCredMgrDisplayNm);
+
+        // confirm it was installed even though it did not override during postInstall
+        result = executeCommandString(this, "--help");
+        expect(result.stderr).toEqual("");
+        expect(result.stdout).toContain(plugins.override.usage);
+    });
+
+    it("should successfully override the credMgr with a valid override plugin", function () {
+        // set the path to a working lifecycle class
+        changeLifeCycleInPkgJson(plugins.override.location, "goodLifeCycle");
+
+        // Verify that the sample plugin isn't there
+        let result = executeCommandString(this, "--help");
+        expect(result.stderr).toEqual("");
+        expect(result.stdout).not.toContain(plugins.override.usage);
+
+        // install the plugin
+        result = executeCommandString(this, `${pluginGroup} install ${plugins.override.location}`);
+
+        // Now that we have installed, remove lifecycle option for future tests
+        changeLifeCycleInPkgJson(plugins.override.location, "remove");
+
+        if (peerDepWarning) {
+            expect(result.stderr).toMatch(/npm.*WARN/);
+            expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+            expect(result.stderr).toContain("You must install peer dependencies yourself");
+        } else {
+            expect(result.stderr).toEqual("");
+        }
+
+        // settings/imperative.json should now contain the override name that we specified
+        expect(getCurrCredMgr()).toEqual(knownCredMgrDisplayNm);
+
+        // set the credMgr override name back to the default for future tests
+        setCurrCredMgr(defaultCredMgrDisplayNm);
+
+        const strippedOutput = T.stripNewLines(result.stdout);
+        expect(strippedOutput).toContain("Registry = " + envNpmRegistry);
+        expect(strippedOutput).toContain(`Installed plugin name = '${plugins.override.name}'`);
+
+        // confirm it was installed
+        result = executeCommandString(this, "--help");
+        expect(result.stderr).toEqual("");
+        expect(result.stdout).toContain(plugins.override.usage);
     });
 
     it("should install multiple plugins at the same time", function () {
