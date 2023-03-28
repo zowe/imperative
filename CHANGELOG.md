@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed the `login` and `logout` handlers, fixing the `li` and `lo` aliases.
+
 ## `5.10.0`
 
 - Enhancement: Added AbstractPluginLifeCycle to enable plugins to write their own postInstall and preUninstall functions, which will be automatically called by the 'zowe plugins" install and uninstall commands.
