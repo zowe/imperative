@@ -6,6 +6,11 @@ All notable changes to the Imperative package will be documented in this file.
 
 - BugFix: Fixed the `login` and `logout` handlers, fixing the `li` and `lo` aliases.
 
+## `5.11.0`
+
+- Enhancement: Added `credMgrOverride` property to `IProfOpts` interface that can be used to override credential manager in the ProfileInfo API. [zowe-cli#1632](https://github.com/zowe/zowe-cli/issues/1632)
+- Deprecated: The `requireKeytar` property on the `IProfOpts` interface. Use the `credMgrOverride` property instead and pass the callback that requires Keytar to `ProfileCredentials.defaultCredMgrWithKeytar`.
+
 ## `5.10.0`
 
 - Enhancement: Added AbstractPluginLifeCycle to enable plugins to write their own postInstall and preUninstall functions, which will be automatically called by the 'zowe plugins" install and uninstall commands.
@@ -20,7 +25,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## `5.9.3`
 
-- BugFix: Fix broken plugin install command for Windows when file has a space in the name
+- BugFix: Fixed broken plugin install command for Windows when file has a space in the name
 
 ## `5.9.2`
 
