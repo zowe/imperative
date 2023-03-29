@@ -49,9 +49,11 @@ export abstract class BaseAuthHandler implements ICommandHandler {
     public async process(commandParameters: IHandlerParameters) {
         switch (commandParameters.positionals[1]) {
             case Constants.LOGIN_ACTION:
+            case Constants.LOGIN_ACTION_ALIAS:
                 await this.processLogin(commandParameters);
                 break;
             case Constants.LOGOUT_ACTION:
+            case Constants.LOGOUT_ACTION_ALIAS:
                 await this.processLogout(commandParameters);
                 break;
             default:

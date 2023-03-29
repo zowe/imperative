@@ -109,5 +109,7 @@ export class Constants {
      */
     public static readonly AUTH_GROUP = "auth";
     public static readonly LOGIN_ACTION = "login";
+    public static readonly LOGIN_ACTION_ALIAS = "li";
     public static readonly LOGOUT_ACTION = "logout";
+    public static readonly LOGOUT_ACTION_ALIAS = "lo";
 }
