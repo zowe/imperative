@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed the `login` and `logout` handlers, fixing the `li` and `lo` aliases.
+
 ## `5.11.0`
 
 - Enhancement: Added `credMgrOverride` property to `IProfOpts` interface that can be used to override credential manager in the ProfileInfo API. [zowe-cli#1632](https://github.com/zowe/zowe-cli/issues/1632)
