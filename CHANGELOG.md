@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.11.1`
 
 - BugFix: Fixed the `login` and `logout` handlers, fixing the `li` and `lo` aliases.
 
