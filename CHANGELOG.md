@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed the `login` and `logout` handlers, fixing the `li` and `lo` aliases.
+
 ## `4.18.14`
 
 - BugFix: Fixed plugin install error not displayed correctly. [#954](https://github.com/zowe/imperative/issues/954)
