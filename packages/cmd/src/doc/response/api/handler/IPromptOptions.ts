@@ -36,4 +36,12 @@ export interface IPromptOptions {
      * @memberof IPromptOptions
      */
     maskChar?: string | null;
+
+    /**
+     * Text color to apply to your prompt
+     * ex: "yellow"
+     * @type {string}
+     * @memberof IPromptOptions
+     */
+    color?: string | null;
 }

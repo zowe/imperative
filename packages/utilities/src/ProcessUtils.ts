@@ -124,9 +124,9 @@ export class ProcessUtils {
      * the `{envVariablePrefix}_EDITOR` environment variable if specified.
      * @param filePath File path to edit
      */
-    public static async openInEditor(filePath: string) {
-        let editor;
-        if (ImperativeConfig.instance.loadedConfig.envVariablePrefix != null) {
+    public static async openInEditor(filePath: string, editorOpt?: string) {
+        let editor = editorOpt;
+        if (!editorOpt && ImperativeConfig.instance.loadedConfig.envVariablePrefix != null) {
             const editorEnvVar = `${ImperativeConfig.instance.loadedConfig.envVariablePrefix}_EDITOR`;
             if (process.env[editorEnvVar] != null) { editor = process.env[editorEnvVar]; }
         }

@@ -592,6 +592,10 @@ export class CliUtils {
             secToWait = maxSecToWait;
         }
 
+        if (opts.color){
+            message = TextUtils.chalk[opts.color](message);
+        }
+        
         return new Promise((resolve, reject) => {
             require("read")({
                 input: process.stdin,
