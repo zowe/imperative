@@ -225,6 +225,15 @@ export interface IImperativeConfig {
     overrides?: IImperativeOverrides;
 
     /**
+     * A path to a plugin's module (javascript file) that extends the AbstractPluginLifeCycle
+     * class. The functions of that class enable a plugin to perform an action immediately
+     * after its installation and to perform an action before its un-installation.
+     *
+     * See AbstractPluginLifeCycle for the detailed functions.
+     */
+    pluginLifeCycle?: string;
+
+    /**
      * A path to a module (javascript file) that will perform a health check for a plugin.
      * The health check should verify the health of the plugin.
      * The implementor of a plugin determines what actions
@@ -241,6 +250,14 @@ export interface IImperativeConfig {
      *
      * TODO: While the pluginHealthCheck property is validated, no Imperative command
      * currently calls the health check function.
+     *
+     * @deprecated
+     *      This property is deprecated. Plugins that want to perform a health check can
+     *      specify the pluginLifeCycle property to load a class from the plugin.
+     *      The plugin can implement the postInstall() function of that class to perform
+     *      a health check, or any other desired operation. Our intention is to remove
+     *      the pluginHealthCheck property in Zowe V3.
+     *
      * @type {string}
      * @memberof IImperativeConfig
      */

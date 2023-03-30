@@ -9,9 +9,10 @@
 *
 */
 
-import { spawnSync } from "child_process";
 import { Logger } from "../../../../logger";
+import { ProcessUtils } from "../../../../utilities";
 import { PMFConstants } from "./PMFConstants";
+import { ImperativeError } from "../../../../error";
 
 /**
  * Run another instance of the host CLI command to validate a plugin that has
@@ -38,7 +39,7 @@ export function runValidatePlugin(pluginName: string): string {
 
     const impLogger = Logger.getImperativeLogger();
     impLogger.debug(`Running plugin validation command = ${cmdToRun} plugins validate "${pluginName}" --response-format-json --no-fail-on-error`);
-    const valOutputJsonTxt = spawnSync(cmdToRun,
+    const valOutputJsonTxt = ProcessUtils.execAndCheckOutput(cmdToRun,
         [
             ...cmdToRunArgs,
             "plugins", "validate", pluginName,
@@ -47,12 +48,21 @@ export function runValidatePlugin(pluginName: string): string {
         ], {
             cwd: PMFConstants.instance.PMF_ROOT
         }
-    ).stdout.toString();
+    ).toString();
 
     // Debug trace information
     impLogger.trace(`Command Output: ${valOutputJsonTxt}`);
 
-    const valResultJsonObj = JSON.parse(valOutputJsonTxt);
+    let valResultJsonObj;
+    try {
+        valResultJsonObj = JSON.parse(valOutputJsonTxt);
+    } catch(thrownErr) {
+        throw new ImperativeError({
+            msg: "Unable to parse the JSON output of the 'plugins validate' command." +
+            "\nReason = " + thrownErr.message +
+            "\nText that was being parsed:\n" + valOutputJsonTxt
+        });
+    }
     return formValidateMsg(valResultJsonObj);
 }
 

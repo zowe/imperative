@@ -33,6 +33,19 @@ describe("cmd-cli auth login", () => {
         require("rimraf").sync(join(TEST_ENVIRONMENT.workingDir, "profiles"));
     });
 
+    it("should load values from base profile and store token in it with alias", () => {
+        const response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_li.sh",
+            TEST_ENVIRONMENT.workingDir, ["fakeUser", "fakePass"]);
+        expect(response.stderr.toString()).toContain("command 'profiles create' is deprecated");
+        expect(response.status).toBe(0);
+
+        // the output of the command should include token value
+        expect(response.stdout.toString()).toContain("user:       fakeUser");
+        expect(response.stdout.toString()).toContain("password:   fakePass");
+        expect(response.stdout.toString()).toContain("tokenType:  jwtToken");
+        expect(response.stdout.toString()).toContain("tokenValue: fakeUser:fakePass@fakeToken");
+    });
+
     it("should load values from base profile and store token in it - basic auth", () => {
         const response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login.sh",
             TEST_ENVIRONMENT.workingDir, ["fakeUser", "fakePass"]);

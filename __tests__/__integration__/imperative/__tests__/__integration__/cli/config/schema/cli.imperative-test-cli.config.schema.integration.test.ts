@@ -34,12 +34,12 @@ describe("imperative-test-cli config schema", () => {
         expect(response.output.toString()).toContain(`your available plugins. Direct the output of this command to a file and include`);
         expect(response.output.toString()).toContain(`in your config with '$schema' property to get editor completion.`);
         expect(response.stderr.toString()).toEqual("");
-        expect(response.error).not.toBeDefined();
+        expect(response.error).toBeFalsy();
     });
     it("should print the generated schema", () => {
         const response = runCliScript(__dirname + "/__scripts__/schema.sh", TEST_ENVIRONMENT.workingDir, [""]);
         expect(JSON.parse(response.stdout.toString())).toEqual(expectedSchemaObject);
         expect(response.stderr.toString()).toEqual("");
-        expect(response.error).not.toBeDefined();
+        expect(response.error).toBeFalsy();
     });
 });

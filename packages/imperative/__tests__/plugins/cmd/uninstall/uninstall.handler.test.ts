@@ -22,14 +22,21 @@ jest.mock("../../../../../logger");
 
 import { CommandResponse, IHandlerParameters } from "../../../../../cmd";
 import { Console } from "../../../../../console";
+import { ConfigurationLoader } from "../../../../src/ConfigurationLoader";
+import { CredentialManagerOverride } from "../../../../../security";
 import { execSync } from "child_process";
+import { IImperativeConfig } from "../../../../src/doc/IImperativeConfig";
 import { IPluginJson } from "../../../../src/plugins/doc/IPluginJson";
+import { PluginManagementFacility } from "../../../../src/plugins/PluginManagementFacility";
+import { AbstractPluginLifeCycle } from "../../../../src/plugins/AbstractPluginLifeCycle";
 import { ImperativeError } from "../../../../../error";
 import { Logger } from "../../../../../logger";
 import { readFileSync, writeFileSync } from "jsonfile";
 import { TextUtils } from "../../../../../utilities";
 import { uninstall } from "../../../../src/plugins/utilities/npm-interface";
 import UninstallHandler from "../../../../src/plugins/cmd/uninstall/uninstall.handler";
+
+import * as NpmFunctions from "../../../../src/plugins/utilities/NpmFunctions";
 
 describe("Plugin Management Facility uninstall handler", () => {
 
@@ -163,7 +170,181 @@ describe("Plugin Management Facility uninstall handler", () => {
         //
         // expect(expectedError.message).toBe("Install Failed");
     });
+}); // end Plugin Management Facility uninstall handler
 
 
-});
+describe("callPluginPreUninstall", () => {
+    const knownCredMgrPlugin = "@zowe/secrets-for-kubernetes-for-zowe-cli";
+    const knownCredMgrDispNm = "Secrets for Kubernetes";
+    const preUninstallErrText = "Pretend that the plugin's preUninstall function threw an error";
+    let callPluginPreUninstallPrivate : any;
+    let cfgLoaderLoadSpy;
+    let fakePluginConfig: IImperativeConfig;
+    let getPackageInfoSpy;
+    let LifeCycleClass;
+    let preUninstallWorked = false;
+    let recordDefaultCredMgrInConfigSpy;
+    let requirePluginModuleCallbackSpy;
+    let uninstallHndlr;
 
+    /**
+     *  Set config to reflect if a plugin has a lifecycle class.
+     */
+    const pluginShouldHaveLifeCycle = (shouldHaveIt: boolean): void => {
+        if (shouldHaveIt) {
+            fakePluginConfig = {
+                pluginLifeCycle: "fake/path/to/file/with/LC/class"
+            };
+        } else {
+            fakePluginConfig = {
+                // no LifeCycle
+            };
+        }
+
+        // make ConfigurationLoader.load return a fake plugin configuration
+        cfgLoaderLoadSpy = jest.spyOn(ConfigurationLoader, "load").mockReturnValue(
+            fakePluginConfig
+        );
+    };
+
+    /**
+     *  Create a lifecycle class to reflect if preUninstall should work or not
+     */
+    const preUninstallShouldWork = (shouldWork: boolean): void => {
+        if (shouldWork) {
+            LifeCycleClass = class extends AbstractPluginLifeCycle {
+                postInstall() {
+                    return;
+                }
+                preUninstall() {
+                    preUninstallWorked = true;
+                }
+            };
+        } else {
+            LifeCycleClass = class extends AbstractPluginLifeCycle {
+                postInstall() {
+                    return;
+                }
+                preUninstall() {
+                    throw new ImperativeError({
+                        msg: preUninstallErrText
+                    });
+                }
+            };
+        }
+    };
+
+    beforeAll(() => {
+        // Prevent the logger from writing files during our tests
+        jest.spyOn(Logger, "getImperativeLogger").mockImplementation((): Logger => {
+            return  new Logger(new Console());
+        });
+
+        // prevent the real recordDefaultCredMgrInConfig from running
+        recordDefaultCredMgrInConfigSpy =
+            jest.spyOn(CredentialManagerOverride, "recordDefaultCredMgrInConfig").mockImplementation(() => {
+                return;
+            });
+
+        // make getPackageInfo return a fake value
+        getPackageInfoSpy = jest.spyOn(NpmFunctions, "getPackageInfo").mockImplementation(async () => {
+            return {
+                name: knownCredMgrPlugin,
+                version: "9.9.9"
+            };
+        });
+
+        // make requirePluginModuleCallback return our fake LifeCycleClass
+        requirePluginModuleCallbackSpy = jest.spyOn(
+            PluginManagementFacility.instance, "requirePluginModuleCallback").
+            mockImplementation((_pluginName: string) => {
+                return () => {
+                    return LifeCycleClass as any;
+                };
+            });
+
+        // Use uninstallHndlr["callPluginPreUninstall"] so that we can access a private function.
+        uninstallHndlr = new UninstallHandler();
+        callPluginPreUninstallPrivate = uninstallHndlr["callPluginPreUninstall"];
+    });
+
+    beforeEach(() => {
+        preUninstallWorked = false;
+    });
+
+    it("should throw an error if a known credMgr does not implement preUninstall", async () => {
+        // force our plugin to have NO LifeCycle class
+        pluginShouldHaveLifeCycle(false);
+
+        let thrownErr: any = null;
+        try {
+            await callPluginPreUninstallPrivate(knownCredMgrPlugin);
+        } catch (err) {
+            thrownErr = err;
+        }
+
+        expect(recordDefaultCredMgrInConfigSpy).toHaveBeenCalledWith(knownCredMgrDispNm);
+        expect(requirePluginModuleCallbackSpy).toHaveBeenCalledTimes(1);
+        expect(cfgLoaderLoadSpy).toHaveBeenCalledTimes(1);
+        expect(thrownErr).not.toBeNull();
+        expect(thrownErr.message).toContain(
+            `The plugin '${knownCredMgrPlugin}', which overrides the CLI ` +
+            `Credential Manager, does not implement the 'pluginLifeCycle' class. ` +
+            `The CLI default Credential Manager ` +
+            `(${CredentialManagerOverride.DEFAULT_CRED_MGR_NAME}) was automatically reinstated.`
+        );
+    });
+
+    it("should do nothing if a non-credMgr does not implement preUninstall", async () => {
+        // force our plugin to have NO LifeCycle class
+        pluginShouldHaveLifeCycle(false);
+
+        let thrownErr: any = null;
+        try {
+            callPluginPreUninstallPrivate("plugin_does_not_override_cred_mgr");
+        } catch (err) {
+            thrownErr = err;
+        }
+        expect(thrownErr).toBeNull();
+    });
+
+    it("should call the preUninstall function of a plugin", async () => {
+        // force our plugin to have a LifeCycle class
+        pluginShouldHaveLifeCycle(true);
+
+        // force our plugin's preUninstall function to succeed
+        preUninstallShouldWork(true);
+
+        let thrownErr: any = null;
+        try {
+            await callPluginPreUninstallPrivate(knownCredMgrPlugin);
+        } catch (err) {
+            thrownErr = err;
+        }
+
+        expect(thrownErr).toBeNull();
+        expect(preUninstallWorked).toBe(true);
+    });
+
+    it("should catch an error from a plugin's preUninstall function", async () => {
+        // force our plugin to have a LifeCycle class
+        pluginShouldHaveLifeCycle(true);
+
+        // force our plugin's preUninstall function to fail
+        preUninstallShouldWork(false);
+
+        let thrownErr: any = null;
+        try {
+            await callPluginPreUninstallPrivate(knownCredMgrPlugin);
+        } catch (err) {
+            thrownErr = err;
+        }
+
+        expect(preUninstallWorked).toBe(false);
+        expect(thrownErr).not.toBeNull();
+        expect(thrownErr.message).toContain(
+            `Unable to perform the 'preUninstall' action of plugin '${knownCredMgrPlugin}'`
+        );
+        expect(thrownErr.message).toContain(preUninstallErrText);
+    });
+}); // end callPluginPreUninstall

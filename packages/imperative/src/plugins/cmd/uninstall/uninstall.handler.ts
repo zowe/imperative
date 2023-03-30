@@ -10,9 +10,13 @@
 */
 
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
+import { ConfigurationLoader } from "../../../ConfigurationLoader";
+import { CredentialManagerOverride, ICredentialManagerNameMap } from "../../../../../security";
 import { Logger } from "../../../../../logger/";
+import { PluginManagementFacility } from "../../PluginManagementFacility";
 import { PMFConstants } from "../../utilities/PMFConstants";
 import { uninstall } from "../../utilities/npm-interface";
+import { getPackageInfo } from "../../utilities/NpmFunctions";
 import { ImperativeError } from "../../../../../error";
 import { TextUtils } from "../../../../../utilities";
 
@@ -52,6 +56,14 @@ export default class UninstallHandler implements ICommandHandler {
         } else {
             try {
                 for (const packageName of params.arguments.plugin) {
+                    // let the plugin perform any pre-uninstall operations
+                    try {
+                        await this.callPluginPreUninstall(packageName);
+                    } catch(err) {
+                        // We do not stop on preUninstall error. We just show a message.
+                        params.response.console.log(err.message);
+                    }
+
                     uninstall(packageName);
                 }
                 params.response.console.log("Removal of the npm package(s) was successful.\n"
@@ -63,6 +75,53 @@ export default class UninstallHandler implements ICommandHandler {
                     additionalDetails: e.message
                 });
             }
+        }
+    }
+
+    /**
+     * Call a plugin's lifecycle hook to enable a plugin to take some action
+     * before the plugin is uninstalled.
+     *
+     * @param pluginPackageNm The package name of the plugin being installed.
+     *
+     * @throws ImperativeError.
+     */
+    private async callPluginPreUninstall(pluginPackageNm: string): Promise<void> {
+        const impLogger = Logger.getImperativeLogger();
+        try {
+            // get the plugin's Imperative config definition
+            const packageInfo = await getPackageInfo(pluginPackageNm);
+            const requirerFunction = PluginManagementFacility.instance.requirePluginModuleCallback(pluginPackageNm);
+            const pluginImpConfig = ConfigurationLoader.load(null, packageInfo, requirerFunction);
+
+            if ( pluginImpConfig?.pluginLifeCycle === undefined) {
+                // the pluginLifeCycle was not defined by the plugin
+                const credMgrInfo: ICredentialManagerNameMap =
+                    CredentialManagerOverride.getCredMgrInfoByPlugin(pluginPackageNm);
+                if (credMgrInfo !== null) {
+                    // this plugin is a known cred mgr override
+                    CredentialManagerOverride.recordDefaultCredMgrInConfig(credMgrInfo.credMgrDisplayName);
+                    throw new ImperativeError({
+                        msg: `The plugin '${pluginPackageNm}', which overrides the CLI ` +
+                        `Credential Manager, does not implement the 'pluginLifeCycle' class. ` +
+                        `The CLI default Credential Manager ` +
+                        `(${CredentialManagerOverride.DEFAULT_CRED_MGR_NAME}) was automatically reinstated.`
+                    });
+                }
+                return;
+            }
+
+            // call the plugin's preUninstall operation
+            impLogger.debug(`Calling the preUninstall function for plugin '${pluginPackageNm}'`);
+            const requirerFun = PluginManagementFacility.instance.requirePluginModuleCallback(pluginPackageNm);
+            const lifeCycleClass = requirerFun(pluginImpConfig.pluginLifeCycle);
+            const lifeCycleInstance = new lifeCycleClass();
+            await lifeCycleInstance.preUninstall();
+        } catch (err) {
+            throw new ImperativeError({
+                msg: `Unable to perform the 'preUninstall' action of plugin '${pluginPackageNm}'` +
+                    `\nReason: ${err.message}`
+            });
         }
     }
 }

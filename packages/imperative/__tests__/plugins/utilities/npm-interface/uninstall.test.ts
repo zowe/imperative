@@ -12,7 +12,7 @@
 /* eslint-disable jest/expect-expect */
 import Mock = jest.Mock;
 
-jest.mock("child_process");
+jest.mock("cross-spawn");
 jest.mock("jsonfile");
 jest.mock("../../../../src/plugins/utilities/PMFConstants");
 jest.mock("../../../../../logger");
@@ -21,20 +21,20 @@ jest.mock("../../../../../cmd/src/response/HandlerResponse");
 
 import * as fs from "fs";
 import { Console } from "../../../../../console";
-import { spawnSync } from "child_process";
+import { sync } from "cross-spawn";
 import { ImperativeError } from "../../../../../error";
 import { IPluginJson } from "../../../../src/plugins/doc/IPluginJson";
 import { Logger } from "../../../../../logger";
 import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
 import { readFileSync, writeFileSync } from "jsonfile";
-import { cmdToRun } from "../../../../src/plugins/utilities/NpmFunctions";
+import { findNpmOnPath } from "../../../../src/plugins/utilities/NpmFunctions";
 import { uninstall } from "../../../../src/plugins/utilities/npm-interface";
 
 
 describe("PMF: Uninstall Interface", () => {
     // Objects created so types are correct.
     const mocks = {
-        spawnSync: spawnSync as Mock<typeof spawnSync>,
+        spawnSync: sync as Mock<typeof sync>,
         readFileSync: readFileSync as Mock<typeof readFileSync>,
         writeFileSync: writeFileSync as Mock<typeof writeFileSync>
     };
@@ -42,7 +42,7 @@ describe("PMF: Uninstall Interface", () => {
     const samplePackageName = "imperative-sample-plugin";
     const packageName = "a";
     const packageRegistry = "https://registry.npmjs.org/";
-    const npmCmd = cmdToRun();
+    const npmCmd = findNpmOnPath();
 
     beforeEach(() => {
         // Mocks need cleared after every test for clean test runs
@@ -101,7 +101,10 @@ describe("PMF: Uninstall Interface", () => {
 
     describe("Basic uninstall", () => {
         beforeEach(() => {
-            mocks.spawnSync.mockReturnValue(`+ ${packageName}`);
+            mocks.spawnSync.mockReturnValue({
+                status: 0,
+                stdout: Buffer.from(`+ ${packageName}`)
+            } as any);
         });
 
         it("should uninstall", () => {

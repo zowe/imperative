@@ -12,21 +12,19 @@
 import { PMFConstants } from "./PMFConstants";
 import * as path from "path";
 import * as which from "which";
-import { spawnSync, StdioOptions } from "child_process";
+import { StdioOptions } from "child_process";
 import { readFileSync } from "jsonfile";
 import * as npmPackageArg from "npm-package-arg";
 import * as pacote from "pacote";
-import * as fs from "fs";
-import { ImperativeError } from "../../../../error/src/ImperativeError";
-import * as findUp from "find-up";
-const npmCmd = cmdToRun();
+import { ProcessUtils } from "../../../../utilities";
+const npmCmd = findNpmOnPath();
 
 /**
  * Common function that returns npm command as a string.
  *
  * @return {string} command with npm path
  */
-export function cmdToRun() {
+export function findNpmOnPath(): string {
     return which.sync("npm");
 }
 
@@ -43,23 +41,19 @@ export function cmdToRun() {
  */
 export function installPackages(prefix: string, registry: string, npmPackage: string): string {
     const pipe: StdioOptions = ["pipe", "pipe", process.stderr];
-    try {
-        const execOutput = spawnSync(npmCmd,
-            [
-                "install", npmPackage,
-                "--prefix", prefix,
-                "-g",
-                "--registry", registry,
-                "--legacy-peer-deps"
-            ], {
-                cwd: PMFConstants.instance.PMF_ROOT,
-                stdio: pipe
-            }
-        );
-        return execOutput.stdout.toString();
-    } catch (err) {
-        throw (err.message);
-    }
+    const execOutput = ProcessUtils.execAndCheckOutput(npmCmd,
+        [
+            "install", npmPackage,
+            "--prefix", prefix,
+            "-g",
+            "--registry", registry,
+            "--legacy-peer-deps"
+        ], {
+            cwd: PMFConstants.instance.PMF_ROOT,
+            stdio: pipe
+        }
+    );
+    return execOutput.toString();
 }
 
 /**
@@ -68,12 +62,8 @@ export function installPackages(prefix: string, registry: string, npmPackage: st
  * @return {string}
  */
 export function getRegistry(): string {
-    try {
-        const execOutput = spawnSync(npmCmd, [ "config", "get", "registry" ]);
-        return execOutput.stdout.toString();
-    } catch (err) {
-        throw(err.message);
-    }
+    const execOutput = ProcessUtils.execAndCheckOutput(npmCmd, [ "config", "get", "registry" ]);
+    return execOutput.toString();
 }
 
 /**
@@ -81,20 +71,16 @@ export function getRegistry(): string {
  * @param {string} registry The npm registry to install from.
  */
 export function npmLogin(registry: string) {
-    try {
-        spawnSync(npmCmd,
-            [
-                "login",
-                "--registry", registry,
-                "--always-auth",
-                "--auth-type=legacy"
-            ], {
-                stdio: [0,1,2]
-            }
-        );
-    } catch (err) {
-        throw(err.message);
-    }
+    ProcessUtils.execAndCheckOutput(npmCmd,
+        [
+            "login",
+            "--registry", registry,
+            "--always-auth",
+            "--auth-type=legacy"
+        ], {
+            stdio: [0,1,2]
+        }
+    );
 }
 
 /**
@@ -110,18 +96,4 @@ export async function getPackageInfo(pkgSpec: string): Promise<{ name: string, v
         // Package name is unknown, so fetch name and version with pacote (npm SDK)
         return pacote.manifest(pkgSpec);
     }
-}
-
-/**
- * Normalize the NPM path so that it works between older and newer versions of node
- *
- * @return {string} The NPM path
- */
-export function getNpmPath(): string {
-    let npmPath = require.resolve("npm");
-    if (npmPath.split(path.sep).includes("npm")) {
-        npmPath = findUp.sync("npm", {cwd: npmPath, type: "directory"});
-        if (npmPath != null && fs.existsSync(npmPath)) { return npmPath; }
-    }
-    throw new ImperativeError({msg: "Unable to resolve 'npm' path."});
 }
