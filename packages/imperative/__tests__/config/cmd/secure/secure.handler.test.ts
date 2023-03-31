@@ -431,6 +431,71 @@ describe("Configuration Secure command handler", () => {
         expect(ImperativeConfig.instance.config.api.secure.secureFields().length).toEqual(0);
     });
 
+    it("should secure the project configuration and prune unused properties", async () => {
+        const handler = new SecureHandler();
+        const params = getIHandlerParametersObject();
+
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
+        params.arguments.prune = true;
+
+        // Start doing fs mocks
+        // And the prompting of the secure handler
+        keytarGetPasswordSpy.mockReturnValue(fakeSecureData);
+        keytarSetPasswordSpy.mockImplementation();
+        keytarDeletePasswordSpy.mockImplementation();
+        readFileSyncSpy = jest.spyOn(fs, "readFileSync");
+        writeFileSyncSpy = jest.spyOn(fs, "writeFileSync");
+        existsSyncSpy = jest.spyOn(fs, "existsSync");
+
+        const eco = lodash.cloneDeep(expectedConfigObject);
+        eco.$schema = "./fakeapp.schema.json";
+
+        readFileSyncSpy.mockReturnValueOnce(JSON.stringify(eco));
+        existsSyncSpy.mockReturnValueOnce(false).mockReturnValueOnce(true).mockReturnValue(false); // Only the project config exists
+        writeFileSyncSpy.mockImplementation();
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+
+        await setupConfigToLoad(undefined, configOpts); // Setup the config
+
+        // We aren't testing the config initialization - clear the spies
+        searchSpy.mockClear();
+        writeFileSyncSpy.mockClear();
+        existsSyncSpy.mockClear();
+        readFileSyncSpy.mockClear();
+
+        const promptWithTimeoutSpy = jest.fn(() => "fakePromptingData");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        await handler.process(params);
+
+        const fakeSecureDataExpectedJson = {
+            [fakeProjPath]: {
+                "profiles.base.properties.secret": "fakePromptingData"
+            }
+        };
+        const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
+
+        const compObj: any = {};
+        // Make changes to satisfy what would be stored on the JSON
+        compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
+        lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
+        delete compObj.profiles.base.properties.secret; // Delete the secret
+
+        if (process.platform === "win32") {
+            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
+        } else {
+            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
+        }
+        expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
+        expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
+        expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
+    });
+
     describe("special prompting for auth token", () => {
         const expectedConfigObjectWithToken: IConfig = {
             $schema: "./fakeapp.schema.json",

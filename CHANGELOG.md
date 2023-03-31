@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Added `--prune` option to `zowe config secure` command to delete unused properties. [#547](https://github.com/zowe/imperative/issues/547)
+
 ## `5.11.1`
 
 - BugFix: Fixed the `login` and `logout` handlers, fixing the `li` and `lo` aliases.

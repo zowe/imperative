@@ -75,6 +75,13 @@ export default class SecureHandler implements ICommandHandler {
             }
         }
 
+        if (params.arguments.prune) {
+            const prunedFiles = config.api.secure.rmUnusedProps();
+            if (prunedFiles.length > 0) {
+                params.response.console.log(`Deleted secure properties for ${prunedFiles.length} missing file(s)`);
+            }
+        }
+
         // Write the config layer
         await config.save();
     }
