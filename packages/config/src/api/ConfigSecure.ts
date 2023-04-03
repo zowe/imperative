@@ -116,9 +116,18 @@ export class ConfigSecure extends ConfigApi {
         }
 
         // Save the entries if needed
-        if (Object.keys(this.mConfig.mSecure).length > 0 || beforeLen > 0 ) {
-            await this.mConfig.mVault.save(ConfigConstants.SECURE_ACCT, JSONC.stringify(this.mConfig.mSecure));
+        if (Object.keys(this.mConfig.mSecure).length > 0 || beforeLen > 0) {
+            await this.directSave();
         }
+    }
+
+    // _______________________________________________________________________
+    /**
+     * Save secure properties to the vault without rebuilding the JSON object.
+     * @internal
+     */
+    public async directSave() {
+        await this.mConfig.mVault.save(ConfigConstants.SECURE_ACCT, JSONC.stringify(this.mConfig.mSecure));
     }
 
     // _______________________________________________________________________

@@ -484,12 +484,12 @@ describe("Configuration Secure command handler", () => {
         delete compObj.profiles.base.properties.secret; // Delete the secret
 
         if (process.platform === "win32") {
-            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
+            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(8);
         } else {
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
         }
         expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
-        expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
+        expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(2);
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
