@@ -486,7 +486,7 @@ describe("Configuration Secure command handler", () => {
         if (process.platform === "win32") {
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(8);
         } else {
-            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
+            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(6);
         }
         expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(2);
