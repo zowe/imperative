@@ -32,6 +32,13 @@ export const secureDefinition: ICommandDefinition = {
             aliases: ["uc"],
             type: "boolean",
             defaultValue: false
+        },
+        {
+            name: "prune",
+            description: "Delete properties stored in the vault for team config files that do not exist.",
+            aliases: ["p"],
+            type: "boolean",
+            defaultValue: false
         }
     ],
     examples: [
