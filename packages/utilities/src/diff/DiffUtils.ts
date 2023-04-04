@@ -28,11 +28,10 @@ export class DiffUtils {
      * options passed into the funtions
      * @param {string} string1
      * @param {string} string2
-     * @param {string} options
+     * @param {IDiffOptions} options
      * @returns {Promise<string>}
      */
     public static async getDiffString(string1: string, string2: string, options: IDiffOptions): Promise<string> {
-
         if (options.outputFormat === 'terminal') {
             let expandflag = true;
             if (options.contextLinesArg >= 0) {
@@ -46,13 +45,19 @@ export class DiffUtils {
                 contextLines: options.contextLinesArg,
                 expand: expandflag
             });
-
         }
 
         if (options.outputFormat === 'unifiedstring' || options.outputFormat === "html") {
-            const patchDiff = createTwoFilesPatch(
-                'file-a', 'file-b', string1, string2
-            );
+            let patchDiff;
+            if (options.name1 && options.name2){
+                patchDiff = createTwoFilesPatch(
+                    options.name1, options.name2, string1, string2
+                );
+            }else{
+                patchDiff = createTwoFilesPatch(
+                    'file-a', 'file-b', string1, string2
+                );
+            }
 
             if (options.outputFormat === 'html') {
                 return html(patchDiff, {
@@ -69,14 +74,20 @@ export class DiffUtils {
      * Get the differnce between two string in browser
      * @param {string} string1
      * @param {string} string2
-     * @return {void}
+     * @param {IDiffOptions} options
+     * @return {Promise<void>}
      */
-    public static async openDiffInbrowser(string1: string, string2: string) {
-        const patchDiff = createTwoFilesPatch(
-            'file-a', 'file-b', string1, string2
-        );
-
+    public static async openDiffInbrowser(string1: string, string2: string, options?: IDiffOptions): Promise<void> {
+        let patchDiff;
+        if (options.name1 && options.name2){
+            patchDiff = createTwoFilesPatch(
+                options.name1, options.name2, string1, string2
+            );
+        }else{
+            patchDiff = createTwoFilesPatch(
+                'file-a', 'file-b', string1, string2
+            );
+        }
         await WebDiffManager.instance.openDiffs(patchDiff);
-
     }
 }
