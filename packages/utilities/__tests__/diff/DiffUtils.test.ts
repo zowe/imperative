@@ -15,6 +15,7 @@ import { IDiffOptions } from "../../src/diff/doc/IDiffOptions";
 import { WebDiffManager } from "../../src/diff/WebDiffManager";
 import * as jestDiff from "jest-diff";
 import * as diff2html from "diff2html";
+import { option } from "yargs";
 jest.mock("diff");
 
 describe("DiffUtils", () => {
@@ -56,6 +57,20 @@ describe("DiffUtils", () => {
             const openDiffSpy = jest.spyOn(WebDiffManager.instance, "openDiffs").mockImplementation(jest.fn());
             await DiffUtils.openDiffInbrowser(string1, string2);
             expect(diff.createTwoFilesPatch).toHaveBeenCalledWith('file-a', 'file-b', string1, string2);
+            expect(openDiffSpy).toHaveBeenCalledWith("test");
+        });
+        it("should open the diffs in browser with optionally supplied file names", async () => {
+            jest.spyOn(diff, "createTwoFilesPatch").mockReturnValue("test");
+            const options: IDiffOptions = {
+                name1: "file-a",
+                name2: "file-b"
+            }
+            const string1 = "test string one";
+            const string2 = "test string two";
+
+            const openDiffSpy = jest.spyOn(WebDiffManager.instance, "openDiffs").mockImplementation(jest.fn());
+            await DiffUtils.openDiffInbrowser(string1, string2, options);
+            expect(diff.createTwoFilesPatch).toHaveBeenCalledWith(options.name1, options.name2, string1, string2);
             expect(openDiffSpy).toHaveBeenCalledWith("test");
         });
     });

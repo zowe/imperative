@@ -3,7 +3,8 @@
 All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
-- Enhancement: Enable command arguments to change `{$Prefix}_EDITOR`. Added text coloration for terminal prompts. Changes made to support recent zowe cli work: 
+- Enhancement: Enable command arguments to change `{$Prefix}_EDITOR`. Updating IDiffOptions
+to include names for the files that are to be compared. Changes made to support recent zowe cli work: 
 [zowe-cli#1672](https://github.com/zowe/zowe-cli/pull/1672)
 
 ## `5.11.1`
