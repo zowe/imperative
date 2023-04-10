@@ -15,7 +15,6 @@ import { IDiffOptions } from "../../src/diff/doc/IDiffOptions";
 import { WebDiffManager } from "../../src/diff/WebDiffManager";
 import * as jestDiff from "jest-diff";
 import * as diff2html from "diff2html";
-import { option } from "yargs";
 jest.mock("diff");
 
 describe("DiffUtils", () => {
@@ -64,7 +63,7 @@ describe("DiffUtils", () => {
             const options: IDiffOptions = {
                 name1: "file-a",
                 name2: "file-b"
-            }
+            };
             const string1 = "test string one";
             const string2 = "test string two";
 

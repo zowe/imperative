@@ -126,22 +126,23 @@ export class ProcessUtils {
      * the `{envVariablePrefix}_EDITOR` environment variable if specified.
      * @param filePath File path to edit
      */
-    public static async openInEditor(filePath: string, editorOpt?: string) {
+    public static openInEditor(filePath: string, editorOpt?: string, sync?: boolean) {
         let editor = editorOpt;
         if (!editorOpt && ImperativeConfig.instance.loadedConfig.envVariablePrefix != null) {
             const editorEnvVar = `${ImperativeConfig.instance.loadedConfig.envVariablePrefix}_EDITOR`;
             if (process.env[editorEnvVar] != null) { editor = process.env[editorEnvVar]; }
         }
-
         if (ProcessUtils.isGuiAvailable() === GuiResult.GUI_AVAILABLE) {
             Logger.getImperativeLogger().info(`Opening ${filePath} in graphical editor`);
-            if (editor != null) { spawn.spawn(editor, [filePath], { stdio: "inherit" }); }
+            if (editor != null) {
+                sync ? spawn.sync(editor, [filePath], { stdio: "inherit" }) : spawn.spawn(editor, [filePath], { stdio: "inherit" });
+            }
             else { this.openInDefaultApp(filePath); }
 
         } else {
             if (editor == null) { editor = "vi"; }
             Logger.getImperativeLogger().info(`Opening ${filePath} in command-line editor ${editor}`);
-            spawn.spawn(editor, [filePath], { stdio: "inherit" });
+            sync ? spawn.sync(editor, [filePath], { stdio: "inherit" }) : spawn.spawn(editor, [filePath], { stdio: "inherit" });
         }
     }
 
