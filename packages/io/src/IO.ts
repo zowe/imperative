@@ -288,7 +288,7 @@ export class IO {
         } else if (platform === IO.OS_MAC) {
             return "open -a TextEdit";
         } else if (platform === IO.OS_LINUX) {
-            return "gedit";
+            return "vi";
         }
     }
 
