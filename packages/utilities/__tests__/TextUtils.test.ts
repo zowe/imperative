@@ -75,37 +75,31 @@ describe("TextUtils", () => {
 
     it("should set chalk level to 0 if FORCE_COLOR is 0", () => {
         process.env.FORCE_COLOR = "0";
-        const chalk = TextUtils.chalk;
-        expect(chalk.level).toEqual(0);
+        expect(TextUtils.chalk.level).toEqual(0);
     });
 
     it("should set chalk level to 1 if FORCE_COLOR is 1", () => {
         process.env.FORCE_COLOR = "1";
-        const chalk = TextUtils.chalk;
-        expect(chalk.level).toEqual(1);
+        expect(TextUtils.chalk.level).toEqual(1);
     });
 
     it("should set chalk level to 2 if FORCE_COLOR is 2", () => {
         process.env.FORCE_COLOR = "2";
-        const chalk = TextUtils.chalk;
-        expect(chalk.level).toEqual(2);
+        expect(TextUtils.chalk.level).toEqual(2);
     });
 
     it("should set chalk level to 3 if FORCE_COLOR is 3", () => {
         process.env.FORCE_COLOR = "3";
-        const chalk = TextUtils.chalk;
-        expect(chalk.level).toEqual(3);
+        expect(TextUtils.chalk.level).toEqual(3);
     });
 
     it("should not set chalk level to 4 if FORCE_COLOR is 4", () => {
         process.env.FORCE_COLOR = "4";
-        const chalk = TextUtils.chalk;
-        expect(chalk.level).not.toEqual(4);
+        expect(TextUtils.chalk.level).not.toEqual(4);
     });
 
     it("should not set chalk level to fake if FORCE_COLOR is fake", () => {
         process.env.FORCE_COLOR = "fake";
-        const chalk = TextUtils.chalk;
-        expect(chalk.level).not.toEqual("fake");
+        expect(TextUtils.chalk.level).not.toEqual("fake");
     });
 });
