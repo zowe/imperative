@@ -24,7 +24,7 @@ describe("TextUtils", () => {
     beforeEach(() => {
         TextUtils.chalk.level = 0;
         process.env.FORCE_COLOR = "";
-});
+    });
 
     afterEach(() => {
         process.env.FORCE_COLOR = beforeForceColor;
