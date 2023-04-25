@@ -20,6 +20,8 @@ import { IO } from "../../../io";
 import { OUTPUT_FORMAT } from "../..";
 import { CliUtils, IDaemonResponse } from "../../../utilities";
 
+const beforeForceColor = process.env.FORCE_COLOR;
+
 const EXAMPLE_LIST = [
     "banana",
     "strawberry",
@@ -88,7 +90,7 @@ const ORIGINAL_STDERR_WRITE = process.stderr.write;
 
 describe("Command Response", () => {
 
-    beforeAll(() => {
+    beforeEach(() => {
         // disable coloring
         process.env.FORCE_COLOR = "0";
     });
@@ -97,6 +99,7 @@ describe("Command Response", () => {
     afterEach(() => {
         process.stdout.write = ORIGINAL_STDOUT_WRITE;
         process.stderr.write = ORIGINAL_STDERR_WRITE;
+        process.env.FORCE_COLOR = beforeForceColor;
     });
 
     const testFile = __dirname + "/../../../__tests__/__results__/jest/progress_bar.txt";

@@ -22,6 +22,7 @@ import { MOCKED_COMMAND_TREE } from "../../../imperative/src/__mocks__/Imperativ
 
 (CommandResponse as any).spinnerChars = "-oO0)|(0Oo-";
 process.env.FORCE_COLOR = "0";
+const beforeForceColor = process.env.FORCE_COLOR;
 
 const COMPLEX_COMMAND: ICommandDefinition = {
     name: "test-group",
@@ -90,12 +91,13 @@ const MULTIPLE_GROUPS: ICommandDefinition = {
 
 describe("Default Root Command Handler", () => {
 
-    afterAll(() => {
-        process.env.FORCE_COLOR = "1";
+    beforeEach(() => {
+        process.env.FORCE_COLOR = "0";
     });
 
     afterEach(() => {
         (ImperativeConfig as any).mInstance = null;
+        process.env.FORCE_COLOR = beforeForceColor;
     });
 
     it("should display the help if no options are specified", async () => {

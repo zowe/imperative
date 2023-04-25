@@ -300,8 +300,16 @@ export class TextUtils {
         const mChalk = require("chalk");
         // chalk is supposed to handle this, but I think it only does so the first time it is loaded
         // so we need to check ourselves in case we've changed the environmental variables
-        mChalk.enabled = (process.env.FORCE_COLOR !== "0" && mChalk.supportsColor.hasBasic &&
-            isNullOrUndefined(process.env.MARKDOWN_GEN));
+        mChalk.enabled = (process.env.FORCE_COLOR !== "0" && process.env.MARKDOWN_GEN == null);
+        if (!mChalk.enabled) { mChalk.level = 0; }
+        else if (process.env.FORCE_COLOR != null) {
+            const parsedInt = parseInt(process.env.FORCE_COLOR);
+            // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+            if (!isNaN(parsedInt) && parsedInt >= 0 && parsedInt <= 3) {
+                mChalk.level = parsedInt;
+            }
+        }
+
         return mChalk;
     }
 
