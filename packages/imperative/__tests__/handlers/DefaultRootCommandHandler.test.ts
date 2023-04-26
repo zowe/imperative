@@ -21,8 +21,8 @@ import { ImperativeConfig } from "../../../utilities/src/ImperativeConfig";
 import { MOCKED_COMMAND_TREE } from "../../../imperative/src/__mocks__/Imperative";
 
 (CommandResponse as any).spinnerChars = "-oO0)|(0Oo-";
-process.env.FORCE_COLOR = "0";
 const beforeForceColor = process.env.FORCE_COLOR;
+process.env.FORCE_COLOR = "0";
 
 const COMPLEX_COMMAND: ICommandDefinition = {
     name: "test-group",
