@@ -17,11 +17,21 @@ const tableObjects = [
 
 import { TextUtils } from "../src/TextUtils";
 
+const beforeForceColor = process.env.FORCE_COLOR;
+
 describe("TextUtils", () => {
 
+    beforeEach(() => {
+        TextUtils.chalk.level = 0;
+        process.env.FORCE_COLOR = "";
+    });
+
+    afterEach(() => {
+        process.env.FORCE_COLOR = beforeForceColor;
+    });
+
     it("should be able to color text yellow", () => {
-        const chalk = TextUtils.chalk;
-        chalk.level = 1; // set basic color mode for OS independence
+        TextUtils.chalk.level = 1; // set basic color mode for OS independence
         const text = TextUtils.chalk.yellow("highlighting with chalk") + " hello";
         expect(text).toMatchSnapshot();
     });
@@ -61,5 +71,35 @@ describe("TextUtils", () => {
         const expected = "----testing\n----can be\n----interesting";
         const results = TextUtils.indentLines(text, "----");
         expect(results).toEqual(expected);
+    });
+
+    it("should set chalk level to 0 if FORCE_COLOR is 0", () => {
+        process.env.FORCE_COLOR = "0";
+        expect(TextUtils.chalk.level).toEqual(0);
+    });
+
+    it("should set chalk level to 1 if FORCE_COLOR is 1", () => {
+        process.env.FORCE_COLOR = "1";
+        expect(TextUtils.chalk.level).toEqual(1);
+    });
+
+    it("should set chalk level to 2 if FORCE_COLOR is 2", () => {
+        process.env.FORCE_COLOR = "2";
+        expect(TextUtils.chalk.level).toEqual(2);
+    });
+
+    it("should set chalk level to 3 if FORCE_COLOR is 3", () => {
+        process.env.FORCE_COLOR = "3";
+        expect(TextUtils.chalk.level).toEqual(3);
+    });
+
+    it("should not set chalk level to 4 if FORCE_COLOR is 4", () => {
+        process.env.FORCE_COLOR = "4";
+        expect(TextUtils.chalk.level).not.toEqual(4);
+    });
+
+    it("should not set chalk level to fake if FORCE_COLOR is fake", () => {
+        process.env.FORCE_COLOR = "fake";
+        expect(TextUtils.chalk.level).not.toEqual("fake");
     });
 });

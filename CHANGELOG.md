@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## `5.13.0`
+
+- Enhancement: Alters TextUtils behavior slightly to enable daemon color support without TTY
+
 ## `5.12.0`
 
 - Enhancement: Added `--prune` option to `zowe config secure` command to delete unused properties. [#547](https://github.com/zowe/imperative/issues/547)
