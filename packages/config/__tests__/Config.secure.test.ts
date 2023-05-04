@@ -264,6 +264,16 @@ describe("Config secure tests", () => {
         });
     });
 
+    it("rmUnusedProps should delete properties for files that do not exist", () => {
+        const config = new (Config as any)();
+        config.mSecure = {...secureConfigs};
+        jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValueOnce(false);
+        const prunedFiles = config.api.secure.rmUnusedProps();
+        expect(prunedFiles).toEqual(["fakePath"]);
+        expect(config.mSecure[projectConfigPath]).toBeDefined();
+        expect(config.mSecure["fakePath"]).toBeUndefined();
+    });
+
     describe("loadFailed", () => {
         const mockCredMgrInitialized = jest.fn().mockReturnValue(true);
 

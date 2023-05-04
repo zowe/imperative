@@ -9,6 +9,7 @@
 *
 */
 
+import * as fs from "fs";
 import * as JSONC from "comment-json";
 import * as lodash from "lodash";
 import { ConfigApi } from "./ConfigApi";
@@ -115,9 +116,18 @@ export class ConfigSecure extends ConfigApi {
         }
 
         // Save the entries if needed
-        if (Object.keys(this.mConfig.mSecure).length > 0 || beforeLen > 0 ) {
-            await this.mConfig.mVault.save(ConfigConstants.SECURE_ACCT, JSONC.stringify(this.mConfig.mSecure));
+        if (Object.keys(this.mConfig.mSecure).length > 0 || beforeLen > 0) {
+            await this.directSave();
         }
+    }
+
+    // _______________________________________________________________________
+    /**
+     * Save secure properties to the vault without rebuilding the JSON object.
+     * @internal
+     */
+    public async directSave() {
+        await this.mConfig.mVault.save(ConfigConstants.SECURE_ACCT, JSONC.stringify(this.mConfig.mSecure));
     }
 
     // _______________________________________________________________________
@@ -261,6 +271,21 @@ export class ConfigSecure extends ConfigApi {
         }
 
         return { path: securePath, prop: secureProp };
+    }
+
+    /**
+     * Delete secure properties stored for team config files that do not exist.
+     * @returns Array of file paths for which properties were deleted
+     */
+    public rmUnusedProps(): string[] {
+        const prunedFiles: string[] = [];
+        for (const filename of Object.keys(this.mConfig.mSecure)) {
+            if (!fs.existsSync(filename)) {
+                delete this.mConfig.mSecure[filename];
+                prunedFiles.push(filename);
+            }
+        }
+        return prunedFiles;
     }
 
     /**

@@ -7,6 +7,14 @@ All notable changes to the Imperative package will be documented in this file.
 to include names for the files that are to be compared. Changes made to support recent zowe cli work: 
 [zowe-cli#1672](https://github.com/zowe/zowe-cli/pull/1672)
 
+## `5.13.0`
+
+- Enhancement: Alters TextUtils behavior slightly to enable daemon color support without TTY
+
+## `5.12.0`
+
+- Enhancement: Added `--prune` option to `zowe config secure` command to delete unused properties. [#547](https://github.com/zowe/imperative/issues/547)
+
 ## `5.11.1`
 
 - BugFix: Fixed the `login` and `logout` handlers, fixing the `li` and `lo` aliases.

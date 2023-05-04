@@ -1,6 +1,7 @@
 # Imperative CLI Framework
 
 [![codecov](https://codecov.io/gh/zowe/imperative/branch/master/graph/badge.svg)](https://codecov.io/gh/zowe/imperative)
+[![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/2245/badge)](https://bestpractices.coreinfrastructure.org/projects/2245)
 
 Imperative CLI Framework is a command processing system that lets you quickly build customized command-line interfaces. Focus on adding functionality for your users rather than creating CLI infrastructure. We provide you with all the tools to get started building your own CLI plug-ins.
 
@@ -69,10 +70,13 @@ We provide a sample plug-in that you can use to get started developing your own 
 We provide documentation that describes how to define commands, work with user profiles, and more! For more information, see the [Imperative CLI Framework wiki](https://github.com/zowe/imperative/wiki).
 
 ## Contribute
-For information about how you can contribute code to Imperative CLI Framework, see [CONTRIBUTING](CONTRIBUTING.md)
+For information about how you can contribute code to Imperative CLI Framework, see [CONTRIBUTING](CONTRIBUTING.md).
+
+## Submit an Issue
+To report a bug or request an enhancement, please [submit an issue](https://github.com/zowe/imperative/issues/new/choose).
 
 ## Versioning
 Imperative CLI Framework uses Semantic Versioning (SemVer) for versioning. For more information, see the [Semantic Versioning](https://semver.org/) website.
 
-## Licencing Imperative CLI Framework
+## Licensing Imperative CLI Framework
 For Imperative CLI Framework licensing rules, requirements, and guidelines, see [LICENSE](LICENSE).
