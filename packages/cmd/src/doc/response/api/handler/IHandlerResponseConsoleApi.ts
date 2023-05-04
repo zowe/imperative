@@ -12,7 +12,7 @@
 import { IPromptOptions } from "./IPromptOptions";
 
 /**
- * Handler resposne API for console messages.
+ * Handler response API for console messages.
  * @export
  * @interface IHandlerResponseConsoleApi
  */
@@ -37,11 +37,11 @@ export interface IHandlerResponseConsoleApi {
      * Writes an error header to stderr. The header is colorized (to red), appends a colon (e.g. "Syntax Error:"),
      * and a new line. The intention of the error header is to begin an error block of text with a "tag" (the header).
      * @param {string} message - The message as the header.
-     * @param {string} [delimeter] - The a delimeter to print after the message (defaults to ":").
+     * @param {string} [delimiter] - The a delimiter to print after the message (defaults to ":").
      * @returns {string}
      * @memberof IHandlerResponseConsoleApi
      */
-    errorHeader(message: string, delimeter?: string): string;
+    errorHeader(message: string, delimiter?: string): string;
     /**
      * Handles prompting for CLI handlers
      * @param {string} questionText
