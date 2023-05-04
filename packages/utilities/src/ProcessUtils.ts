@@ -42,7 +42,7 @@ export class ProcessUtils {
      * @static
      * @param {() => void} callback - called before promise is resolved
      * @param {...any[]} args - arguments passed to the callback
-     * @returns {Promise<void>} - fullfilled whenever callback is invoked
+     * @returns {Promise<void>} - fulfilled whenever callback is invoked
      * @memberof ProcessUtils
      */
     public static nextTick(callback: (...args: any[]) => void, ...args: any[]): Promise<void> {
@@ -56,7 +56,7 @@ export class ProcessUtils {
 
     // __________________________________________________________________________
     /**
-     * Is a Graphical User Interface avaiable in the environment in which
+     * Is a Graphical User Interface available in the environment in which
      * the current command is running?
      *
      * @returns {boolean} - True if GUI. False when no GUI.
