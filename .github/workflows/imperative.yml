@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [14.x, 16.x, 18.x]
+        node-version: [16.x, 18.x]
         os: [windows-2019, ubuntu-latest, macos-latest]
 
     env:
@@ -30,7 +30,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
@@ -48,7 +48,7 @@ jobs:
 
     - name: Update Dependencies
       id: npm-update
-      uses: zowe-actions/octorelease-script@master
+      uses: zowe-actions/octorelease/script@v1
       with:
         script: npmUpdate
 
@@ -88,7 +88,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
         persist-credentials: false
@@ -103,7 +103,7 @@ jobs:
       run: npm ci
 
     - name: Update Dependencies
-      uses: zowe-actions/octorelease-script@master
+      uses: zowe-actions/octorelease/script@v1
       env:
         GIT_COMMITTER_NAME: ${{ secrets.ZOWE_ROBOT_USER }}
         GIT_COMMITTER_EMAIL: ${{ secrets.ZOWE_ROBOT_EMAIL }}
@@ -114,7 +114,7 @@ jobs:
     - name: Build Source
       run: npm run build
 
-    - uses: zowe-actions/octorelease@master
+    - uses: zowe-actions/octorelease@v1
       env:
         GIT_COMMITTER_NAME: ${{ secrets.ZOWE_ROBOT_USER }}
         GIT_COMMITTER_EMAIL: ${{ secrets.ZOWE_ROBOT_EMAIL }}
