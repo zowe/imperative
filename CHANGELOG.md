@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Remove validation of the deprecated pluginHealthCheck property. [#980](https://github.com/zowe/imperative/issues/980)
+
 ## `5.13.0`
 
 - Enhancement: Alters TextUtils behavior slightly to enable daemon color support without TTY
