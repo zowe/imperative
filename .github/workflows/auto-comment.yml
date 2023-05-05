@@ -1,4 +1,4 @@
-name: Zowe CLI Auto Responder for New Issues
+name: Auto Responder for New Issues
 # This workflow is triggered when a label is added to an issue.
 on:
   issues:
