@@ -70,14 +70,14 @@ jobs:
 
     - name: Archive Results
       if: ${{ always() && steps.build.outcome == 'success' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: ${{ matrix.os }}-${{ matrix.node-version }}-results
         path: __tests__/__results__/
 
     - name: Upload Results to Codecov
       if: ${{ always() && steps.build.outcome == 'success' }}
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v2
       with:
         env_vars: OS,NODE
 
