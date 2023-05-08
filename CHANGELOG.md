@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.13.1`
 
 - BugFix: Remove validation of the deprecated pluginHealthCheck property. [#980](https://github.com/zowe/imperative/issues/980)
 
