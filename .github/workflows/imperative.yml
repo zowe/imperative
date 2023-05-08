@@ -62,7 +62,7 @@ jobs:
 
     - name: Unlock Keyring
       if: ${{ always() && steps.build.outcome == 'success' && matrix.os == 'ubuntu-latest' }}
-      uses: t1m0thyj/unlock-keyring@master
+      uses: t1m0thyj/unlock-keyring@v1
 
     - name: Integration Tests
       if: ${{ always() && steps.build.outcome == 'success' }}
@@ -77,7 +77,7 @@ jobs:
 
     - name: Upload Results to Codecov
       if: ${{ always() && steps.build.outcome == 'success' }}
-      uses: codecov/codecov-action@v2
+      uses: codecov/codecov-action@v3
       with:
         env_vars: OS,NODE
 
