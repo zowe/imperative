@@ -46,7 +46,6 @@ describe("Plugin first steps command handler", () => {
         pluginAliases: goodPluginAliases,
         pluginSummary: goodPluginSummary,
         rootCommandDescription: "imperative sample plugin",
-        pluginHealthCheck: "./lib/sample-plugin/healthCheck.handler",
         definitions: [
             {
                 name: "foo",
@@ -89,7 +88,6 @@ describe("Plugin first steps command handler", () => {
         pluginAliases: goodPluginAliases,
         pluginSummary: goodPluginSummary,
         rootCommandDescription: "imperative sample plugin fs",
-        pluginHealthCheck: "./lib/sample-plugin/healthCheck.handler",
         definitions: [
             {
                 name: "foo",

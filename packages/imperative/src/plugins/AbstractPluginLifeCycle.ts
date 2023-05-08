@@ -27,7 +27,7 @@ export abstract class AbstractPluginLifeCycle {
      * If the plugin's postInstall function performs an asynchronous operation,
      * its postInstall function should return a promise, allowing the CLI
      * framework to await the postInstall function. If it has no asynchronous
-     * operation, the postInstall function can be written as a sychronous function.
+     * operation, the postInstall function can be written as a synchronous function.
      *
      * @throws
      *      An ImperativeError containing a message describing any error
@@ -50,7 +50,7 @@ export abstract class AbstractPluginLifeCycle {
      * If the plugin's preUninstall function performs an asynchronous operation,
      * its preUninstall function should return a promise, allowing the CLI
      * framework to await the preUninstall function. If it has no asynchronous
-     * operation, the preUninstall function can be written as a sychronous function.
+     * operation, the preUninstall function can be written as a synchronous function.
      *
      * @throws
      *      An ImperativeError containing a message describing any error
