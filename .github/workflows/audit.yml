@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - master
+      - zowe-v?-lts
   schedule:
     - cron: '0 10 * * *'
 
