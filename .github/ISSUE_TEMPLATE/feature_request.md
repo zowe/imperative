@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea for Imperative
+about: Suggest an idea
 labels: enhancement, new
 ---
 
@@ -8,7 +8,7 @@ labels: enhancement, new
 
 **Is your feature or enhancement request related to a problem or limitation? Please describe**
 
-<!-- A clear and concise description of the problem or limitation. Example: I'm frustrated when [...] happens, or I wish I was able to [...] with Imperative -->
+<!-- A clear and concise description of the problem or limitation. Example: I'm frustrated when [...] happens, or I wish I was able to [...] -->
 
 **Describe your enhancement idea**
 
