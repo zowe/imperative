@@ -18,7 +18,7 @@ jobs:
         fetch-depth: 0
 
     - name: Check Changelog Updated
-      uses: awharn/check_changelog_action@v0.0.2
+      uses: awharn/check_changelog_action@v1
       with:
         header: '## Recent Changes'
         file: 'CHANGELOG.md'
