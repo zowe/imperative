@@ -87,7 +87,7 @@ describe("Plugin Management Facility", () => {
         pluginAliases: goodPluginAliases,
         pluginSummary: goodPluginSummary,
         rootCommandDescription: "imperative sample plugin",
-        pluginHealthCheck: "./lib/sample-plugin/healthCheck.handler",
+        pluginHealthCheck: "./lib/sample-plugin/healthCheck.handler",   // TODO: remove in V3, when pluginHealthCheck is removed
         definitions: [
             {
                 name: "foo",
@@ -732,7 +732,8 @@ describe("Plugin Management Facility", () => {
                     "The plugin defines no commands and overrides no framework components.");
             });
 
-            it("should record warning if plugin healthCheck property does not exist", () => {
+            // TODO: remove this test in V3, when pluginHealthCheck is removed
+            it("should not record warning if pluginHealthCheck property does not exist", () => {
                 // remove pluginHealthCheck property from config
                 badPluginConfig = JSON.parse(JSON.stringify(basePluginConfig));
                 delete badPluginConfig.pluginHealthCheck;
@@ -748,13 +749,12 @@ describe("Plugin Management Facility", () => {
                 // missing healthCheck is just a warning, so we succeed
                 expect(isValid).toBe(true);
 
-                const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-                expect(issue.issueSev).toBe(IssueSeverity.WARNING);
-                expect(issue.issueText).toContain(
-                    "The plugin's configuration does not contain an 'imperative.pluginHealthCheck' property.");
+                // we no longer report any error about missing pluginHealthCheck property
+                expect(pluginIssues.getIssueListForPlugin(pluginName).length).toBe(0);
             });
 
-            it("should record error if plugin healthCheck file does not exist", () => {
+            // TODO: remove this test in V3, when pluginHealthCheck is removed
+            it("should not record error if pluginHealthCheck file does not exist", () => {
                 // set pluginHealthCheck property to a bogus file
                 badPluginConfig = JSON.parse(JSON.stringify(basePluginConfig));
                 badPluginConfig.pluginHealthCheck = "./This/File/Does/Not/Exist";
@@ -766,13 +766,10 @@ describe("Plugin Management Facility", () => {
                 mockAreVersionsCompatible.mockReturnValueOnce(true);
 
                 isValid = PMF.validatePlugin(badPluginCfgProps, basePluginCmdDef);
-                expect(isValid).toBe(false);
+                expect(isValid).toBe(true);
 
-                const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-                expect(issue.issueSev).toBe(IssueSeverity.CFG_ERROR);
-                expect(issue.issueText).toContain(
-                    "The program for the 'imperative.pluginHealthCheck' property does not exist: " +
-                    join(PMFConstants.instance.PLUGIN_HOME_LOCATION, pluginName, "This/File/Does/Not/Exist.js"));
+                // we no longer report any error about missing pluginHealthCheck file
+                expect(pluginIssues.getIssueListForPlugin(pluginName).length).toBe(0);
             });
 
             it("should record error when ConfigurationValidator throws an exception", () => {
