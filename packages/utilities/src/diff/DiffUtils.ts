@@ -24,8 +24,8 @@ import { WebDiffManager } from "./WebDiffManager";
  */
 export class DiffUtils {
     /**
-     * Get the differnce between two string in the form of html, unifiedString and terminal output depending uponn the
-     * options passed into the funtions
+     * Get the difference between two string in the form of html, unifiedString and terminal output depending upon the
+     * options passed into the functions
      * @param {string} string1
      * @param {string} string2
      * @param {IDiffOptions} options
@@ -71,7 +71,7 @@ export class DiffUtils {
     }
 
     /**
-     * Get the differnce between two string in browser
+     * Get the difference between two string in browser
      * @param {string} string1
      * @param {string} string2
      * @param {IDiffOptions} options
