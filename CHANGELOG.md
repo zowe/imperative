@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Reduced load time by searching for command definitions with `fast-glob` instead of `glob`.
+
 ## `5.13.0`
 
 - Enhancement: Alters TextUtils behavior slightly to enable daemon color support without TTY

@@ -10,9 +10,8 @@
 */
 
 import { ICommandDefinition } from "../../cmd";
-import { isNullOrUndefined } from "util";
 import { Logger } from "../../logger";
-import * as glob from "glob";
+import * as glob from "fast-glob";
 import { ImperativeError } from "../../error";
 
 /**
@@ -41,7 +40,7 @@ export class DefinitionTreeResolver {
         childrenDefinitions?: ICommandDefinition[],
         childrenModuleGlobs?: string[],
         addBaseProfile?: boolean): ICommandDefinition {
-        if (isNullOrUndefined(childrenDefinitions) && isNullOrUndefined(childrenModuleGlobs)) {
+        if (childrenDefinitions == null && childrenModuleGlobs == null) {
             throw new ImperativeError({
                 msg: "No command definitions have been provided " +
                 "to Imperative. Specify modules and/or definitions on your Imperative" +
@@ -100,9 +99,8 @@ export class DefinitionTreeResolver {
             callerDir, cmdDefs.length, cmdModuleGlobs.length);
         const allCmdDefs: ICommandDefinition[] = [];
 
-        const globAPI = glob.sync;
         for (const childGlob of cmdModuleGlobs) {
-            const matches = globAPI(childGlob, {
+            const matches = glob.sync(childGlob, {
                 cwd: callerDir
             });
 
@@ -126,7 +124,7 @@ export class DefinitionTreeResolver {
                     throw new ImperativeError({
                         msg: "Encountered an error loading one of the files ("
                         + match + ") that matched the provided " +
-                        "command module glob for the glob " + glob + ": " + e.message
+                        "command module glob for the glob " + childGlob + ": " + e.message
                     });
                 }
 
