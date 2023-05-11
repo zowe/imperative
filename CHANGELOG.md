@@ -2,9 +2,13 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## `5.13.2`
+
+- BugFix: Reduced load time by searching for command definitions with `fast-glob` instead of `glob`.
+
 ## `5.13.1`
 
-- BugFix: Remove validation of the deprecated pluginHealthCheck property. [#980](https://github.com/zowe/imperative/issues/980)
+- BugFix: Removed validation of the deprecated pluginHealthCheck property. [#980](https://github.com/zowe/imperative/issues/980)
 
 ## `5.13.0`
 
