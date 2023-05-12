@@ -16,7 +16,7 @@ import { StdioOptions } from "child_process";
 import { readFileSync } from "jsonfile";
 import * as npmPackageArg from "npm-package-arg";
 import * as pacote from "pacote";
-import { ProcessUtils } from "../../../../utilities";
+import { ExecUtils } from "../../../../utilities";
 const npmCmd = findNpmOnPath();
 
 /**
@@ -41,7 +41,7 @@ export function findNpmOnPath(): string {
  */
 export function installPackages(prefix: string, registry: string, npmPackage: string): string {
     const pipe: StdioOptions = ["pipe", "pipe", process.stderr];
-    const execOutput = ProcessUtils.execAndCheckOutput(npmCmd,
+    const execOutput = ExecUtils.spawnAndGetOutput(npmCmd,
         [
             "install", npmPackage,
             "--prefix", prefix,
@@ -62,7 +62,7 @@ export function installPackages(prefix: string, registry: string, npmPackage: st
  * @return {string}
  */
 export function getRegistry(): string {
-    const execOutput = ProcessUtils.execAndCheckOutput(npmCmd, [ "config", "get", "registry" ]);
+    const execOutput = ExecUtils.spawnAndGetOutput(npmCmd, [ "config", "get", "registry" ]);
     return execOutput.toString();
 }
 
@@ -71,7 +71,7 @@ export function getRegistry(): string {
  * @param {string} registry The npm registry to install from.
  */
 export function npmLogin(registry: string) {
-    ProcessUtils.execAndCheckOutput(npmCmd,
+    ExecUtils.spawnAndGetOutput(npmCmd,
         [
             "login",
             "--registry", registry,

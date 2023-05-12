@@ -15,7 +15,8 @@ import * as os from "os";
 import { ImperativeReject } from "../../interfaces";
 import { ImperativeError } from "../../error";
 import { ImperativeExpect } from "../../expect";
-import { ProcessUtils } from "../../utilities";
+// use complete path to ExecUtils to avoid circular dependency that results from utilities/index
+import { ExecUtils } from "../../utilities/src/ExecUtils";
 import { Readable, Writable } from "stream";
 import { mkdirpSync } from "fs-extra";
 
@@ -323,7 +324,7 @@ export class IO {
             }
             if (os.platform() === IO.OS_WIN32) {
                 // On windows, we use an icacls command to prevent access
-                const stdout = ProcessUtils.execAndCheckOutput("icacls",
+                const stdout = ExecUtils.spawnAndGetOutput("icacls",
                     [ fileName, "/inheritancelevel:r", "/grant:r", `${os.userInfo().username}:F`, "/c" ],
                     { encoding: "utf8"}
                 );
