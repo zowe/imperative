@@ -601,8 +601,13 @@ describe("IO tests", () => {
             } catch (thrownError) {
                 caughtError = thrownError;
             }
+
             expect(caughtError).toBeUndefined();
-            expect(spawnSpy).toHaveBeenCalledTimes(1);
+            if (sysInfo.platform === "win32") {
+                expect(spawnSpy).toHaveBeenCalledTimes(1);
+            } else {
+                expect(fs.chmodSync).toHaveBeenCalledTimes(1);
+            }
         });
     }); // end giveAccessOnlyToOwner
 });
