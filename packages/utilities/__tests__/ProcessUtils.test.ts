@@ -293,6 +293,7 @@ describe("ProcessUtils tests", () => {
         });
     });
 
+    // TODO: Remove this entire 'describe' section in V3 when the @deprecated execAndCheckOutput function is removed
     describe("execAndCheckOutput", () => {
         afterEach(() => {
             jest.clearAllMocks();
