@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Added the function IO.giveAccessOnlyToOwner to restrict access to only the currently running user ID.
+
 ## `5.13.2`
 
 - BugFix: Reduced load time by searching for command definitions with `fast-glob` instead of `glob`.
