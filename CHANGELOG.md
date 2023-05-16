@@ -4,8 +4,16 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 - Enhancement: Enable command arguments to change `{$Prefix}_EDITOR`. Updating IDiffOptions
-to include names for the files that are to be compared. Changes made to support recent zowe cli work: 
+to include names for the files that are to be compared. Changes made to support recent zowe cli work:
 [zowe-cli#1672](https://github.com/zowe/zowe-cli/pull/1672)
+
+## `5.13.2`
+
+- BugFix: Reduced load time by searching for command definitions with `fast-glob` instead of `glob`.
+
+## `5.13.1`
+
+- BugFix: Removed validation of the deprecated pluginHealthCheck property. [#980](httpss://github.com/zowe/imperative/issues/980)
 
 ## `5.13.0`
 

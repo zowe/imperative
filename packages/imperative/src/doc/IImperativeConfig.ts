@@ -239,17 +239,12 @@ export interface IImperativeConfig {
      * The implementor of a plugin determines what actions
      * can confirm that the plugin is in an operational state.
      *
-     * This property is recommended for a plugin. The existence of this property
-     * and the existence of the specified file will be verified when the plugin
-     * is validated by the Imperative framework. Their absence will generate warnings.
-     *
      * The health check should return true if all plugin health checks pass.
      * It should return false otherwise.
      *
      * This property is unused for a base CLI.
      *
-     * TODO: While the pluginHealthCheck property is validated, no Imperative command
-     * currently calls the health check function.
+     * No Zowe CLI command currently calls the health check function.
      *
      * @deprecated
      *      This property is deprecated. Plugins that want to perform a health check can

@@ -1101,25 +1101,6 @@ export class PluginManagementFacility {
          */
         this.validatePeerDepVersions(pluginCfgProps);
 
-        // check if the plugin has a healthCheck() function
-        if (!Object.prototype.hasOwnProperty.call(pluginCfgProps.impConfig, "pluginHealthCheck")) {
-            this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.WARNING,
-                "The plugin's configuration does not contain an '" +
-                this.impConfigPropNm + ".pluginHealthCheck' property.");
-        } else {
-            const healthChkModulePath =
-                this.formPluginRuntimePath(pluginCfgProps.pluginName, pluginCfgProps.impConfig.pluginHealthCheck);
-            const healthChkFilePath = healthChkModulePath + ".js";
-            if (existsSync(healthChkFilePath)) {
-                // replace relative path with absolute path in the healthCheck property
-                pluginCfgProps.impConfig.pluginHealthCheck = healthChkModulePath;
-            } else {
-                this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.CFG_ERROR,
-                    "The program for the '" + this.impConfigPropNm +
-                    ".pluginHealthCheck' property does not exist: " + healthChkFilePath);
-            }
-        }
-
         /* If a plugin does neither of the following actions, we reject it:
          *   - define commands
          *   - override an infrastructure component
