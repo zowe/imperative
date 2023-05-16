@@ -157,7 +157,7 @@ export class WebDiffManager implements IWebDiffManager {
                   fileContentToggle: false,
                   matching: 'none',
                   outputFormat: 'side-by-side',
-                  synchronizedScroll: true,
+                  synchronisedScroll: true,
                   highlight: true,
                   renderNothingWhenEmpty: false,
                 };

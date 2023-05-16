@@ -21,7 +21,7 @@ export interface IDiffOptions {
      * @type {outputFormat}
      * @memberOf IDiffOptions
      */
-    outputFormat?: outputFormat,
+    outputFormat: outputFormat,
 
     /**
      * Number of context line arguments

@@ -124,7 +124,9 @@ export class ProcessUtils {
      * associated with its file extension will be launched. In a command-line
      * environment, the file will be opened in vi, or the editor in the
      * the `{envVariablePrefix}_EDITOR` environment variable if specified.
-     * @param filePath File path to edit
+     * @param filePath - File path to edit
+     * @param editorOpt - Chosen editor, can be a path or a valid environment variable name
+     * @param sync - Boolean where true == synchronous and false == asynchronous
      */
     public static openInEditor(filePath: string, editorOpt?: string, sync?: boolean) {
         let editor = editorOpt;
@@ -135,14 +137,14 @@ export class ProcessUtils {
         if (ProcessUtils.isGuiAvailable() === GuiResult.GUI_AVAILABLE) {
             Logger.getImperativeLogger().info(`Opening ${filePath} in graphical editor`);
             if (editor != null) {
-                sync ? spawn.sync(editor, [filePath], { stdio: "inherit" }) : spawn.spawn(editor, [filePath], { stdio: "inherit" });
+                (sync ? spawn.sync : spawn.spawn)(editor, [filePath], { stdio: "inherit" });
             }
             else { this.openInDefaultApp(filePath); }
 
         } else {
             if (editor == null) { editor = "vi"; }
             Logger.getImperativeLogger().info(`Opening ${filePath} in command-line editor ${editor}`);
-            sync ? spawn.sync(editor, [filePath], { stdio: "inherit" }) : spawn.spawn(editor, [filePath], { stdio: "inherit" });
+            (sync ? spawn.sync : spawn.spawn)(editor, [filePath], { stdio: "inherit" });
         }
     }
 
