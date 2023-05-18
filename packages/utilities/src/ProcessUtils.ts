@@ -10,6 +10,7 @@
 */
 
 import { SpawnSyncOptions } from "child_process";
+import { ExecUtils } from "./ExecUtils";
 import { Logger } from "../../logger";
 import { ImperativeConfig } from "./ImperativeConfig";
 import { ISystemInfo } from "./doc/ISystemInfo";
@@ -154,18 +155,6 @@ export class ProcessUtils {
      * @returns Contents of stdout as buffer or string
      */
     public static execAndCheckOutput(command: string, args?: string[], options?: SpawnSyncOptions): Buffer | string {
-        // Implementation based on the child_process module
-        // https://github.com/nodejs/node/blob/main/lib/child_process.js
-        const result = spawn.sync(command, args, options);
-        if (result.error != null) {
-            throw result.error;
-        } else if (result.status !== 0) {
-            let msg = `Command failed: ${command} ${args.join(" ")}`;
-            if (result.stderr?.length > 0) {
-                msg += `\n${result.stderr.toString()}`;
-            }
-            throw new Error(msg);
-        }
-        return result.stdout;
+        return ExecUtils.spawnAndGetOutput(command, args, options);
     }
 }
