@@ -4,7 +4,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 - Enhancement: Enable command arguments to change `{$Prefix}_EDITOR`. Updating IDiffOptions
-to include names for the files that are to be compared. Updating IO.getDefaultTextEditor() for different os versions. Updating return value types for CliUtils.readPrompt. Changes made to support recent zowe cli work:
+to include names for the files that are to be compared. Updating IO.getDefaultTextEditor() for different os versions. Updating return value types for `CliUtils.readPrompt`. Changes made to support recent zowe cli work:
 [zowe-cli#1672](https://github.com/zowe/zowe-cli/pull/1672)
 
 ## `5.13.2`
