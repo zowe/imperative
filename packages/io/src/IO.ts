@@ -331,9 +331,19 @@ export class IO {
                 if (!stdout.includes("Successfully processed 1 files; Failed processing 0 files")) {
                     throw new Error(`icacls reports that it could not change file access:\n${stdout}`);
                 }
-            } else {
-                const readWriteOnlyByOwner = fs.constants.S_IRUSR | fs.constants.S_IWUSR;
-                fs.chmodSync(fileName, readWriteOnlyByOwner);
+            } else { // we are on Posix
+                // record the owner's executable/traverse bit and apply it to the final file mode
+                let ownerHadExecBit = false;
+                if (fs.statSync(fileName).mode | fs.constants.S_IXUSR) {
+                    ownerHadExecBit = true;
+                }
+
+                // give read & write permissions, and execute if owner had it before
+                let ownerPrivileges = fs.constants.S_IRUSR | fs.constants.S_IWUSR;
+                if (ownerHadExecBit) {
+                    ownerPrivileges |= fs.constants.S_IXUSR;
+                }
+                fs.chmodSync(fileName, ownerPrivileges);
             }
         } catch(errObj) {
             throw new ImperativeError({
