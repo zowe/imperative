@@ -13,7 +13,7 @@ to include names for the files that are to be compared. Changes made to support 
 
 ## `5.13.1`
 
-- BugFix: Removed validation of the deprecated pluginHealthCheck property. [#980](httpss://github.com/zowe/imperative/issues/980)
+- BugFix: Removed validation of the deprecated pluginHealthCheck property. [#980](https://github.com/zowe/imperative/issues/980)
 
 ## `5.13.0`
 
