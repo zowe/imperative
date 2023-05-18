@@ -16,6 +16,7 @@ import { IDiffOptions } from "./doc/IDiffOptions";
 import { TextUtils } from "../TextUtils";
 import { html } from "diff2html";
 import { WebDiffManager } from "./WebDiffManager";
+import { IDiffNameOptions } from "./doc/IDiffNameOptions";
 
 /**
  * Utilities to get the diff strings and open the diff strings in terminal and in browser
@@ -77,9 +78,9 @@ export class DiffUtils {
      * @param {IDiffOptions} options
      * @return {Promise<void>}
      */
-    public static async openDiffInbrowser(string1: string, string2: string, options?: IDiffOptions): Promise<void> {
+    public static async openDiffInbrowser(string1: string, string2: string, options?: IDiffNameOptions): Promise<void> {
         let patchDiff;
-        if (options.name1 && options.name2){
+        if (options?.name1 && options?.name2){
             patchDiff = createTwoFilesPatch(
                 options.name1, options.name2, string1, string2
             );

@@ -9,12 +9,14 @@
 *
 */
 
+import { IDiffNameOptions } from "./IDiffNameOptions";
+
 type outputFormat = "html" | "unifiedstring" | "terminal";
 
 /**
  * interface for diff options
  */
-export interface IDiffOptions {
+export interface IDiffOptions extends IDiffNameOptions {
 
     /**
      * Output format of differences between two, to be returned
@@ -29,18 +31,4 @@ export interface IDiffOptions {
      * @memberOf IDiffOptions
      */
     contextLinesArg?: number,
-
-    /**
-     * Optional name for string1
-     * @type {string}
-     * @memberOf IDiffOptions
-     */
-    name1?: string,
-
-    /**
-     * Optional name for string2
-     * @type {string}
-     * @memberOf IDiffOptions
-     */
-    name2?: string,
 }
