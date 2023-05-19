@@ -17,6 +17,9 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import { IO } from "../../io";
+// use complete path to ExecUtils to avoid circular dependency that results from utilities/index
+import { ExecUtils } from "../../utilities/src/ExecUtils";
+import { ProcessUtils, ISystemInfo } from "../../utilities";
 
 describe("IO tests", () => {
 
@@ -493,4 +496,166 @@ describe("IO tests", () => {
             expect(editor).toBe("vi");
         });
     });
+
+    describe("giveAccessOnlyToOwner", () => {
+        const sysInfo: ISystemInfo = ProcessUtils.getBasicSystemInfo();
+
+        beforeAll(() => {
+            // for all giveAccessOnlyToOwner tests, we want the real platform
+            jest.spyOn(os, "platform").mockRestore();
+        });
+
+        it("should get an error when no file is specified", () => {
+            let caughtError;
+            try {
+                IO.giveAccessOnlyToOwner("   ");
+            } catch (thrownError) {
+                caughtError = thrownError;
+            }
+            expect(caughtError.message).toContain("Expect Error: Required parameter 'fileName' must not be blank");
+        });
+
+        it("should get an error when file does not exist", () => {
+            let caughtError;
+            try {
+                IO.giveAccessOnlyToOwner("/this/file/does/not/exist.txt");
+            } catch (thrownError) {
+                caughtError = thrownError;
+            }
+            expect(caughtError.message).toContain(
+                "Failed to restrict access to others on file = /this/file/does/not/exist.txt"
+            );
+            expect(caughtError.message).toContain("Attempted to restrict access on a non-existent file.");
+        });
+
+        if (sysInfo.platform === "win32") {
+            it("should detect when the icacls command has a zero exit code but displays an error message", () => {
+                let caughtError;
+                let spawnSpy: any;
+                try {
+                    // make it appear that the file exists
+                    jest.spyOn(IO, "existsSync").mockReturnValue(true);
+
+                    // simulate icacls running ok but returning an error message
+                    spawnSpy = jest.spyOn(ExecUtils, "spawnAndGetOutput");
+                    spawnSpy.mockReturnValue(
+                        "Who knows what the icacls command might say when it does not like something\n" +
+                        "Successfully processed 0 files; Failed processing 1 files"
+                    );
+
+                    const testPermFile = __dirname + "/onlyUserAccess.txt";
+                    IO.giveAccessOnlyToOwner(testPermFile);
+                } catch (thrownError) {
+                    caughtError = thrownError;
+                }
+                expect(spawnSpy).toHaveBeenCalledTimes(1);
+                expect(caughtError.message).toContain("Failed to restrict access to others on file");
+                expect(caughtError.message).toContain("Who knows what the icacls command might say when it does not like something");
+                expect(caughtError.message).toContain("Successfully processed 0 files; Failed processing 1 files");
+            });
+        } // end win32
+
+        if (sysInfo.platform === "win32") {
+            it("should catch an error thrown when spawning a subprocess", () => {
+                let caughtError;
+                let spawnSpy: any;
+                try {
+                    // make it appear that the file exists
+                    jest.spyOn(IO, "existsSync").mockReturnValue(true);
+
+                    // simulate throwing an error trying to launch a subprocess
+                    spawnSpy = jest.spyOn(ExecUtils, "spawnAndGetOutput");
+                    spawnSpy.mockImplementation(() => {
+                        throw new Error("Pretend that spawn.sync failed to launch the icacls program");
+                    });
+
+                    const testPermFile = __dirname + "/onlyUserAccess.txt";
+                    IO.giveAccessOnlyToOwner(testPermFile);
+                } catch (thrownError) {
+                    caughtError = thrownError;
+                }
+                expect(spawnSpy).toHaveBeenCalledTimes(1);
+                expect(caughtError.message).toContain("Failed to restrict access to others on file");
+                expect(caughtError.message).toContain("Pretend that spawn.sync failed to launch the icacls program");
+            });
+        } // end win32
+
+        if (sysInfo.platform === "win32") {
+            it("should restrict file access on Windows", () => {
+                let caughtError;
+                let spawnSpy: any;
+                try {
+                    // Simulate that the file exists
+                    jest.spyOn(IO, "existsSync").mockReturnValue(true);
+
+                    // Simulate successfully launching a subprocess
+                    spawnSpy = jest.spyOn(ExecUtils, "spawnAndGetOutput");
+                    spawnSpy.mockReturnValue("Successfully processed 1 files; Failed processing 0 files");
+
+                    const testPermFile = __dirname + "/onlyUserAccess.txt";
+                    IO.giveAccessOnlyToOwner(testPermFile);
+                } catch (thrownError) {
+                    caughtError = thrownError;
+                }
+
+                expect(caughtError).toBeUndefined();
+                expect(spawnSpy).toHaveBeenCalledTimes(1);
+            });
+        } // end win32
+
+        if (sysInfo.platform !== "win32") {
+            it("should restrict file access with execute permission on Posix", () => {
+                const testPermFile = __dirname + "/onlyUserAccess.txt";
+                let caughtError;
+                let chmodSpy: any;
+                try {
+                    // Simulate that the file exists
+                    jest.spyOn(IO, "existsSync").mockReturnValue(true);
+
+                    // Simulate a file with execute permissions
+                    jest.spyOn(fs, "statSync").mockReturnValue({
+                        mode: 0o777
+                    } as any);
+
+                    // track chmod being called
+                    chmodSpy = jest.spyOn(fs, "chmodSync");
+
+                    IO.giveAccessOnlyToOwner(testPermFile);
+                } catch (thrownError) {
+                    caughtError = thrownError;
+                }
+
+                expect(caughtError).toBeUndefined();
+                expect(chmodSpy).toHaveBeenCalledWith(testPermFile, 0o700);
+
+            });
+        } // end win32
+
+        if (sysInfo.platform !== "win32") {
+            it("should restrict file access with no execute permission on Posix", () => {
+                const testPermFile = __dirname + "/onlyUserAccess.txt";
+                let caughtError;
+                let chmodSpy: any;
+                try {
+                    // Simulate that the file exists
+                    jest.spyOn(IO, "existsSync").mockReturnValue(true);
+
+                    // Simulate a file with no execute permission for owner
+                    jest.spyOn(fs, "statSync").mockReturnValue({
+                        mode: 0o477
+                    } as any);
+
+                    // track chmod being called
+                    chmodSpy = jest.spyOn(fs, "chmodSync");
+
+                    IO.giveAccessOnlyToOwner(testPermFile);
+                } catch (thrownError) {
+                    caughtError = thrownError;
+                }
+
+                expect(caughtError).toBeUndefined();
+                expect(chmodSpy).toHaveBeenCalledWith(testPermFile, 0o600);
+            });
+        } // end win32
+    }); // end giveAccessOnlyToOwner
 });

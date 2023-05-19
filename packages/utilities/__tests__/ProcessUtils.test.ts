@@ -10,7 +10,7 @@
 */
 
 import * as spawn from "cross-spawn";
-import { GuiResult, ImperativeConfig, ProcessUtils } from "../../utilities";
+import { ExecUtils, GuiResult, ImperativeConfig, ProcessUtils } from "../../utilities";
 
 jest.mock("cross-spawn");
 jest.mock("opener");
@@ -293,55 +293,20 @@ describe("ProcessUtils tests", () => {
         });
     });
 
+    // TODO: Remove this entire 'describe' section in V3 when the @deprecated execAndCheckOutput function is removed
     describe("execAndCheckOutput", () => {
         afterEach(() => {
             jest.clearAllMocks();
         });
 
-        it("returns stdout if command succeeds", () => {
+        it("should just pass through to ExecUtils.spawnAndGetOutput", () => {
             const message = "Hello world!";
             const options: any = { cwd: __dirname };
             const stdoutBuffer = Buffer.from(message + "\n");
-            jest.spyOn(spawn, "sync").mockReturnValueOnce({
-                status: 0,
-                stdout: stdoutBuffer
-            } as any);
+            const spawnSpy = jest.spyOn(ExecUtils, "spawnAndGetOutput").mockReturnValueOnce(stdoutBuffer as any);
             const execOutput = ProcessUtils.execAndCheckOutput("echo", [message], options);
-            expect(spawn.sync).toHaveBeenCalledWith("echo", [message], options);
+            expect(spawnSpy).toHaveBeenCalledWith("echo", [message], options);
             expect(execOutput).toBe(stdoutBuffer);
-        });
-
-        it("throws error if command fails and returns error object", () => {
-            const filename = "invalid.txt";
-            const errMsg = `cat: ${filename}: No such file or directory`;
-            jest.spyOn(spawn, "sync").mockReturnValueOnce({
-                error: new Error(errMsg)
-            } as any);
-            let caughtError: any;
-            try {
-                ProcessUtils.execAndCheckOutput("cat", [filename]);
-            } catch (error) {
-                caughtError = error;
-            }
-            expect(spawn.sync).toHaveBeenCalledWith("cat", [filename], undefined);
-            expect(caughtError.message).toBe(errMsg);
-        });
-
-        it("throws error if command fails with non-zero status", () => {
-            const filename = "invalid.txt";
-            const stderrBuffer = Buffer.from(`cat: ${filename}: No such file or directory\n`);
-            jest.spyOn(spawn, "sync").mockReturnValueOnce({
-                status: 1,
-                stderr: stderrBuffer
-            } as any);
-            let caughtError: any;
-            try {
-                ProcessUtils.execAndCheckOutput("cat", [filename]);
-            } catch (error) {
-                caughtError = error;
-            }
-            expect(spawn.sync).toHaveBeenCalledWith("cat", [filename], undefined);
-            expect(caughtError.message).toBe(`Command failed: cat ${filename}\n${stderrBuffer.toString()}`);
         });
     });
 });
