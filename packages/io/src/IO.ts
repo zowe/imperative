@@ -332,15 +332,11 @@ export class IO {
                     throw new Error(`icacls reports that it could not change file access:\n${stdout}`);
                 }
             } else { // we are on Posix
-                // record the owner's executable/traverse bit and apply it to the final file mode
-                let ownerHadExecBit = false;
-                if (fs.statSync(fileName).mode | fs.constants.S_IXUSR) {
-                    ownerHadExecBit = true;
-                }
-
-                // give read & write permissions, and execute if owner had it before
+                // give read & write permissions to owner
                 let ownerPrivileges = fs.constants.S_IRUSR | fs.constants.S_IWUSR;
-                if (ownerHadExecBit) {
+
+                // give execute permission, if owner had it before
+                if (fs.statSync(fileName).mode & fs.constants.S_IXUSR) {
                     ownerPrivileges |= fs.constants.S_IXUSR;
                 }
                 fs.chmodSync(fileName, ownerPrivileges);
