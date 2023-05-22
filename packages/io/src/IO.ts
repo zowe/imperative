@@ -15,6 +15,8 @@ import * as os from "os";
 import { ImperativeReject } from "../../interfaces";
 import { ImperativeError } from "../../error";
 import { ImperativeExpect } from "../../expect";
+// use complete path to ExecUtils to avoid circular dependency that results from utilities/index
+import { ExecUtils } from "../../utilities/src/ExecUtils";
 import { Readable, Writable } from "stream";
 import { mkdirpSync } from "fs-extra";
 
@@ -100,7 +102,7 @@ export class IO {
      * @returns true if file exists
      * @memberof IO
      */
-    public static existsSync(file: string) {
+    public static existsSync(file: string): boolean {
         ImperativeExpect.toBeDefinedAndNonBlank(file, "file");
         return fs.existsSync(file);
     }
@@ -301,6 +303,49 @@ export class IO {
     public static createFileSync(file: string) {
         ImperativeExpect.toBeDefinedAndNonBlank(file, "file");
         fs.closeSync(fs.openSync(file, "w"));
+    }
+
+    /**
+     * Set file access permissions so that only the current user will have access to the file.
+     * On windows, it means "full control" for the current user.
+     * On posix, it means read & write access for the current user.
+     * Obviously, the current user must have permission to change permissions
+     * on the specified file.
+     *
+     * @param  {string} fileName - file name for which we modify access.
+     * @throws An ImperativeError when the operation fails.
+     */
+    public static giveAccessOnlyToOwner(fileName: string) {
+        ImperativeExpect.toBeDefinedAndNonBlank(fileName, "fileName");
+        try {
+            if (!IO.existsSync(fileName))
+            {
+                throw new Error("Attempted to restrict access on a non-existent file.");
+            }
+            if (os.platform() === IO.OS_WIN32) {
+                // On windows, we use an icacls command to prevent access
+                const stdout = ExecUtils.spawnAndGetOutput("icacls",
+                    [ fileName, "/inheritancelevel:r", "/grant:r", `${os.userInfo().username}:F`, "/c" ],
+                    { encoding: "utf8"}
+                );
+                if (!stdout.includes("Successfully processed 1 files; Failed processing 0 files")) {
+                    throw new Error(`icacls reports that it could not change file access:\n${stdout}`);
+                }
+            } else { // we are on Posix
+                // give read & write permissions to owner
+                let ownerPrivileges = fs.constants.S_IRUSR | fs.constants.S_IWUSR;
+
+                // give execute permission, if owner had it before
+                if (fs.statSync(fileName).mode & fs.constants.S_IXUSR) {
+                    ownerPrivileges |= fs.constants.S_IXUSR;
+                }
+                fs.chmodSync(fileName, ownerPrivileges);
+            }
+        } catch(errObj) {
+            throw new ImperativeError({
+                msg: `Failed to restrict access to others on file = ${fileName}\nError Details: ${errObj.message}`
+            });
+        }
     }
 
     /**

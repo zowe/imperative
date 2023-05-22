@@ -247,6 +247,7 @@ describe("Validate plugin", () => {
                 expect(result.status).toEqual(1);
             });
 
+            // TODO: remove this test in V3, when pluginHealthCheck is removed
             it("missing pluginHealthCheck property", () => {
                 const testPlugin = "missing_pluginHealthCheck";
                 const fullPluginPath = join(testPluginDir, "error_plugins", testPlugin);
@@ -259,12 +260,14 @@ describe("Validate plugin", () => {
                 result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                 result.stderr = removeNewline(result.stderr);
                 expect(result.stdout).toContain(testPlugin);
-                expect(result.stdout).toContain("Warning");
-                expect(result.stdout).toContain("The plugin's configuration does not contain an 'imperative.pluginHealthCheck' property.");
+                expect(result.stdout).toContain("This plugin was successfully validated. Enjoy the plugin.");
+                expect(result.stdout).not.toContain("Warning");
+                expect(result.stdout).not.toContain("The plugin's configuration does not contain an 'imperative.pluginHealthCheck' property.");
                 expect(result.stderr).not.toContain("Problems detected during plugin validation.");
                 expect(result.status).toEqual(0);
             });
 
+            // TODO: remove this test in V3, when pluginHealthCheck is removed
             it("missing pluginHealthCheck property - warning", () => {
                 const testPlugin = "missing_pluginHealthCheck";
                 const fullPluginPath = join(testPluginDir, "error_plugins", testPlugin);
@@ -277,12 +280,14 @@ describe("Validate plugin", () => {
                 result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                 result.stderr = removeNewline(result.stderr);
                 expect(result.stdout).toContain(testPlugin);
-                expect(result.stdout).toContain("Warning");
-                expect(result.stdout).toContain("The plugin's configuration does not contain an 'imperative.pluginHealthCheck' property.");
-                expect(result.stderr).toContain("Problems detected during plugin validation.");
-                expect(result.status).toEqual(1);
+                expect(result.stdout).toContain("This plugin was successfully validated. Enjoy the plugin.");
+                expect(result.stdout).not.toContain("Warning");
+                expect(result.stdout).not.toContain("The plugin's configuration does not contain an 'imperative.pluginHealthCheck' property.");
+                expect(result.stderr).not.toContain("Problems detected during plugin validation.");
+                expect(result.status).toEqual(0);
             });
 
+            // TODO: remove this test in V3, when pluginHealthCheck is removed
             it("missing pluginHealthCheck handler", () => {
                 const testPlugin = "missing_healthcheck_handler";
                 const fullPluginPath = join(testPluginDir, "error_plugins", testPlugin);
@@ -295,13 +300,15 @@ describe("Validate plugin", () => {
                 result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                 result.stderr = removeNewline(result.stderr);
                 expect(result.stdout).toContain(testPlugin);
-                expect(result.stdout).toContain("Error");
-                expect(result.stdout).toContain(`The program for the 'imperative.pluginHealthCheck' property does not exist:`);
-                expect(result.stdout).toContain("This plugin has configuration errors. No component of the plugin will be available");
+                expect(result.stdout).toContain("This plugin was successfully validated. Enjoy the plugin.");
+                expect(result.stdout).not.toContain("Error");
+                expect(result.stdout).not.toContain(`The program for the 'imperative.pluginHealthCheck' property does not exist:`);
+                expect(result.stdout).not.toContain("This plugin has configuration errors. No component of the plugin will be available");
                 expect(result.stderr).not.toContain("Problems detected during plugin validation.");
-                expect(result.status).not.toEqual(1);
+                expect(result.status).toEqual(0);
             });
 
+            // TODO: remove this test in V3, when pluginHealthCheck is removed
             it("missing pluginHealthCheck handler - error", () => {
                 const testPlugin = "missing_healthcheck_handler";
                 const fullPluginPath = join(testPluginDir, "error_plugins", testPlugin);
@@ -314,11 +321,12 @@ describe("Validate plugin", () => {
                 result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                 result.stderr = removeNewline(result.stderr);
                 expect(result.stdout).toContain(testPlugin);
-                expect(result.stdout).toContain("Error");
-                expect(result.stdout).toContain(`The program for the 'imperative.pluginHealthCheck' property does not exist:`);
-                expect(result.stdout).toContain("This plugin has configuration errors. No component of the plugin will be available");
-                expect(result.stderr).toContain("Problems detected during plugin validation.");
-                expect(result.status).toEqual(1);
+                expect(result.stdout).toContain("This plugin was successfully validated. Enjoy the plugin.");
+                expect(result.stdout).not.toContain("Error");
+                expect(result.stdout).not.toContain(`The program for the 'imperative.pluginHealthCheck' property does not exist:`);
+                expect(result.stdout).not.toContain("This plugin has configuration errors. No component of the plugin will be available");
+                expect(result.stderr).not.toContain("Problems detected during plugin validation.");
+                expect(result.status).toEqual(0);
             });
 
             it("missing peerDependencies properties", () => {

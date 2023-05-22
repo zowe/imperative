@@ -2,6 +2,18 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Added the function IO.giveAccessOnlyToOwner to restrict access to only the currently running user ID.
+
+## `5.13.2`
+
+- BugFix: Reduced load time by searching for command definitions with `fast-glob` instead of `glob`.
+
+## `5.13.1`
+
+- BugFix: Removed validation of the deprecated pluginHealthCheck property. [#980](https://github.com/zowe/imperative/issues/980)
+
 ## `5.13.0`
 
 - Enhancement: Alters TextUtils behavior slightly to enable daemon color support without TTY

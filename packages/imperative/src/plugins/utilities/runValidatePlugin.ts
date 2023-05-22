@@ -10,7 +10,7 @@
 */
 
 import { Logger } from "../../../../logger";
-import { ProcessUtils } from "../../../../utilities";
+import { ExecUtils } from "../../../../utilities";
 import { PMFConstants } from "./PMFConstants";
 import { ImperativeError } from "../../../../error";
 
@@ -39,7 +39,7 @@ export function runValidatePlugin(pluginName: string): string {
 
     const impLogger = Logger.getImperativeLogger();
     impLogger.debug(`Running plugin validation command = ${cmdToRun} plugins validate "${pluginName}" --response-format-json --no-fail-on-error`);
-    const valOutputJsonTxt = ProcessUtils.execAndCheckOutput(cmdToRun,
+    const valOutputJsonTxt = ExecUtils.spawnAndGetOutput(cmdToRun,
         [
             ...cmdToRunArgs,
             "plugins", "validate", pluginName,
