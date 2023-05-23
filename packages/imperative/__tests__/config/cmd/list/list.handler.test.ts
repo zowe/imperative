@@ -13,6 +13,7 @@ jest.mock("../../../../../utilities/src/ImperativeConfig");
 
 import { Config, ConfigConstants, IConfig, IConfigLayer } from "../../../../../config";
 import { ImperativeConfig } from "../../../../../utilities";
+import { cloneDeep } from "lodash";
 import ListHandler from "../../../../src/config/cmd/list/list.handler";
 
 let dataObj: any;
@@ -75,7 +76,7 @@ const configLayers: IConfigLayer[] = [
     { exists: false, properties: Config.empty() } as any
 ];
 
-const configMaskedProps: IConfig = configLayers[0].properties;
+const configMaskedProps: IConfig = cloneDeep(configLayers[0].properties); // Because otherwise it is modifying the original
 configMaskedProps.profiles.email.properties.user = ConfigConstants.SECURE_VALUE;
 
 describe("Configuration List command handler", () => {
@@ -139,13 +140,25 @@ describe("Configuration List command handler", () => {
         expect(formatObj).toEqual(dataObj);
     });
 
-    it("should output config property listed by location", async () => {
+    it("should output config property listed by location 1", async () => {
         (fakeConfig as any).mLayers = configLayers;
         handlerParms.arguments = { locations: true, property: "plugins" };
 
         await (new ListHandler()).process(handlerParms);
         expect(errorText).toBeNull();
         expect(dataObj.fakePath).toEqual(["fakePlugin"]);
+        expect(formatObj).toEqual(dataObj);
+    });
+
+    it("should output config property listed by location 2", async () => {
+        (fakeConfig as any).mLayers = configLayers;
+        handlerParms.arguments = { locations: true, property: "profiles" };
+
+        await (new ListHandler()).process(handlerParms);
+        expect(errorText).toBeNull();
+        expect(dataObj.fakePath).toEqual(configMaskedProps.profiles);
+        expect(dataObj.fakePath.email.properties.user).toBe(ConfigConstants.SECURE_VALUE);
+        expect(dataObj.fakePath.email.properties.password).toBeUndefined();
         expect(formatObj).toEqual(dataObj);
     });
 

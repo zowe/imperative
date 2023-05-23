@@ -5,6 +5,7 @@ All notable changes to the Imperative package will be documented in this file.
 ## Recent Changes
 
 - Enhancement: Added the function IO.giveAccessOnlyToOwner to restrict access to only the currently running user ID.
+- BugFix: Fixed a logic error in the `config list` command that caused unwanted behavior when a positional and `--locations` were both passed in.
 
 ## `5.13.2`
 
