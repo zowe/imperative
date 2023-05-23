@@ -16,6 +16,7 @@ import { IDiffOptions } from "./doc/IDiffOptions";
 import { TextUtils } from "../TextUtils";
 import { html } from "diff2html";
 import { WebDiffManager } from "./WebDiffManager";
+import { IDiffNameOptions } from "./doc/IDiffNameOptions";
 
 /**
  * Utilities to get the diff strings and open the diff strings in terminal and in browser
@@ -24,15 +25,14 @@ import { WebDiffManager } from "./WebDiffManager";
  */
 export class DiffUtils {
     /**
-     * Get the differnce between two string in the form of html, unifiedString and terminal output depending uponn the
-     * options passed into the funtions
+     * Get the difference between two string in the form of html, unifiedString and terminal output depending upon the
+     * options passed into the functions
      * @param {string} string1
      * @param {string} string2
-     * @param {string} options
+     * @param {IDiffOptions} options
      * @returns {Promise<string>}
      */
     public static async getDiffString(string1: string, string2: string, options: IDiffOptions): Promise<string> {
-
         if (options.outputFormat === 'terminal') {
             let expandflag = true;
             if (options.contextLinesArg >= 0) {
@@ -46,13 +46,19 @@ export class DiffUtils {
                 contextLines: options.contextLinesArg,
                 expand: expandflag
             });
-
         }
 
         if (options.outputFormat === 'unifiedstring' || options.outputFormat === "html") {
-            const patchDiff = createTwoFilesPatch(
-                'file-a', 'file-b', string1, string2
-            );
+            let patchDiff;
+            if (options.name1 && options.name2){
+                patchDiff = createTwoFilesPatch(
+                    options.name1, options.name2, string1, string2
+                );
+            }else{
+                patchDiff = createTwoFilesPatch(
+                    'file-a', 'file-b', string1, string2
+                );
+            }
 
             if (options.outputFormat === 'html') {
                 return html(patchDiff, {
@@ -66,17 +72,23 @@ export class DiffUtils {
     }
 
     /**
-     * Get the differnce between two string in browser
+     * Get the difference between two string in browser
      * @param {string} string1
      * @param {string} string2
-     * @return {void}
+     * @param {IDiffOptions} options
+     * @return {Promise<void>}
      */
-    public static async openDiffInbrowser(string1: string, string2: string) {
-        const patchDiff = createTwoFilesPatch(
-            'file-a', 'file-b', string1, string2
-        );
-
+    public static async openDiffInbrowser(string1: string, string2: string, options?: IDiffNameOptions): Promise<void> {
+        let patchDiff;
+        if (options?.name1 && options?.name2){
+            patchDiff = createTwoFilesPatch(
+                options.name1, options.name2, string1, string2
+            );
+        }else{
+            patchDiff = createTwoFilesPatch(
+                'file-a', 'file-b', string1, string2
+            );
+        }
         await WebDiffManager.instance.openDiffs(patchDiff);
-
     }
 }

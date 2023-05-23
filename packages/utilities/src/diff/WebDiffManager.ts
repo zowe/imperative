@@ -21,7 +21,7 @@ import { ImperativeError } from "../../../error";
 import { html } from "diff2html";
 
 /**
- * Imperatice Web Differences Manager handles the opeing of diffs and
+ * Imperative Web Differences Manager handles the opening of diffs and
  * constructs the dirs and files if necessary
  * @export
  * @class WebDiffManager
@@ -86,7 +86,7 @@ export class WebDiffManager implements IWebDiffManager {
         });
 
         if (htmlDiff != null) {
-            // writing the diff content into a textt file
+            // writing the diff content into a text file
             fs.writeFileSync(path.join(this.webDiffDir, 'index.html'), this.genHtmlForDiffs(htmlDiff, patchDiff));
             try {
                 ProcessUtils.openInDefaultApp(`file://${this.webDiffDir}/index.html`);
@@ -114,7 +114,7 @@ export class WebDiffManager implements IWebDiffManager {
      * Returns header HTML for web diff page
      * @private
      * @param htmlDiff - html diffs of the file changes
-     * @param unifiedStringDiff - unified string of differnce between two files
+     * @param unifiedStringDiff - unified string of difference between two files
      */
     private genHtmlForDiffs(htmlDiff: string, unifiedStringDiff: string): string {
         return `<!DOCTYPE html>
@@ -155,7 +155,7 @@ export class WebDiffManager implements IWebDiffManager {
                   fileListToggle: false,
                   fileListStartVisible: false,
                   fileContentToggle: false,
-                  matching: 'lines',
+                  matching: 'none',
                   outputFormat: 'side-by-side',
                   synchronisedScroll: true,
                   highlight: true,
