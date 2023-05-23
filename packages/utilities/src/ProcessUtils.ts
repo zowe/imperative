@@ -43,7 +43,7 @@ export class ProcessUtils {
      * @static
      * @param {() => void} callback - called before promise is resolved
      * @param {...any[]} args - arguments passed to the callback
-     * @returns {Promise<void>} - fullfilled whenever callback is invoked
+     * @returns {Promise<void>} - fulfilled whenever callback is invoked
      * @memberof ProcessUtils
      */
     public static nextTick(callback: (...args: any[]) => void, ...args: any[]): Promise<void> {
@@ -57,7 +57,7 @@ export class ProcessUtils {
 
     // __________________________________________________________________________
     /**
-     * Is a Graphical User Interface avaiable in the environment in which
+     * Is a Graphical User Interface available in the environment in which
      * the current command is running?
      *
      * @returns {boolean} - True if GUI. False when no GUI.
@@ -125,24 +125,27 @@ export class ProcessUtils {
      * associated with its file extension will be launched. In a command-line
      * environment, the file will be opened in vi, or the editor in the
      * the `{envVariablePrefix}_EDITOR` environment variable if specified.
-     * @param filePath File path to edit
+     * @param filePath - File path to edit
+     * @param editorOpt - Chosen editor, can be a path or a valid environment variable name
+     * @param sync - Boolean where true == synchronous and false == asynchronous
      */
-    public static async openInEditor(filePath: string) {
-        let editor;
-        if (ImperativeConfig.instance.loadedConfig.envVariablePrefix != null) {
+    public static openInEditor(filePath: string, editorOpt?: string, sync?: boolean) {
+        let editor = editorOpt;
+        if (!editorOpt && ImperativeConfig.instance.loadedConfig.envVariablePrefix != null) {
             const editorEnvVar = `${ImperativeConfig.instance.loadedConfig.envVariablePrefix}_EDITOR`;
             if (process.env[editorEnvVar] != null) { editor = process.env[editorEnvVar]; }
         }
-
         if (ProcessUtils.isGuiAvailable() === GuiResult.GUI_AVAILABLE) {
             Logger.getImperativeLogger().info(`Opening ${filePath} in graphical editor`);
-            if (editor != null) { spawn.spawn(editor, [filePath], { stdio: "inherit" }); }
+            if (editor != null) {
+                (sync ? spawn.sync : spawn.spawn)(editor, [filePath], { stdio: "inherit" });
+            }
             else { this.openInDefaultApp(filePath); }
 
         } else {
             if (editor == null) { editor = "vi"; }
             Logger.getImperativeLogger().info(`Opening ${filePath} in command-line editor ${editor}`);
-            spawn.spawn(editor, [filePath], { stdio: "inherit" });
+            (sync ? spawn.sync : spawn.spawn)(editor, [filePath], { stdio: "inherit" });
         }
     }
 

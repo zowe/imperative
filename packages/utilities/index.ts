@@ -23,3 +23,4 @@ export * from "./src/EnvFileUtils";
 export * from "./src/doc/ISystemInfo";
 export * from "./src/diff/DiffUtils";
 export * from "./src/diff/doc/IDiffOptions";
+export * from "./src/diff/doc/IDiffNameOptions";

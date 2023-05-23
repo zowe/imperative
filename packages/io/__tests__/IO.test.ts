@@ -490,10 +490,10 @@ describe("IO tests", () => {
             expect(editor).toContain("TextEdit");
         });
 
-        it("should use GEdit on Linux", () => {
+        it("should use 'vi' on Linux", () => {
             jest.spyOn(os, "platform").mockReturnValueOnce(IO.OS_LINUX);
             const editor = IO.getDefaultTextEditor();
-            expect(editor).toBe("gedit");
+            expect(editor).toBe("vi");
         });
     });
 

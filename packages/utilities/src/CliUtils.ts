@@ -37,7 +37,7 @@ export class CliUtils {
     public static readonly CENSOR_RESPONSE = "****";
 
     /**
-     * A list of cli options/keywords that should normally be sensored
+     * A list of cli options/keywords that should normally be censored
      * @static
      * @memberof CliUtils
      */
@@ -584,7 +584,7 @@ export class CliUtils {
      *          // use answer in some operation
      *      }
      */
-    public static async readPrompt(message: string, opts?: IPromptOptions): Promise<string> {
+    public static async readPrompt(message: string, opts?: IPromptOptions): Promise<string | null> {
         // Ensure that we use a reasonable timeout
         let secToWait = opts?.secToWait || 600;  // eslint-disable-line @typescript-eslint/no-magic-numbers
         const maxSecToWait = 3600; // 1 hour max
