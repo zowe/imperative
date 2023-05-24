@@ -33,8 +33,6 @@ export default class ListHandler implements ICommandHandler {
                 for (const layer of config.layers) {
                     if (layer.exists) {
                         obj[layer.path] = layer.properties;
-                        if (property != null)
-                            obj[layer.path] = (layer.properties as any)[property];
                         if (obj[layer.path] != null) {
                             for (const secureProp of config.api.secure.secureFields(layer)) {
                                 if (lodash.has(obj[layer.path], secureProp)) {
@@ -42,6 +40,8 @@ export default class ListHandler implements ICommandHandler {
                                 }
                             }
                         }
+                        if (property != null)
+                            obj[layer.path] = (layer.properties as any)[property];
                     }
                 }
             } else {
@@ -52,11 +52,8 @@ export default class ListHandler implements ICommandHandler {
         }
 
         // If requested, only include the root property
-        if (params.arguments.root && !Array.isArray(obj)) {
-            const root = [];
-            for (const p of Object.keys(obj))
-                root.push(p);
-            obj = root;
+        if (params.arguments.root && lodash.isObject(obj)) {
+            obj = Object.keys(obj);
         }
 
         // output to terminal
