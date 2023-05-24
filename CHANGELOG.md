@@ -3,7 +3,7 @@
 All notable changes to the Imperative package will be documented in this file.
 
 
-## Recent Changes
+## `5.14.1`
 
 - BugFix: Fixed a logic error in the `config list` command that caused unwanted behavior when a positional and `--locations` were both passed in.
 
