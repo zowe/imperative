@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Handle logic for if a null command handler is provided
+
 ## `4.18.15`
 
 - BugFix: Fixed the `login` and `logout` handlers, fixing the `li` and `lo` aliases.

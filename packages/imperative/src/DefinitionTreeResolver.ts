@@ -48,6 +48,11 @@ export class DefinitionTreeResolver {
                 "configuration."
             });
         }
+        if (childrenDefinitions == null) {
+            childrenDefinitions = [];
+        } else if (childrenModuleGlobs == null) {
+            childrenModuleGlobs = [];
+        }
         const root: ICommandDefinition =
             {
                 name: "",
@@ -91,7 +96,7 @@ export class DefinitionTreeResolver {
      */
     public static combineAllCmdDefs(
         callerDir: string,
-        cmdDefs: ICommandDefinition[]= [],
+        cmdDefs: ICommandDefinition[] = [],
         cmdModuleGlobs: string[] = [],
         addBaseProfile?: boolean
     ): ICommandDefinition[] {
