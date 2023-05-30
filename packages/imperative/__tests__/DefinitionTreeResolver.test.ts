@@ -13,6 +13,25 @@ import { DefinitionTreeResolver } from "../src/DefinitionTreeResolver";
 import { ImperativeError } from "../../error";
 import { Logger } from "../../logger";
 import { Console } from "../../console";
+import { ICommandDefinition } from "../../cmd";
+
+const fakeDefinition: ICommandDefinition = {
+    name: "users",
+    aliases: ["u"],
+    description: "Users list",
+    type: "command",
+    handler: "/no/exist/some.handler",
+    options: [
+        {
+            name: "host",
+            description: "Hostname",
+            type: "string",
+        }
+    ],
+    profile: {
+        required: ["sample"]
+    }
+};
 
 describe("DefinitionTreeResolver tests", () => {
 
@@ -40,6 +59,51 @@ describe("DefinitionTreeResolver tests", () => {
 
     it("should match on glob with dummy handler", () => {
         const def = DefinitionTreeResolver.resolve("", "", __dirname, new Logger(new Console()), [], ["**/*.definition!(.d).*s"]);
+        expect(def.children).toBeDefined();
+        expect(def.children.length).toBe(1);
+        expect(def.children[0].profile).toBeDefined();
+        expect(def.children[0].profile.required).toEqual(["sample"]);
+        expect(def.children[0].profile.optional).toBeUndefined();
+    });
+
+    it("should match on definition with dummy handler", () => {
+        const def = DefinitionTreeResolver.resolve("", "", __dirname, new Logger(new Console()), [fakeDefinition], []);
+        expect(def.children).toBeDefined();
+        expect(def.children.length).toBe(1);
+        expect(def.children[0].profile).toBeDefined();
+        expect(def.children[0].profile.required).toEqual(["sample"]);
+        expect(def.children[0].profile.optional).toBeUndefined();
+    });
+
+    it("should match on glob with dummy handler with null child definitions", () => {
+        const def = DefinitionTreeResolver.resolve("", "", __dirname, new Logger(new Console()), null, ["**/*.definition!(.d).*s"]);
+        expect(def.children).toBeDefined();
+        expect(def.children.length).toBe(1);
+        expect(def.children[0].profile).toBeDefined();
+        expect(def.children[0].profile.required).toEqual(["sample"]);
+        expect(def.children[0].profile.optional).toBeUndefined();
+    });
+
+    it("should match on glob with dummy handler with undefined child definitions", () => {
+        const def = DefinitionTreeResolver.resolve("", "", __dirname, new Logger(new Console()), undefined, ["**/*.definition!(.d).*s"]);
+        expect(def.children).toBeDefined();
+        expect(def.children.length).toBe(1);
+        expect(def.children[0].profile).toBeDefined();
+        expect(def.children[0].profile.required).toEqual(["sample"]);
+        expect(def.children[0].profile.optional).toBeUndefined();
+    });
+
+    it("should match on child definition with undefined glob", () => {
+        const def = DefinitionTreeResolver.resolve("", "", __dirname, new Logger(new Console()), [fakeDefinition], undefined);
+        expect(def.children).toBeDefined();
+        expect(def.children.length).toBe(1);
+        expect(def.children[0].profile).toBeDefined();
+        expect(def.children[0].profile.required).toEqual(["sample"]);
+        expect(def.children[0].profile.optional).toBeUndefined();
+    });
+
+    it("should match on child definition with null glob", () => {
+        const def = DefinitionTreeResolver.resolve("", "", __dirname, new Logger(new Console()), [fakeDefinition], null);
         expect(def.children).toBeDefined();
         expect(def.children.length).toBe(1);
         expect(def.children[0].profile).toBeDefined();

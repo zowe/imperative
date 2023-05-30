@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Handle logic for if a null command handler is provided
+
 
 ## `5.14.1`
 
