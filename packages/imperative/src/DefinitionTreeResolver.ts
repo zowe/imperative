@@ -46,8 +46,7 @@ export class DefinitionTreeResolver {
                 "to Imperative. Specify modules and/or definitions on your Imperative" +
                 "configuration."
             });
-        }
-        if (childrenDefinitions == null) {
+        } else if (childrenDefinitions == null) {
             childrenDefinitions = [];
         } else if (childrenModuleGlobs == null) {
             childrenModuleGlobs = [];
