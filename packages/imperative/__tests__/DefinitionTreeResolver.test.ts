@@ -76,7 +76,7 @@ describe("DefinitionTreeResolver tests", () => {
     });
 
     it("should match on glob with dummy handler with null child definitions", () => {
-        const def = DefinitionTreeResolver.resolve("", "", __dirname, new Logger(new Console()), null, ["**/*.definition!(.d).*s"]);
+        const def = DefinitionTreeResolver.resolve("", "", __dirname, new Logger(new Console()), null as any, ["**/*.definition!(.d).*s"]);
         expect(def.children).toBeDefined();
         expect(def.children.length).toBe(1);
         expect(def.children[0].profile).toBeDefined();
@@ -103,7 +103,7 @@ describe("DefinitionTreeResolver tests", () => {
     });
 
     it("should match on child definition with null glob", () => {
-        const def = DefinitionTreeResolver.resolve("", "", __dirname, new Logger(new Console()), [fakeDefinition], null);
+        const def = DefinitionTreeResolver.resolve("", "", __dirname, new Logger(new Console()), [fakeDefinition], null as any);
         expect(def.children).toBeDefined();
         expect(def.children.length).toBe(1);
         expect(def.children[0].profile).toBeDefined();
