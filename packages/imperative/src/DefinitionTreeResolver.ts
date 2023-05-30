@@ -46,6 +46,10 @@ export class DefinitionTreeResolver {
                 "to Imperative. Specify modules and/or definitions on your Imperative" +
                 "configuration."
             });
+        } else if (childrenDefinitions == null) {
+            childrenDefinitions = [];
+        } else if (childrenModuleGlobs == null) {
+            childrenModuleGlobs = [];
         }
         const root: ICommandDefinition =
             {
@@ -90,7 +94,7 @@ export class DefinitionTreeResolver {
      */
     public static combineAllCmdDefs(
         callerDir: string,
-        cmdDefs: ICommandDefinition[]= [],
+        cmdDefs: ICommandDefinition[] = [],
         cmdModuleGlobs: string[] = [],
         addBaseProfile?: boolean
     ): ICommandDefinition[] {
