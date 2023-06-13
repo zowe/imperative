@@ -1259,7 +1259,11 @@ export class CommandProcessor {
             }
 
             // display detailed diagnostics
-            response.console.error((handlerErr as ImperativeError).details.additionalDetails);
+            let diagInfo: string = (handlerErr as ImperativeError).details.additionalDetails;
+            if (diagInfo === undefined || diagInfo.length === 0) {
+                diagInfo = "No further information is available.";
+            }
+            response.console.error(diagInfo);
             response.data.setMessage(handlerErr.message);
         } else if (handlerErr instanceof Error) {
             this.log.error(`Handler for ${this.mDefinition.name} rejected by unhandled exception.`);
