@@ -48,6 +48,7 @@ import { getActiveProfileName } from "../../config/src/ConfigUtils";
 import { ConfigConstants } from "../../config/src/ConfigConstants";
 import { IDaemonContext } from "../../imperative/src/doc/IDaemonContext";
 import { IHandlerResponseApi } from "../..";
+import { EnvironmentalVariableSettings } from "../..";
 
 
 /**
@@ -1228,13 +1229,38 @@ export class CommandProcessor {
         if (handlerErr instanceof ImperativeError) {
             this.log.error(`Handler for ${this.mDefinition.name} rejected by thrown ImperativeError.`);
             response.setError(handlerErr.details);
-            response.console.errorHeader("Command Error");
-            response.console.error(Buffer.from(handlerErr.message + "\n"));
-            if ((handlerErr as ImperativeError).details.additionalDetails != null
-                && typeof (handlerErr as ImperativeError).details.additionalDetails === "string") {
-                response.console.errorHeader("Error Details");
-                response.console.error((handlerErr as ImperativeError).details.additionalDetails);
+            // TODO:V3_ERR_FORMAT - Don't test for env variable in V3
+            if (EnvironmentalVariableSettings.useV3ErrFormat()) {
+                response.console.error(TextUtils.chalk.red(
+                    "Unable to perform this operation due to the following problem."
+                ));
+                // Remove http status in 'message', since the same information was placed in additionalDetails.
+                response.console.error(TextUtils.chalk.red(
+                    handlerErr.message.replace(/Rest API failure with HTTP\(S\) status \d\d\d\n/, "")
+                ));
             }
+
+            // TODO:V3_ERR_FORMAT - Don't test for env variable in V3
+            if (EnvironmentalVariableSettings.useV3ErrFormat()) {
+                response.console.error("\n" + TextUtils.chalk.bold.yellow("Response From Service"));
+                try {
+                    const causeErrorsJson = JSON.parse(handlerErr.causeErrors);
+                    response.console.error(TextUtils.prettyJson(causeErrorsJson, undefined, false, ""));
+                } catch (parseErr) {
+                    response.console.error("No details are available from the service.");
+                }
+                response.console.error(TextUtils.chalk.bold.yellow("\nDiagnostic Information"));
+            } else { // TODO:V3_ERR_FORMAT - Remove in V3
+                response.console.errorHeader("Command Error");
+                response.console.error(Buffer.from(handlerErr.message + "\n"));
+                if ((handlerErr as ImperativeError).details.additionalDetails != null
+                    && typeof (handlerErr as ImperativeError).details.additionalDetails === "string") {
+                    response.console.errorHeader("Error Details");
+                }
+            }
+
+            // display detailed diagnostics
+            response.console.error((handlerErr as ImperativeError).details.additionalDetails);
             response.data.setMessage(handlerErr.message);
         } else if (handlerErr instanceof Error) {
             this.log.error(`Handler for ${this.mDefinition.name} rejected by unhandled exception.`);
