@@ -9,6 +9,7 @@
 *
 */
 
+import { ImperativeConfig } from "../../../utilities";
 import { IImperativeEnvironmentalVariableSettings } from "../doc/IImperativeEnvironmentalVariableSettings";
 import { ImperativeExpect } from "../../../expect";
 import { Constants } from "../../../constants/src/Constants";
@@ -99,5 +100,26 @@ export class EnvironmentalVariableSettings {
             pluginsDir:
                 getSetting(prefix + this.CLI_PLUGINS_DIR_SUFFIX)
         };
+    }
+
+    /**
+     * Identify if we should use the V3 error message format.
+     * That choice is determined by the value of the ZOWE_V3_ERR_FORMAT environment variable.
+     *
+     * TODO:V3_ERR_FORMAT - Remove in V3
+     *
+     * @returns {boolean} True -> Use the V3 format.
+     */
+    public static useV3ErrFormat(): boolean {
+        // our default is false
+        let v3ErrFmtBoolVal: boolean = false;
+        const v3ErrFmtStringVal = process.env[`${ImperativeConfig.instance.envVariablePrefix}_V3_ERR_FORMAT`];
+        if (v3ErrFmtStringVal !== undefined) {
+            // user has set the V3 error format environment variable
+            if (v3ErrFmtStringVal.toUpperCase() === "TRUE") {
+                v3ErrFmtBoolVal = true;
+            }
+        }
+        return v3ErrFmtBoolVal;
     }
 }
