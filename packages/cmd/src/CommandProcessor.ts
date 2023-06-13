@@ -31,7 +31,7 @@ import { IInvokeCommandParms } from "./doc/parms/IInvokeCommandParms";
 import { ICommandProcessorParms } from "./doc/processor/ICommandProcessorParms";
 import { ImperativeExpect } from "../../expect";
 import { inspect } from "util";
-import { EnvFileUtils, ImperativeConfig, TextUtils } from "../../utilities";
+import { EnvFileUtils, ImperativeConfig, NextVerFeatures, TextUtils } from "../../utilities";
 import * as nodePath from "path";
 import * as os from "os";
 import * as stream from "stream";
@@ -48,7 +48,6 @@ import { getActiveProfileName } from "../../config/src/ConfigUtils";
 import { ConfigConstants } from "../../config/src/ConfigConstants";
 import { IDaemonContext } from "../../imperative/src/doc/IDaemonContext";
 import { IHandlerResponseApi } from "../..";
-import { EnvironmentalVariableSettings } from "../..";
 
 
 /**
@@ -1230,7 +1229,7 @@ export class CommandProcessor {
             this.log.error(`Handler for ${this.mDefinition.name} rejected by thrown ImperativeError.`);
             response.setError(handlerErr.details);
             // TODO:V3_ERR_FORMAT - Don't test for env variable in V3
-            if (EnvironmentalVariableSettings.useV3ErrFormat()) {
+            if (NextVerFeatures.useV3ErrFormat()) {
                 response.console.error(TextUtils.chalk.red(
                     "Unable to perform this operation due to the following problem."
                 ));
@@ -1241,7 +1240,7 @@ export class CommandProcessor {
             }
 
             // TODO:V3_ERR_FORMAT - Don't test for env variable in V3
-            if (EnvironmentalVariableSettings.useV3ErrFormat()) {
+            if (NextVerFeatures.useV3ErrFormat()) {
                 response.console.error("\n" + TextUtils.chalk.bold.yellow("Response From Service"));
                 try {
                     const causeErrorsJson = JSON.parse(handlerErr.causeErrors);

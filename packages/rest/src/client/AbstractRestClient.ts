@@ -30,11 +30,10 @@ import { PerfTiming } from "@zowe/perf-timing";
 import { Readable, Writable } from "stream";
 import { IO } from "../../../io";
 import { ITaskWithStatus, TaskProgress, TaskStage } from "../../../operations";
-import { TextUtils } from "../../../utilities";
+import { NextVerFeatures, TextUtils } from "../../../utilities";
 import { IRestOptions } from "./doc/IRestOptions";
 import * as SessConstants from "../session/SessConstants";
 import { CompressionUtils } from "./CompressionUtils";
-import { EnvironmentalVariableSettings } from "../../../imperative";
 
 export type RestClientResolve = (data: string) => void;
 
@@ -319,7 +318,7 @@ export abstract class AbstractRestClient {
             clientRequest.on("error", (errorResponse: any) => {
                 let errMsg: string;
                 // TODO:V3_ERR_FORMAT - Don't test for env variable in V3
-                if (EnvironmentalVariableSettings.useV3ErrFormat()) {
+                if (NextVerFeatures.useV3ErrFormat()) {
                     errMsg = "Failed to send an HTTP request.";
                 } else { // TODO:V3_ERR_FORMAT - Remove in V3
                     errMsg = "http(s) request error event called";
@@ -750,7 +749,7 @@ export abstract class AbstractRestClient {
                 `Review connection details (host, port) and ensure correctness.`;
         } else {
             // TODO:V3_ERR_FORMAT - Don't test for env variable in V3
-            if (EnvironmentalVariableSettings.useV3ErrFormat()) {
+            if (NextVerFeatures.useV3ErrFormat()) {
                 detailMessage =
                     `Received HTTP(S) error ${finalError.httpStatus} = ${http.STATUS_CODES[finalError.httpStatus]}.`;
             } else { // TODO:V3_ERR_FORMAT - Remove in V3
