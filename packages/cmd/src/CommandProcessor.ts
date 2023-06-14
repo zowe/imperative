@@ -1246,7 +1246,12 @@ export class CommandProcessor {
                     const causeErrorsJson = JSON.parse(handlerErr.causeErrors);
                     response.console.error(TextUtils.prettyJson(causeErrorsJson, undefined, false, ""));
                 } catch (parseErr) {
-                    response.console.error("No details are available from the service.");
+                    // causeErrors was not JSON.
+                    if (handlerErr.causeErrors === undefined || handlerErr.causeErrors.length === 0) {
+                        response.console.error("No details are available from the service.");
+                    } else {
+                        response.console.error(handlerErr.causeErrors as string);
+                    }
                 }
                 response.console.error(TextUtils.chalk.bold.yellow("\nDiagnostic Information"));
             } else { // TODO:V3_ERR_FORMAT - Remove in V3
