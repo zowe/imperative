@@ -759,7 +759,21 @@ export abstract class AbstractRestClient {
             }
         }
 
-        detailMessage += "\n" +
+        // TODO:V3_ERR_FORMAT - Don't test for env variable in V3
+        if (NextVerFeatures.useV3ErrFormat()) {
+            detailMessage += "\n" +
+            "\nProtocol:          " + finalError.protocol +
+            "\nHost:              " + finalError.host +
+            "\nPort:              " + finalError.port +
+            "\nBase Path:         " + finalError.basePath +
+            "\nResource:          " + finalError.resource +
+            "\nRequest:           " + finalError.request +
+            "\nHeaders:           " + headerDetails +
+            "\nPayload:           " + payloadDetails +
+            "\nAuth type:         " + this.mSession.ISession.type +
+            "\nAllow Unauth Cert: " + !this.mSession.ISession.rejectUnauthorized;
+        } else { // TODO:V3_ERR_FORMAT - Remove in V3
+            detailMessage += "\n" +
             "\nProtocol:  " + finalError.protocol +
             "\nHost:      " + finalError.host +
             "\nPort:      " + finalError.port +
@@ -768,6 +782,7 @@ export abstract class AbstractRestClient {
             "\nRequest:   " + finalError.request +
             "\nHeaders:   " + headerDetails +
             "\nPayload:   " + payloadDetails;
+        }
         finalError.additionalDetails = detailMessage;
 
         // Allow implementation to modify the error as necessary
