@@ -1228,6 +1228,8 @@ export class CommandProcessor {
         if (handlerErr instanceof ImperativeError) {
             this.log.error(`Handler for ${this.mDefinition.name} rejected by thrown ImperativeError.`);
             response.setError(handlerErr.details);
+
+            // display primary user message
             // TODO:V3_ERR_FORMAT - Don't test for env variable in V3
             if (NextVerFeatures.useV3ErrFormat()) {
                 response.console.error(TextUtils.chalk.red(
@@ -1237,39 +1239,46 @@ export class CommandProcessor {
                 response.console.error(TextUtils.chalk.red(
                     handlerErr.message.replace(/Rest API failure with HTTP\(S\) status \d\d\d\n/, "")
                 ));
-            }
-
-            // TODO:V3_ERR_FORMAT - Don't test for env variable in V3
-            if (NextVerFeatures.useV3ErrFormat()) {
-                response.console.error("\n" + TextUtils.chalk.bold.yellow("Response From Service"));
-                try {
-                    const causeErrorsJson = JSON.parse(handlerErr.causeErrors);
-                    response.console.error(TextUtils.prettyJson(causeErrorsJson, undefined, false, ""));
-                } catch (parseErr) {
-                    // causeErrors was not JSON.
-                    if (handlerErr.causeErrors === undefined || handlerErr.causeErrors.length === 0) {
-                        response.console.error("No details are available from the service.");
-                    } else {
-                        response.console.error(handlerErr.causeErrors as string);
-                    }
-                }
-                response.console.error(TextUtils.chalk.bold.yellow("\nDiagnostic Information"));
             } else { // TODO:V3_ERR_FORMAT - Remove in V3
                 response.console.errorHeader("Command Error");
                 response.console.error(Buffer.from(handlerErr.message + "\n"));
-                if ((handlerErr as ImperativeError).details.additionalDetails != null
-                    && typeof (handlerErr as ImperativeError).details.additionalDetails === "string") {
-                    response.console.errorHeader("Error Details");
+            }
+
+            // display server response
+            // TODO:V3_ERR_FORMAT - Don't test for env variable in V3
+            if (NextVerFeatures.useV3ErrFormat()) {
+                const responseTitle = "Response From Service";
+                if (handlerErr.causeErrors) {
+                    try {
+                        const causeErrorsJson = JSON.parse(handlerErr.causeErrors);
+                        response.console.error("\n" + TextUtils.chalk.bold.yellow(responseTitle));
+                        response.console.error(TextUtils.prettyJson(causeErrorsJson, undefined, false, ""));
+                    } catch (parseErr) {
+                        // causeErrors was not JSON.
+                        const causeErrString: string = handlerErr.causeErrors.toString();
+                        if (causeErrString.length > 0) {
+                            // output the text value of causeErrors
+                            response.console.error("\n" + TextUtils.chalk.bold.yellow(responseTitle));
+                            response.console.error(causeErrString);
+                        }
+                    }
                 }
             }
 
-            // display detailed diagnostics
-            let diagInfo: string = (handlerErr as ImperativeError).details.additionalDetails;
-            if (diagInfo === undefined || diagInfo.length === 0) {
-                diagInfo = "No further information is available.";
+            // display diagnostic information
+            const diagInfo: string = (handlerErr as ImperativeError).details.additionalDetails;
+            if (diagInfo?.length > 0) {
+                // TODO:V3_ERR_FORMAT - Don't test for env variable in V3
+                if (NextVerFeatures.useV3ErrFormat()) {
+                    response.console.error(TextUtils.chalk.bold.yellow("\nDiagnostic Information"));
+                } else { // TODO:V3_ERR_FORMAT - Remove in V3
+                    response.console.errorHeader("Error Details");
+                }
+                response.console.error(diagInfo);
             }
-            response.console.error(diagInfo);
+
             response.data.setMessage(handlerErr.message);
+
         } else if (handlerErr instanceof Error) {
             this.log.error(`Handler for ${this.mDefinition.name} rejected by unhandled exception.`);
             response.setError({ msg: handlerErr.message, stack: handlerErr.stack });
