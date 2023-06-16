@@ -818,7 +818,12 @@ describe("Command Processor", () => {
         const commandResponse: ICommandResponse = await processor.invoke(parms);
 
         expect(commandResponse).toBeDefined();
-        expect(commandResponse).toMatchSnapshot();
+        const stderrText = (commandResponse.stderr as Buffer).toString();
+        expect(stderrText).toContain("Unexpected syntax validation error:");
+        expect(stderrText).toContain("Syntax validation error!");
+        expect(commandResponse.message).toEqual("Unexpected syntax validation error: Syntax validation error!");
+        expect(commandResponse.error?.msg).toEqual("Unexpected syntax validation error");
+        expect(commandResponse.error?.additionalDetails).toEqual("Syntax validation error!");
     });
 
     it("should just use the primary command (if it cannot infer the rest of the command) in the syntax help message", async () => {
