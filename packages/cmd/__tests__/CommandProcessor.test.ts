@@ -921,7 +921,7 @@ describe("Command Processor", () => {
         expect(stderrText).toContain("Profile loading failed!");
         expect(commandResponse.message).toEqual("Profile loading failed!");
         expect(commandResponse.error?.msg).toEqual("Profile loading failed!");
-        expect(commandResponse.error?.additionalDetails).toEqual(undefined);
+        expect(commandResponse.error?.additionalDetails).not.toBeDefined();
     });
 
     it("should handle not being able to instantiate the handler", async () => {
@@ -1281,12 +1281,12 @@ describe("Command Processor", () => {
         expect(commandResponse.message).toMatch(
             /Unexpected Command Error: Cannot read (property 'doesnt' of undefined|properties of undefined \(reading 'doesnt'\))/
         );
-        expect(commandResponse.error.msg).toMatch(/Cannot read (property 'doesnt' of undefined|properties of undefined \(reading 'doesnt'\))/);
-        expect(commandResponse.stdout.toString().length).toBe(0);
-        expect(commandResponse.stderr.toString()).toContain("Unexpected Command Error:");
-        expect(commandResponse.stderr.toString()).toContain("Message:");
-        expect(commandResponse.stderr.toString()).toContain("Stack:");
-        expect(commandResponse.error.stack).toMatch(
+        expect(commandResponse?.error?.msg).toMatch(/Cannot read (property 'doesnt' of undefined|properties of undefined \(reading 'doesnt'\))/);
+        expect(commandResponse?.stdout?.toString().length).toBe(0);
+        expect(commandResponse?.stderr?.toString()).toContain("Unexpected Command Error:");
+        expect(commandResponse?.stderr?.toString()).toContain("Message:");
+        expect(commandResponse?.stderr?.toString()).toContain("Stack:");
+        expect(commandResponse?.error?.stack).toMatch(
             /TypeError: Cannot read (property 'doesnt' of undefined|properties of undefined \(reading 'doesnt'\))/
         );
     });
@@ -1330,7 +1330,14 @@ describe("Command Processor", () => {
         };
         const commandResponse: ICommandResponse = await processor.invoke(parms);
         expect(commandResponse).toBeDefined();
-        expect(commandResponse).toMatchSnapshot();
+        const stderrText = (commandResponse.stderr as Buffer).toString();
+        expect(stderrText).toContain("Command Error:");
+        expect(stderrText).toContain("Rejected with a message");
+        expect(commandResponse.success).toEqual(false);
+        expect(commandResponse.exitCode).toEqual(1);
+        expect(commandResponse.message).toEqual("Rejected with a message");
+        expect(commandResponse.error?.msg).toEqual("Rejected with a message");
+        expect(commandResponse.error?.additionalDetails).not.toBeDefined();
     });
 
     it("should handle the handler rejecting with no messages", async () => {
