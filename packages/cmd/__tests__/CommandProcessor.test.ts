@@ -916,7 +916,12 @@ describe("Command Processor", () => {
         const commandResponse: ICommandResponse = await processor.invoke(parms);
 
         expect(commandResponse).toBeDefined();
-        expect(commandResponse).toMatchSnapshot();
+        const stderrText = (commandResponse.stderr as Buffer).toString();
+        expect(stderrText).toContain("Command Preparation Failed:");
+        expect(stderrText).toContain("Profile loading failed!");
+        expect(commandResponse.message).toEqual("Profile loading failed!");
+        expect(commandResponse.error?.msg).toEqual("Profile loading failed!");
+        expect(commandResponse.error?.additionalDetails).toEqual(undefined);
     });
 
     it("should handle not being able to instantiate the handler", async () => {
