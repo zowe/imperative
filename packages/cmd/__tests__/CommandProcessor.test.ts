@@ -1174,8 +1174,18 @@ describe("Command Processor", () => {
         };
         const commandResponse: ICommandResponse = await processor.invoke(parms);
         expect(commandResponse).toBeDefined();
-        expect(commandResponse.stderr.toString()).toMatchSnapshot();
-        expect(commandResponse).toMatchSnapshot();
+        const stderrText = (commandResponse.stderr as Buffer).toString();
+        expect(stderrText).toContain("Command Error:");
+        expect(stderrText).toContain("\tTab!\tTab again!");
+        expect(stderrText).toContain("Line should not be indented");
+        expect(stderrText).toContain("Error Details:");
+        expect(stderrText).toContain("More details!");
+        expect(commandResponse.success).toEqual(false);
+        expect(commandResponse.exitCode).toEqual(1);
+        expect(commandResponse.data).toEqual({});
+        expect(commandResponse.message).toEqual("\tTab!\tTab again!\nLine should not be indented");
+        expect(commandResponse.error?.msg).toEqual("\tTab!\tTab again!\nLine should not be indented");
+        expect(commandResponse.error?.additionalDetails).toEqual("More details!");
     });
 
     it("should handle an imperative error thrown from the handler", async () => {
