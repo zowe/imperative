@@ -14,7 +14,7 @@ import * as http from "http";
 import { Session } from "../../src/session/Session";
 import { RestClient } from "../../src/client/RestClient";
 import { Headers } from "../../src/client/Headers";
-import { ProcessUtils } from "../../../utilities";
+import { NextVerFeatures, ProcessUtils } from "../../../utilities";
 import { MockHttpRequestResponse } from "./__model__/MockHttpRequestResponse";
 import { EventEmitter } from "events";
 import { ImperativeError } from "../../../error";
@@ -34,6 +34,13 @@ import { IO } from "../../../io";
  */
 
 describe("AbstractRestClient tests", () => {
+
+    beforeAll(() => {
+        /* This avoids having to mock ImperativeConfig.envVariablePrefix.
+         * Unless overridden, tests will use our legacy format for errors.
+         */
+        jest.spyOn(NextVerFeatures, "useV3ErrFormat").mockReturnValue(false);
+    });
 
     it("should not append any headers to a request by default", () => {
         const client = new RestClient(new Session({hostname: "test"}));
