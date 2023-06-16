@@ -1227,7 +1227,14 @@ describe("Command Processor", () => {
         };
         const commandResponse: ICommandResponse = await processor.invoke(parms);
         expect(commandResponse).toBeDefined();
-        expect(commandResponse).toMatchSnapshot();
+        const stderrText = (commandResponse.stderr as Buffer).toString();
+        expect(stderrText).toContain("Command Error:");
+        expect(stderrText).toContain("Handler threw an imperative error!");
+        expect(stderrText).toContain("Error Details:");
+        expect(stderrText).toContain("More details!");
+        expect(commandResponse.message).toEqual("Handler threw an imperative error!");
+        expect(commandResponse.error?.msg).toEqual("Handler threw an imperative error!");
+        expect(commandResponse.error?.additionalDetails).toEqual("More details!");
     });
 
     it("should handle an error thrown from the handler", async () => {
