@@ -35,7 +35,7 @@ import { IO } from "../../../io";
 
 describe("AbstractRestClient tests", () => {
 
-    beforeAll(() => {
+    beforeEach(() => {
         /* This avoids having to mock ImperativeConfig.envVariablePrefix.
          * Unless overridden, tests will use our legacy format for errors.
          */
@@ -168,6 +168,61 @@ describe("AbstractRestClient tests", () => {
             }
         }
         expect(error.additionalDetails).toContain("HTTP(S) error status \"400\" received.");
+    });
+
+    it("should give a v3-format error when status code is not in 200 range", async () => {
+        jest.spyOn(NextVerFeatures, "useV3ErrFormat").mockReturnValue(true);
+
+        interface IResponseload {
+            newData: string;
+        }
+
+        const emitter = new MockHttpRequestResponse();
+        const requestFnc = jest.fn((options, callback) => {
+            ProcessUtils.nextTick(async () => {
+
+                const newEmit = new MockHttpRequestResponse();
+                newEmit.statusCode = "400";
+                callback(newEmit);
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("data", Buffer.from("{\"newData\":", "utf8"));
+                });
+
+                // missing closing bracket
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("data", Buffer.from("\"response data\"}", "utf8"));
+                });
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("end");
+                });
+            });
+            return emitter;
+        });
+
+        (https.request as any) = requestFnc;
+        const headers: any = [{"My-Header": "value is here"}];
+        const payload: any = {"my payload object": "hello"};
+        let error;
+        try {
+            await RestClient.putExpectJSON<IResponseload>(new Session({hostname: "test"}), "/resource", headers, payload);
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error instanceof ImperativeError).toBe(true);
+        expect(error.errorCode).toBe("400");
+        expect(error.causeErrors).toBe("{\"newData\":\"response data\"}");
+        for (const header of headers) {
+            // make sure the error contains the headers that were appended to the request
+            for (const key of Object.keys(header)) {
+                expect(error.additionalDetails).toContain(key);
+                expect(error.additionalDetails).toContain(header[key]);
+            }
+        }
+        expect(error.message).toBe("Rest API failure with HTTP(S) status 400");
+        expect(error.additionalDetails).toContain("Received HTTP(S) error 400 = Bad Request.");
+        expect(error.additionalDetails).toContain("Allow Unauth Cert: false");
     });
 
     it("should error when chunking JSON data that does not parse", async () => {
