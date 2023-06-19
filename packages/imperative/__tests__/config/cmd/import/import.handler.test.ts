@@ -21,6 +21,7 @@ import { ISession, RestClient } from "../../../../../rest";
 import { ImperativeConfig } from "../../../../..";
 import { expectedConfigObject, expectedSchemaObject } from
     "../../../../../../__tests__/__integration__/imperative/__tests__/__integration__/cli/config/__resources__/expectedObjects";
+import { NextVerFeatures } from "../../../../../utilities";
 
 jest.mock("fs");
 
@@ -59,6 +60,13 @@ const getIHandlerParametersObject = (): IHandlerParameters => {
 };
 
 describe("Configuration Import command handler", () => {
+    beforeEach(() => {
+        /* This avoids having to mock ImperativeConfig.envVariablePrefix.
+         * Unless overridden, tests will use our legacy format for errors.
+         */
+        jest.spyOn(NextVerFeatures, "useV3ErrFormat").mockReturnValue(false);
+    });
+
     describe("handler", () => {
         const readFileSyncSpy = jest.spyOn(fs, "readFileSync");
         const writeFileSyncSpy = jest.spyOn(fs, "writeFileSync");
