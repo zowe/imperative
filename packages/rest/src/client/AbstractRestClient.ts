@@ -753,7 +753,7 @@ export abstract class AbstractRestClient {
                 detailMessage =
                     `Received HTTP(S) error ${finalError.httpStatus} = ${http.STATUS_CODES[finalError.httpStatus]}.`;
             } else { // TODO:V3_ERR_FORMAT - Remove in V3
-                detailMessage +=
+                detailMessage =
                     `HTTP(S) error status "${finalError.httpStatus}" received.\n` +
                     `Review request details (resource, base path, credentials, payload) and ensure correctness.`;
             }
