@@ -1237,7 +1237,7 @@ describe("Command Processor", () => {
         expect(commandResponse.error?.additionalDetails).toEqual("More details!");
     });
 
-    it("should handle an imperative error thrown from the handler with a v3-format message", async () => {
+    it("should handle an imperative error with JSON causeErrors using v3-format message", async () => {
         jest.spyOn(NextVerFeatures, "useV3ErrFormat").mockReturnValue(true);
 
         // Allocate the command processor
@@ -1281,6 +1281,61 @@ describe("Command Processor", () => {
         const stderrText = (commandResponse.stderr as Buffer).toString();
         expect(stderrText).toContain("Unable to perform this operation due to the following problem");
         expect(stderrText).toContain("Handler threw an imperative error!");
+        expect(stderrText).toContain("Response From Service");
+        expect(stderrText).toContain("jsonCause: causeErrors are a JSON object");
+        expect(stderrText).toContain("Diagnostic Information");
+        expect(stderrText).toContain("More details!");
+        expect(commandResponse.message).toEqual("Handler threw an imperative error!");
+        expect(commandResponse.error?.msg).toEqual("Handler threw an imperative error!");
+        expect(commandResponse.error?.additionalDetails).toEqual("More details!");
+    });
+
+    it("should handle an imperative error with string causeErrors using v3-format message", async () => {
+        jest.spyOn(NextVerFeatures, "useV3ErrFormat").mockReturnValue(true);
+
+        // Allocate the command processor
+        const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
+            fullDefinition: SAMPLE_COMPLEX_COMMAND,
+            definition: SAMPLE_COMMAND_REAL_HANDLER,
+            helpGenerator: FAKE_HELP_GENERATOR,
+            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: "",
+            promptPhrase: "dummydummy"
+        });
+
+        // Mock read stdin
+        (SharedOptions.readStdinIfRequested as any) = jest.fn((args, response, type) => {
+            // Nothing to do
+        });
+
+        // Mock the profile loader
+        (CommandProfileLoader.loader as any) = jest.fn((args) => {
+            return {
+                loadProfiles: (profArgs: any) => {
+                    // Nothing to do
+                }
+            };
+        });
+
+        const parms: any = {
+            arguments: {
+                _: ["check", "for", "banana"],
+                $0: "",
+                valid: true,
+                throwImpStringCause: true
+            },
+            responseFormat: "json",
+            silent: true
+        };
+        const commandResponse: ICommandResponse = await processor.invoke(parms);
+        expect(commandResponse).toBeDefined();
+        const stderrText = (commandResponse.stderr as Buffer).toString();
+        expect(stderrText).toContain("Unable to perform this operation due to the following problem");
+        expect(stderrText).toContain("Handler threw an imperative error!");
+        expect(stderrText).toContain("Response From Service");
+        expect(stderrText).toContain("causeErrors are just contained in a string");
         expect(stderrText).toContain("Diagnostic Information");
         expect(stderrText).toContain("More details!");
         expect(commandResponse.message).toEqual("Handler threw an imperative error!");
