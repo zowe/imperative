@@ -37,7 +37,9 @@ export default class TestCmdHandler implements ICommandHandler {
                 });
             }
             if (commandParameters.arguments.throwError) {
-                const someVar = commandParameters.arguments.this.doesnt.exist;
+                if ( commandParameters.arguments.this.doesnt.exist) {
+                    resolve();
+                }
             }
 
             if (commandParameters.arguments.rejectWithMessage) {
