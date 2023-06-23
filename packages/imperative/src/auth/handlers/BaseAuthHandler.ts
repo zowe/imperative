@@ -197,27 +197,29 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
      * @param {IHandlerParameters} params Command parameters sent by imperative.
      */
     protected async processLogout(params: IHandlerParameters) {
-        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenValue, "Token value not supplied, but is required for logout.");
+        if (params.arguments.tokenValue != null) {
+            // Force to use of token value, in case user and/or password also on base profile, make user undefined.
+            if (params.arguments.user != null) {
+                params.arguments.user = undefined;
+            }
 
-        // Force to use of token value, in case user and/or password also on base profile, make user undefined.
-        if (params.arguments.user != null) {
-            params.arguments.user = undefined;
+            if (params.arguments.tokenType == null) {
+                params.arguments.tokenType = this.mDefaultTokenType;
+            }
+
+            const sessCfg: ISession = this.createSessCfgFromArgs(
+                params.arguments
+            );
+
+            const sessCfgWithCreds = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+                sessCfg, params.arguments,
+                { requestToken: false, doPrompting: false, parms: params },
+            );
+
+            this.mSession = new Session(sessCfgWithCreds);
+
+            await this.doLogout(this.mSession);
         }
-
-        params.arguments.tokenType = this.mDefaultTokenType;
-
-        const sessCfg: ISession = this.createSessCfgFromArgs(
-            params.arguments
-        );
-
-        const sessCfgWithCreds = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
-            sessCfg, params.arguments,
-            { requestToken: false, parms: params },
-        );
-
-        this.mSession = new Session(sessCfgWithCreds);
-
-        await this.doLogout(this.mSession);
 
         if (!ImperativeConfig.instance.config.exists) {
             await this.processLogoutOld(params);
