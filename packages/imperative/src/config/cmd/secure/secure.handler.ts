@@ -57,29 +57,24 @@ export default class SecureHandler implements ICommandHandler {
         }
 
         // Prompt for values designated as secure
-        let authTokenProp: string;
         for (const propName of secureProps) {
-            if (authTokenProp == null && propName.endsWith(".tokenValue")) {
-                authTokenProp = propName;
-                continue;
-            }
+            if (propName.endsWith(".tokenValue")) {
+                params.response.console.log(`Processing secure properties for profile: ${config.api.profiles.getProfileNameFromPath(propName)}`);
+                const propValue = await this.handlePromptForAuthToken(config, propName) ||
+                    await params.response.console.prompt(`Enter ${propName} - blank to skip: `, {hideText: true});
 
-            let propValue = await params.response.console.prompt(`Enter ${propName} - blank to skip: `, { hideText: true });
+                // Save the value in the config securely
+                if (propValue) {
+                    config.set(propName, propValue, { secure: true });
+                }
+            } else {
+                let propValue = await params.response.console.prompt(`Enter ${propName} - blank to skip: `, { hideText: true });
 
-            // Save the value in the config securely
-            if (propValue) {
-                propValue = coercePropValue(propValue, ConfigSchema.findPropertyType(propName, config.properties));
-                config.set(propName, propValue, { secure: true });
-            }
-        }
-
-        if (authTokenProp != null) {
-            const propValue = await this.handlePromptForAuthToken(config, authTokenProp) ||
-                await params.response.console.prompt(`Enter ${authTokenProp} - blank to skip: `, {hideText: true});
-
-            // Save the value in the config securely
-            if (propValue) {
-                config.set(authTokenProp, propValue, { secure: true });
+                // Save the value in the config securely
+                if (propValue) {
+                    propValue = coercePropValue(propValue, ConfigSchema.findPropertyType(propName, config.properties));
+                    config.set(propName, propValue, { secure: true });
+                }
             }
         }
 
