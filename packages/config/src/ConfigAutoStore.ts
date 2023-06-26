@@ -106,7 +106,7 @@ export class ConfigAutoStore {
 
             if (authHandlerClass instanceof AbstractAuthHandler) {
                 const { promptParams } = authHandlerClass.getAuthHandlerApi();
-                if (profile.tokenType === promptParams.defaultTokenType) {
+                if (profile.tokenType.startsWith(promptParams.defaultTokenType)) {
                     return authHandlerClass;  // Auth service must have matching token type
                 }
             }
