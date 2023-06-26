@@ -9,11 +9,11 @@
 *
 */
 
-jest.mock("keytar");
+jest.mock("@traeok/keytar-rs");
 
 import * as path from "path";
 import { DefaultCredentialManager } from "..";
-import * as keytar from "keytar";
+import * as keytar from "@traeok/keytar-rs";
 import { ImperativeError } from "../../error";
 
 const winMaxCredentialLength = 2560;

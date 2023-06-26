@@ -48,7 +48,7 @@
     "watch:webHelp": "cd web-help && npm run watch",
     "bundle:webHelp": "cd web-help && node build.js",
     "typedoc": "typedoc --options ./typedoc.json ./packages/",
-    "prepare": "husky install && npm run bundle:webHelp",
+    "prepare": "husky install && npm run bundle:webHelp && cd node_modules/@traeok/keytar-rs && npm run prepare",
     "clean": "rimraf lib tsconfig.tsbuildinfo"
   },
   "dependencies": {
@@ -91,6 +91,8 @@
     "yargs": "15.3.1"
   },
   "devDependencies": {
+    "@napi-rs/cli": "^2.16.1",
+    "@traeok/keytar-rs": "github:traeok/keytar-rs",
     "@types/cross-spawn": "^6.0.2",
     "@types/diff": "^5.0.2",
     "@types/find-up": "^2.1.1",
@@ -129,7 +131,6 @@
     "jest-junit": "^6.3.0",
     "jest-sonar-reporter": "^2.0.0",
     "jest-stare": "^2.2.0",
-    "keytar": "^7.9.0",
     "madge": "^4.0.1",
     "serve": "^12.0.1",
     "shebang-regex": "^2.0.0",

@@ -13,7 +13,7 @@ import { AbstractCredentialManager, SecureCredential } from "./abstract/Abstract
 import { ImperativeError } from "../../error";
 import { Logger } from "../../logger";
 
-import * as keytar from "keytar"; // Used for typing purposes only
+import * as keytar from "@traeok/keytar-rs"; // Used for typing purposes only
 
 /**
  * Default Credential Manager is our implementation of the Imperative Credential Manager. This manager invokes methods
@@ -121,9 +121,9 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
             // within our caller's path.
             const requireOpts: any = {};
             if (process.mainModule?.filename != null) {
-                requireOpts.paths = [process.mainModule.filename, ...require.resolve.paths("keytar")];
+                requireOpts.paths = [process.mainModule.filename, ...require.resolve.paths("@traeok/keytar-rs")];
             }
-            const keytarPath = require.resolve("keytar", requireOpts);
+            const keytarPath = require.resolve("@traeok/keytar-rs", requireOpts);
             Logger.getImperativeLogger().debug("Loading Keytar module from", keytarPath);
             this.keytar = await import(keytarPath);
         } catch (error) {

@@ -14,7 +14,7 @@ import { SetupTestEnvironment } from "../../../../../../../__src__/environment/S
 import { runCliScript } from "../../../../../../../src/TestUtil";
 import { expectedConfigObject, expectedUserConfigObject } from "../__resources__/expectedObjects";
 import * as fs from "fs";
-import * as keytar from "keytar";
+import * as keytar from "@traeok/keytar-rs";
 import * as path from "path";
 import * as lodash from "lodash";
 import { IConfigProfile } from "../../../../../../../../packages";

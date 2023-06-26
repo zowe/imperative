@@ -12,7 +12,7 @@
 import * as fs from "fs";
 import * as fsExtra from "fs-extra";
 import * as path from "path";
-import * as keytar from "keytar";
+import * as keytar from "@traeok/keytar-rs";
 import { ITestEnvironment } from "../../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import { SetupTestEnvironment } from "../../../../../../../__src__/environment/SetupTestEnvironment";
 import { runCliScript } from "../../../../../../../src/TestUtil";

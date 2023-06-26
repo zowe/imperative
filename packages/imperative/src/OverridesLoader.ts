@@ -111,7 +111,7 @@ export class OverridesLoader {
      * @returns True if DefaultCredentialManager should be used
      */
     private static shouldUseKeytar(packageJson: any, useTeamConfig: boolean): boolean {
-        return (packageJson.dependencies?.keytar != null || packageJson.optionalDependencies?.keytar != null) &&
+        return ("@traeok/keytar-rs" in packageJson.dependencies || "@traeok/keytar-rs" in packageJson.optionalDependencies) &&
             (!AppSettings.initialized || useTeamConfig || AppSettings.instance.getNamespace("overrides")?.CredentialManager === packageJson.name);
     }
 

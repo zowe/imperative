@@ -11,7 +11,7 @@
 
 import * as fs from "fs";
 import * as fsExtra from "fs-extra";
-import * as keytar from "keytar";
+import * as keytar from "@traeok/keytar-rs";
 import { Config, ConfigBuilder, ConfigSchema } from "../../../../../config";
 import { IHandlerParameters } from "../../../../../cmd";
 import { ProfileIO } from "../../../../../profiles";
