@@ -112,6 +112,27 @@ export class ConfigProfiles extends ConfigApi {
 
     // _______________________________________________________________________
     /**
+     * Obtain the profile name (either nested or not) based on a property path.
+     *
+     * @param path The property path.
+     *
+     * @returns The corresponding profile name.
+     *
+     * @note This may be useful for supporting token authentication in a nested configuration
+     *
+     */
+    public getProfileNameFromPath(path: string): string {
+        let profileName = "";
+        for (const p of path.split(".")) {
+            if (p === "profiles") continue;
+            if (p === "properties") break;
+            profileName += profileName.length > 0 ? "." + p : p;
+        }
+        return profileName;
+    }
+
+    // _______________________________________________________________________
+    /**
      * Build the set of properties contained within a set of nested profiles.
      *
      * @param path The dotted path of desired location.
