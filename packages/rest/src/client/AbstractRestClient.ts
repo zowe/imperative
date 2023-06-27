@@ -30,7 +30,7 @@ import { PerfTiming } from "@zowe/perf-timing";
 import { Readable, Writable } from "stream";
 import { IO } from "../../../io";
 import { ITaskWithStatus, TaskProgress, TaskStage } from "../../../operations";
-import { TextUtils } from "../../../utilities";
+import { NextVerFeatures, TextUtils } from "../../../utilities";
 import { IRestOptions } from "./doc/IRestOptions";
 import * as SessConstants from "../session/SessConstants";
 import { CompressionUtils } from "./CompressionUtils";
@@ -316,8 +316,16 @@ export abstract class AbstractRestClient {
              * Invoke any onError method whenever an error occurs on writing
              */
             clientRequest.on("error", (errorResponse: any) => {
+                let errMsg: string;
+                // TODO:V3_ERR_FORMAT - Don't test for env variable in V3
+                if (NextVerFeatures.useV3ErrFormat()) {
+                    errMsg = "Failed to send an HTTP request.";
+                } else { // TODO:V3_ERR_FORMAT - Remove in V3
+                    errMsg = "http(s) request error event called";
+                }
+
                 reject(this.populateError({
-                    msg: "http(s) request error event called",
+                    msg: errMsg,
                     causeErrors: errorResponse,
                     source: "client"
                 }));
@@ -734,14 +742,38 @@ export abstract class AbstractRestClient {
         finalError.request = this.mRequest;
 
         // Construct a formatted details message
-        const detailMessage: string =
-            ((finalError.source === "client") ?
+        let detailMessage: string;
+        if (finalError.source === "client") {
+            detailMessage =
                 `HTTP(S) client encountered an error. Request could not be initiated to host.\n` +
-                `Review connection details (host, port) and ensure correctness.`
-                :
-                `HTTP(S) error status "${finalError.httpStatus}" received.\n` +
-                `Review request details (resource, base path, credentials, payload) and ensure correctness.`) +
-            "\n" +
+                `Review connection details (host, port) and ensure correctness.`;
+        } else {
+            // TODO:V3_ERR_FORMAT - Don't test for env variable in V3
+            if (NextVerFeatures.useV3ErrFormat()) {
+                detailMessage =
+                    `Received HTTP(S) error ${finalError.httpStatus} = ${http.STATUS_CODES[finalError.httpStatus]}.`;
+            } else { // TODO:V3_ERR_FORMAT - Remove in V3
+                detailMessage =
+                    `HTTP(S) error status "${finalError.httpStatus}" received.\n` +
+                    `Review request details (resource, base path, credentials, payload) and ensure correctness.`;
+            }
+        }
+
+        // TODO:V3_ERR_FORMAT - Don't test for env variable in V3
+        if (NextVerFeatures.useV3ErrFormat()) {
+            detailMessage += "\n" +
+            "\nProtocol:          " + finalError.protocol +
+            "\nHost:              " + finalError.host +
+            "\nPort:              " + finalError.port +
+            "\nBase Path:         " + finalError.basePath +
+            "\nResource:          " + finalError.resource +
+            "\nRequest:           " + finalError.request +
+            "\nHeaders:           " + headerDetails +
+            "\nPayload:           " + payloadDetails +
+            "\nAuth type:         " + this.mSession.ISession.type +
+            "\nAllow Unauth Cert: " + !this.mSession.ISession.rejectUnauthorized;
+        } else { // TODO:V3_ERR_FORMAT - Remove in V3
+            detailMessage += "\n" +
             "\nProtocol:  " + finalError.protocol +
             "\nHost:      " + finalError.host +
             "\nPort:      " + finalError.port +
@@ -750,6 +782,7 @@ export abstract class AbstractRestClient {
             "\nRequest:   " + finalError.request +
             "\nHeaders:   " + headerDetails +
             "\nPayload:   " + payloadDetails;
+        }
         finalError.additionalDetails = detailMessage;
 
         // Allow implementation to modify the error as necessary

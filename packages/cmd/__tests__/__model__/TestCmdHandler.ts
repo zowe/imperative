@@ -25,11 +25,21 @@ export default class TestCmdHandler implements ICommandHandler {
             if (commandParameters.arguments.throwImperative) {
                 throw new ImperativeError({
                     msg: `Handler threw an imperative error!`,
+                    causeErrors: '{"jsonCause": "causeErrors are a JSON object"}',
+                    additionalDetails: "More details!"
+                });
+            }
+            if (commandParameters.arguments.throwImpStringCause) {
+                throw new ImperativeError({
+                    msg: `Handler threw an imperative error!`,
+                    causeErrors: "causeErrors are just contained in a string",
                     additionalDetails: "More details!"
                 });
             }
             if (commandParameters.arguments.throwError) {
-                commandParameters.arguments.this.doesnt.exist;
+                if ( commandParameters.arguments.this.doesnt.exist) {
+                    resolve();
+                }
             }
 
             if (commandParameters.arguments.rejectWithMessage) {
