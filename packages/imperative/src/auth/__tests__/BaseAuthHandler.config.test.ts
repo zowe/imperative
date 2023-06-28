@@ -532,7 +532,7 @@ describe("BaseAuthHandler config", () => {
 
             expect(caughtError).toBeUndefined();
             expect(doLogoutSpy).toBeCalledTimes(1);
-            expect(writeFileSpy).not.toHaveBeenCalled();
+            expect(writeFileSpy).toBeCalledTimes(0);
             expect(fakeConfig.properties.profiles.fruit.properties.tokenType).toBeDefined();
             expect(fakeConfig.properties.profiles.fruit.properties.tokenValue).toBeDefined();
         });
