@@ -12,7 +12,6 @@
 import { IHandlerParameters, IHandlerResponseApi } from "../../../../cmd";
 import { AbstractSession, ConnectionPropsForSessCfg, IOptionsForAddConnProps, ISession, SessConstants, Session } from "../../../../rest";
 import { Imperative } from "../../Imperative";
-import { ImperativeExpect } from "../../../../expect";
 import { ImperativeError } from "../../../../error";
 import { ISaveProfileFromCliArgs } from "../../../../profiles";
 import { ImperativeConfig } from "../../../../utilities";
@@ -230,8 +229,8 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
             let profileWithToken: string = null;
 
             // If you specified a token on the command line, then don't delete the one in the profile if it doesn't match
-            if (Object.keys(profileProps).length > 0 && (profileProps.tokenType != null || profileProps.tokenValue != null) &&
-                (profileProps.tokenType === params.arguments.tokenType || profileProps.tokenValue === params.arguments.tokenValue)) {
+            if (Object.keys(profileProps).length > 0 && profileProps.tokenType != null && profileProps.tokenValue != null &&
+                profileProps.tokenType === params.arguments.tokenType && profileProps.tokenValue === params.arguments.tokenValue) {
                 const profilePath = config.api.profiles.expandPath(profileName);
                 config.delete(`${profilePath}.properties.tokenType`);
                 config.delete(`${profilePath}.properties.tokenValue`);
