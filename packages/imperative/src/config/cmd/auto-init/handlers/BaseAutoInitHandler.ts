@@ -90,7 +90,7 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
         );
         this.mSession = new Session(sessCfgWithCreds);
         if (this.mSession.ISession.tokenValue) {
-            this.mSession.ISession.user = this.mSession.ISession.password = this.mSession.ISession.cert = this.mSession.ISession.certKey = undefined;
+            this.mSession.ISession.base64EncodedAuth = this.mSession.ISession.user = this.mSession.ISession.password = this.mSession.ISession.cert = this.mSession.ISession.certKey = undefined;
         }
 
         // Use params to set which config layer to apply to

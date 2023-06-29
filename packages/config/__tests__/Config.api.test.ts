@@ -216,6 +216,35 @@ describe("Config API tests", () => {
                 expect(profile).toBeNull();
             });
         });
+        describe("expandPath", () => {
+            it("should expand a short proeprty path", async () => {
+                const config = await Config.load(MY_APP);
+                const profilePath = "lpar1.zosmf";
+                expect(config.api.profiles.expandPath(profilePath)).toEqual("profiles.lpar1.profiles.zosmf");
+            });
+            it.skip("should not expand a complete path", async () => {
+                const config = await Config.load(MY_APP);
+                const profilePath = "profiles.lpar1.profiles.zosmf";
+                expect(config.api.profiles.expandPath(profilePath)).toEqual("profiles.lpar1.profiles.zosmf");
+            });
+            it.skip("should expand an incomplete path", async () => {
+                const config = await Config.load(MY_APP);
+                const profilePath = "profiles.lpar1.zosmf";
+                expect(config.api.profiles.expandPath(profilePath)).toEqual("profiles.lpar1.profiles.zosmf");
+            });
+        });
+        describe("getProfileNameFromPath", () => {
+            it("should shrink profile paths", async () => {
+                const config = await Config.load(MY_APP);
+                const propertyPath = "profiles.lpar1.profiles.zosmf.properties.host";
+                expect(config.api.profiles.getProfileNameFromPath(propertyPath)).toEqual("lpar1.zosmf");
+            });
+            it("should shrink incorrect profile paths", async () => {
+                const config = await Config.load(MY_APP);
+                const propertyPath = "profiles.profiles.lpar1.profiles.profiles.zosmf.profiles.properties.host";
+                expect(config.api.profiles.getProfileNameFromPath(propertyPath)).toEqual("lpar1.zosmf");
+            });
+        });
     });
     describe("plugins", () => {
         describe("get", () => {
