@@ -41,7 +41,7 @@ describe("ImperativeExpect tests", () => {
             } catch(thrownError) {
                 error = thrownError;
             }
-            expect(error).toBeUndefined();
+            expect(error).toEqual({});
         });
         it("should throw an error if the value does not match the provided regular expression with custom message", () => {
             let error: ImperativeError = {} as any;

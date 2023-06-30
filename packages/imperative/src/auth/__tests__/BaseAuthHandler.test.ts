@@ -154,18 +154,25 @@ describe("BaseAuthHandler", () => {
             arguments: {
                 host: "fakeHost",
                 port: "fakePort",
-                tokenType: handler.mDefaultTokenType,
-                tokenValue: "fakeToken"
+                // Purposely remove the token type to test that we still provide a default token type
+                tokenValue: "fakeToken",
+                // Add user and password to prove that they get removed and are not required for logout
+                user: "fakeUser",
+                password: "fakePass"
             },
             positionals: ["auth", "logout"],
             profiles: {
                 getMeta: jest.fn(() => ({
-                    name: "fakeName"
+                    name: "fakeName",
+                    profile: {
+                        tokenValue: "fakeToken"
+                    }
                 }))
             }
         } as any;
 
         const doLogoutSpy = jest.spyOn(handler as any, "doLogout");
+        const processLogoutOldSpy = jest.spyOn(handler as any, "processLogoutOld");
         let caughtError;
 
         try {
@@ -176,6 +183,47 @@ describe("BaseAuthHandler", () => {
 
         expect(caughtError).toBeUndefined();
         expect(doLogoutSpy).toBeCalledTimes(1);
+        expect(processLogoutOldSpy).toBeCalledTimes(1);
+        expect(params.arguments.tokenType).toEqual(handler.mDefaultTokenType);
+        expect(params.arguments.user).toBeUndefined();
+        expect(params.arguments.password).toBeUndefined();
+    });
+
+    it("should process logout successfully even when tokenValue is not provided", async () => {
+        const handler = new FakeAuthHandler();
+        const params: IHandlerParameters = {
+            response: {
+                console: {
+                    log: jest.fn()
+                }
+            },
+            arguments: {
+                host: "fakeHost",
+                port: "fakePort",
+                tokenType: handler.mDefaultTokenType,
+                tokenValue: null,
+            },
+            positionals: ["auth", "logout"],
+            profiles: {
+                getMeta: jest.fn(() => ({
+                    name: "fakeName"
+                }))
+            }
+        } as any;
+
+        const doLogoutSpy = jest.spyOn(handler as any, "doLogout");
+        const processLogoutOldSpy = jest.spyOn(handler as any, "processLogoutOld");
+        let caughtError;
+
+        try {
+            await handler.process(params);
+        } catch (error) {
+            caughtError = error;
+        }
+
+        expect(caughtError).toBeUndefined();
+        expect(doLogoutSpy).toBeCalledTimes(0);
+        expect(processLogoutOldSpy).toBeCalledTimes(1);
     });
 
     it("should fail to process invalid action name", async () => {

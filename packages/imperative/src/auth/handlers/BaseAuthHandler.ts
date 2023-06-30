@@ -196,31 +196,37 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
      * @param {IHandlerParameters} params Command parameters sent by imperative.
      */
     protected async processLogout(params: IHandlerParameters) {
-        if (params.arguments.tokenValue != null) {
-            // Force to use of token value, in case user and/or password also on base profile, make user undefined.
-            if (params.arguments.user != null) {
-                params.arguments.user = undefined;
-            }
+        // Force the use of token value, in case user and/or password are also provided.
+        if (params.arguments.tokenValue != null &&
+            (params.arguments.user != null || params.arguments.password != null)) {
+            params.arguments.user = undefined;
+            params.arguments.password = undefined;
+        }
 
-            if (params.arguments.tokenType == null) {
-                params.arguments.tokenType = this.mDefaultTokenType;
-            }
+        if (params.arguments.tokenType == null) {
+            params.arguments.tokenType = this.mDefaultTokenType;
+        }
 
-            const sessCfg: ISession = this.createSessCfgFromArgs(
-                params.arguments
-            );
+        const sessCfg: ISession = this.createSessCfgFromArgs(params.arguments);
 
-            const sessCfgWithCreds = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
-                sessCfg, params.arguments,
+        const sessCfgWithCreds = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+            sessCfg, params.arguments,
                 { requestToken: false, doPrompting: false, parms: params },
-            );
+        );
 
+        if (params.arguments.tokenValue != null) {
             this.mSession = new Session(sessCfgWithCreds);
-
             await this.doLogout(this.mSession);
         }
 
         if (!ImperativeConfig.instance.config.exists) {
+            if (sessCfgWithCreds.tokenValue == null) {
+                // Provide dummy token information to prevent multiple V1 logout operations from failing
+                sessCfgWithCreds.type = SessConstants.AUTH_TYPE_TOKEN;
+                sessCfgWithCreds.tokenType = this.mDefaultTokenType;
+                sessCfgWithCreds.tokenValue = SessConstants.AUTH_TYPE_TOKEN;
+            }
+            this.mSession = new Session(sessCfgWithCreds);
             await this.processLogoutOld(params);
         } else {
             const config = ImperativeConfig.instance.config;
