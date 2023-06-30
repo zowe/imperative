@@ -9,8 +9,6 @@
 *
 */
 
-import { ImperativeConfig } from "./ImperativeConfig";
-
 /**
  * This class contains logic to enable users to opt-in to features
  * that will become standard functionality in the next version of Zowe.
@@ -18,6 +16,8 @@ import { ImperativeConfig } from "./ImperativeConfig";
  * @class NextVerFeatures
  */
 export class NextVerFeatures {
+    private static ENV_VAR_PREFIX = "ZOWE";
+
     /**
      * Identify if we should use the V3 error message format.
      * That choice is determined by the value of the ZOWE_V3_ERR_FORMAT environment variable.
@@ -29,7 +29,7 @@ export class NextVerFeatures {
     public static useV3ErrFormat(): boolean {
         // our default is false
         let v3ErrFmtBoolVal: boolean = false;
-        const v3ErrFmtStringVal = process.env[`${ImperativeConfig.instance.envVariablePrefix}_V3_ERR_FORMAT`];
+        const v3ErrFmtStringVal = process.env[`${NextVerFeatures.ENV_VAR_PREFIX}_V3_ERR_FORMAT`];
         if (v3ErrFmtStringVal !== undefined) {
             // user has set the V3 error format environment variable
             if (v3ErrFmtStringVal.toUpperCase() === "TRUE") {

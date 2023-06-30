@@ -10,6 +10,9 @@ All notable changes to the Imperative package will be documented in this file.
 - BugFix: Allowed for multiple `auth logout` operations. [#966](https://github.com/zowe/imperative/pull/996)
 - BugFix: Prevented `auto-init` from sending two `login` requests to the server. [#966](https://github.com/zowe/imperative/pull/996)
 
+## `5.15.1`
+
+- BugFix: Enabled NextVerFeatures.useV3ErrFormat() to form the right environment variable name even if Imperative.init() has not been called.
 
 ## `5.15.0`
 
