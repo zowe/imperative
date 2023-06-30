@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.15.1`
 
 - BugFix: Enabled NextVerFeatures.useV3ErrFormat() to form the right environment variable name even if Imperative.init() has not been called.
 
