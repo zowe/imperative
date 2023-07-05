@@ -60,8 +60,10 @@ export default class SecureHandler implements ICommandHandler {
         for (const propName of secureProps) {
             if (propName.endsWith(".tokenValue")) {
                 params.response.console.log(`Processing secure properties for profile: ${config.api.profiles.getProfileNameFromPath(propName)}`);
-                const propValue = await this.handlePromptForAuthToken(config, propName) ||
-                    await params.response.console.prompt(`Enter ${propName} - Press ENTER to skip: `, {hideText: true});
+                let propValue = await this.handlePromptForAuthToken(config, propName);
+                if (propValue === undefined) {
+                    propValue = await params.response.console.prompt(`Enter ${propName} - Press ENTER to skip: `, {hideText: true});
+                }
 
                 // Save the value in the config securely
                 if (propValue) {
@@ -97,7 +99,7 @@ export default class SecureHandler implements ICommandHandler {
         if (authHandlerClass != null) {
             const api = authHandlerClass.getAuthHandlerApi();
             if (api.promptParams.serviceDescription != null) {
-                this.params.response.console.log(`Logging in to ${api.promptParams.serviceDescription}`);
+                this.params.response.console.log(`Logging in to ${api.promptParams.serviceDescription} - blank to skip:`);
             }
 
             const profile = config.api.profiles.get(profilePath.replace(/profiles\./g, ""), false);
@@ -108,7 +110,9 @@ export default class SecureHandler implements ICommandHandler {
 
             if (ConnectionPropsForSessCfg.sessHasCreds(sessCfgWithCreds)) {
                 try {
-                    return await api.sessionLogin(new Session(sessCfgWithCreds));
+                    const tokenValue = await api.sessionLogin(new Session(sessCfgWithCreds));
+                    this.params.response.console.log("Logged in successfully");
+                    return tokenValue;
                 } catch (error) {
                     throw new ImperativeError({
                         msg: `Failed to fetch ${profile.tokenType} for ${propPath}: ${error.message}`,
@@ -117,6 +121,8 @@ export default class SecureHandler implements ICommandHandler {
                 }
             } else {
                 this.params.response.console.log("No credentials provided.");
+                // return null to avoid propting for .tokenValue for this profile
+                return null;
             }
         }
     }
