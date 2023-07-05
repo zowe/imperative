@@ -123,10 +123,13 @@ export class ConfigProfiles extends ConfigApi {
      */
     public getProfileNameFromPath(path: string): string {
         let profileName = "";
-        for (const p of path.split(".")) {
-            if (p === "profiles") continue;
+        const segments = path.split(".");
+        for (let i = 0; i < segments.length; i++) {
+            const p = segments[i];
             if (p === "properties") break;
-            profileName += profileName.length > 0 ? "." + p : p;
+            if (i%2) {
+                profileName += profileName.length > 0 ? "." + p : p;
+            }
         }
         return profileName;
     }

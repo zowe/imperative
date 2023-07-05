@@ -211,7 +211,7 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
 
         const sessCfgWithCreds = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
             sessCfg, params.arguments,
-                { requestToken: false, doPrompting: false, parms: params },
+            { requestToken: false, doPrompting: false, parms: params },
         );
 
         if (params.arguments.tokenValue != null) {

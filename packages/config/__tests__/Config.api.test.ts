@@ -222,15 +222,10 @@ describe("Config API tests", () => {
                 const profilePath = "lpar1.zosmf";
                 expect(config.api.profiles.expandPath(profilePath)).toEqual("profiles.lpar1.profiles.zosmf");
             });
-            it.skip("should not expand a complete path", async () => {
+            it("should expand a path with the keyword profiles", async () => {
                 const config = await Config.load(MY_APP);
-                const profilePath = "profiles.lpar1.profiles.zosmf";
-                expect(config.api.profiles.expandPath(profilePath)).toEqual("profiles.lpar1.profiles.zosmf");
-            });
-            it.skip("should expand an incomplete path", async () => {
-                const config = await Config.load(MY_APP);
-                const profilePath = "profiles.lpar1.zosmf";
-                expect(config.api.profiles.expandPath(profilePath)).toEqual("profiles.lpar1.profiles.zosmf");
+                const profilePath = "profiles.zosmf";
+                expect(config.api.profiles.expandPath(profilePath)).toEqual("profiles.profiles.profiles.zosmf");
             });
         });
         describe("getProfileNameFromPath", () => {
@@ -239,10 +234,10 @@ describe("Config API tests", () => {
                 const propertyPath = "profiles.lpar1.profiles.zosmf.properties.host";
                 expect(config.api.profiles.getProfileNameFromPath(propertyPath)).toEqual("lpar1.zosmf");
             });
-            it("should shrink incorrect profile paths", async () => {
+            it("should shrink profile paths with the keyword profiles", async () => {
                 const config = await Config.load(MY_APP);
-                const propertyPath = "profiles.profiles.lpar1.profiles.profiles.zosmf.profiles.properties.host";
-                expect(config.api.profiles.getProfileNameFromPath(propertyPath)).toEqual("lpar1.zosmf");
+                const propertyPath = "profiles.profiles.profiles.zosmf.properties.host";
+                expect(config.api.profiles.getProfileNameFromPath(propertyPath)).toEqual("profiles.zosmf");
             });
         });
     });
