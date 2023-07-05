@@ -30,7 +30,7 @@
   "scripts": {
     "audit:public": "npm audit --registry https://registry.npmjs.org/",
     "build:packages": "tsc && node scripts/updateLicenses.js && npm run lint && npm run circularDependencyCheck",
-    "build": "npm run build:packages && npm run build:webHelp",
+    "build": "npm run build:packages && npm run build:webHelp && cd node_modules/@traeok/keytar-rs && npm install && npm run prepare",
     "postbuild": "node scripts/sampleCliTool.js build && npm run checkTestsCompile",
     "checkTestsCompile": "echo \"Checking that test source compiles\" && tsc --noEmit -p tsconfig-tests.json",
     "test": "npm run test:unit && npm run test:integration",
@@ -48,10 +48,11 @@
     "watch:webHelp": "cd web-help && npm run watch",
     "bundle:webHelp": "cd web-help && node build.js",
     "typedoc": "typedoc --options ./typedoc.json ./packages/",
-    "prepare": "husky install && npm run bundle:webHelp && cd node_modules/@traeok/keytar-rs && npm run prepare",
+    "prepare": "husky install && npm run bundle:webHelp && cd node_modules/@traeok/keytar-rs && npm install && npm run prepare",
     "clean": "rimraf lib tsconfig.tsbuildinfo"
   },
   "dependencies": {
+    "@traeok/keytar-rs": "github:traeok/keytar-rs",
     "@types/yargs": "13.0.4",
     "@zowe/perf-timing": "1.0.7",
     "chalk": "2.4.2",
@@ -92,7 +93,6 @@
   },
   "devDependencies": {
     "@napi-rs/cli": "^2.16.1",
-    "@traeok/keytar-rs": "github:traeok/keytar-rs",
     "@types/cross-spawn": "^6.0.2",
     "@types/diff": "^5.0.2",
     "@types/find-up": "^2.1.1",

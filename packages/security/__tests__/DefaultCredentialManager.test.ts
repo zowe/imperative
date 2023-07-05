@@ -78,7 +78,7 @@ describe("DefaultCredentialManager", () => {
                 const fakeCliPath = "/root/fakeCli";
                 const mainModule = process.mainModule;
                 process.mainModule = { filename: fakeCliPath } as any;
-                const pathResolveSpy = jest.spyOn(path, "resolve").mockReturnValue(path.parse(__dirname).root);
+                const pathResolveSpy = jest.spyOn(DefaultCredentialManager.prototype, "resolveDep").mockReturnValue(fakeCliPath);
 
                 // Force enter the try catch
                 Object.defineProperty(manager, "keytar", {
@@ -92,7 +92,7 @@ describe("DefaultCredentialManager", () => {
                     expect(privateManager.loadError).toBeInstanceOf(ImperativeError);
                     const error: Error = privateManager.loadError.causeErrors;
                     expect(error).toBeDefined();
-                    expect(error.message).toContain("Cannot resolve module");
+                    expect(error.message).toContain("Cannot find module");
                     expect(error.message).toContain(fakeCliPath);
                 } finally {
                     process.mainModule = mainModule;

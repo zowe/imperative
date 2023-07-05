@@ -119,12 +119,13 @@ describe("WebHelpGenerator", () => {
 
         it("should create Help files", async () => {
             const cmdResp = new CommandResponse({ silent: false });
+            const existsSync = jest.requireActual("fs").existsSync;
 
             /* When jenkins machine runs this test as an integration test,
              * it needs the path to docs to exist, even though Windows does not care.
              */
             const webHelpDocsDirNm = webHelpDirNm + "/docs";
-            if (!fs.existsSync(webHelpDocsDirNm)) {
+            if (!existsSync(webHelpDocsDirNm)) {
                 IO.mkdirp(webHelpDocsDirNm);
             }
 
@@ -172,13 +173,13 @@ Allowed values: banana, coconut</p>
                 `<a href="https://example.com">https://example.com</a></p>`);
 
             // do a reasonable set of generated files exist?
-            expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + ".html")).toBe(true);
-            expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_config.html")).toBe(true);
-            expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_hello_wordWrap.html")).toBe(true);
-            expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_hello_universe.html")).toBe(true);
-            expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_hello_world.html")).toBe(true);
-            expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_plugins_install.html")).toBe(true);
-            expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_plugins_uninstall.html")).toBe(true);
+            expect(existsSync(webHelpDocsDirNm + "/" + moduleFileNm + ".html")).toBe(true);
+            expect(existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_config.html")).toBe(true);
+            expect(existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_hello_wordWrap.html")).toBe(true);
+            expect(existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_hello_universe.html")).toBe(true);
+            expect(existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_hello_world.html")).toBe(true);
+            expect(existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_plugins_install.html")).toBe(true);
+            expect(existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_plugins_uninstall.html")).toBe(true);
         });
     });
 });

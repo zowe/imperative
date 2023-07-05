@@ -26,8 +26,6 @@ import * as lodash from "lodash";
 import * as fs from "fs";
 import { setupConfigToLoad } from "../../../../../../__tests__/src/TestUtil";
 
-jest.mock("fs");
-
 const getIHandlerParametersObject = (): IHandlerParameters => {
     const x: any = {
         response: {
@@ -103,7 +101,7 @@ describe("Configuration Set command handler", () => {
 
         // Start mocking out some of the credential management functions
         // Any secure data being loaded will appear to be fakeSecureValue
-        keytarGetPasswordSpy.mockReturnValue(fakeSecureData);
+        keytarGetPasswordSpy.mockResolvedValue(fakeSecureData);
         keytarSetPasswordSpy.mockImplementation();
         keytarDeletePasswordSpy.mockImplementation();
 
