@@ -106,13 +106,17 @@ export default class SecureHandler implements ICommandHandler {
                 { parms: this.params, doPrompting: true, requestToken: true, ...api.promptParams });
             Logger.getAppLogger().info(`Fetching ${profile.tokenType} for ${propPath}`);
 
-            try {
-                return await api.sessionLogin(new Session(sessCfgWithCreds));
-            } catch (error) {
-                throw new ImperativeError({
-                    msg: `Failed to fetch ${profile.tokenType} for ${propPath}: ${error.message}`,
-                    causeErrors: error
-                });
+            if (ConnectionPropsForSessCfg.sessHasCreds(sessCfgWithCreds)) {
+                try {
+                    return await api.sessionLogin(new Session(sessCfgWithCreds));
+                } catch (error) {
+                    throw new ImperativeError({
+                        msg: `Failed to fetch ${profile.tokenType} for ${propPath}: ${error.message}`,
+                        causeErrors: error
+                    });
+                }
+            } else {
+                this.params.response.console.log("No credentials provided.");
             }
         }
     }
