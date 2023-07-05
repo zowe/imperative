@@ -6,7 +6,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Enhancement: Handled unique cookie identifier in the form of dynamic token types. [#966](https://github.com/zowe/imperative/pull/996)
 - Enhancement: Added a new utility method to `ImperativeExpect` to match regular expressions. [#966](https://github.com/zowe/imperative/pull/996)
-- Enhancement: Added support for mutliple login operations in a single `config secure` command execution. [#966](https://github.com/zowe/imperative/pull/996)
+- Enhancement: Added support for multiple login operations in a single `config secure` command execution. [#966](https://github.com/zowe/imperative/pull/996)
 - BugFix: Allowed for multiple `auth logout` operations. [#966](https://github.com/zowe/imperative/pull/996)
 - BugFix: Prevented `auto-init` from sending two `login` requests to the server. [#966](https://github.com/zowe/imperative/pull/996)
 

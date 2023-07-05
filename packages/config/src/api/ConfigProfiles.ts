@@ -105,8 +105,21 @@ export class ConfigProfiles extends ConfigApi {
      *
      * @returns The expanded path.
      *
+     * @deprecated Please use getProfilePathFromName
      */
     public expandPath(shortPath: string): string {
+        return this.getProfilePathFromName(shortPath);
+    }
+
+    // _______________________________________________________________________
+    /**
+     * Expands a short path into an expanded path.
+     *
+     * @param shortPath The short path.
+     *
+     * @returns The expanded path.
+     */
+    public getProfilePathFromName(shortPath: string): string {
         return shortPath.replace(/(^|\.)/g, "$1profiles.");
     }
 

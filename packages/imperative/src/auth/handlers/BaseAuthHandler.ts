@@ -153,7 +153,7 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
                 }
             }
 
-            const profilePath = config.api.profiles.expandPath(profileName);
+            const profilePath = config.api.profiles.getProfilePathFromName(profileName);
             config.set(`${profilePath}.properties.tokenType`, this.mSession.ISession.tokenType);
             config.set(`${profilePath}.properties.tokenValue`, tokenValue, { secure: true });
 
@@ -237,7 +237,7 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
             // If you specified a token on the command line, then don't delete the one in the profile if it doesn't match
             if (Object.keys(profileProps).length > 0 && profileProps.tokenType != null && profileProps.tokenValue != null &&
                 profileProps.tokenType === params.arguments.tokenType && profileProps.tokenValue === params.arguments.tokenValue) {
-                const profilePath = config.api.profiles.expandPath(profileName);
+                const profilePath = config.api.profiles.getProfilePathFromName(profileName);
                 config.delete(`${profilePath}.properties.tokenType`);
                 config.delete(`${profilePath}.properties.tokenValue`);
 

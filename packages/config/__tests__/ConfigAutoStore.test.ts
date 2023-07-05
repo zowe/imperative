@@ -67,7 +67,25 @@ describe("ConfigAutoStore tests", () => {
             expect(authHandler instanceof AbstractAuthHandler).toBe(true);
         });
 
-        it("should be able to find auth handler for base profile with a dynamic token type", async () => {
+        it("should be able to find auth handler for base profile with a dynamic APIML token type", async () => {
+            await setupConfigToLoad({
+                profiles: {
+                    base: {
+                        type: "base",
+                        properties: {
+                            tokenType: SessConstants.TOKEN_TYPE_APIML + ".1"
+                        }
+                    }
+                },
+                defaults: { base: "base" }
+            });
+
+            const authHandler = ConfigAutoStore.findAuthHandlerForProfile("profiles.base", {} as any);
+            expect(authHandler).toBeDefined();
+            expect(authHandler instanceof AbstractAuthHandler).toBe(true);
+        });
+
+        it("should  not be able to find auth handler for base profile with a dynamic JWT token type", async () => {
             await setupConfigToLoad({
                 profiles: {
                     base: {
@@ -81,8 +99,7 @@ describe("ConfigAutoStore tests", () => {
             });
 
             const authHandler = ConfigAutoStore.findAuthHandlerForProfile("profiles.base", {} as any);
-            expect(authHandler).toBeDefined();
-            expect(authHandler instanceof AbstractAuthHandler).toBe(true);
+            expect(authHandler).toBeUndefined();
         });
 
         it("should be able to find auth handler for service profile", async () => {

@@ -25,6 +25,7 @@ import {
     IConfigAutoStoreFindAuthHandlerForProfileOpts,
     IConfigAutoStoreStoreSessCfgPropsOpts
 } from "./doc/IConfigAutoStoreOpts";
+import { TOKEN_TYPE_APIML } from "../../rest/src/session/SessConstants";
 
 /**
  * Class to manage automatic storage of properties in team config.
@@ -89,7 +90,7 @@ export class ConfigAutoStore {
                 return;
             } else if (profile.tokenType == null) {  // If tokenType undefined in service profile, fall back to base profile
                 const baseProfileName = ConfigUtils.getActiveProfileName("base", opts.cmdArguments, opts.defaultBaseProfileName);
-                return this._findAuthHandlerForProfile({ ...opts, profilePath: config.api.profiles.expandPath(baseProfileName) });
+                return this._findAuthHandlerForProfile({ ...opts, profilePath: config.api.profiles.getProfilePathFromName(baseProfileName) });
             }
         }
 
@@ -106,7 +107,7 @@ export class ConfigAutoStore {
 
             if (authHandlerClass instanceof AbstractAuthHandler) {
                 const { promptParams } = authHandlerClass.getAuthHandlerApi();
-                if (profile.tokenType.startsWith(promptParams.defaultTokenType)) {
+                if (profile.tokenType === promptParams.defaultTokenType || profile.tokenType.startsWith(TOKEN_TYPE_APIML)) {
                     return authHandlerClass;  // Auth service must have matching token type
                 }
             }
@@ -140,7 +141,7 @@ export class ConfigAutoStore {
             return;
         }
         const [profileType, profileName] = profileData ?? [opts.profileType, opts.profileName];
-        const profilePath = config.api.profiles.expandPath(profileName);
+        const profilePath = config.api.profiles.getProfilePathFromName(profileName);
 
         // Replace user and password with tokenValue if tokenType is defined in config
         if (profileProps.includes("user") && profileProps.includes("password") && await this._fetchTokenForSessCfg({ ...opts, profilePath })) {
@@ -179,7 +180,7 @@ export class ConfigAutoStore {
                 (propName === "tokenValue" && profileObj.tokenType == null && baseProfileObj.tokenType != null ||
                 profileType === "base")
             ) {
-                propProfilePath = config.api.profiles.expandPath(baseProfileName);
+                propProfilePath = config.api.profiles.getProfilePathFromName(baseProfileName);
                 isSecureProp = baseProfileSchema.properties[propName].secure || baseProfileSecureProps.includes(propName);
             }
 
