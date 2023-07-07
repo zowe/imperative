@@ -61,14 +61,14 @@ export default class SecureHandler implements ICommandHandler {
             if (propName.endsWith(".tokenValue")) {
                 params.response.console.log(`Processing secure properties for profile: ${config.api.profiles.getProfileNameFromPath(propName)}`);
                 const propValue = await this.handlePromptForAuthToken(config, propName) ||
-                    await params.response.console.prompt(`Enter ${propName} - blank to skip: `, {hideText: true});
+                    await params.response.console.prompt(`Enter ${propName} - Press ENTER to skip: `, {hideText: true});
 
                 // Save the value in the config securely
                 if (propValue) {
                     config.set(propName, propValue, { secure: true });
                 }
             } else {
-                let propValue = await params.response.console.prompt(`Enter ${propName} - blank to skip: `, { hideText: true });
+                let propValue = await params.response.console.prompt(`Enter ${propName} - Press ENTER to skip: `, { hideText: true });
 
                 // Save the value in the config securely
                 if (propValue) {
