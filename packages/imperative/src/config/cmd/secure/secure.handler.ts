@@ -99,7 +99,7 @@ export default class SecureHandler implements ICommandHandler {
         if (authHandlerClass != null) {
             const api = authHandlerClass.getAuthHandlerApi();
             if (api.promptParams.serviceDescription != null) {
-                this.params.response.console.log(`Logging in to ${api.promptParams.serviceDescription} - blank to skip:`);
+                this.params.response.console.log(`Logging in to ${api.promptParams.serviceDescription} - Press ENTER to skip:`);
             }
 
             const profile = config.api.profiles.get(profilePath.replace(/profiles\./g, ""), false);
