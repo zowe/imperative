@@ -240,8 +240,8 @@ describe("Cli Profile Manager", () => {
 
         describe("Missing keytar installation", () => {
             const profileName = "missing-keytar";
-            const keyTarDir = path.join(__dirname, "../../../../../node_modules/keytar");
-            const renamedKeyTarDir = path.join(__dirname, "../../../../../node_modules/keytar-renamed");
+            const keyTarDir = path.join(__dirname, "../../../../../node_modules/@traeok/keytar-rs");
+            const renamedKeyTarDir = path.join(__dirname, "../../../../../node_modules/@traeok/keytar-rs-renamed");
 
             const renameKeyTar = () => {
                 if (fs.existsSync(keyTarDir)) {

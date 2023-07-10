@@ -30,7 +30,7 @@
   "scripts": {
     "audit:public": "npm audit --registry https://registry.npmjs.org/",
     "build:packages": "tsc && node scripts/updateLicenses.js && npm run lint && npm run circularDependencyCheck",
-    "build": "npm run build:packages && npm run build:webHelp && cd node_modules/@traeok/keytar-rs && npm install && npm run prepare",
+    "build": "npm run build:packages && npm run build:webHelp",
     "postbuild": "node scripts/sampleCliTool.js build && npm run checkTestsCompile",
     "checkTestsCompile": "echo \"Checking that test source compiles\" && tsc --noEmit -p tsconfig-tests.json",
     "test": "npm run test:unit && npm run test:integration",
@@ -48,7 +48,7 @@
     "watch:webHelp": "cd web-help && npm run watch",
     "bundle:webHelp": "cd web-help && node build.js",
     "typedoc": "typedoc --options ./typedoc.json ./packages/",
-    "prepare": "husky install && npm run bundle:webHelp && cd node_modules/@traeok/keytar-rs && npm install && npm run prepare",
+    "prepare": "husky install && npm run bundle:webHelp",
     "clean": "rimraf lib tsconfig.tsbuildinfo"
   },
   "dependencies": {
