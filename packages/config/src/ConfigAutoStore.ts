@@ -79,13 +79,20 @@ export class ConfigAutoStore {
         const profileType = lodash.get(config.properties, `${opts.profilePath}.type`);
         const profile = config.api.profiles.get(opts.profilePath.replace(/profiles\./g, ""), false);
 
-        if (profile == null || profileType == null) {  // Profile must exist and have type defined
+        if (profile == null || profileType == null) { // Profile must exist and have type defined
             return;
-        } else if (profileType === "base" && profile.tokenType == null) {  // Base profile must have tokenType defined
-            return;
-        } else if (profile.tokenType == null) {  // If tokenType undefined in service profile, fall back to base profile
-            const baseProfileName = ConfigUtils.getActiveProfileName("base", opts.cmdArguments, opts.defaultBaseProfileName);
-            return this._findAuthHandlerForProfile({ ...opts, profilePath: config.api.profiles.getProfilePathFromName(baseProfileName) });
+        } else if (profileType === "base") {
+            if (profile.tokenType == null) { // Base profile must have tokenType defined
+                return;
+            }
+        } else {
+            if (profile.basePath == null) { // Service profiles must have basePath defined
+                return;
+            }
+            if (profile.tokenType == null) {  // If tokenType undefined in service profile, fall back to base profile
+                const baseProfileName = ConfigUtils.getActiveProfileName("base", opts.cmdArguments, opts.defaultBaseProfileName);
+                return this._findAuthHandlerForProfile({ ...opts, profilePath: config.api.profiles.getProfilePathFromName(baseProfileName) });
+            }
         }
 
         const authConfigs: ICommandProfileAuthConfig[] = [];

@@ -167,7 +167,7 @@ describe("ConfigAutoStore tests", () => {
             expect(authHandler).toBeUndefined();
         });
 
-        it("should find auth handler if profile base path is undefined", async () => {
+        it("should not find auth handler if service profile base path is undefined", async () => {
             await setupConfigToLoad({
                 profiles: {
                     base: {
@@ -185,8 +185,7 @@ describe("ConfigAutoStore tests", () => {
             });
 
             const authHandler = ConfigAutoStore.findAuthHandlerForProfile("profiles.zosmf", {} as any);
-            expect(authHandler).toBeDefined();
-            expect(authHandler instanceof AbstractAuthHandler).toBe(true);
+            expect(authHandler).toBeUndefined();
         });
     });
 
