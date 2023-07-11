@@ -85,10 +85,12 @@ export default class InitHandler implements ICommandHandler {
             original = JSONC.stringify(originalProperties, null, ConfigConstants.INDENT);
             dryRun = JSONC.stringify(dryRunProperties, null, ConfigConstants.INDENT);
 
-            let jsonDiff = diff(original, dryRun, {aAnnotation: "Removed",
+            let jsonDiff = diff(original, dryRun, {
+                aAnnotation: "Removed",
                 bAnnotation: "Added",
                 aColor: TextUtils.chalk.red,
-                bColor: TextUtils.chalk.green});
+                bColor: TextUtils.chalk.green
+            });
 
             if (stripAnsi(jsonDiff) === "Compared values have no visual difference.") {
                 jsonDiff = dryRun;
@@ -186,7 +188,8 @@ export default class InitHandler implements ICommandHandler {
         }
 
         this.promptProps.push(propName);
-        const propValue: any = await this.params.response.console.prompt(`Enter ${propDesc} ${ConfigConstants.SKIP_PROMPT}`, { hideText: property.secure });
+        const propValue: any = await this.params.response.console.prompt(
+            `Enter ${propDesc} ${ConfigConstants.SKIP_PROMPT}`, { hideText: property.secure });
 
         // coerce to correct type
         if (propValue && propValue.trim().length > 0) {
