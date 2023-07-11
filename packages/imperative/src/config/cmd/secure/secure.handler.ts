@@ -10,7 +10,7 @@
 */
 
 import { ICommandArguments, ICommandHandler, IHandlerParameters } from "../../../../../cmd";
-import { Config, ConfigAutoStore, ConfigSchema } from "../../../../../config";
+import { Config, ConfigAutoStore, ConfigConstants, ConfigSchema } from "../../../../../config";
 import { coercePropValue, secureSaveError } from "../../../../../config/src/ConfigUtils";
 import { ImperativeError } from "../../../../../error";
 import { Logger } from "../../../../../logger";
@@ -62,7 +62,7 @@ export default class SecureHandler implements ICommandHandler {
                 params.response.console.log(`Processing secure properties for profile: ${config.api.profiles.getProfileNameFromPath(propName)}`);
                 let propValue = await this.handlePromptForAuthToken(config, propName);
                 if (propValue === undefined) {
-                    propValue = await params.response.console.prompt(`Enter ${propName} - Press ENTER to skip: `, {hideText: true});
+                    propValue = await params.response.console.prompt(`Enter ${propName} ${ConfigConstants.SKIP_PROMPT}`, {hideText: true});
                 }
 
                 // Save the value in the config securely
@@ -70,7 +70,7 @@ export default class SecureHandler implements ICommandHandler {
                     config.set(propName, propValue, { secure: true });
                 }
             } else {
-                let propValue = await params.response.console.prompt(`Enter ${propName} - Press ENTER to skip: `, { hideText: true });
+                let propValue = await params.response.console.prompt(`Enter ${propName} ${ConfigConstants.SKIP_PROMPT}`, { hideText: true });
 
                 // Save the value in the config securely
                 if (propValue) {
@@ -99,7 +99,7 @@ export default class SecureHandler implements ICommandHandler {
         if (authHandlerClass != null) {
             const api = authHandlerClass.getAuthHandlerApi();
             if (api.promptParams.serviceDescription != null) {
-                this.params.response.console.log(`Logging in to ${api.promptParams.serviceDescription} - Press ENTER to skip:`);
+                this.params.response.console.log(`Logging in to ${api.promptParams.serviceDescription} ${ConfigConstants.SKIP_PROMPT}`);
             }
 
             const profile = config.api.profiles.get(profilePath.replace(/profiles\./g, ""), false);
