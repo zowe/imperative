@@ -52,7 +52,7 @@
     "clean": "rimraf lib tsconfig.tsbuildinfo"
   },
   "dependencies": {
-    "@traeok/keytar-rs": "github:traeok/keytar-rs#fix-macos-delete",
+    "@traeok/keytar-rs": "github:traeok/keytar-rs",
     "@types/yargs": "13.0.4",
     "@zowe/perf-timing": "1.0.7",
     "chalk": "2.4.2",

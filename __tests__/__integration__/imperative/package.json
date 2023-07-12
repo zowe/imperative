@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@zowe/imperative": "../../..",
-    "@traeok/keytar-rs": "github:traeok/keytar-rs#fix-macos-delete"
+    "@traeok/keytar-rs": "github:traeok/keytar-rs"
   },
   "engines": {
     "node": ">=8.0.0"
