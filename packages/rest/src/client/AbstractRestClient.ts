@@ -466,8 +466,8 @@ export abstract class AbstractRestClient {
             if (this.session.ISession.base64EncodedAuth || (this.session.ISession.user && this.session.ISession.password)) {
                 this.log.trace("Using basic authentication");
                 const headerKeys: string[] = Object.keys(Headers.BASIC_AUTHORIZATION);
-                const authentication: string = AbstractSession.BASIC_PREFIX + this.session.ISession.base64EncodedAuth ??
-                    AbstractSession.getBase64Auth(this.session.ISession.user,  this.session.ISession.password);
+                const authentication: string = AbstractSession.BASIC_PREFIX + (this.session.ISession.base64EncodedAuth ??
+                    AbstractSession.getBase64Auth(this.session.ISession.user,  this.session.ISession.password));
                 headerKeys.forEach((property) => {
                     options.headers[property] = authentication;
                 });

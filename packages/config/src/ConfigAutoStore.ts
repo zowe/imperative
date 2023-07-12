@@ -18,14 +18,13 @@ import { AbstractAuthHandler } from "../../imperative/src/auth/handlers/Abstract
 import { ImperativeConfig } from "../../utilities";
 import { ISession } from "../../rest/src/session/doc/ISession";
 import { Session } from "../../rest/src/session/Session";
-import { AUTH_TYPE_TOKEN } from "../../rest/src/session/SessConstants";
+import { AUTH_TYPE_TOKEN, TOKEN_TYPE_APIML } from "../../rest/src/session/SessConstants";
 import { Logger } from "../../logger";
 import {
     IConfigAutoStoreFindActiveProfileOpts,
     IConfigAutoStoreFindAuthHandlerForProfileOpts,
     IConfigAutoStoreStoreSessCfgPropsOpts
 } from "./doc/IConfigAutoStoreOpts";
-import { TOKEN_TYPE_APIML } from "../../rest/src/session/SessConstants";
 
 /**
  * Class to manage automatic storage of properties in team config.
