@@ -753,6 +753,28 @@ describe("TeamConfig ProfileInfo tests", () => {
             }
         });
 
+        it("should find correct offSchema args", async () => {
+            const profInfo = createNewProfInfo(teamProjDir);
+            await profInfo.readProfilesFromDisk();
+            const profAttrs = profInfo.getAllProfiles()[7] as IProfAttrs;
+            const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
+
+            const expectedArgs = [
+                { argName: "host", offSchema: false },
+                { argName: "port", offSchema: false },
+                { argName: "responseFormatHeader", offSchema: true },
+                { argName: "fakeOffSchemaArg", offSchema: true },
+                { argName: "user", offSchema: false },
+                { argName: "password", offSchema: false },
+                { argName: "rejectUnauthorized", offSchema: false },
+            ];
+
+            expect(mergedArgs.knownArgs.length).toBe(expectedArgs.length);
+            for (const [idx, arg] of mergedArgs.knownArgs.entries()) {
+                expect(arg.offSchema).toEqual(expectedArgs[idx].offSchema);
+            }
+        });
+
         it("should throw if schema fails to load", async () => {
             const profInfo = createNewProfInfo(teamProjDir);
             await profInfo.readProfilesFromDisk();
