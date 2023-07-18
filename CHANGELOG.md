@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Updated semver transitive dependency to resolve a potential vulnerability.
+
 ## `4.18.16`
 
 - BugFix: Handle logic for if a null command handler is provided
