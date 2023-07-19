@@ -2,6 +2,9 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+- Enhancement: Added `offSchema` property for ProfileInfo to indicate if argument is a known schema argument [#899](https://github.com/zowe/imperative/issues/899)
+
 ## `5.15.1`
 
 - BugFix: Enabled NextVerFeatures.useV3ErrFormat() to form the right environment variable name even if Imperative.init() has not been called.
