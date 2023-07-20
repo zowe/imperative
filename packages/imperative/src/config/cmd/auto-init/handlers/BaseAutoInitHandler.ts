@@ -89,6 +89,11 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
             sessCfg, params.arguments, { parms: params, doPrompting: true, serviceDescription: this.mServiceDescription },
         );
         this.mSession = new Session(sessCfgWithCreds);
+        if (this.mSession.ISession.tokenValue) {
+            this.mSession.ISession.base64EncodedAuth =
+            this.mSession.ISession.user = this.mSession.ISession.password =
+            this.mSession.ISession.cert = this.mSession.ISession.certKey = undefined;
+        }
 
         // Use params to set which config layer to apply to
         await OverridesLoader.ensureCredentialManagerLoaded();
