@@ -236,7 +236,7 @@ export class ConfigAutoStore {
 
         const api = authHandlerClass.getAuthHandlerApi();
         opts.sessCfg.type = AUTH_TYPE_TOKEN;
-        opts.sessCfg.tokenType = api.promptParams.defaultTokenType;
+        opts.sessCfg.tokenType = opts.params.arguments.tokenType ?? api.promptParams.defaultTokenType;
         const baseSessCfg: ISession = { type: opts.sessCfg.type };
 
         for (const propName of Object.keys(ImperativeConfig.instance.loadedConfig.baseProfile.schema.properties)) {
@@ -248,6 +248,7 @@ export class ConfigAutoStore {
 
         Logger.getAppLogger().info(`Fetching ${opts.sessCfg.tokenType} for ${opts.profilePath}`);
         opts.sessCfg.tokenValue = await api.sessionLogin(new Session(baseSessCfg));
+        opts.sessCfg.user = opts.sessCfg.password = undefined;
         return true;
     }
 }
