@@ -308,20 +308,19 @@ describe("TeamConfig ProfileInfo tests", () => {
 
     describe("getAllProfiles", () => {
         it("should return all profiles if no type is specified", async () => {
-            const length = 7;
             const expectedDefaultProfiles = 4;
             const expectedDefaultProfileNameZosmf = "LPAR1";
             const expectedDefaultProfileNameTso = "LPAR1.tsoProfName";
             const expectedDefaultProfileNameBase = "base_glob";
             const expectedDefaultProfileNameDummy = "LPAR4";
             let actualDefaultProfiles = 0;
-            let expectedProfileNames = ["LPAR1", "LPAR2", "LPAR3", "LPAR1.tsoProfName", "LPAR1.tsoProfName.tsoSubProfName", "base_glob", "LPAR4"];
+            let expectedProfileNames = ["LPAR1", "LPAR2", "LPAR3", "LPAR1.tsoProfName", "LPAR1.tsoProfName.tsoSubProfName", "base_glob", "LPAR4", "LPAR5"];
 
             const profInfo = createNewProfInfo(teamProjDir);
             await profInfo.readProfilesFromDisk();
             const profAttrs = profInfo.getAllProfiles();
 
-            expect(profAttrs.length).toEqual(length);
+            expect(profAttrs.length).toEqual(expectedProfileNames.length);
             for (const prof of profAttrs) {
                 if (prof.isDefaultProfile) {
                     let expectedName = "";
@@ -355,7 +354,7 @@ describe("TeamConfig ProfileInfo tests", () => {
             const desiredProfType = "zosmf";
             const expectedName = "LPAR1";
             const expectedDefaultProfiles = 1;
-            let expectedProfileNames = ["LPAR1", "LPAR2", "LPAR3", "LPAR2_home"];
+            let expectedProfileNames = ["LPAR1", "LPAR2", "LPAR3", "LPAR2_home", "LPAR5"];
             let actualDefaultProfiles = 0;
 
             const profInfo = createNewProfInfo(teamProjDir);
@@ -389,7 +388,7 @@ describe("TeamConfig ProfileInfo tests", () => {
             const desiredProfType = "zosmf";
             const expectedName = "LPAR1";
             const expectedDefaultProfiles = 1;
-            let expectedProfileNames = ["LPAR1", "LPAR2", "LPAR3"];
+            let expectedProfileNames = ["LPAR1", "LPAR2", "LPAR3", "LPAR5"];
             let actualDefaultProfiles = 0;
 
             const profInfo = createNewProfInfo(teamProjDir);
