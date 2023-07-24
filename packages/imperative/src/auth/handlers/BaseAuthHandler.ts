@@ -10,9 +10,17 @@
 */
 
 import { IHandlerParameters, IHandlerResponseApi } from "../../../../cmd";
-import { AbstractSession, ConnectionPropsForSessCfg, IOptionsForAddConnProps, ISession, SessConstants, Session } from "../../../../rest";
+import {
+    AbstractSession,
+    ConnectionPropsForSessCfg,
+    IOptionsForAddConnProps,
+    ISession,
+    RestConstants,
+    SessConstants,
+    Session
+} from "../../../../rest";
 import { Imperative } from "../../Imperative";
-import { ImperativeError } from "../../../../error";
+import { IImperativeError, ImperativeError } from "../../../../error";
 import { ISaveProfileFromCliArgs } from "../../../../profiles";
 import { ImperativeConfig } from "../../../../utilities";
 import { getActiveProfileName, secureSaveError } from "../../../../config/src/ConfigUtils";
@@ -214,9 +222,14 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
             { requestToken: false, doPrompting: false, parms: params },
         );
 
+        let logoutError: IImperativeError;
         if (params.arguments.tokenValue != null) {
             this.mSession = new Session(sessCfgWithCreds);
-            await this.doLogout(this.mSession);
+            try {
+                await this.doLogout(this.mSession);
+            } catch (err) {
+                logoutError = err;
+            }
         }
 
         if (!ImperativeConfig.instance.config.exists) {
@@ -234,6 +247,7 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
             const profileProps = config.api.profiles.get(profileName, false);
             let profileWithToken: string = null;
 
+            let noDeleteReason = "";
             // If you specified a token on the command line, then don't delete the one in the profile if it doesn't match
             if (Object.keys(profileProps).length > 0 && profileProps.tokenType != null && profileProps.tokenValue != null &&
                 profileProps.tokenType === params.arguments.tokenType && profileProps.tokenValue === params.arguments.tokenValue) {
@@ -243,11 +257,31 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
 
                 await config.save();
                 profileWithToken = profileName;
+            } else {
+                if (Object.keys(profileProps).length === 0) noDeleteReason = "Empty profile was provided.";
+                else if (profileProps.tokenType == null) noDeleteReason = "Token type was not provided.";
+                else if (profileProps.tokenValue == null) noDeleteReason = "Token value was not provided.";
+                else if (profileProps.tokenType !== params.arguments.tokenType)
+                    noDeleteReason = "Token type does not match the authentication service";
+                else if (profileProps.tokenValue !== params.arguments.tokenValue)
+                    noDeleteReason = "Token value does not match the securely stored value";
             }
 
-            params.response.console.log("Logout successful. The authentication token has been revoked" +
-                (profileWithToken != null ? ` and removed from your '${profileWithToken}' ${this.mProfileType} profile` : "") +
-                ".");
+            if (params.arguments.tokenValue != null) {
+                let logoutMessage = "Logout successful. The authentication token has been revoked.";
+                if (logoutError?.errorCode === RestConstants.HTTP_STATUS_401.toString()) {
+                    logoutMessage = "Token is not valid or expired.";
+                }
+                logoutMessage += `\nToken was${profileWithToken == null ? " not" : ""} removed from ` +
+                    `your '${profileName}' ${this.mProfileType} profile.`;
+                logoutMessage += `${!noDeleteReason ? "" : "\nReason: " + noDeleteReason}`;
+                params.response.console.log(logoutMessage);
+            } else {
+                params.response.console.errorHeader("Command Error");
+                params.response.console.error("Token was not provided, so can't log out!"+
+                    "\nYou need to authenticate using `zowe auth login`");
+                params.response.data.setExitCode(1);
+            }
         }
     }
 
