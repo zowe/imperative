@@ -278,8 +278,8 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
                 params.response.console.log(logoutMessage);
             } else {
                 params.response.console.errorHeader("Command Error");
-                params.response.console.error("Token was not provided, so can't log out!"+
-                    "\nYou need to authenticate using `zowe auth login`");
+                params.response.console.error("Token was not provided, so can't log out."+
+                    "\nYou need to authenticate first using `zowe auth login`.");
                 params.response.data.setExitCode(1);
             }
         }
