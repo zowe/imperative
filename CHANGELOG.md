@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.16.0`
 
 - Enhancement: Handled unique cookie identifier in the form of dynamic token types. [#966](https://github.com/zowe/imperative/pull/996)
 - Enhancement: Added a new utility method to `ImperativeExpect` to match regular expressions. [#966](https://github.com/zowe/imperative/pull/996)
