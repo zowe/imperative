@@ -314,7 +314,8 @@ describe("TeamConfig ProfileInfo tests", () => {
             const expectedDefaultProfileNameBase = "base_glob";
             const expectedDefaultProfileNameDummy = "LPAR4";
             let actualDefaultProfiles = 0;
-            let expectedProfileNames = ["LPAR1", "LPAR2", "LPAR3", "LPAR1.tsoProfName", "LPAR1.tsoProfName.tsoSubProfName", "base_glob", "LPAR4", "LPAR5"];
+            let expectedProfileNames = ["LPAR1", "LPAR2", "LPAR3", "LPAR1.tsoProfName", "LPAR1.tsoProfName.tsoSubProfName",
+                "base_glob", "LPAR4", "LPAR5"];
 
             const profInfo = createNewProfInfo(teamProjDir);
             await profInfo.readProfilesFromDisk();
