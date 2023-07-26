@@ -216,6 +216,30 @@ describe("Config API tests", () => {
                 expect(profile).toBeNull();
             });
         });
+        describe("expandPath", () => {
+            it("should expand a short proeprty path", async () => {
+                const config = await Config.load(MY_APP);
+                const profilePath = "lpar1.zosmf";
+                expect(config.api.profiles.expandPath(profilePath)).toEqual("profiles.lpar1.profiles.zosmf");
+            });
+            it("should expand a path with the keyword profiles", async () => {
+                const config = await Config.load(MY_APP);
+                const profilePath = "profiles.zosmf";
+                expect(config.api.profiles.expandPath(profilePath)).toEqual("profiles.profiles.profiles.zosmf");
+            });
+        });
+        describe("getProfileNameFromPath", () => {
+            it("should shrink profile paths", async () => {
+                const config = await Config.load(MY_APP);
+                const propertyPath = "profiles.lpar1.profiles.zosmf.properties.host";
+                expect(config.api.profiles.getProfileNameFromPath(propertyPath)).toEqual("lpar1.zosmf");
+            });
+            it("should shrink profile paths with the keyword profiles", async () => {
+                const config = await Config.load(MY_APP);
+                const propertyPath = "profiles.profiles.profiles.zosmf.properties.host";
+                expect(config.api.profiles.getProfileNameFromPath(propertyPath)).toEqual("profiles.zosmf");
+            });
+        });
     });
     describe("plugins", () => {
         describe("get", () => {

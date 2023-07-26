@@ -16,7 +16,7 @@ import { ISession, AbstractSession } from "../../../../../../rest";
 export class FakeAutoInitHandler extends BaseAutoInitHandler {
     public mProfileType: string = "fruit";
 
-    protected createSessCfgFromArgs(args: ICommandArguments): ISession {
+    public createSessCfgFromArgs(args: ICommandArguments): ISession {
         return { hostname: "fakeHost", port: 3000 };
     }
 

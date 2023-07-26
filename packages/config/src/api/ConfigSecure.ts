@@ -201,7 +201,7 @@ export class ConfigSecure extends ConfigApi {
      * @returns Array of secure property names
      */
     public securePropsForProfile(profileName: string) {
-        const profilePath = this.mConfig.api.profiles.expandPath(profileName);
+        const profilePath = this.mConfig.api.profiles.getProfilePathFromName(profileName);
         const secureProps = [];
         for (const propPath of this.secureFields()) {
             const pathSegments = propPath.split(".");  // profiles.XXX.properties.YYY

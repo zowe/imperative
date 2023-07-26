@@ -33,6 +33,26 @@ const nestedObj = {
 };
 
 describe("ImperativeExpect tests", () => {
+    describe("toMatchRegExp", () => {
+        it("should not throw an error if the value matches the provided regular expression", () => {
+            let error: ImperativeError = {} as any;
+            try {
+                ImperativeExpect.toMatchRegExp("token", "^token$");
+            } catch(thrownError) {
+                error = thrownError;
+            }
+            expect(error).toEqual({});
+        });
+        it("should throw an error if the value does not match the provided regular expression with custom message", () => {
+            let error: ImperativeError = {} as any;
+            try {
+                ImperativeExpect.toMatchRegExp("token", "^token1", "test");
+            } catch(thrownError) {
+                error = thrownError;
+            }
+            expect(error.message).toContain("test");
+        });
+    });
 
     it("Should throw an error for an undefined key when we expect it to be defined", () => {
         let error: ImperativeError;

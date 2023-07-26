@@ -10,10 +10,17 @@
 */
 
 import { IHandlerParameters, IHandlerResponseApi } from "../../../../cmd";
-import { AbstractSession, ConnectionPropsForSessCfg, IOptionsForAddConnProps, ISession, SessConstants, Session } from "../../../../rest";
+import {
+    AbstractSession,
+    ConnectionPropsForSessCfg,
+    IOptionsForAddConnProps,
+    ISession,
+    RestConstants,
+    SessConstants,
+    Session
+} from "../../../../rest";
 import { Imperative } from "../../Imperative";
-import { ImperativeExpect } from "../../../../expect";
-import { ImperativeError } from "../../../../error";
+import { IImperativeError, ImperativeError } from "../../../../error";
 import { ISaveProfileFromCliArgs } from "../../../../profiles";
 import { ImperativeConfig } from "../../../../utilities";
 import { getActiveProfileName, secureSaveError } from "../../../../config/src/ConfigUtils";
@@ -154,7 +161,7 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
                 }
             }
 
-            const profilePath = config.api.profiles.expandPath(profileName);
+            const profilePath = config.api.profiles.getProfilePathFromName(profileName);
             config.set(`${profilePath}.properties.tokenType`, this.mSession.ISession.tokenType);
             config.set(`${profilePath}.properties.tokenValue`, tokenValue, { secure: true });
 
@@ -197,29 +204,42 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
      * @param {IHandlerParameters} params Command parameters sent by imperative.
      */
     protected async processLogout(params: IHandlerParameters) {
-        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenValue, "Token value not supplied, but is required for logout.");
-
-        // Force to use of token value, in case user and/or password also on base profile, make user undefined.
-        if (params.arguments.user != null) {
+        // Force the use of token value, in case user and/or password are also provided.
+        if (params.arguments.tokenValue != null &&
+            (params.arguments.user != null || params.arguments.password != null)) {
             params.arguments.user = undefined;
+            params.arguments.password = undefined;
         }
 
-        params.arguments.tokenType = this.mDefaultTokenType;
+        if (params.arguments.tokenType == null) {
+            params.arguments.tokenType = this.mDefaultTokenType;
+        }
 
-        const sessCfg: ISession = this.createSessCfgFromArgs(
-            params.arguments
-        );
+        const sessCfg: ISession = this.createSessCfgFromArgs(params.arguments);
 
         const sessCfgWithCreds = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
             sessCfg, params.arguments,
-            { requestToken: false, parms: params },
+            { requestToken: false, doPrompting: false, parms: params },
         );
 
-        this.mSession = new Session(sessCfgWithCreds);
-
-        await this.doLogout(this.mSession);
+        let logoutError: IImperativeError;
+        if (params.arguments.tokenValue != null) {
+            this.mSession = new Session(sessCfgWithCreds);
+            try {
+                await this.doLogout(this.mSession);
+            } catch (err) {
+                logoutError = err;
+            }
+        }
 
         if (!ImperativeConfig.instance.config.exists) {
+            if (sessCfgWithCreds.tokenValue == null) {
+                // Provide dummy token information to prevent multiple V1 logout operations from failing
+                sessCfgWithCreds.type = SessConstants.AUTH_TYPE_TOKEN;
+                sessCfgWithCreds.tokenType = this.mDefaultTokenType;
+                sessCfgWithCreds.tokenValue = SessConstants.AUTH_TYPE_TOKEN;
+            }
+            this.mSession = new Session(sessCfgWithCreds);
             await this.processLogoutOld(params);
         } else {
             const config = ImperativeConfig.instance.config;
@@ -227,20 +247,41 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
             const profileProps = config.api.profiles.get(profileName, false);
             let profileWithToken: string = null;
 
+            let noDeleteReason = "";
             // If you specified a token on the command line, then don't delete the one in the profile if it doesn't match
             if (Object.keys(profileProps).length > 0 && profileProps.tokenType != null && profileProps.tokenValue != null &&
                 profileProps.tokenType === params.arguments.tokenType && profileProps.tokenValue === params.arguments.tokenValue) {
-                const profilePath = config.api.profiles.expandPath(profileName);
+                const profilePath = config.api.profiles.getProfilePathFromName(profileName);
                 config.delete(`${profilePath}.properties.tokenType`);
                 config.delete(`${profilePath}.properties.tokenValue`);
 
                 await config.save();
                 profileWithToken = profileName;
+            } else {
+                if (Object.keys(profileProps).length === 0) noDeleteReason = "Empty profile was provided.";
+                else if (profileProps.tokenType == null) noDeleteReason = "Token type was not provided.";
+                else if (profileProps.tokenValue == null) noDeleteReason = "Token value was not provided.";
+                else if (profileProps.tokenType !== params.arguments.tokenType)
+                    noDeleteReason = "Token type does not match the authentication service";
+                else if (profileProps.tokenValue !== params.arguments.tokenValue)
+                    noDeleteReason = "Token value does not match the securely stored value";
             }
 
-            params.response.console.log("Logout successful. The authentication token has been revoked" +
-                (profileWithToken != null ? ` and removed from your '${profileWithToken}' ${this.mProfileType} profile` : "") +
-                ".");
+            if (params.arguments.tokenValue != null) {
+                let logoutMessage = "Logout successful. The authentication token has been revoked.";
+                if (logoutError?.errorCode === RestConstants.HTTP_STATUS_401.toString()) {
+                    logoutMessage = "Token is not valid or expired.";
+                }
+                logoutMessage += `\nToken was${profileWithToken == null ? " not" : ""} removed from ` +
+                    `your '${profileName}' ${this.mProfileType} profile.`;
+                logoutMessage += `${!noDeleteReason ? "" : "\nReason: " + noDeleteReason}`;
+                params.response.console.log(logoutMessage);
+            } else {
+                params.response.console.errorHeader("Command Error");
+                params.response.console.error("Token was not provided, so can't log out."+
+                    "\nYou need to authenticate first using `zowe auth login`.");
+                params.response.data.setExitCode(1);
+            }
         }
     }
 

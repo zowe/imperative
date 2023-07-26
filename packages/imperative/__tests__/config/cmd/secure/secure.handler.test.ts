@@ -9,9 +9,9 @@
 *
 */
 
-import { IHandlerParameters } from "../../../../..";
+import { IHandlerParameters, Logger } from "../../../../..";
 import { Config } from "../../../../../config/src/Config";
-import { IConfig, IConfigOpts } from "../../../../../config";
+import { IConfig, IConfigOpts, IConfigProfile } from "../../../../../config";
 import { ImperativeConfig } from "../../../../../utilities";
 import { IImperativeConfig } from "../../../../src/doc/IImperativeConfig";
 import { ICredentialManagerInit } from "../../../../../security/src/doc/ICredentialManagerInit";
@@ -495,20 +495,22 @@ describe("Configuration Secure command handler", () => {
     });
 
     describe("special prompting for auth token", () => {
+        const baseProfile: IConfigProfile = {
+            type: "base",
+            properties: {
+                host: "example.com",
+                port: 443,
+                tokenType: SessConstants.TOKEN_TYPE_JWT
+            },
+            secure: [
+                "tokenValue"
+            ]
+        };
+
         const expectedConfigObjectWithToken: IConfig = {
             $schema: "./fakeapp.schema.json",
             profiles: {
-                base: {
-                    type: "base",
-                    properties: {
-                        host: "example.com",
-                        port: 443,
-                        tokenType: SessConstants.TOKEN_TYPE_JWT
-                    },
-                    secure: [
-                        "tokenValue"
-                    ]
-                },
+                base: baseProfile,
             },
             defaults: {
                 base: "base"
@@ -567,6 +569,12 @@ describe("Configuration Secure command handler", () => {
         it("should invoke auth handler to obtain token and store it securely", async () => {
             const eco = lodash.cloneDeep(expectedConfigObjectWithToken);
 
+            // Create another base profile and mock the loggers to test multiple login operations in a single config-secure
+            eco.profiles["base2"] = baseProfile;
+            const dummyLogger: any = {debug: jest.fn(), info: jest.fn()};
+            jest.spyOn(Logger, "getImperativeLogger").mockReturnValue(dummyLogger);
+            jest.spyOn(Logger, "getAppLogger").mockReturnValue(dummyLogger);
+
             readFileSyncSpy.mockReturnValueOnce(JSON.stringify(eco));
             existsSyncSpy.mockReturnValueOnce(false).mockReturnValueOnce(true).mockReturnValue(false); // Only the project config exists
             writeFileSyncSpy.mockImplementation();
@@ -574,7 +582,8 @@ describe("Configuration Secure command handler", () => {
 
             await setupConfigToLoad(undefined, configOpts); // Setup the config
 
-            jest.spyOn(ImperativeConfig.instance, "loadedConfig", "get").mockReturnValueOnce({
+            jest.spyOn(ImperativeConfig.instance, "loadedConfig", "get").mockReturnValue({
+                ...fakeConfig,
                 profiles: [{
                     type: "base",
                     authConfig: [{ handler: authHandlerPath } as any]
@@ -586,7 +595,8 @@ describe("Configuration Secure command handler", () => {
             const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
             delete fakeSecureDataExpectedJson[fakeProjPath];
             fakeSecureDataExpectedJson[fakeProjPath] = {
-                "profiles.base.properties.tokenValue": "fakeLoginData"
+                "profiles.base.properties.tokenValue": "fakeLoginData",
+                "profiles.base2.properties.tokenValue": "fakeLoginData"
             };
             const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
@@ -595,13 +605,14 @@ describe("Configuration Secure command handler", () => {
             compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
             lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
             delete compObj.profiles.base.properties.tokenValue;  // Delete the secret
+            delete compObj.profiles.base2.properties.tokenValue;  // Delete the secret
 
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(process.platform === "win32" ? 4 : 3);
             expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
             expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
-            expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(2);  // User and password
-            expect(mockAuthHandlerApi.createSessCfg).toHaveBeenCalledTimes(1);
-            expect(mockAuthHandlerApi.sessionLogin).toHaveBeenCalledTimes(1);
+            expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(4);  // User and password
+            expect(mockAuthHandlerApi.createSessCfg).toHaveBeenCalledTimes(2);
+            expect(mockAuthHandlerApi.sessionLogin).toHaveBeenCalledTimes(2);
             expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
             expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
             expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config

@@ -19,9 +19,9 @@ import * as keytar from "@traeok/keytar-rs";
 let TEST_ENVIRONMENT: ITestEnvironment;
 describe("imperative-test-cli auth logout", () => {
     async function loadSecureProp(profileName: string): Promise<string> {
-        const securedValue = await keytar.getPassword("imperative-test-cli", "secure_config_props");
+        const securedValue = await keytar.getPassword("imperative-test-cli", "secure_config_props") as string;
         const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
-        return Object.values(securedValueJson)[0][`profiles.${profileName}.properties.tokenValue`];
+        return Object.values(securedValueJson)[0]?.[`profiles.${profileName}.properties.tokenValue`];
     }
 
     // Create the unique test environment
@@ -121,6 +121,7 @@ describe("imperative-test-cli auth logout", () => {
     it("should have auth logout command that invalidates another token", async () => {
         let response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_config_local.sh",
             TEST_ENVIRONMENT.workingDir + "/testDir", ["fakeUser", "fakePass"]);
+        expect(response.error).toBeFalsy();
         expect(response.stderr.toString()).toBe("");
         expect(response.status).toBe(0);
 

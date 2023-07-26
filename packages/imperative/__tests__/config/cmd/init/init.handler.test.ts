@@ -152,7 +152,7 @@ describe("Configuration Initialization command handler", () => {
 
             expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(user ? 0 : 1); // User config is a skeleton - no prompting should occur
             // Prompting for secure property
-            if (!user) expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
+            if (!user) expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("to skip:"), {"hideText": true});
             expect(editFileSpy).not.toHaveBeenCalled();
 
             expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
@@ -241,7 +241,7 @@ describe("Configuration Initialization command handler", () => {
 
             expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(user ? 0 : 1);
             // Prompting for secure property
-            if (!user) expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
+            if (!user) expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("to skip:"), {"hideText": true});
 
             expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
 
@@ -449,7 +449,7 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // Prompting for secure property
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("to skip:"), {"hideText": true});
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // 1 = Schema and 2 = Config
@@ -493,7 +493,7 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // Prompting for secure property
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("to skip:"), {"hideText": true});
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // 1 = Schema and 2 = Config
@@ -539,7 +539,7 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // Prompting for secure property
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("to skip:"), {"hideText": true});
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // 1 = Schema and 2 = Config
@@ -583,7 +583,7 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // Prompting for secure property
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("to skip:"), {"hideText": true});
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // 1 = Schema and 2 = Config
@@ -637,7 +637,7 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // Prompting for secure property
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("to skip:"), {"hideText": true});
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // 1 = Schema and 2 = Config
@@ -691,7 +691,7 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // Prompting for secure property
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("to skip:"), {"hideText": true});
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // 1 = Schema and 2 = Config
@@ -747,7 +747,7 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(2);
         // Prompting for secure property
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("to skip:"), {"hideText": true});
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // 1 = Schema and 2 = Config

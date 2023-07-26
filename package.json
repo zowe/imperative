@@ -1,6 +1,6 @@
 {
   "name": "@zowe/imperative",
-  "version": "5.14.2",
+  "version": "5.16.0",
   "description": "framework for building configurable CLIs",
   "author": "Zowe",
   "license": "EPL-2.0",
@@ -83,7 +83,7 @@
     "progress": "2.0.3",
     "read": "1.0.7",
     "readline-sync": "1.4.10",
-    "semver": "5.7.0",
+    "semver": "7.5.2",
     "stack-trace": "0.0.10",
     "strip-ansi": "6.0.1",
     "which": "3.0.0",

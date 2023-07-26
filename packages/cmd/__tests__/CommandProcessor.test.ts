@@ -24,7 +24,7 @@ import { CliUtils } from "../../utilities/src/CliUtils";
 import { WebHelpManager } from "../src/help/WebHelpManager";
 import { ImperativeConfig } from "../../utilities/src/ImperativeConfig";
 import { setupConfigToLoad } from "../../../__tests__/src/TestUtil";
-import { EnvFileUtils } from "../../utilities";
+import { EnvFileUtils, NextVerFeatures } from "../../utilities";
 import { join } from "path";
 
 jest.mock("../src/syntax/SyntaxValidator");
@@ -818,7 +818,12 @@ describe("Command Processor", () => {
         const commandResponse: ICommandResponse = await processor.invoke(parms);
 
         expect(commandResponse).toBeDefined();
-        expect(commandResponse).toMatchSnapshot();
+        const stderrText = (commandResponse.stderr as Buffer).toString();
+        expect(stderrText).toContain("Unexpected syntax validation error:");
+        expect(stderrText).toContain("Syntax validation error!");
+        expect(commandResponse.message).toEqual("Unexpected syntax validation error: Syntax validation error!");
+        expect(commandResponse.error?.msg).toEqual("Unexpected syntax validation error");
+        expect(commandResponse.error?.additionalDetails).toEqual("Syntax validation error!");
     });
 
     it("should just use the primary command (if it cannot infer the rest of the command) in the syntax help message", async () => {
@@ -838,7 +843,12 @@ describe("Command Processor", () => {
         const commandResponse: ICommandResponse = await processor.invoke(parms);
 
         expect(commandResponse).toBeDefined();
-        expect(commandResponse).toMatchSnapshot();
+        const stderrText = (commandResponse.stderr as Buffer).toString();
+        expect(stderrText).toContain("Unexpected syntax validation error:");
+        expect(stderrText).toContain("Syntax validation error!");
+        expect(commandResponse.message).toEqual("Unexpected syntax validation error: Syntax validation error!");
+        expect(commandResponse.error?.msg).toEqual("Unexpected syntax validation error");
+        expect(commandResponse.error?.additionalDetails).toEqual("Syntax validation error!");
     });
 
     it("should mask sensitive CLI options like user and password in log output", async () => {
@@ -906,7 +916,12 @@ describe("Command Processor", () => {
         const commandResponse: ICommandResponse = await processor.invoke(parms);
 
         expect(commandResponse).toBeDefined();
-        expect(commandResponse).toMatchSnapshot();
+        const stderrText = (commandResponse.stderr as Buffer).toString();
+        expect(stderrText).toContain("Command Preparation Failed:");
+        expect(stderrText).toContain("Profile loading failed!");
+        expect(commandResponse.message).toEqual("Profile loading failed!");
+        expect(commandResponse.error?.msg).toEqual("Profile loading failed!");
+        expect(commandResponse.error?.additionalDetails).not.toBeDefined();
     });
 
     it("should handle not being able to instantiate the handler", async () => {
@@ -947,7 +962,16 @@ describe("Command Processor", () => {
         };
         const commandResponse: ICommandResponse = await processor.invoke(parms);
         expect(commandResponse).toBeDefined();
-        expect(commandResponse).toMatchSnapshot();
+        const stderrText = (commandResponse.stderr as Buffer).toString();
+        expect(stderrText).toContain("Handler Instantiation Failed:");
+        expect(stderrText).toContain("Could not instantiate the handler not_a_real_handler for command banana");
+        expect(stderrText).toContain("Error Details:");
+        expect(stderrText).toContain("Cannot find module 'not_a_real_handler' from 'packages/cmd/src/CommandProcessor.ts'");
+        expect(commandResponse.message).toEqual("Could not instantiate the handler not_a_real_handler for command banana");
+        expect(commandResponse.error?.msg).toEqual("Could not instantiate the handler not_a_real_handler for command banana");
+        expect(commandResponse.error?.additionalDetails).toEqual(
+            "Cannot find module 'not_a_real_handler' from 'packages/cmd/src/CommandProcessor.ts'"
+        );
     });
 
     it("should handle not being able to instantiate a chained handler", async () => {
@@ -1150,8 +1174,18 @@ describe("Command Processor", () => {
         };
         const commandResponse: ICommandResponse = await processor.invoke(parms);
         expect(commandResponse).toBeDefined();
-        expect(commandResponse.stderr.toString()).toMatchSnapshot();
-        expect(commandResponse).toMatchSnapshot();
+        const stderrText = (commandResponse.stderr as Buffer).toString();
+        expect(stderrText).toContain("Command Error:");
+        expect(stderrText).toContain("\tTab!\tTab again!");
+        expect(stderrText).toContain("Line should not be indented");
+        expect(stderrText).toContain("Error Details:");
+        expect(stderrText).toContain("More details!");
+        expect(commandResponse.success).toEqual(false);
+        expect(commandResponse.exitCode).toEqual(1);
+        expect(commandResponse.data).toEqual({});
+        expect(commandResponse.message).toEqual("\tTab!\tTab again!\nLine should not be indented");
+        expect(commandResponse.error?.msg).toEqual("\tTab!\tTab again!\nLine should not be indented");
+        expect(commandResponse.error?.additionalDetails).toEqual("More details!");
     });
 
     it("should handle an imperative error thrown from the handler", async () => {
@@ -1193,7 +1227,120 @@ describe("Command Processor", () => {
         };
         const commandResponse: ICommandResponse = await processor.invoke(parms);
         expect(commandResponse).toBeDefined();
-        expect(commandResponse).toMatchSnapshot();
+        const stderrText = (commandResponse.stderr as Buffer).toString();
+        expect(stderrText).toContain("Command Error:");
+        expect(stderrText).toContain("Handler threw an imperative error!");
+        expect(stderrText).toContain("Error Details:");
+        expect(stderrText).toContain("More details!");
+        expect(commandResponse.message).toEqual("Handler threw an imperative error!");
+        expect(commandResponse.error?.msg).toEqual("Handler threw an imperative error!");
+        expect(commandResponse.error?.additionalDetails).toEqual("More details!");
+    });
+
+    it("should handle an imperative error with JSON causeErrors using v3-format message", async () => {
+        jest.spyOn(NextVerFeatures, "useV3ErrFormat").mockReturnValue(true);
+
+        // Allocate the command processor
+        const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
+            fullDefinition: SAMPLE_COMPLEX_COMMAND,
+            definition: SAMPLE_COMMAND_REAL_HANDLER,
+            helpGenerator: FAKE_HELP_GENERATOR,
+            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: "",
+            promptPhrase: "dummydummy"
+        });
+
+        // Mock read stdin
+        (SharedOptions.readStdinIfRequested as any) = jest.fn((args, response, type) => {
+            // Nothing to do
+        });
+
+        // Mock the profile loader
+        (CommandProfileLoader.loader as any) = jest.fn((args) => {
+            return {
+                loadProfiles: (profArgs: any) => {
+                    // Nothing to do
+                }
+            };
+        });
+
+        const parms: any = {
+            arguments: {
+                _: ["check", "for", "banana"],
+                $0: "",
+                valid: true,
+                throwImperative: true
+            },
+            responseFormat: "json",
+            silent: true
+        };
+        const commandResponse: ICommandResponse = await processor.invoke(parms);
+        expect(commandResponse).toBeDefined();
+        const stderrText = (commandResponse.stderr as Buffer).toString();
+        expect(stderrText).toContain("Unable to perform this operation due to the following problem");
+        expect(stderrText).toContain("Handler threw an imperative error!");
+        expect(stderrText).toContain("Response From Service");
+        expect(stderrText).toContain("jsonCause: causeErrors are a JSON object");
+        expect(stderrText).toContain("Diagnostic Information");
+        expect(stderrText).toContain("More details!");
+        expect(commandResponse.message).toEqual("Handler threw an imperative error!");
+        expect(commandResponse.error?.msg).toEqual("Handler threw an imperative error!");
+        expect(commandResponse.error?.additionalDetails).toEqual("More details!");
+    });
+
+    it("should handle an imperative error with string causeErrors using v3-format message", async () => {
+        jest.spyOn(NextVerFeatures, "useV3ErrFormat").mockReturnValue(true);
+
+        // Allocate the command processor
+        const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
+            fullDefinition: SAMPLE_COMPLEX_COMMAND,
+            definition: SAMPLE_COMMAND_REAL_HANDLER,
+            helpGenerator: FAKE_HELP_GENERATOR,
+            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: "",
+            promptPhrase: "dummydummy"
+        });
+
+        // Mock read stdin
+        (SharedOptions.readStdinIfRequested as any) = jest.fn((args, response, type) => {
+            // Nothing to do
+        });
+
+        // Mock the profile loader
+        (CommandProfileLoader.loader as any) = jest.fn((args) => {
+            return {
+                loadProfiles: (profArgs: any) => {
+                    // Nothing to do
+                }
+            };
+        });
+
+        const parms: any = {
+            arguments: {
+                _: ["check", "for", "banana"],
+                $0: "",
+                valid: true,
+                throwImpStringCause: true
+            },
+            responseFormat: "json",
+            silent: true
+        };
+        const commandResponse: ICommandResponse = await processor.invoke(parms);
+        expect(commandResponse).toBeDefined();
+        const stderrText = (commandResponse.stderr as Buffer).toString();
+        expect(stderrText).toContain("Unable to perform this operation due to the following problem");
+        expect(stderrText).toContain("Handler threw an imperative error!");
+        expect(stderrText).toContain("Response From Service");
+        expect(stderrText).toContain("causeErrors are just contained in a string");
+        expect(stderrText).toContain("Diagnostic Information");
+        expect(stderrText).toContain("More details!");
+        expect(commandResponse.message).toEqual("Handler threw an imperative error!");
+        expect(commandResponse.error?.msg).toEqual("Handler threw an imperative error!");
+        expect(commandResponse.error?.additionalDetails).toEqual("More details!");
     });
 
     it("should handle an error thrown from the handler", async () => {
@@ -1240,12 +1387,12 @@ describe("Command Processor", () => {
         expect(commandResponse.message).toMatch(
             /Unexpected Command Error: Cannot read (property 'doesnt' of undefined|properties of undefined \(reading 'doesnt'\))/
         );
-        expect(commandResponse.error.msg).toMatch(/Cannot read (property 'doesnt' of undefined|properties of undefined \(reading 'doesnt'\))/);
-        expect(commandResponse.stdout.toString().length).toBe(0);
-        expect(commandResponse.stderr.toString()).toContain("Unexpected Command Error:");
-        expect(commandResponse.stderr.toString()).toContain("Message:");
-        expect(commandResponse.stderr.toString()).toContain("Stack:");
-        expect(commandResponse.error.stack).toMatch(
+        expect(commandResponse?.error?.msg).toMatch(/Cannot read (property 'doesnt' of undefined|properties of undefined \(reading 'doesnt'\))/);
+        expect(commandResponse?.stdout?.toString().length).toBe(0);
+        expect(commandResponse?.stderr?.toString()).toContain("Unexpected Command Error:");
+        expect(commandResponse?.stderr?.toString()).toContain("Message:");
+        expect(commandResponse?.stderr?.toString()).toContain("Stack:");
+        expect(commandResponse?.error?.stack).toMatch(
             /TypeError: Cannot read (property 'doesnt' of undefined|properties of undefined \(reading 'doesnt'\))/
         );
     });
@@ -1289,7 +1436,65 @@ describe("Command Processor", () => {
         };
         const commandResponse: ICommandResponse = await processor.invoke(parms);
         expect(commandResponse).toBeDefined();
-        expect(commandResponse).toMatchSnapshot();
+        const stderrText = (commandResponse.stderr as Buffer).toString();
+        expect(stderrText).toContain("Command Error:");
+        expect(stderrText).toContain("Rejected with a message");
+        expect(commandResponse.success).toEqual(false);
+        expect(commandResponse.exitCode).toEqual(1);
+        expect(commandResponse.message).toEqual("Rejected with a message");
+        expect(commandResponse.error?.msg).toEqual("Rejected with a message");
+        expect(commandResponse.error?.additionalDetails).not.toBeDefined();
+    });
+
+    it("should handle a handler-error with a v3-format message", async () => {
+        jest.spyOn(NextVerFeatures, "useV3ErrFormat").mockReturnValue(true);
+
+        // Allocate the command processor
+        const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
+            fullDefinition: SAMPLE_COMPLEX_COMMAND,
+            definition: SAMPLE_COMMAND_REAL_HANDLER,
+            helpGenerator: FAKE_HELP_GENERATOR,
+            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: "",
+            promptPhrase: "dummydummy"
+        });
+
+        // Mock read stdin
+        (SharedOptions.readStdinIfRequested as any) = jest.fn((args, response, type) => {
+            // Nothing to do
+        });
+
+        // Mock the profile loader
+        (CommandProfileLoader.loader as any) = jest.fn((args) => {
+            return {
+                loadProfiles: (profArgs: any) => {
+                    // Nothing to do
+                }
+            };
+        });
+
+        const parms: any = {
+            arguments: {
+                _: ["check", "for", "banana"],
+                $0: "",
+                valid: true,
+                rejectWithMessage: true
+            },
+            responseFormat: "json",
+            silent: true
+        };
+        const commandResponse: ICommandResponse = await processor.invoke(parms);
+        expect(commandResponse).toBeDefined();
+        const stderrText = (commandResponse.stderr as Buffer).toString();
+        expect(stderrText).toContain("Command Error:");
+        expect(stderrText).toContain("Rejected with a message");
+        expect(commandResponse.success).toEqual(false);
+        expect(commandResponse.exitCode).toEqual(1);
+        expect(commandResponse.message).toEqual("Rejected with a message");
+        expect(commandResponse.error?.msg).toEqual("Rejected with a message");
+        expect(commandResponse.error?.additionalDetails).not.toBeDefined();
     });
 
     it("should handle the handler rejecting with no messages", async () => {

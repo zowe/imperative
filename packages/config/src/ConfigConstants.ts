@@ -27,4 +27,9 @@ export class ConfigConstants {
      * ID used for storing secure credentials in vault
      */
     public static readonly SECURE_ACCT = "secure_config_props";
+
+    /**
+     * ID used for storing secure credentials in vault
+     */
+    public static readonly SKIP_PROMPT = "- Press ENTER to skip: ";
 }

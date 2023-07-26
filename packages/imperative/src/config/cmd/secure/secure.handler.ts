@@ -10,7 +10,7 @@
 */
 
 import { ICommandArguments, ICommandHandler, IHandlerParameters } from "../../../../../cmd";
-import { Config, ConfigAutoStore, ConfigSchema } from "../../../../../config";
+import { Config, ConfigAutoStore, ConfigConstants, ConfigSchema } from "../../../../../config";
 import { coercePropValue, secureSaveError } from "../../../../../config/src/ConfigUtils";
 import { ImperativeError } from "../../../../../error";
 import { Logger } from "../../../../../logger";
@@ -57,29 +57,26 @@ export default class SecureHandler implements ICommandHandler {
         }
 
         // Prompt for values designated as secure
-        let authTokenProp: string;
         for (const propName of secureProps) {
-            if (authTokenProp == null && propName.endsWith(".tokenValue")) {
-                authTokenProp = propName;
-                continue;
-            }
+            if (propName.endsWith(".tokenValue")) {
+                params.response.console.log(`Processing secure properties for profile: ${config.api.profiles.getProfileNameFromPath(propName)}`);
+                let propValue = await this.handlePromptForAuthToken(config, propName);
+                if (propValue === undefined) {
+                    propValue = await params.response.console.prompt(`Enter ${propName} ${ConfigConstants.SKIP_PROMPT}`, {hideText: true});
+                }
 
-            let propValue = await params.response.console.prompt(`Enter ${propName} - blank to skip: `, { hideText: true });
+                // Save the value in the config securely
+                if (propValue) {
+                    config.set(propName, propValue, { secure: true });
+                }
+            } else {
+                let propValue = await params.response.console.prompt(`Enter ${propName} ${ConfigConstants.SKIP_PROMPT}`, { hideText: true });
 
-            // Save the value in the config securely
-            if (propValue) {
-                propValue = coercePropValue(propValue, ConfigSchema.findPropertyType(propName, config.properties));
-                config.set(propName, propValue, { secure: true });
-            }
-        }
-
-        if (authTokenProp != null) {
-            const propValue = await this.handlePromptForAuthToken(config, authTokenProp) ||
-                await params.response.console.prompt(`Enter ${authTokenProp} - blank to skip: `, {hideText: true});
-
-            // Save the value in the config securely
-            if (propValue) {
-                config.set(authTokenProp, propValue, { secure: true });
+                // Save the value in the config securely
+                if (propValue) {
+                    propValue = coercePropValue(propValue, ConfigSchema.findPropertyType(propName, config.properties));
+                    config.set(propName, propValue, { secure: true });
+                }
             }
         }
 
@@ -102,7 +99,7 @@ export default class SecureHandler implements ICommandHandler {
         if (authHandlerClass != null) {
             const api = authHandlerClass.getAuthHandlerApi();
             if (api.promptParams.serviceDescription != null) {
-                this.params.response.console.log(`Logging in to ${api.promptParams.serviceDescription}`);
+                this.params.response.console.log(`Logging in to ${api.promptParams.serviceDescription} ${ConfigConstants.SKIP_PROMPT}`);
             }
 
             const profile = config.api.profiles.get(profilePath.replace(/profiles\./g, ""), false);
@@ -111,13 +108,21 @@ export default class SecureHandler implements ICommandHandler {
                 { parms: this.params, doPrompting: true, requestToken: true, ...api.promptParams });
             Logger.getAppLogger().info(`Fetching ${profile.tokenType} for ${propPath}`);
 
-            try {
-                return await api.sessionLogin(new Session(sessCfgWithCreds));
-            } catch (error) {
-                throw new ImperativeError({
-                    msg: `Failed to fetch ${profile.tokenType} for ${propPath}: ${error.message}`,
-                    causeErrors: error
-                });
+            if (ConnectionPropsForSessCfg.sessHasCreds(sessCfgWithCreds)) {
+                try {
+                    const tokenValue = await api.sessionLogin(new Session(sessCfgWithCreds));
+                    this.params.response.console.log("Logged in successfully");
+                    return tokenValue;
+                } catch (error) {
+                    throw new ImperativeError({
+                        msg: `Failed to fetch ${profile.tokenType} for ${propPath}: ${error.message}`,
+                        causeErrors: error
+                    });
+                }
+            } else {
+                this.params.response.console.log("No credentials provided.");
+                // return null to avoid propting for .tokenValue for this profile
+                return null;
             }
         }
     }
