@@ -196,7 +196,7 @@ export class ConfigLayers extends ConfigApi {
      * @returns User and global properties, or undefined if profile does not exist
      */
     public find(profileName: string): { user: boolean, global: boolean } {
-        const profilePath = this.mConfig.api.profiles.expandPath(profileName);
+        const profilePath = this.mConfig.api.profiles.getProfilePathFromName(profileName);
         for (const layer of this.mConfig.layers) {
             if (lodash.get(layer.properties, profilePath) != null) {
                 return layer;

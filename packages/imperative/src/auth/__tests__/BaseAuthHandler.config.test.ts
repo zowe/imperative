@@ -440,7 +440,12 @@ describe("BaseAuthHandler config", () => {
         const logoutParams: IHandlerParameters = {
             response: {
                 console: {
+                    error: jest.fn(),
+                    errorHeader: jest.fn(),
                     log: jest.fn()
+                },
+                data: {
+                    setExitCode: jest.fn()
                 }
             },
             arguments: {
@@ -454,6 +459,7 @@ describe("BaseAuthHandler config", () => {
         } as any;
 
         beforeEach(async () => {
+            jest.restoreAllMocks();
             jest.spyOn(Config, "search").mockReturnValue(configPath);
             jest.spyOn(fs, "existsSync").mockReturnValueOnce(false).mockReturnValueOnce(true).mockReturnValue(false);
             fakeConfig = await Config.load(MY_APP, { vault: fakeVault });
@@ -532,7 +538,7 @@ describe("BaseAuthHandler config", () => {
 
             expect(caughtError).toBeUndefined();
             expect(doLogoutSpy).toBeCalledTimes(1);
-            expect(writeFileSpy).not.toHaveBeenCalled();
+            expect(writeFileSpy).toBeCalledTimes(0);
             expect(fakeConfig.properties.profiles.fruit.properties.tokenType).toBeDefined();
             expect(fakeConfig.properties.profiles.fruit.properties.tokenValue).toBeDefined();
         });
@@ -554,6 +560,121 @@ describe("BaseAuthHandler config", () => {
             expect(caughtError).toBeUndefined();
             expect(doLogoutSpy).toBeCalledTimes(1);
             expect(writeFileSpy).not.toHaveBeenCalled();
+        });
+
+        it("should not logout without a token", async () => {
+            const handler = new FakeAuthHandler();
+            const params = lodash.cloneDeep(logoutParams);
+            delete params.arguments.tokenValue;
+
+            const doLogoutSpy = jest.spyOn(handler as any, "doLogout");
+            const writeFileSpy = jest.spyOn(fs, "writeFileSync");
+
+            let caughtError;
+
+            try {
+                await handler.process(params);
+            } catch (error) {
+                caughtError = error;
+            }
+
+            expect(caughtError).toBeUndefined();
+            expect(doLogoutSpy).not.toHaveBeenCalled();
+            expect(writeFileSpy).not.toHaveBeenCalled();
+            expect((params.response.console.error as any).mock.calls[0][0]).toContain("Token was not provided");
+            expect(params.response.data.setExitCode).toHaveBeenCalledWith(1);
+        });
+
+        it("should not touch the config file if there is no profile to modify", async () => {
+            const handler = new FakeAuthHandler();
+            const params = lodash.cloneDeep(logoutParams);
+
+            const doLogoutSpy = jest.spyOn(handler as any, "doLogout").mockRejectedValueOnce({errorCode: "401"});
+            const writeFileSpy = jest.spyOn(fs, "writeFileSync");
+
+            let caughtError;
+
+            try {
+                await handler.process(params);
+            } catch (error) {
+                caughtError = error;
+            }
+
+            expect(caughtError).toBeUndefined();
+            expect(doLogoutSpy).toHaveBeenCalled();
+            expect(writeFileSpy).not.toHaveBeenCalled();
+            expect((params.response.console.log as any).mock.calls[0][0]).toContain("Token is not valid or expired");
+            expect((params.response.console.log as any).mock.calls[0][0]).toContain("Empty profile was provided");
+        });
+
+        it("should not touch the config file if the token type was not specified", async () => {
+            const handler = new FakeAuthHandler();
+            const params = lodash.cloneDeep(logoutParams);
+            params.arguments["fruit-profile"] = "fruity";
+
+            const doLogoutSpy = jest.spyOn(handler as any, "doLogout");
+            const writeFileSpy = jest.spyOn(fs, "writeFileSync");
+
+            let caughtError;
+
+            try {
+                await handler.process(params);
+            } catch (error) {
+                caughtError = error;
+            }
+
+            expect(caughtError).toBeUndefined();
+            expect(doLogoutSpy).toHaveBeenCalled();
+            expect(writeFileSpy).not.toHaveBeenCalled();
+            expect((params.response.console.log as any).mock.calls[0][0]).toContain("Token type was not provided");
+        });
+
+        it("should not touch the config file if the token type does not match", async () => {
+            const handler = new FakeAuthHandler();
+            const params = lodash.cloneDeep(logoutParams);
+            params.arguments.tokenType = "fakeType.1";
+            params.arguments["fruit-profile"] = "fruit";
+            fakeConfig.properties.profiles.fruit.properties.tokenType = "fakeType.2";
+
+            const doLogoutSpy = jest.spyOn(handler as any, "doLogout");
+            const writeFileSpy = jest.spyOn(fs, "writeFileSync");
+
+            let caughtError;
+
+            try {
+                await handler.process(params);
+            } catch (error) {
+                caughtError = error;
+            }
+
+            expect(caughtError).toBeUndefined();
+            expect(doLogoutSpy).toHaveBeenCalled();
+            expect(writeFileSpy).not.toHaveBeenCalled();
+            expect((params.response.console.log as any).mock.calls[0][0]).toContain("Token type does not match the authentication service");
+        });
+
+        it("should not touch the config file if the token value does not match", async () => {
+            const handler = new FakeAuthHandler();
+            const params = lodash.cloneDeep(logoutParams);
+            params.arguments.tokenValue = "fakeValue.1";
+            params.arguments["fruit-profile"] = "fruit";
+            fakeConfig.properties.profiles.fruit.properties.tokenValue = "fakeValue.2";
+
+            const doLogoutSpy = jest.spyOn(handler as any, "doLogout");
+            const writeFileSpy = jest.spyOn(fs, "writeFileSync");
+
+            let caughtError;
+
+            try {
+                await handler.process(params);
+            } catch (error) {
+                caughtError = error;
+            }
+
+            expect(caughtError).toBeUndefined();
+            expect(doLogoutSpy).toHaveBeenCalled();
+            expect(writeFileSpy).not.toHaveBeenCalled();
+            expect((params.response.console.log as any).mock.calls[0][0]).toContain("Token value does not match the securely stored value");
         });
     });
 });

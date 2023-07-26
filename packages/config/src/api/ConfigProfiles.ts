@@ -105,9 +105,46 @@ export class ConfigProfiles extends ConfigApi {
      *
      * @returns The expanded path.
      *
+     * @deprecated Please use getProfilePathFromName
      */
     public expandPath(shortPath: string): string {
+        return this.getProfilePathFromName(shortPath);
+    }
+
+    // _______________________________________________________________________
+    /**
+     * Expands a short path into an expanded path.
+     *
+     * @param shortPath The short path.
+     *
+     * @returns The expanded path.
+     */
+    public getProfilePathFromName(shortPath: string): string {
         return shortPath.replace(/(^|\.)/g, "$1profiles.");
+    }
+
+    // _______________________________________________________________________
+    /**
+     * Obtain the profile name (either nested or not) based on a property path.
+     *
+     * @param path The property path.
+     *
+     * @returns The corresponding profile name.
+     *
+     * @note This may be useful for supporting token authentication in a nested configuration
+     *
+     */
+    public getProfileNameFromPath(path: string): string {
+        let profileName = "";
+        const segments = path.split(".");
+        for (let i = 0; i < segments.length; i++) {
+            const p = segments[i];
+            if (p === "properties") break;
+            if (i%2) {
+                profileName += profileName.length > 0 ? "." + p : p;
+            }
+        }
+        return profileName;
     }
 
     // _______________________________________________________________________

@@ -79,6 +79,21 @@ export class ImperativeExpect {
     }
 
     /**
+     * Expect that value matches the regular expression (via ".test()" method).
+     * @static
+     * @param {*} value - Value
+     * @param {*} myRegex - Regular expression
+     * @param {string} [msg] - The message to throw - overrides the default message
+     * @memberof ImperativeExpect
+     */
+    public static toMatchRegExp(value: any, myRegex: string, msg?: string) {
+        if (!(new RegExp(myRegex).test(value))) {
+            throw new ImperativeError({msg: msg || "Input object/value does not match the regular expression"},
+                {tag: ImperativeExpect.ERROR_TAG});
+        }
+    }
+
+    /**
      * Expect the object passed to be defined.
      * @static
      * @param {*} obj - The object to check

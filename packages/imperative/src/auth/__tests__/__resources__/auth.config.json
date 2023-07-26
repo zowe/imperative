@@ -22,6 +22,16 @@
             "secure": [
                 "tokenValue"
             ]
+        },
+        "fruity": {
+            "type": "fruit",
+            "properties": {
+                "host": "example.com",
+                "port": 12345
+            },
+            "secure": [
+                "tokenValue"
+            ]
         }
     },
     "defaults": {},
