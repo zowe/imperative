@@ -463,7 +463,15 @@ export abstract class AbstractRestClient {
          */
         if (this.session.ISession.type === SessConstants.AUTH_TYPE_BASIC ||
             this.session.ISession.type === SessConstants.AUTH_TYPE_TOKEN) {
-            if (this.session.ISession.tokenValue) {
+            if (this.session.ISession.base64EncodedAuth || (this.session.ISession.user && this.session.ISession.password)) {
+                this.log.trace("Using basic authentication");
+                const headerKeys: string[] = Object.keys(Headers.BASIC_AUTHORIZATION);
+                const authentication: string = AbstractSession.BASIC_PREFIX + (this.session.ISession.base64EncodedAuth ??
+                    AbstractSession.getBase64Auth(this.session.ISession.user,  this.session.ISession.password));
+                headerKeys.forEach((property) => {
+                    options.headers[property] = authentication;
+                });
+            } else if (this.session.ISession.tokenValue) {
                 this.log.trace("Using cookie authentication with token %s", this.session.ISession.tokenValue);
                 const headerKeys: string[] = Object.keys(Headers.COOKIE_AUTHORIZATION);
                 const authentication: string = `${this.session.ISession.tokenType}=${this.session.ISession.tokenValue}`;
@@ -471,12 +479,7 @@ export abstract class AbstractRestClient {
                     options.headers[property] = authentication;
                 });
             } else {
-                this.log.trace("Using basic authentication");
-                const headerKeys: string[] = Object.keys(Headers.BASIC_AUTHORIZATION);
-                const authentication: string = AbstractSession.BASIC_PREFIX + this.session.ISession.base64EncodedAuth;
-                headerKeys.forEach((property) => {
-                    options.headers[property] = authentication;
-                });
+                throw new ImperativeError({msg: "No credentials for a BASIC or TOKEN type of session."});
             }
         } else if (this.session.ISession.type === SessConstants.AUTH_TYPE_BEARER) {
             this.log.trace("Using bearer authentication");

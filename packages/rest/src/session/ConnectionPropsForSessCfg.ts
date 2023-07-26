@@ -303,6 +303,26 @@ export class ConnectionPropsForSessCfg {
         ConnectionPropsForSessCfg.logSessCfg(sessCfg);
     }
 
+    // ***********************************************************************
+    /**
+     * Confirm whether the given session has a credentials.
+     *
+     * @param sessToTest
+     *       the session to be confirmed.
+     *
+     * @returns true is the session has credentials. false otherwise.
+     */
+    public static sessHasCreds(sessToTest: ISession) {
+        if (sessToTest == null) {
+            return false;
+        }
+        const hasToken = sessToTest.tokenType != null && sessToTest.tokenValue != null;
+        const hasCert = sessToTest.certKey != null && sessToTest.cert;
+        const hasBasicAuth = sessToTest.base64EncodedAuth != null;
+        const hasCreds = sessToTest.user != null && sessToTest.password;
+        return hasToken || hasCert || hasBasicAuth || hasCreds;
+    }
+
     /**
      * List of properties on `sessCfg` object that should be kept secret and
      * may not appear in Imperative log files.

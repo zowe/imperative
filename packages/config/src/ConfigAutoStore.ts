@@ -18,7 +18,7 @@ import { AbstractAuthHandler } from "../../imperative/src/auth/handlers/Abstract
 import { ImperativeConfig } from "../../utilities";
 import { ISession } from "../../rest/src/session/doc/ISession";
 import { Session } from "../../rest/src/session/Session";
-import { AUTH_TYPE_TOKEN } from "../../rest/src/session/SessConstants";
+import { AUTH_TYPE_TOKEN, TOKEN_TYPE_APIML } from "../../rest/src/session/SessConstants";
 import { Logger } from "../../logger";
 import {
     IConfigAutoStoreFindActiveProfileOpts,
@@ -78,18 +78,19 @@ export class ConfigAutoStore {
         const profileType = lodash.get(config.properties, `${opts.profilePath}.type`);
         const profile = config.api.profiles.get(opts.profilePath.replace(/profiles\./g, ""), false);
 
-        if (profile == null || profileType == null) {  // Profile must exist and have type defined
+        if (profile == null || profileType == null) { // Profile must exist and have type defined
             return;
         } else if (profileType === "base") {
-            if (profile.tokenType == null) {  // Base profile must have tokenType defined
+            if (profile.tokenType == null) { // Base profile must have tokenType defined
                 return;
             }
         } else {
-            if (profile.basePath == null) {  // Service profiles must have basePath defined
+            if (profile.basePath == null) { // Service profiles must have basePath defined
                 return;
-            } else if (profile.tokenType == null) {  // If tokenType undefined in service profile, fall back to base profile
+            }
+            if (profile.tokenType == null) {  // If tokenType undefined in service profile, fall back to base profile
                 const baseProfileName = ConfigUtils.getActiveProfileName("base", opts.cmdArguments, opts.defaultBaseProfileName);
-                return this._findAuthHandlerForProfile({ ...opts, profilePath: config.api.profiles.expandPath(baseProfileName) });
+                return this._findAuthHandlerForProfile({ ...opts, profilePath: config.api.profiles.getProfilePathFromName(baseProfileName) });
             }
         }
 
@@ -106,7 +107,7 @@ export class ConfigAutoStore {
 
             if (authHandlerClass instanceof AbstractAuthHandler) {
                 const { promptParams } = authHandlerClass.getAuthHandlerApi();
-                if (profile.tokenType === promptParams.defaultTokenType) {
+                if (profile.tokenType === promptParams.defaultTokenType || profile.tokenType.startsWith(TOKEN_TYPE_APIML)) {
                     return authHandlerClass;  // Auth service must have matching token type
                 }
             }
@@ -140,7 +141,7 @@ export class ConfigAutoStore {
             return;
         }
         const [profileType, profileName] = profileData ?? [opts.profileType, opts.profileName];
-        const profilePath = config.api.profiles.expandPath(profileName);
+        const profilePath = config.api.profiles.getProfilePathFromName(profileName);
 
         // Replace user and password with tokenValue if tokenType is defined in config
         if (profileProps.includes("user") && profileProps.includes("password") && await this._fetchTokenForSessCfg({ ...opts, profilePath })) {
@@ -179,7 +180,7 @@ export class ConfigAutoStore {
                 (propName === "tokenValue" && profileObj.tokenType == null && baseProfileObj.tokenType != null ||
                 profileType === "base")
             ) {
-                propProfilePath = config.api.profiles.expandPath(baseProfileName);
+                propProfilePath = config.api.profiles.getProfilePathFromName(baseProfileName);
                 isSecureProp = baseProfileSchema.properties[propName].secure || baseProfileSecureProps.includes(propName);
             }
 
@@ -235,7 +236,7 @@ export class ConfigAutoStore {
 
         const api = authHandlerClass.getAuthHandlerApi();
         opts.sessCfg.type = AUTH_TYPE_TOKEN;
-        opts.sessCfg.tokenType = api.promptParams.defaultTokenType;
+        opts.sessCfg.tokenType = opts.params?.arguments?.tokenType ?? api.promptParams.defaultTokenType;
         const baseSessCfg: ISession = { type: opts.sessCfg.type };
 
         for (const propName of Object.keys(ImperativeConfig.instance.loadedConfig.baseProfile.schema.properties)) {
@@ -247,6 +248,7 @@ export class ConfigAutoStore {
 
         Logger.getAppLogger().info(`Fetching ${opts.sessCfg.tokenType} for ${opts.profilePath}`);
         opts.sessCfg.tokenValue = await api.sessionLogin(new Session(baseSessCfg));
+        opts.sessCfg.user = opts.sessCfg.password = undefined;
         return true;
     }
 }

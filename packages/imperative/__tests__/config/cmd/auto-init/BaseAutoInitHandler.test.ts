@@ -17,7 +17,7 @@ import * as jestDiff from "jest-diff";
 import stripAnsi = require("strip-ansi");
 import { ConfigSchema } from "../../../../../config";
 import { CredentialManagerFactory } from "../../../../../security";
-import { SessConstants } from "../../../../../rest";
+import { SessConstants, Session } from "../../../../../rest";
 import { OverridesLoader } from "../../../../src/OverridesLoader";
 
 jest.mock("strip-ansi");
@@ -122,11 +122,18 @@ describe("BaseAutoInitHandler", () => {
 
     it("should call init with token", async () => {
         const handler = new FakeAutoInitHandler();
+        handler.createSessCfgFromArgs = jest.fn().mockReturnValue({
+            hostname: "fakeHost", port: 3000, tokenValue: "fake"
+        });
         const params: IHandlerParameters = {
             ...mockParams,
             arguments: {
                 tokenType: "fake",
-                tokenValue: "fake"
+                tokenValue: "fake",
+                user: "toBeDeleted",
+                password: "toBeDeleted",
+                cert: "toBeDeleted",
+                certKey: "toBeDeleted"
             }
         } as any;
 
@@ -158,8 +165,15 @@ describe("BaseAutoInitHandler", () => {
             caughtError = error;
         }
 
+        const mSession: Session = doInitSpy.mock.calls[0][0] as any;
+
         expect(caughtError).toBeUndefined();
         expect(doInitSpy).toBeCalledTimes(1);
+        expect(mSession.ISession.user).toBeUndefined();
+        expect(mSession.ISession.password).toBeUndefined();
+        expect(mSession.ISession.base64EncodedAuth).toBeUndefined();
+        expect(mSession.ISession.cert).toBeUndefined();
+        expect(mSession.ISession.certKey).toBeUndefined();
         expect(processAutoInitSpy).toBeCalledTimes(1);
         expect(createSessCfgFromArgsSpy).toBeCalledTimes(1);
         expect(mockConfigApi.layers.merge).toHaveBeenCalledTimes(1);

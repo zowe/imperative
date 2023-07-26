@@ -449,7 +449,7 @@ export class ProfileInfo {
             const foundProfNm = configProperties.defaults[profileType];
 
             // for a team config, we use the last node of the jsonLoc as the name
-            const foundJson = this.mLoadedConfig.api.profiles.expandPath(foundProfNm);
+            const foundJson = this.mLoadedConfig.api.profiles.getProfilePathFromName(foundProfNm);
             const teamOsLocation: string[] = this.findTeamOsLocation(foundJson);
 
             // assign the required poperties to defaultProfile
@@ -1335,7 +1335,7 @@ export class ProfileInfo {
      * @param opts Set of options that allow this method to get the profile location
      */
     private argTeamConfigLoc(opts: IArgTeamConfigLoc): [IProfLoc, boolean] {
-        const segments = this.mLoadedConfig.api.profiles.expandPath(opts.profileName).split(".profiles.");
+        const segments = this.mLoadedConfig.api.profiles.getProfilePathFromName(opts.profileName).split(".profiles.");
         let osLocInfo: IProfLocOsLocLayer;
         if (opts.osLocInfo?.user != null || opts.osLocInfo?.global != null)
             osLocInfo = { user: opts.osLocInfo?.user, global: opts.osLocInfo?.global };
