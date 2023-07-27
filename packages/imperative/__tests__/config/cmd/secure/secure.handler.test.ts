@@ -20,7 +20,7 @@ import { expectedConfigObject } from
     "../../../../../../__tests__/__integration__/imperative/__tests__/__integration__/cli/config/__resources__/expectedObjects";
 import SecureHandler from "../../../../src/config/cmd/secure/secure.handler";
 import * as config from "../../../../../../__tests__/__integration__/imperative/src/imperative";
-import * as keytar from "@traeok/keytar-rs";
+import { keyring as keytar } from "@zowe/secrets-for-zowe-sdk";
 import * as path from "path";
 import * as lodash from "lodash";
 import * as fs from "fs";

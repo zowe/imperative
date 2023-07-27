@@ -113,7 +113,7 @@ export class OverridesLoader {
     private static shouldUseKeytar(packageJson: any, useTeamConfig: boolean): boolean {
         const deps = packageJson.dependencies ?? {};
         const optionalDeps = packageJson.optionalDependencies ?? {};
-        return ("@traeok/keytar-rs" in deps || "@traeok/keytar-rs" in optionalDeps) &&
+        return ("@zowe/secrets-for-zowe-sdk" in deps || "@zowe/secrets-for-zowe-sdk" in optionalDeps) &&
             (!AppSettings.initialized || useTeamConfig || AppSettings.instance.getNamespace("overrides")?.CredentialManager === packageJson.name);
     }
 

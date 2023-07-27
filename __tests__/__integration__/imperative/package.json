@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@zowe/imperative": "../../..",
-    "@traeok/keytar-rs": "github:traeok/keytar-rs"
+    "@zowe/secrets-for-zowe-sdk": "7.18.0-next.1"
   },
   "engines": {
     "node": ">=8.0.0"

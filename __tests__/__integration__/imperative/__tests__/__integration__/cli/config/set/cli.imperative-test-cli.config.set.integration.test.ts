@@ -15,7 +15,7 @@ import { runCliScript } from "../../../../../../../src/TestUtil";
 import { expectedConfigObject, expectedUserConfigObject } from "../__resources__/expectedObjects";
 import * as fs from "fs";
 import * as path from "path";
-import * as keytar from "@traeok/keytar-rs";
+import { keyring as keytar } from "@zowe/secrets-for-zowe-sdk";
 import * as lodash from "lodash";
 
 // Test Environment populated in the beforeAll();

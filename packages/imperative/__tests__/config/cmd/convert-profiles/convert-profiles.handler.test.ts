@@ -11,7 +11,7 @@
 
 import * as fs from "fs";
 import * as fsExtra from "fs-extra";
-import * as keytar from "@traeok/keytar-rs";
+import { keyring as keytar } from "@zowe/secrets-for-zowe-sdk";
 import { Config, ConfigBuilder, ConfigSchema } from "../../../../../config";
 import { IHandlerParameters } from "../../../../../cmd";
 import { ProfileIO } from "../../../../../profiles";
