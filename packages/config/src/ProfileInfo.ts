@@ -624,7 +624,7 @@ export class ProfileInfo {
                         argValue: propVal,
                         argLoc,
                         secure,
-                        offSchema: true
+                        inSchema: false
                     });
                 }
             }
@@ -656,7 +656,7 @@ export class ProfileInfo {
                             argValue: propVal,
                             argLoc,
                             secure,
-                            offSchema: true
+                            inSchema: false
                         });
                     }
                 }
@@ -748,7 +748,7 @@ export class ProfileInfo {
                                 dataType: this.argDataType(propInfoInSchema.type),
                                 argValue: (propInfoInSchema as ICommandProfileProperty).optionDefinition?.defaultValue,
                                 argLoc,
-                                offSchema: false,
+                                inSchema: true,
                                 // See https://github.com/zowe/imperative/issues/739
                                 secure: foundInSecureArray || propInfoInSchema.secure
                             };
@@ -763,7 +763,7 @@ export class ProfileInfo {
                     if (!argFound) {
                         mergedArgs.missingArgs.push({
                             argName: propName,
-                            offSchema: false,
+                            inSchema: true,
                             dataType: this.argDataType(propInfoInSchema.type),
                             argValue: (propInfoInSchema as ICommandProfileProperty).optionDefinition?.defaultValue,
                             argLoc: { locType: ProfLocType.DEFAULT },
@@ -771,7 +771,7 @@ export class ProfileInfo {
                         });
                     }
                 } else {
-                    knownArg.offSchema = false;
+                    knownArg.inSchema = true;
                     knownArg.secure = knownArg.secure ?? propInfoInSchema.secure;
                     if (knownArg.secure) {
                         delete knownArg.argValue;
