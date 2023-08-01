@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## `5.17.0`
+
+- Enhancement: Added `inSchema` property for ProfileInfo to indicate if argument is a known schema argument [#899](https://github.com/zowe/imperative/issues/899)
+
 ## `5.16.0`
 
 - Enhancement: Handled unique cookie identifier in the form of dynamic token types. [#966](https://github.com/zowe/imperative/pull/996)

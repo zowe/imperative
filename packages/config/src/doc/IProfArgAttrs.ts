@@ -35,4 +35,7 @@ export interface IProfArgAttrs {
 
     /** Whether the argument value is stored securely */
     secure?: boolean;
+
+    /** Whether the argument value is defined in the schema file */
+    inSchema?: boolean;
 }
