@@ -54,7 +54,6 @@
   "dependencies": {
     "@types/yargs": "13.0.4",
     "@zowe/perf-timing": "1.0.7",
-    "@zowe/secrets-for-zowe-sdk": "7.18.0-next.4",
     "chalk": "2.4.2",
     "cli-table3": "0.6.2",
     "comment-json": "4.1.1",
@@ -92,7 +91,6 @@
     "yargs": "15.3.1"
   },
   "devDependencies": {
-    "@napi-rs/cli": "^2.16.1",
     "@types/cross-spawn": "^6.0.2",
     "@types/diff": "^5.0.2",
     "@types/find-up": "^2.1.1",
@@ -113,6 +111,7 @@
     "@types/which": "^2.0.1",
     "@typescript-eslint/eslint-plugin": "^5.33.0",
     "@typescript-eslint/parser": "^5.33.0",
+    "@zowe/secrets-for-zowe-sdk": "^7.18.0-next.4",
     "ansi-colors": "^4.1.1",
     "clear-require": "^2.0.0",
     "concurrently": "^7.5.0",

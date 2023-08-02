@@ -103,10 +103,6 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
         }
     }
 
-    public resolveDep(name: string, opts?: { paths: string[] }) {
-        return require.resolve(name, opts);
-    }
-
     /**
      * Called by {@link CredentialManagerFactory.initialize} before the freeze of the object. This
      * gives us a chance to load keytar into the class before we are locked down. If a load failure
@@ -128,7 +124,7 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
                 requireOpts.paths = [process.mainModule.filename, ...require.resolve.paths("@zowe/secrets-for-zowe-sdk")];
             }
             // use helper function for require.resolve so it can be mocked in jest tests
-            const keytarPath = this.resolveDep("@zowe/secrets-for-zowe-sdk", requireOpts);
+            const keytarPath = require.resolve("@zowe/secrets-for-zowe-sdk", requireOpts);
             Logger.getImperativeLogger().debug("Loading Keytar module from", keytarPath);
             this.keytar = (await import(keytarPath)).keyring;
         } catch (error) {
