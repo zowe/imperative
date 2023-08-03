@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@zowe/imperative": "../../..",
-    "@zowe/secrets-for-zowe-sdk": "7.18.0-next.4"
+    "@zowe/secrets-for-zowe-sdk": "7.18.0"
   },
   "engines": {
     "node": ">=8.0.0"

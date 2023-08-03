@@ -111,7 +111,7 @@
     "@types/which": "^2.0.1",
     "@typescript-eslint/eslint-plugin": "^5.33.0",
     "@typescript-eslint/parser": "^5.33.0",
-    "@zowe/secrets-for-zowe-sdk": "^7.18.0-next.4",
+    "@zowe/secrets-for-zowe-sdk": "^7.18.0",
     "ansi-colors": "^4.1.1",
     "clear-require": "^2.0.0",
     "concurrently": "^7.5.0",
