@@ -20,14 +20,12 @@ import { expectedConfigObject } from
     "../../../../../../__tests__/__integration__/imperative/__tests__/__integration__/cli/config/__resources__/expectedObjects";
 import SecureHandler from "../../../../src/config/cmd/secure/secure.handler";
 import * as config from "../../../../../../__tests__/__integration__/imperative/src/imperative";
-import * as keytar from "keytar";
+import { keyring as keytar } from "@zowe/secrets-for-zowe-sdk";
 import * as path from "path";
 import * as lodash from "lodash";
 import * as fs from "fs";
 import { SessConstants } from "../../../../../rest";
 import { setupConfigToLoad } from "../../../../../../__tests__/src/TestUtil";
-
-jest.mock("fs");
 
 const getIHandlerParametersObject = (): IHandlerParameters => {
     const x: any = {
@@ -106,7 +104,7 @@ describe("Configuration Secure command handler", () => {
 
         // Start mocking out some of the credential management functions
         // Any secure data being loaded will appear to be fakeSecureValue
-        keytarGetPasswordSpy.mockReturnValue(fakeSecureData);
+        keytarGetPasswordSpy.mockResolvedValue(fakeSecureData);
         keytarSetPasswordSpy.mockImplementation();
         keytarDeletePasswordSpy.mockImplementation();
 

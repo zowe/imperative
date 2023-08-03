@@ -111,7 +111,9 @@ export class OverridesLoader {
      * @returns True if DefaultCredentialManager should be used
      */
     private static shouldUseKeytar(packageJson: any, useTeamConfig: boolean): boolean {
-        return (packageJson.dependencies?.keytar != null || packageJson.optionalDependencies?.keytar != null) &&
+        const deps = packageJson.dependencies ?? {};
+        const optionalDeps = packageJson.optionalDependencies ?? {};
+        return ("@zowe/secrets-for-zowe-sdk" in deps || "@zowe/secrets-for-zowe-sdk" in optionalDeps) &&
             (!AppSettings.initialized || useTeamConfig || AppSettings.instance.getNamespace("overrides")?.CredentialManager === packageJson.name);
     }
 

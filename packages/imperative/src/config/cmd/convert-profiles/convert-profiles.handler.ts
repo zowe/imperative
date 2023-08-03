@@ -12,7 +12,7 @@
 import * as fs from "fs";
 import { removeSync } from "fs-extra";
 import * as path from "path";
-import * as keytar from "keytar";
+import { keyring as keytar } from "@zowe/secrets-for-zowe-sdk";
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { ConfigBuilder, ConfigSchema } from "../../../../../config";
 import { ProfileIO, ProfileUtils } from "../../../../../profiles";
@@ -263,8 +263,8 @@ export default class ConvertProfilesHandler implements ICommandHandler {
             requireOpts.paths = [process.mainModule.filename];
         }
         try {
-            const keytarPath = require.resolve("keytar", requireOpts);
-            this.keytar = await import(keytarPath);
+            const keytarPath = require.resolve("@zowe/secrets-for-zowe-sdk", requireOpts);
+            this.keytar = (await import(keytarPath)).keyring;
             await this.keytar.findCredentials(this.ZOWE_CLI_PACKAGE_NAME);
             success = true;
         } catch (err) {

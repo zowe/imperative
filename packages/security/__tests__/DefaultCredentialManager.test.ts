@@ -9,11 +9,11 @@
 *
 */
 
-jest.mock("keytar");
+jest.mock("@zowe/secrets-for-zowe-sdk");
 
 import * as path from "path";
 import { DefaultCredentialManager } from "..";
-import * as keytar from "keytar";
+import { keyring as keytar } from "@zowe/secrets-for-zowe-sdk";
 import { ImperativeError } from "../../error";
 
 const winMaxCredentialLength = 2560;
@@ -78,7 +78,7 @@ describe("DefaultCredentialManager", () => {
                 const fakeCliPath = "/root/fakeCli";
                 const mainModule = process.mainModule;
                 process.mainModule = { filename: fakeCliPath } as any;
-                const pathResolveSpy = jest.spyOn(path, "resolve").mockReturnValue(path.parse(__dirname).root);
+                const resolveSpy = jest.spyOn(path, "resolve").mockReturnValue(fakeCliPath);
 
                 // Force enter the try catch
                 Object.defineProperty(manager, "keytar", {
@@ -96,7 +96,7 @@ describe("DefaultCredentialManager", () => {
                     expect(error.message).toContain(fakeCliPath);
                 } finally {
                     process.mainModule = mainModule;
-                    pathResolveSpy.mockRestore();
+                    resolveSpy.mockRestore();
                 }
             });
 

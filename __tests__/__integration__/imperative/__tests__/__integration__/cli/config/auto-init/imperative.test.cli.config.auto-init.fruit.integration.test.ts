@@ -12,7 +12,7 @@
 import * as fs from "fs";
 import * as glob from "glob";
 import * as jsonfile from "jsonfile";
-import * as keytar from "keytar";
+import { keyring as keytar } from "@zowe/secrets-for-zowe-sdk";
 import { IConfig } from "../../../../../../../../packages";
 import { IConfigSecureProperties } from "../../../../../../../../packages/config/src/doc/IConfigSecure";
 import { runCliScript } from "../../../../../../../src/TestUtil";

@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Replaced use of `node-keytar` with the new `keyring` module from `@zowe/secrets-for-zowe-sdk`. [zowe-cli#1622](https://github.com/zowe/zowe-cli/issues/1622)
+
 ## `5.17.0`
 
 - Enhancement: Added `inSchema` property for ProfileInfo to indicate if argument is a known schema argument [#899](https://github.com/zowe/imperative/issues/899)
