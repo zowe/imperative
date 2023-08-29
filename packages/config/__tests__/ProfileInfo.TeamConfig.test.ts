@@ -187,6 +187,18 @@ describe("TeamConfig ProfileInfo tests", () => {
                         locType: ProfLocType.TEAM_CONFIG
                     },
                 },
+                {
+                    argName: "tokenType", dataType: "string", argValue: SessConstants.TOKEN_TYPE_JWT,
+                    argLoc: {
+                        locType: ProfLocType.TEAM_CONFIG
+                    },
+                },
+                {
+                    argName: "tokenValue", dataType: "string", argValue: "testToken",
+                    argLoc: {
+                        locType: ProfLocType.TEAM_CONFIG
+                    },
+                },
             ];
 
             it("should create a session", async () => {
@@ -201,6 +213,7 @@ describe("TeamConfig ProfileInfo tests", () => {
                 expect(newSess.ISession.secureProtocol).toBe(AbstractSession.DEFAULT_SECURE_PROTOCOL);
                 expect(newSess.ISession.basePath).toBe(AbstractSession.DEFAULT_BASE_PATH);
                 expect(newSess.ISession.base64EncodedAuth).toBe(b64TestAuth);
+                // Auth token should be undefined because user and password takes precedence
                 expect(newSess.ISession.tokenType).toBeUndefined();
                 expect(newSess.ISession.tokenValue).toBeUndefined();
             });

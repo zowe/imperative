@@ -555,11 +555,15 @@ export class ProfileInfo {
         profArgs: IProfArgAttrs[],
         connOpts: IOptionsForAddConnProps = {}
     ): Session {
-        // initialize a session config with arguments from profile arguments
-        const sessCfg: ISession = ProfileInfo.initSessCfg(profArgs);
+        // Initialize a session config with values from profile arguments
+        const sessCfg: ISession = ProfileInfo.initSessCfg(profArgs,
+            ["rejectUnauthorized", "basePath", "protocol"]);
 
-        // we have no command arguments, so just supply an empty object
+        // Populate command arguments object with arguments to be resolved
         const cmdArgs: ICommandArguments = { $0: "", _: [] };
+        for (const { argName, argValue } of profArgs) {
+            cmdArgs[argName] = argValue;
+        }
 
         // resolve the choices among various session config properties
         ConnectionPropsForSessCfg.resolveSessCfgProps(sessCfg, cmdArgs, connOpts);
@@ -1061,15 +1065,18 @@ export class ProfileInfo {
      *
      * @param profArgs
      *      An array of profile argument attributes.
+     * @param argNames
+     *      An array of argument names to load from the profile. Defaults to
+     *      all arguments that have an associated ISession property.
      *
      * @returns A session containing all of the supplied profile argument
      *          attributes that are relevant to a session.
      */
-    public static initSessCfg(profArgs: IProfArgAttrs[]): ISession {
+    public static initSessCfg(profArgs: IProfArgAttrs[], argNames?: string[]): ISession {
         const sessCfg: any = {};
 
         // the set of names of arguments in IProfArgAttrs used in ISession
-        const profArgNames = [
+        const profArgNames = argNames ?? [
             "host", "port", "user", "password", "rejectUnauthorized",
             "protocol", "basePath", "tokenType", "tokenValue"
         ];
