@@ -2,9 +2,9 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## `4.19.0`
+## Recent Changes
 
-- Enhancement: Replaced use of `node-keytar` with the new `keyring` module from `@zowe/secrets-for-zowe-sdk`. [zowe-cli#1622](https://github.com/zowe/zowe-cli/issues/1622)
+- BugFix: Replaced use of `node-keytar` with the new `keyring` module from `@zowe/secrets-for-zowe-sdk`. [zowe-cli#1622](https://github.com/zowe/zowe-cli/issues/1622)
 
 ## `4.18.17`
 
