@@ -1420,13 +1420,14 @@ export class ProfileInfo {
         let schemaMapKey: string;
 
         if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
+            const profType = profile.profType === "apiml" ? "base" : profile.profType;
             if (profile.profLoc.osLoc != null) {
                 // the profile exists, so use schema associated with its config JSON file
-                schemaMapKey = `${profile.profLoc.osLoc[0]}:${profile.profType}`;
+                schemaMapKey = `${profile.profLoc.osLoc[0]}:${profType}`;
             } else {
                 // no profile exists, so loop through layers and use the first schema found
                 for (const layer of this.mLoadedConfig.mLayers) {
-                    const tempKey = `${layer.path}:${profile.profType}`;
+                    const tempKey = `${layer.path}:${profType}`;
                     if (this.mProfileSchemaCache.has(tempKey)) {
                         schemaMapKey = tempKey;
                         break;
