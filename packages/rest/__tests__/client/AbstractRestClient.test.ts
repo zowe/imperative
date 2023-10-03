@@ -561,64 +561,44 @@ describe("AbstractRestClient tests", () => {
         expect(caughtError).toBeUndefined();
     });
 
-    fit("should not error when streaming normalized data", async () => {
-
-        interface IPayload {
-            data: string;
-        }
-
-        const mockedStream = new PassThrough();
+    it("should not error when streaming normalized data", async () => {
+        const fakeRequestStream = new PassThrough();
         const emitter = new MockHttpRequestResponse();
-        const newEmit = new MockHttpRequestResponse();
-        const receivedArray: [string] = [];
-        newEmit.on("data", (data: Buffer) => {
+        const receivedArray: string[] = [];
+        jest.spyOn(emitter, "write").mockImplementation((data) => {
             receivedArray.push(data.toString());
         });
         const requestFnc = jest.fn((options, callback) => {
             ProcessUtils.nextTick(async () => {
-
+                const newEmit = new MockHttpRequestResponse();
                 callback(newEmit);
-
                 await ProcessUtils.nextTick(() => {
                     newEmit.emit("end");
                 });
             });
-
             return emitter;
         });
-
         (https.request as any) = requestFnc;
         let caughtError;
-
         try {
-
             await ProcessUtils.nextTick(() => {
-                console.log("1");
-                mockedStream.emit("data", Buffer.from("ChunkOne\r", "utf8"))
+                fakeRequestStream.write(Buffer.from("ChunkOne\r", "utf8"));
             });
-
             await ProcessUtils.nextTick(() => {
-                console.log("2");
-                mockedStream.emit("data", Buffer.from("\nChunkTwo", "utf8"));
+                fakeRequestStream.write(Buffer.from("\nChunkTwo\r", "utf8"));
             });
-
             await ProcessUtils.nextTick(() => {
-                console.log("3");
-                mockedStream.end();
+                fakeRequestStream.end();
             });
-
-            console.log("5");
             await RestClient.putStreamed(new Session({
                 hostname: "test",
-            }), "/resource", [Headers.APPLICATION_JSON], null, mockedStream);
-
+            }), "/resource", [Headers.APPLICATION_JSON], null, fakeRequestStream, false, true);
         } catch (error) {
             caughtError = error;
         }
-
         expect(caughtError).toBeUndefined();
-        expect(receivedArray.length).toEqual(2);
-        expect(receivedArray).toEqual(["ChunkOne", "\nChunkTwo"]);
+        expect(receivedArray.length).toEqual(3);
+        expect(receivedArray).toEqual(["ChunkOne", "\nChunkTwo", "\r"]);
     });
 
     it("should return full response when requested", async () => {
