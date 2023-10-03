@@ -561,6 +561,66 @@ describe("AbstractRestClient tests", () => {
         expect(caughtError).toBeUndefined();
     });
 
+    fit("should not error when streaming normalized data", async () => {
+
+        interface IPayload {
+            data: string;
+        }
+
+        const mockedStream = new PassThrough();
+        const emitter = new MockHttpRequestResponse();
+        const newEmit = new MockHttpRequestResponse();
+        const receivedArray: [string] = [];
+        newEmit.on("data", (data: Buffer) => {
+            receivedArray.push(data.toString());
+        });
+        const requestFnc = jest.fn((options, callback) => {
+            ProcessUtils.nextTick(async () => {
+
+                callback(newEmit);
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("end");
+                });
+            });
+
+            return emitter;
+        });
+
+        (https.request as any) = requestFnc;
+        let caughtError;
+
+        try {
+
+            await ProcessUtils.nextTick(() => {
+                console.log("1");
+                mockedStream.emit("data", Buffer.from("ChunkOne\r", "utf8"))
+            });
+
+            await ProcessUtils.nextTick(() => {
+                console.log("2");
+                mockedStream.emit("data", Buffer.from("\nChunkTwo", "utf8"));
+            });
+
+            await ProcessUtils.nextTick(() => {
+                console.log("3");
+                mockedStream.end();
+            });
+
+            console.log("5");
+            await RestClient.putStreamed(new Session({
+                hostname: "test",
+            }), "/resource", [Headers.APPLICATION_JSON], null, mockedStream);
+
+        } catch (error) {
+            caughtError = error;
+        }
+
+        expect(caughtError).toBeUndefined();
+        expect(receivedArray.length).toEqual(2);
+        expect(receivedArray).toEqual(["ChunkOne", "\nChunkTwo"]);
+    });
+
     it("should return full response when requested", async () => {
         const emitter = new MockHttpRequestResponse();
         const requestFnc = jest.fn((options, callback) => {
