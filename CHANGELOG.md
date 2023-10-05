@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.18.2`
 
 - BugFix: Fixed normalization on stream chunk boundaries [#1815](https://github.com/zowe/zowe-cli/issues/1815)
 
