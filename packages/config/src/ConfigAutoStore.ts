@@ -80,7 +80,7 @@ export class ConfigAutoStore {
 
         if (profile == null || profileType == null) { // Profile must exist and have type defined
             return;
-        } else if (profileType === "base") {
+        } else if (profileType === "base" || profileType === "apiml") {
             if (profile.tokenType == null) { // Base profile must have tokenType defined
                 return;
             }
