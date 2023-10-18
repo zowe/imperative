@@ -6,9 +6,16 @@
         }
     },
     "moduleFileExtensions": ["ts","js"],
-    "testResultsProcessor": "jest-stare",
     "testEnvironment": "node",
     "transform": {
         ".(ts)": "ts-jest"
-    }
+    },
+    "transformIgnorePatterns": ["^.+\\.js$", "^.+\\.json$"],
+    "reporters": [
+        ["github-actions", {"silent": false}],
+        "default",
+        "jest-junit"
+    ],
+    "globalSetup": "./__tests__/config/setup.js",
+    "globalTeardown": "./__tests__/config/teardown.js"
 }
