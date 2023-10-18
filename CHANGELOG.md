@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fix for `AbstactRestClient` failing to return when streaming a larger file [#1805](https://github.com/zowe/zowe-cli/issues/1805)
+
 ## `5.18.2`
 
 - BugFix: Fixed normalization on stream chunk boundaries [#1815](https://github.com/zowe/zowe-cli/issues/1815)
