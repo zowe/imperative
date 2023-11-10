@@ -3,6 +3,8 @@
 [![codecov](https://codecov.io/gh/zowe/imperative/branch/master/graph/badge.svg)](https://codecov.io/gh/zowe/imperative)
 [![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/2245/badge)](https://bestpractices.coreinfrastructure.org/projects/2245)
 
+**This package has moved to the [Zowe CLI Monorepo](https://github.com/zowe/zowe-cli/)**
+
 Imperative CLI Framework is a command processing system that lets you quickly build customized command-line interfaces. Focus on adding functionality for your users rather than creating CLI infrastructure. We provide you with all the tools to get started building your own CLI plug-ins.
 
 ## Software Requirements
